@@ -1,0 +1,93 @@
+export interface Resume {
+  personal: {
+    name: string;
+    title: string;
+    email: string;
+    phone: string;
+    location: string;
+    linkedin: string;
+    website: string;
+    summary: string;
+  };
+  experience: ExperienceEntry[];
+  education: EducationEntry[];
+  skills: SkillEntry[];
+  projects: ProjectEntry[];
+  certifications: CertificationEntry[];
+  languages: LanguageEntry[];
+  custom: CustomSection[];
+}
+
+export interface ExperienceEntry {
+  id: string;
+  company: string;
+  role: string;
+  startDate: string;
+  endDate: string;
+  isCurrent: boolean;
+  bullets: string[];
+}
+
+export interface EducationEntry {
+  id: string;
+  school: string;
+  degree: string;
+  field: string;
+  startDate: string;
+  endDate: string;
+  gpa: string;
+}
+
+export interface SkillEntry {
+  id: string;
+  name: string;
+  level: number; // 0-100 for progress bars
+}
+
+export interface ProjectEntry {
+  id: string;
+  title: string;
+  description: string;
+  url: string;
+  tech: string[];
+}
+
+export interface CertificationEntry {
+  id: string;
+  name: string;
+  issuer: string;
+  date: string;
+  url: string;
+}
+
+export interface LanguageEntry {
+  id: string;
+  language: string;
+  proficiency: string;
+}
+
+export interface CustomSection {
+  id: string;
+  sectionTitle: string;
+  entries: string[];
+}
+
+export interface TemplateConfig {
+  id: string;
+  name: string;
+  thumbnail: string;
+  colors: {
+    primary: string;
+    accent: string;
+    text: string;
+    background: string;
+    sidebar?: string;
+  };
+  fonts: {
+    heading: string;
+    body: string;
+  };
+  layout: 'two-column' | 'single-column';
+  atsScore: number;
+  category: 'professional' | 'creative' | 'minimal';
+}

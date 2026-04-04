@@ -1,0 +1,220 @@
+import React from 'react';
+import { Sparkles } from 'lucide-react';
+
+const AI_FEATURES = [
+  {
+    icon: '✍️',
+    title: 'Bullet Point Writer',
+    desc: 'Generate 3 powerful, metrics-driven bullet points for any role. Just provide the job title and company.',
+    color: '#6366F1',
+    demo: 'bullets',
+  },
+  {
+    icon: '🎯',
+    title: 'Job Tailor',
+    desc: 'Paste any job description and Claude rewrites your bullets and summary to match the exact language.',
+    color: '#8B5CF6',
+    demo: 'tailor',
+  },
+  {
+    icon: '📊',
+    title: 'ATS Score',
+    desc: 'Get an instant 0-100 ATS compatibility score with specific feedback on missing keywords and weak sections.',
+    color: '#A855F7',
+    demo: 'ats',
+  },
+  {
+    icon: '💡',
+    title: 'Summary Writer',
+    desc: 'Generate a compelling 3-sentence professional summary that captures your unique value proposition.',
+    color: '#EC4899',
+    demo: 'summary',
+  },
+  {
+    icon: '🔍',
+    title: 'Skills Finder',
+    desc: 'Enter your job title and instantly get 20 relevant skills split into technical and soft categories.',
+    color: '#F59E0B',
+    demo: 'skills',
+  },
+  {
+    icon: '🔄',
+    title: 'Diff Review',
+    desc: 'See exactly what changed before/after job tailoring with a clear before/after comparison view.',
+    color: '#10B981',
+    demo: 'diff',
+  },
+];
+
+const BulletsDemoPanel: React.FC<{ color: string }> = ({ color }) => (
+  <div style={{ padding: '16px', height: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>Generated bullets</div>
+    {['• Increased revenue by 32% through targeted campaign optimization', '• Led cross-functional team of 8 engineers to ship v3.0 ahead of schedule', '• Reduced churn by 18% by implementing new onboarding flow'].map((b, i) => (
+      <div key={i} style={{ fontSize: '10.5px', color: i === 0 ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.5)', lineHeight: 1.5, display: 'flex', alignItems: 'flex-start', gap: '4px' }}>
+        <span style={{ color, flexShrink: 0 }}>›</span>{b.slice(2)}
+      </div>
+    ))}
+  </div>
+);
+
+const TailorDemoPanel: React.FC<{ color: string }> = ({ color }) => (
+  <div style={{ padding: '16px', height: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+    <div>
+      <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>Job Keywords</div>
+      {['TypeScript', 'React', 'Node.js', 'REST API', 'Agile'].map(k => (
+        <div key={k} style={{ fontSize: '10px', padding: '2px 7px', borderRadius: '4px', background: color + '20', color: color, border: `1px solid ${color}40`, marginBottom: '4px', display: 'inline-block', marginRight: '4px' }}>{k}</div>
+      ))}
+    </div>
+    <div>
+      <div style={{ fontSize: '9px', color: '#4ADE80', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>Matched ✓</div>
+      {['TypeScript', 'React', 'REST API'].map(k => (
+        <div key={k} style={{ fontSize: '10px', padding: '2px 7px', borderRadius: '4px', background: 'rgba(74,222,128,0.1)', color: '#4ADE80', border: '1px solid rgba(74,222,128,0.25)', marginBottom: '4px', display: 'inline-block', marginRight: '4px' }}>{k}</div>
+      ))}
+    </div>
+  </div>
+);
+
+const AtsDemoPanel: React.FC<{ color: string }> = ({ color }) => (
+  <div style={{ padding: '16px', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px' }}>
+    <div style={{ position: 'relative', width: '72px', height: '72px' }}>
+      <div style={{
+        width: '72px', height: '72px', borderRadius: '50%',
+        background: `conic-gradient(${color} 0deg, ${color} ${87 * 3.6}deg, rgba(255,255,255,0.06) ${87 * 3.6}deg)`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <div style={{ width: '54px', height: '54px', borderRadius: '50%', background: '#0D1117', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <span style={{ fontSize: '18px', fontWeight: 800, color: 'white', lineHeight: 1 }}>87</span>
+          <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>/ 100</span>
+        </div>
+      </div>
+    </div>
+    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+      <div style={{ color: '#4ADE80', fontWeight: 600 }}>✓ Strong keywords</div>
+      <div style={{ color: '#F59E0B', fontWeight: 600 }}>⚠ Add more metrics</div>
+      <div style={{ color: 'rgba(255,255,255,0.35)' }}>Missing: Agile, REST</div>
+    </div>
+  </div>
+);
+
+const SummaryDemoPanel: React.FC<{ color: string }> = ({ color }) => (
+  <div style={{ padding: '16px', height: '100%' }}>
+    <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>AI-generated summary</div>
+    <p style={{ fontSize: '10.5px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>
+      Results-driven Product Manager with 7+ years leading cross-functional teams at hyper-growth startups.{' '}
+      <span style={{ color }}>Shipped 3 zero-to-one products</span> generating $12M ARR combined.{' '}
+      Passionate about data-informed decisions and building products users love.
+      <span style={{ display: 'inline-block', width: '2px', height: '12px', background: color, marginLeft: '2px', verticalAlign: 'middle', animation: 'blink 1s step-end infinite' }} />
+    </p>
+  </div>
+);
+
+const SkillsDemoPanel: React.FC<{ color: string }> = ({ color }) => (
+  <div style={{ padding: '14px', height: '100%' }}>
+    <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>For: Senior Frontend Engineer</div>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+      {['React', 'TypeScript', 'GraphQL', 'CSS', 'Testing', 'Performance', 'Next.js', 'Git', 'Communication', 'Agile'].map(s => (
+        <span key={s} style={{
+          fontSize: '10px', padding: '3px 8px', borderRadius: '5px',
+          background: color + '18', color: color, border: `1px solid ${color}30`,
+          fontWeight: 500,
+        }}>
+          {s}
+        </span>
+      ))}
+    </div>
+  </div>
+);
+
+const DiffDemoPanel: React.FC<{ color: string }> = ({ color }) => (
+  <div style={{ padding: '16px', height: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Before → After</div>
+    <div style={{ padding: '8px 10px', borderRadius: '6px', background: 'rgba(248,81,73,0.1)', border: '1px solid rgba(248,81,73,0.2)' }}>
+      <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>Worked on improving user experience for the product team.</span>
+    </div>
+    <div style={{ padding: '8px 10px', borderRadius: '6px', background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.2)' }}>
+      <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.75)' }}>Led UX redesign reducing user drop-off by <strong style={{ color }}>34%</strong>, directly contributing to 2× increase in activation rate.</span>
+    </div>
+  </div>
+);
+
+const DEMO_PANELS: Record<string, React.FC<{ color: string }>> = {
+  bullets: BulletsDemoPanel,
+  tailor: TailorDemoPanel,
+  ats: AtsDemoPanel,
+  summary: SummaryDemoPanel,
+  skills: SkillsDemoPanel,
+  diff: DiffDemoPanel,
+};
+
+const FeatureCard: React.FC<{ feature: typeof AI_FEATURES[0] }> = ({ feature }) => {
+  const DemoPanel = DEMO_PANELS[feature.demo];
+  return (
+    <div
+      style={{
+        borderRadius: '16px', overflow: 'hidden',
+        background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
+        transition: 'border-color 0.25s, background 0.25s, transform 0.25s',
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.borderColor = feature.color + '45';
+        e.currentTarget.style.background = feature.color + '08';
+        e.currentTarget.style.transform = 'translateY(-4px)';
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
+        e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+        e.currentTarget.style.transform = 'translateY(0)';
+      }}
+    >
+      {/* Demo visual panel */}
+      <div style={{ height: '130px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid rgba(255,255,255,0.04)', overflow: 'hidden' }}>
+        <DemoPanel color={feature.color} />
+      </div>
+      {/* Text content */}
+      <div style={{ padding: '20px 22px 22px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+          <span style={{ fontSize: '22px' }}>{feature.icon}</span>
+          <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'white' }}>{feature.title}</h3>
+        </div>
+        <p style={{ fontSize: '13.5px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.65 }}>{feature.desc}</p>
+      </div>
+    </div>
+  );
+};
+
+const AiFeaturesSection: React.FC = () => (
+  <section id="ai-features" style={{
+    padding: '100px 48px',
+    background: 'rgba(255,255,255,0.01)',
+    borderTop: '1px solid rgba(255,255,255,0.04)',
+    borderBottom: '1px solid rgba(255,255,255,0.04)',
+  }}>
+    <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+      {/* Header */}
+      <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: '8px',
+          padding: '6px 16px', borderRadius: '100px',
+          background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.25)',
+          marginBottom: '20px',
+        }}>
+          <Sparkles size={13} color="#C084FC" />
+          <span style={{ fontSize: '12px', fontWeight: 600, color: '#C084FC', letterSpacing: '0.04em' }}>AI-POWERED FEATURES</span>
+        </div>
+        <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'white', marginBottom: '14px' }}>
+          Let AI do the heavy lifting
+        </h2>
+        <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.4)', maxWidth: '480px', margin: '0 auto' }}>
+          Six purpose-built AI tools powered by Claude — the most capable AI assistant — to make your resume stand out.
+        </p>
+      </div>
+
+      {/* Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+        {AI_FEATURES.map((f, i) => <FeatureCard key={i} feature={f} />)}
+      </div>
+    </div>
+  </section>
+);
+
+export default AiFeaturesSection;
