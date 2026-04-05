@@ -15,7 +15,7 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
       {/* TOP ACCENT BAR */}
       <div style={{ height: '6px', background: `linear-gradient(to right, ${primary}, ${accent}, ${primary})` }} />
 
-      <div style={{ padding: '44px 56px' }}>
+      <div style={{ padding: '40px 48px' }}>
         {/* HEADER */}
         <header style={{ marginBottom: '32px', paddingBottom: '28px', borderBottom: `1px solid ${accent}40` }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -202,7 +202,7 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
 };
 
 const ExecSectionTitle: React.FC<{ title: string; primary: string; accent: string }> = ({ title, primary, accent }) => (
-  <div style={{ marginBottom: '14px' }}>
+  <div style={{ marginBottom: '14px', breakAfter: 'avoid', pageBreakAfter: 'avoid' }}>
     <h2 style={{
       fontFamily: '"Lato", system-ui, sans-serif',
       fontSize: '9.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.22em',

@@ -9,7 +9,7 @@ const SlateTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
   return (
     <div className="resume-paper" style={{ fontFamily: '"DM Sans", system-ui, sans-serif', backgroundColor: '#F8FAFC' }}>
       {/* HEADER */}
-      <header style={{ backgroundColor: '#fff', padding: '36px 44px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <header style={{ backgroundColor: '#fff', padding: '36px 48px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h1 style={{ fontSize: '30px', fontWeight: 700, color: primary, letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '6px' }}>{personal.name || 'YOUR NAME'}</h1>
           {personal.title && (
@@ -29,14 +29,14 @@ const SlateTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
       </header>
 
       {personal.summary && (
-        <div style={{ backgroundColor: primary, padding: '18px 44px' }}>
+        <div style={{ backgroundColor: primary, padding: '18px 48px' }}>
           <p style={{ fontSize: '12.5px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.75, fontStyle: 'italic' }}>{personal.summary}</p>
         </div>
       )}
 
       {/* BODY */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 210px', minHeight: '750px', padding: '0' }}>
-        <div style={{ padding: '32px 36px', backgroundColor: '#fff', borderRight: '1px solid #E2E8F0' }}>
+        <div style={{ padding: '32px 32px', backgroundColor: '#fff', borderRight: '1px solid #E2E8F0' }}>
           {experience.length > 0 && (
             <SlateSec title="Work Experience" accent={accent}>
               {experience.map(exp => (
@@ -140,7 +140,7 @@ const SlateTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
 };
 
 const SlateSec: React.FC<{ title: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
-  <div style={{ marginBottom: '24px' }}>
+  <div style={{ marginBottom: '24px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
       <h2 style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.14em', color: accent }}>{title}</h2>
       <div style={{ flex: 1, height: '1px', backgroundColor: '#E2E8F0' }} />

@@ -10,7 +10,7 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
     <div className="resume-paper" style={{ fontFamily: '"Poppins", system-ui, sans-serif', backgroundColor: '#FFFFFF', overflow: 'hidden' }}>
 
       {/* BOLD HEADER BAND */}
-      <header style={{ backgroundColor: primary, padding: '36px 44px 32px', position: 'relative', overflow: 'hidden' }}>
+      <header style={{ backgroundColor: primary, padding: '36px 48px 32px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '180px', height: '180px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.06)' }} />
         <div style={{ position: 'absolute', bottom: '-60px', right: '80px', width: '120px', height: '120px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.04)' }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
@@ -39,7 +39,7 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 220px', minHeight: '900px' }}>
 
         {/* LEFT MAIN */}
-        <div style={{ padding: '32px 36px', borderRight: '1px solid #F3F4F6' }}>
+        <div style={{ padding: '32px 32px', borderRight: '1px solid #F3F4F6' }}>
           {personal.summary && (
             <div style={{ marginBottom: '28px' }}>
               <CreativeSectionTitle title="About Me" primary={primary} />

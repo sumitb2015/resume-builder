@@ -14,7 +14,7 @@ export const generateBulletPoints = async (role: string, company: string, indust
   Example format: ["Achieved X% increase in Y by implementing Z", "Led a team of N to deliver..."]`;
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-4o-mini",
     messages: [{ role: "user", content: prompt }],
     response_format: { type: "json_object" },
   });
@@ -31,7 +31,7 @@ export const generateSummary = async (name: string, title: string, experience: s
   Make it impactful and professional.`;
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-4o-mini",
     messages: [{ role: "user", content: prompt }],
   });
 
@@ -56,7 +56,7 @@ export const tailorResume = async (resumeData: any, jobDescription: string) => {
   }`;
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-4o-mini",
     messages: [{ role: "user", content: prompt }],
     response_format: { type: "json_object" },
   });
@@ -81,7 +81,7 @@ export const analyzeAtsScore = async (resumeData: any, jobDescription: string) =
   }`;
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-4o-mini",
     messages: [{ role: "user", content: prompt }],
     response_format: { type: "json_object" },
   });
@@ -98,7 +98,7 @@ export const findSkills = async (jobTitle: string) => {
   }`;
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-4o-mini",
     messages: [{ role: "user", content: prompt }],
     response_format: { type: "json_object" },
   });

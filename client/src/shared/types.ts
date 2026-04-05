@@ -72,6 +72,18 @@ export interface CustomSection {
   entries: string[];
 }
 
+export interface ImprovementSuggestion {
+  section: string;
+  original: string;
+  suggested: string;
+  reason: string;
+}
+
+export interface ImprovementSuggestions {
+  overallFeedback: string;
+  suggestions: ImprovementSuggestion[];
+}
+
 export interface TemplateConfig {
   id: string;
   name: string;

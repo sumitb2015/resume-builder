@@ -9,7 +9,7 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
   return (
     <div className="resume-paper" style={{ fontFamily: '"Poppins", system-ui, sans-serif', backgroundColor: '#FFFBF5' }}>
       {/* HEADER */}
-      <header style={{ backgroundColor: primary, padding: '40px 44px 30px', borderBottom: `6px solid ${accent}` }}>
+      <header style={{ backgroundColor: primary, padding: '40px 48px 30px', borderBottom: `6px solid ${accent}` }}>
         <h1 style={{ fontSize: '32px', fontWeight: 700, color: '#FFFBF5', letterSpacing: '-0.02em', lineHeight: 1.1, marginBottom: '6px' }}>{personal.name || 'YOUR NAME'}</h1>
         {personal.title && <p style={{ fontSize: '13px', color: accent, fontWeight: 500, marginBottom: '18px', letterSpacing: '0.04em' }}>{personal.title}</p>}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 18px' }}>
@@ -22,7 +22,7 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
       </header>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px' }}>
-        <div style={{ padding: '32px 36px' }}>
+        <div style={{ padding: '32px 32px' }}>
           {personal.summary && (
             <div style={{ marginBottom: '24px', padding: '16px 20px', backgroundColor: accent + '15', borderRadius: '12px', borderLeft: `4px solid ${accent}` }}>
               <p style={{ fontSize: '13px', color: '#78350F', lineHeight: 1.75 }}>{personal.summary}</p>
@@ -132,7 +132,7 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
 };
 
 const WSection: React.FC<{ title: string; primary: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
-  <div style={{ marginBottom: '24px' }}>
+  <div style={{ marginBottom: '24px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
       <div style={{ width: '28px', height: '3px', background: accent, borderRadius: '2px' }} />
       <h2 style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.14em', color: accent }}>{title}</h2>

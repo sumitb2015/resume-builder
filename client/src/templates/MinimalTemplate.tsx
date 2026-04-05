@@ -10,10 +10,10 @@ const MinimalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
       fontFamily: '"DM Sans", system-ui, sans-serif',
       backgroundColor: '#FFFFFF',
       color: '#1a1a1a',
-      padding: '64px 72px',
+      padding: '44px 52px',
     }}>
       {/* HEADER */}
-      <header style={{ marginBottom: '48px' }}>
+      <header style={{ marginBottom: '32px' }}>
         <h1 style={{ fontSize: '36px', fontWeight: 300, letterSpacing: '-0.03em', color: '#0a0a0a', marginBottom: '8px', lineHeight: 1.1 }}>
           {personal.name || 'YOUR NAME'}
         </h1>
@@ -31,7 +31,7 @@ const MinimalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
       </header>
 
       {/* CONTENT */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
         {/* Summary */}
         {personal.summary && (
           <MinimalSection title="Profile" accent={accent}>
@@ -161,7 +161,7 @@ const MinimalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
 };
 
 const MinimalSection: React.FC<{ title: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
-  <section>
+  <section style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
       <h2 style={{
         fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.2em',

@@ -9,7 +9,7 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
   return (
     <div className="resume-paper" style={{ fontFamily: '"Poppins", system-ui, sans-serif', backgroundColor: '#fff', display: 'flex', flexDirection: 'column' }}>
       {/* DRAMATIC HERO */}
-      <div style={{ backgroundColor: primary, padding: '52px 52px 40px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ backgroundColor: primary, padding: '44px 48px 36px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '240px', height: '240px', borderRadius: '50%', border: `2px solid ${accent}30`, opacity: 0.6 }} />
         <div style={{ position: 'absolute', top: '20px', right: '20px', width: '140px', height: '140px', borderRadius: '50%', border: `2px solid ${accent}20`, opacity: 0.4 }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
@@ -28,14 +28,14 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
       </div>
 
       {/* ACCENT BAR with contact */}
-      <div style={{ backgroundColor: accent, padding: '12px 52px', display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
+      <div style={{ backgroundColor: accent, padding: '12px 48px', display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
         {[personal.email, personal.phone, personal.location, personal.linkedin, personal.website].filter(Boolean).map((v, i) => (
           <span key={i} style={{ fontSize: '11px', fontWeight: 600, color: '#fff', letterSpacing: '0.02em' }}>{v}</span>
         ))}
       </div>
 
       {/* MAIN CONTENT */}
-      <div style={{ flex: 1, padding: '36px 52px', display: 'grid', gridTemplateColumns: '1fr 200px', gap: '40px' }}>
+      <div style={{ flex: 1, padding: '36px 48px', display: 'grid', gridTemplateColumns: '1fr 200px', gap: '40px' }}>
         <div>
           {experience.length > 0 && (
             <BoldSec title="Experience" accent={accent} primary={primary}>
@@ -141,7 +141,7 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
 };
 
 const BoldSec: React.FC<{ title: string; accent: string; primary: string; children: React.ReactNode }> = ({ title, accent, primary, children }) => (
-  <div style={{ marginBottom: '26px' }}>
+  <div style={{ marginBottom: '26px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
       <h2 style={{ fontSize: '11px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.18em', color: primary }}>{title}</h2>
       <div style={{ flex: 1, height: '2px', background: `linear-gradient(to right, ${accent}, transparent)` }} />

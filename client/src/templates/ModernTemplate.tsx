@@ -99,7 +99,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
       </aside>
 
       {/* MAIN CONTENT */}
-      <main style={{ flex: 1, padding: '40px 36px', display: 'flex', flexDirection: 'column', gap: '24px', overflow: 'hidden' }}>
+      <main style={{ flex: 1, padding: '40px 32px', display: 'flex', flexDirection: 'column', gap: '24px', overflow: 'hidden' }}>
         {/* Summary */}
         {personal.summary && (
           <div>

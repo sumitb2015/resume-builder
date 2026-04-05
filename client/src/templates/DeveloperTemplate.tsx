@@ -9,7 +9,7 @@ const DeveloperTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
   return (
     <div className="resume-paper" style={{ fontFamily: '"Inter", system-ui, sans-serif', backgroundColor: '#fff' }}>
       {/* DARK HEADER */}
-      <header style={{ backgroundColor: primary, padding: '36px 44px 28px', color: '#fff' }}>
+      <header style={{ backgroundColor: primary, padding: '36px 48px 28px', color: '#fff' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <div style={{ fontSize: '11px', color: accent, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '8px', fontFamily: 'monospace' }}>
@@ -35,7 +35,7 @@ const DeveloperTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
 
       {/* BODY */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 210px' }}>
-        <div style={{ padding: '32px 36px' }}>
+        <div style={{ padding: '32px 32px' }}>
           {experience.length > 0 && (
             <DevSection title="experience" accent={accent}>
               {experience.map(exp => (
@@ -139,7 +139,7 @@ const DeveloperTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
 };
 
 const DevSection: React.FC<{ title: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
-  <div style={{ marginBottom: '24px' }}>
+  <div style={{ marginBottom: '24px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
       <h2 style={{ fontFamily: 'monospace', fontSize: '12px', fontWeight: 700, color: accent }}>
         <span style={{ color: '#94A3B8' }}>fn.</span>{title}()

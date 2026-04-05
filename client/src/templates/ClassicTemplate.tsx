@@ -11,7 +11,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
         fontFamily: '"EB Garamond", Georgia, serif',
         color: '#1a1a1a',
         backgroundColor: '#FFFFFF',
-        padding: '52px 60px',
+        padding: '44px 52px',
         lineHeight: 1.5,
       }}
     >
@@ -68,7 +68,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
         <Section title="Professional Experience">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {experience.map((exp) => (
-              <div key={exp.id}>
+              <div key={exp.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '2px' }}>
                   <div>
                     <span style={{ fontSize: '14px', fontWeight: 700, letterSpacing: '0.01em' }}>{exp.role}</span>
@@ -201,7 +201,7 @@ const SectionTitle: React.FC<{ title: string }> = ({ title }) => (
 );
 
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-  <section style={{ marginBottom: '20px' }}>
+  <section style={{ marginBottom: '20px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
     <SectionTitle title={title} />
     {children}
   </section>

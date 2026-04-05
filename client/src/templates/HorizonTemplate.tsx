@@ -36,7 +36,7 @@ const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
       {/* BODY */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px', minHeight: '800px' }}>
         {/* MAIN */}
-        <div style={{ padding: '36px 40px', borderRight: `3px solid ${accent}20` }}>
+        <div style={{ padding: '36px 32px', borderRight: `3px solid ${accent}20` }}>
           {experience.length > 0 && (
             <HSection title="Experience" accent={accent}>
               {experience.map(exp => (
@@ -141,7 +141,7 @@ const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
 };
 
 const HSection: React.FC<{ title: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
-  <div style={{ marginBottom: '28px' }}>
+  <div style={{ marginBottom: '28px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
       <div style={{ width: '20px', height: '3px', background: accent, borderRadius: '2px' }} />
       <h2 style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.14em', color: accent }}>{title}</h2>

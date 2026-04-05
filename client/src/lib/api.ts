@@ -1,3 +1,5 @@
+import type { Resume, ImprovementSuggestions } from '../shared/types';
+
 const BASE = 'http://localhost:3001';
 
 async function post<T>(path: string, body: unknown): Promise<T> {
@@ -37,4 +39,18 @@ export const api = {
 
   findSkills: (jobTitle: string) =>
     post<{ technical: string[]; soft: string[] }>('/api/ai/find-skills', { jobTitle }),
+
+  uploadResume: async (file: File): Promise<{ resume: Resume; improvements: ImprovementSuggestions }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(`${BASE}/api/parse/upload`, { method: 'POST', body: formData });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Upload failed' }));
+      throw new Error((err as any).error || `HTTP ${res.status}`);
+    }
+    return res.json();
+  },
+
+  syncLinkedIn: (text: string) =>
+    post<{ resume: Resume }>('/api/parse/linkedin', { text }),
 };

@@ -2,11 +2,12 @@ import { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import LandingPage from './components/LandingPage';
 import ResumeBuilder from './components/ResumeBuilder';
+import ModeSelectModal from './components/ModeSelectModal';
 import PagedPreview from './components/PagedPreview';
 import TemplateRenderer from './templates/TemplateRenderer';
 import { templates, colorPalettes } from './templates';
 import { api } from './lib/api';
-import type { Resume, TemplateConfig } from './shared/types';
+import type { Resume, TemplateConfig, ImprovementSuggestions } from './shared/types';
 import './index.css';
 import {
   Download, ZoomIn, ZoomOut, Zap, X, Sparkles,
@@ -83,8 +84,9 @@ const initialResume: Resume = {
 type ModalType = 'tailor' | 'ats' | null;
 
 function App() {
-  const [view, setView] = useState<'landing' | 'builder'>('landing');
+  const [view, setView] = useState<'landing' | 'mode-select' | 'builder'>('landing');
   const [resume, setResume] = useState<Resume>(initialResume);
+  const [improvements, setImprovements] = useState<ImprovementSuggestions | null>(null);
   const [activeTemplate, setActiveTemplate] = useState<TemplateConfig>({ ...templates[1]! });
   const [zoom, setZoom] = useState(0.75);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
@@ -170,8 +172,22 @@ function App() {
 
   const handleExportPdf = () => window.print();
 
+  const handleModeSelect = (
+    _mode: 'manual' | 'enhance' | 'linkedin',
+    prefilledResume?: Resume,
+    suggestions?: ImprovementSuggestions
+  ) => {
+    if (prefilledResume) setResume(prefilledResume);
+    if (suggestions) setImprovements(suggestions);
+    setView('builder');
+  };
+
   if (view === 'landing') {
-    return <LandingPage onStart={() => setView('builder')} />;
+    return <LandingPage onStart={() => setView('mode-select')} />;
+  }
+
+  if (view === 'mode-select') {
+    return <ModeSelectModal onSelect={handleModeSelect} onBack={() => setView('landing')} />;
   }
 
   return (
@@ -337,6 +353,8 @@ function App() {
             onChange={setResume}
             onTailor={() => { setActiveModal('tailor'); setTailorResult(null); }}
             onAtsScore={() => { setActiveModal('ats'); setAtsResult(null); }}
+            improvements={improvements}
+            onDismissImprovements={() => setImprovements(null)}
           />
         </aside>
 

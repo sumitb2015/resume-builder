@@ -44,12 +44,16 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount }) => {
       >
         {breakLines.map(y => (
           <div key={y} style={{ position: 'absolute', top: `${y}px`, left: 0, right: 0 }}>
-            {/* Dashed separator line */}
+            {/* Page-end bottom margin zone (10mm ≈ 38px) */}
             <div style={{
-              borderTop: '2px dashed rgba(99,102,241,0.5)',
-              position: 'relative',
-            }}>
-              {/* "Page N" badge on the left */}
+              height: '38px',
+              background: 'linear-gradient(to bottom, rgba(99,102,241,0.04), rgba(99,102,241,0.08))',
+              transform: 'translateY(-38px)',
+              pointerEvents: 'none',
+            }} />
+            {/* Dashed separator line */}
+            <div style={{ borderTop: '2px dashed rgba(99,102,241,0.5)', position: 'relative' }}>
+              {/* "Page N" badge */}
               <div style={{
                 position: 'absolute', top: '-10px', left: '12px',
                 background: 'rgba(99,102,241,0.85)', color: '#fff',
@@ -60,6 +64,12 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount }) => {
                 PAGE {Math.round(y / PAGE_H) + 1}
               </div>
             </div>
+            {/* Page-start top margin zone (12mm ≈ 46px) */}
+            <div style={{
+              height: '46px',
+              background: 'linear-gradient(to bottom, rgba(99,102,241,0.08), rgba(99,102,241,0.02))',
+              pointerEvents: 'none',
+            }} />
           </div>
         ))}
       </div>

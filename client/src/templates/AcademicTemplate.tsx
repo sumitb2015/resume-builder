@@ -5,7 +5,7 @@ const AcademicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
 
   return (
-    <div className="resume-paper" style={{ fontFamily: '"EB Garamond", Georgia, serif', backgroundColor: '#fff', color: '#1A1A1A', padding: '48px 56px', lineHeight: 1.6 }}>
+    <div className="resume-paper" style={{ fontFamily: '"EB Garamond", Georgia, serif', backgroundColor: '#fff', color: '#1A1A1A', padding: '44px 52px', lineHeight: 1.6 }}>
       {/* HEADER */}
       <header style={{ textAlign: 'center', marginBottom: '24px' }}>
         <h1 style={{ fontSize: '26px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '4px' }}>{personal.name || 'YOUR NAME'}</h1>
@@ -107,7 +107,7 @@ const AcademicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
 };
 
 const AcadSec: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-  <div style={{ marginBottom: '18px' }}>
+  <div style={{ marginBottom: '18px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
     <h2 style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.18em', color: '#111', borderBottom: '1px solid #333', paddingBottom: '3px', marginBottom: '10px' }}>{title}</h2>
     {children}
   </div>

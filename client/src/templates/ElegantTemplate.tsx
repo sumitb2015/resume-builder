@@ -6,7 +6,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
   const accent = config.colors.accent || '#9D7B4F';
 
   return (
-    <div className="resume-paper" style={{ fontFamily: '"EB Garamond", Georgia, serif', backgroundColor: '#FFFEF9', color: '#2C2C2C', padding: '56px 64px' }}>
+    <div className="resume-paper" style={{ fontFamily: '"EB Garamond", Georgia, serif', backgroundColor: '#FFFEF9', color: '#2C2C2C', padding: '44px 52px' }}>
       {/* DECORATIVE TOP BORDER */}
       <div style={{ height: '3px', background: `linear-gradient(to right, transparent, ${accent}, transparent)`, marginBottom: '32px' }} />
 
@@ -123,7 +123,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
 };
 
 const ESection: React.FC<{ title: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
-  <div style={{ marginBottom: '22px' }}>
+  <div style={{ marginBottom: '22px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
       <h2 style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.24em', color: accent, whiteSpace: 'nowrap' }}>{title}</h2>
       <div style={{ flex: 1, height: '1px', background: `linear-gradient(to right, ${accent}60, transparent)` }} />

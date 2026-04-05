@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import puppeteer from 'puppeteer';
 import * as aiService from './services/claude.service.js';
+import parseRoutes from './routes/parse.routes.js';
 
 dotenv.config();
 
@@ -11,6 +12,7 @@ const port = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
+app.use('/api/parse', parseRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });

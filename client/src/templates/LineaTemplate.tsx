@@ -6,7 +6,7 @@ const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
   const accent = config.colors.accent || '#4F46E5';
 
   return (
-    <div className="resume-paper" style={{ fontFamily: '"DM Sans", system-ui, sans-serif', backgroundColor: '#fff', padding: '56px 64px' }}>
+    <div className="resume-paper" style={{ fontFamily: '"DM Sans", system-ui, sans-serif', backgroundColor: '#fff', padding: '44px 52px' }}>
       {/* HEADER */}
       <header style={{ marginBottom: '36px' }}>
         <div style={{ borderBottom: '3px solid #111', paddingBottom: '20px', marginBottom: '16px' }}>
@@ -26,7 +26,7 @@ const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
         {/* MAIN */}
         <div>
           {personal.summary && (
-            <div style={{ marginBottom: '28px' }}>
+            <div style={{ marginBottom: '28px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
               <LineaSec title="Profile" accent={accent} />
               <p style={{ fontSize: '13px', color: '#444', lineHeight: 1.85 }}>{personal.summary}</p>
             </div>

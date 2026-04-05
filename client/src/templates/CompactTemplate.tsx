@@ -6,7 +6,7 @@ const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
   const accent = config.colors.accent || '#2563EB';
 
   return (
-    <div className="resume-paper" style={{ fontFamily: '"Inter", system-ui, sans-serif', color: '#1E293B', backgroundColor: '#fff', padding: '40px 48px', fontSize: '11.5px', lineHeight: 1.55 }}>
+    <div className="resume-paper" style={{ fontFamily: '"Inter", system-ui, sans-serif', color: '#1E293B', backgroundColor: '#fff', padding: '36px 44px', fontSize: '11.5px', lineHeight: 1.55 }}>
       {/* HEADER */}
       <header style={{ borderBottom: `2px solid ${accent}`, paddingBottom: '10px', marginBottom: '14px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -110,7 +110,7 @@ const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
 };
 
 const CSection: React.FC<{ title: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
-  <div style={{ marginBottom: '14px' }}>
+  <div style={{ marginBottom: '14px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
     <h2 style={{ fontSize: '9.5px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.18em', color: accent, marginBottom: '8px', paddingBottom: '3px', borderBottom: `1px solid ${accent}40` }}>{title}</h2>
     {children}
   </div>

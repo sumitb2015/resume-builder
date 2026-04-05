@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import type { Resume, ExperienceEntry, SkillEntry, EducationEntry, ProjectEntry, CertificationEntry, LanguageEntry } from '../shared/types';
+import type { Resume, ExperienceEntry, SkillEntry, EducationEntry, ProjectEntry, CertificationEntry, LanguageEntry, ImprovementSuggestions } from '../shared/types';
 import { api } from '../lib/api';
 import {
   User, Briefcase, GraduationCap, Wrench, FolderOpen,
-  Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Zap
+  Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Zap, Check, X
 } from 'lucide-react';
 
 interface Props {
@@ -11,6 +11,8 @@ interface Props {
   onChange: (resume: Resume) => void;
   onTailor: () => void;
   onAtsScore: () => void;
+  improvements?: ImprovementSuggestions | null;
+  onDismissImprovements?: () => void;
 }
 
 type TabId = 'personal' | 'experience' | 'education' | 'skills' | 'projects' | 'certifications' | 'languages';
@@ -25,8 +27,9 @@ const TABS: { id: TabId; label: string; icon: React.ElementType; countKey?: keyo
   { id: 'languages',      label: 'Languages',         icon: Globe,        countKey: 'languages' },
 ];
 
-const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore }) => {
+const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore, improvements, onDismissImprovements }) => {
   const [activeTab, setActiveTab] = useState<TabId>('personal');
+  const [showImprovements, setShowImprovements] = useState(true);
   const [loadingBullets, setLoadingBullets] = useState<string | null>(null);
   const [bulletSuggestions, setBulletSuggestions] = useState<{ expId: string; bullets: string[] } | null>(null);
   const [loadingSummary, setLoadingSummary] = useState(false);
@@ -124,6 +127,20 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
     } finally { setLoadingSummary(false); }
   };
 
+  const applyImprovement = (original: string, suggested: string) => {
+    // Try summary first
+    if (resume.personal.summary === original) {
+      onChange({ ...resume, personal: { ...resume.personal, summary: suggested } });
+      return;
+    }
+    // Try experience bullets
+    const updatedExperience = resume.experience.map(exp => ({
+      ...exp,
+      bullets: exp.bullets.map(b => b === original ? suggested : b),
+    }));
+    onChange({ ...resume, experience: updatedExperience });
+  };
+
   const getCount = (tab: typeof TABS[0]): number => {
     if (!tab.countKey) return 0;
     const val = resume[tab.countKey];
@@ -132,6 +149,82 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
 
   return (
     <div className="editor-panel">
+
+      {/* ── AI IMPROVEMENTS PANEL ────────────────────── */}
+      {improvements && (
+        <div style={{
+          borderBottom: '1px solid var(--color-ui-border)',
+          background: 'rgba(99,102,241,0.04)',
+          flexShrink: 0,
+          maxHeight: showImprovements ? '320px' : 'auto',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
+          {/* Panel header */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '10px 14px', borderBottom: showImprovements ? '1px solid var(--color-ui-border)' : 'none',
+            flexShrink: 0,
+          }}>
+            <button
+              onClick={() => setShowImprovements(v => !v)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                background: 'transparent', border: 'none', cursor: 'pointer',
+                color: '#818CF8', fontSize: '12px', fontWeight: 700, padding: 0,
+              }}
+            >
+              <Sparkles size={13} />
+              AI Suggestions ({improvements.suggestions.length})
+              {showImprovements ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+            </button>
+            <button
+              onClick={onDismissImprovements}
+              style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-ui-text-muted)', padding: '2px' }}
+              title="Dismiss"
+            >
+              <X size={14} />
+            </button>
+          </div>
+
+          {/* Panel content */}
+          {showImprovements && (
+            <div style={{ overflow: 'auto', flex: 1, padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {improvements.overallFeedback && (
+                <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)', lineHeight: 1.5, marginBottom: '4px', fontStyle: 'italic' }}>
+                  {improvements.overallFeedback}
+                </p>
+              )}
+              {improvements.suggestions.map((s, i) => (
+                <div key={i} style={{
+                  padding: '10px 12px',
+                  background: 'var(--color-ui-surface)',
+                  border: '1px solid var(--color-ui-border)',
+                  borderRadius: '8px',
+                }}>
+                  <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#818CF8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '5px' }}>
+                    {s.section}
+                  </div>
+                  <p style={{ fontSize: '11.5px', color: 'var(--color-ui-text-muted)', lineHeight: 1.5, marginBottom: '5px' }}>
+                    <span style={{ fontWeight: 600 }}>Before:</span> {s.original}
+                  </p>
+                  <p style={{ fontSize: '11.5px', color: 'var(--color-ui-text)', lineHeight: 1.5, marginBottom: '8px' }}>
+                    <span style={{ fontWeight: 600, color: '#4ADE80' }}>After:</span> {s.suggested}
+                  </p>
+                  <button
+                    className="btn-primary"
+                    style={{ fontSize: '11px', padding: '4px 10px', gap: '4px' }}
+                    onClick={() => applyImprovement(s.original, s.suggested)}
+                  >
+                    <Check size={11} /> Apply
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── VERTICAL NAV ─────────────────────────────── */}
       <div className="editor-nav">
