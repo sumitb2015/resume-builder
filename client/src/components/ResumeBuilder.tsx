@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import type { Resume, ExperienceEntry, SkillEntry, EducationEntry, ProjectEntry, CertificationEntry, LanguageEntry, ImprovementSuggestions } from '../shared/types';
 import { api } from '../lib/api';
 import {
   User, Briefcase, GraduationCap, Wrench, FolderOpen,
-  Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Zap, Check, X
+  Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Zap, Check, X, GripVertical, Bold, Italic
 } from 'lucide-react';
 
 interface Props {
@@ -19,28 +19,177 @@ type TabId = 'personal' | 'experience' | 'education' | 'skills' | 'projects' | '
 
 const TABS: { id: TabId; label: string; icon: React.ElementType; countKey?: keyof Resume }[] = [
   { id: 'personal',       label: 'Personal Info',    icon: User },
-  { id: 'experience',     label: 'Experience',        icon: Briefcase,    countKey: 'experience' },
+  { id: 'experience',     label: 'Experience',        icon: Briefcase,     countKey: 'experience' },
   { id: 'education',      label: 'Education',         icon: GraduationCap, countKey: 'education' },
-  { id: 'skills',         label: 'Skills',            icon: Wrench,       countKey: 'skills' },
-  { id: 'projects',       label: 'Projects',          icon: FolderOpen,   countKey: 'projects' },
-  { id: 'certifications', label: 'Certifications',    icon: Award,        countKey: 'certifications' },
-  { id: 'languages',      label: 'Languages',         icon: Globe,        countKey: 'languages' },
+  { id: 'skills',         label: 'Skills',            icon: Wrench,        countKey: 'skills' },
+  { id: 'projects',       label: 'Projects',          icon: FolderOpen,    countKey: 'projects' },
+  { id: 'certifications', label: 'Certifications',    icon: Award,         countKey: 'certifications' },
+  { id: 'languages',      label: 'Languages',         icon: Globe,         countKey: 'languages' },
 ];
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function reorder<T extends { id: string }>(arr: T[], fromId: string, toId: string): T[] {
+  const result = [...arr];
+  const from = result.findIndex(x => x.id === fromId);
+  const to = result.findIndex(x => x.id === toId);
+  if (from === -1 || to === -1 || from === to) return result;
+  const [item] = result.splice(from, 1);
+  result.splice(to, 0, item);
+  return result;
+}
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+const CharCount = ({ value, max }: { value: string; max: number }) => {
+  const len = value.length;
+  const color = len > max ? 'var(--color-danger)' : len > max * 0.85 ? 'var(--color-warning)' : 'var(--color-ui-text-dim)';
+  return (
+    <div style={{ textAlign: 'right', fontSize: '10.5px', fontWeight: 500, color, marginTop: '4px' }}>
+      {len} / {max}
+    </div>
+  );
+};
+
+interface RichTextareaProps {
+  value: string;
+  onChange: (v: string) => void;
+  rows?: number;
+  placeholder?: string;
+  maxLength?: number;
+  style?: React.CSSProperties;
+}
+
+const RichTextarea: React.FC<RichTextareaProps> = ({ value, onChange, rows = 4, placeholder, maxLength, style }) => {
+  const ref = useRef<HTMLTextAreaElement>(null);
+
+  const wrapSelection = (open: string, close: string = open) => {
+    const el = ref.current;
+    if (!el) return;
+    const { selectionStart: s, selectionEnd: e } = el;
+    const selected = value.slice(s, e);
+    const newVal = value.slice(0, s) + open + selected + close + value.slice(e);
+    onChange(newVal);
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(s + open.length, e + open.length);
+    });
+  };
+
+  const addBulletLine = () => {
+    const el = ref.current;
+    if (!el) return;
+    const { selectionStart: s } = el;
+    const lineStart = value.lastIndexOf('\n', s - 1) + 1;
+    const linePrefix = value.slice(lineStart, s);
+    if (linePrefix.trimStart().startsWith('• ')) return; // already a bullet
+    const prefix = '\n• ';
+    const newVal = value.slice(0, s) + prefix + value.slice(s);
+    onChange(newVal);
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(s + prefix.length, s + prefix.length);
+    });
+  };
+
+  const toolbarBtn = (label: React.ReactNode, onClick: () => void, title: string) => (
+    <button
+      type="button"
+      title={title}
+      onClick={onClick}
+      style={{
+        padding: '3px 7px', borderRadius: '5px', border: '1px solid var(--color-ui-border)',
+        background: 'transparent', color: 'var(--color-ui-text-muted)', cursor: 'pointer',
+        fontSize: '11px', fontWeight: 700, display: 'flex', alignItems: 'center', transition: 'all 0.12s',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.background = 'var(--color-ui-surface-2)'; e.currentTarget.style.color = 'var(--color-ui-text)'; }}
+      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--color-ui-text-muted)'; }}
+    >
+      {label}
+    </button>
+  );
+
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: '4px', marginBottom: '6px' }}>
+        {toolbarBtn(<Bold size={11} />, () => wrapSelection('**'), 'Bold (**text**)')}
+        {toolbarBtn(<Italic size={11} />, () => wrapSelection('*'), 'Italic (*text*)')}
+        {toolbarBtn(<span>• List</span>, addBulletLine, 'Add bullet line')}
+      </div>
+      <textarea
+        ref={ref}
+        className="field-textarea"
+        rows={rows}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        style={{ fontSize: '13px', ...style }}
+      />
+      {maxLength !== undefined && <CharCount value={value} max={maxLength} />}
+    </div>
+  );
+};
+
+const Field: React.FC<{ label: string; children: React.ReactNode; error?: string }> = ({ label, children, error }) => (
+  <div>
+    <label className="field-label">{label}</label>
+    {children}
+    {error && <p style={{ fontSize: '11px', color: 'var(--color-danger)', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '3px' }}>⚠ {error}</p>}
+  </div>
+);
+
+const SectionHeader: React.FC<{ title: string; children?: React.ReactNode }> = ({ title, children }) => (
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+    <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-ui-text)', letterSpacing: '-0.01em' }}>{title}</h3>
+    {children}
+  </div>
+);
+
+const EmptyState: React.FC<{ icon: React.ReactNode; text: string }> = ({ icon, text }) => (
+  <div style={{ textAlign: 'center', padding: '32px 16px', color: 'var(--color-ui-text-dim)', border: '1px dashed var(--color-ui-border)', borderRadius: '10px' }}>
+    <div style={{ marginBottom: '8px', opacity: 0.4 }}>{icon}</div>
+    <p style={{ fontSize: '13px' }}>{text}</p>
+  </div>
+);
+
+// ── Main component ────────────────────────────────────────────────────────────
 
 const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore, improvements, onDismissImprovements }) => {
   const [activeTab, setActiveTab] = useState<TabId>('personal');
   const [showImprovements, setShowImprovements] = useState(true);
+
+  // AI state
   const [loadingBullets, setLoadingBullets] = useState<string | null>(null);
   const [bulletSuggestions, setBulletSuggestions] = useState<{ expId: string; bullets: string[] } | null>(null);
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [loadingSkills, setLoadingSkills] = useState(false);
   const [skillSuggestions, setSkillSuggestions] = useState<{ technical: string[]; soft: string[] } | null>(null);
   const [skillJobTitle, setSkillJobTitle] = useState('');
-  const [collapsedExp, setCollapsedExp] = useState<Set<string>>(new Set());
 
+  // Collapsed state for each section's cards
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const toggleCollapsed = (id: string) => setCollapsed(prev => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s; });
+
+  // Drag-and-drop
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+
+  const handleDrop = (section: 'experience' | 'education' | 'projects' | 'skills', targetId: string) => {
+    if (!dragId || dragId === targetId) { setDragId(null); setDragOverId(null); return; }
+    onChange({ ...resume, [section]: reorder(resume[section] as { id: string }[], dragId, targetId) });
+    setDragId(null); setDragOverId(null);
+  };
+
+  // Validation — track touched fields
+  const [touched, setTouched] = useState<Set<string>>(new Set());
+  const touch = (key: string) => setTouched(prev => new Set(prev).add(key));
+  const err = (key: string, val: string, msg: string) => touched.has(key) && !val.trim() ? msg : undefined;
+
+  // ── Personal ──────────────────────────────────────────────────────────────
   const up = (field: string, val: string) =>
     onChange({ ...resume, personal: { ...resume.personal, [field]: val } });
 
+  // ── Experience ────────────────────────────────────────────────────────────
   const addExp = () => {
     const e: ExperienceEntry = { id: crypto.randomUUID(), company: '', role: '', startDate: '', endDate: '', isCurrent: false, bullets: [''] };
     onChange({ ...resume, experience: [e, ...resume.experience] });
@@ -50,41 +199,57 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
   const removeExp = (id: string) =>
     onChange({ ...resume, experience: resume.experience.filter(e => e.id !== id) });
 
+  // ── Education ─────────────────────────────────────────────────────────────
   const addEdu = () => {
     const e: EducationEntry = { id: crypto.randomUUID(), school: '', degree: '', field: '', startDate: '', endDate: '', gpa: '' };
     onChange({ ...resume, education: [e, ...resume.education] });
   };
   const updateEdu = (id: string, field: keyof EducationEntry, val: string) =>
     onChange({ ...resume, education: resume.education.map(e => e.id === id ? { ...e, [field]: val } : e) });
+  const removeEdu = (id: string) =>
+    onChange({ ...resume, education: resume.education.filter(e => e.id !== id) });
 
+  // ── Skills ────────────────────────────────────────────────────────────────
   const addSkill = (name = '') => {
     const s: SkillEntry = { id: crypto.randomUUID(), name, level: 75 };
     onChange({ ...resume, skills: [...resume.skills, s] });
   };
   const updateSkill = (id: string, field: keyof SkillEntry, val: any) =>
     onChange({ ...resume, skills: resume.skills.map(s => s.id === id ? { ...s, [field]: val } : s) });
+  const removeSkill = (id: string) =>
+    onChange({ ...resume, skills: resume.skills.filter(s => s.id !== id) });
 
+  // ── Projects ──────────────────────────────────────────────────────────────
   const addProject = () => {
     const p: ProjectEntry = { id: crypto.randomUUID(), title: '', description: '', url: '', tech: [] };
     onChange({ ...resume, projects: [p, ...resume.projects] });
   };
   const updateProject = (id: string, field: keyof ProjectEntry, val: any) =>
     onChange({ ...resume, projects: resume.projects.map(p => p.id === id ? { ...p, [field]: val } : p) });
+  const removeProject = (id: string) =>
+    onChange({ ...resume, projects: resume.projects.filter(p => p.id !== id) });
 
+  // ── Certifications ────────────────────────────────────────────────────────
   const addCert = () => {
     const c: CertificationEntry = { id: crypto.randomUUID(), name: '', issuer: '', date: '', url: '' };
     onChange({ ...resume, certifications: [c, ...resume.certifications] });
   };
   const updateCert = (id: string, field: keyof CertificationEntry, val: string) =>
     onChange({ ...resume, certifications: resume.certifications.map(c => c.id === id ? { ...c, [field]: val } : c) });
+  const removeCert = (id: string) =>
+    onChange({ ...resume, certifications: resume.certifications.filter(c => c.id !== id) });
 
+  // ── Languages ─────────────────────────────────────────────────────────────
   const addLang = () => {
     const l: LanguageEntry = { id: crypto.randomUUID(), language: '', proficiency: 'Intermediate' };
     onChange({ ...resume, languages: [l, ...resume.languages] });
   };
   const updateLang = (id: string, field: keyof LanguageEntry, val: string) =>
     onChange({ ...resume, languages: resume.languages.map(l => l.id === id ? { ...l, [field]: val } : l) });
+  const removeLang = (id: string) =>
+    onChange({ ...resume, languages: resume.languages.filter(l => l.id !== id) });
 
+  // ── AI ────────────────────────────────────────────────────────────────────
   const handleAIBullets = async (exp: ExperienceEntry) => {
     if (!exp.role && !exp.company) return;
     setLoadingBullets(exp.id);
@@ -128,12 +293,10 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
   };
 
   const applyImprovement = (original: string, suggested: string) => {
-    // Try summary first
     if (resume.personal.summary === original) {
       onChange({ ...resume, personal: { ...resume.personal, summary: suggested } });
       return;
     }
-    // Try experience bullets
     const updatedExperience = resume.experience.map(exp => ({
       ...exp,
       bullets: exp.bullets.map(b => b === original ? suggested : b),
@@ -147,76 +310,54 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
     return Array.isArray(val) ? val.length : 0;
   };
 
+  // Drag card wrapper props
+  const dragCardProps = (section: 'experience' | 'education' | 'projects' | 'skills', id: string) => ({
+    draggable: true,
+    onDragStart: () => setDragId(id),
+    onDragOver: (e: React.DragEvent) => { e.preventDefault(); setDragOverId(id); },
+    onDrop: () => handleDrop(section, id),
+    onDragEnd: () => { setDragId(null); setDragOverId(null); },
+    style: {
+      opacity: dragId === id ? 0.4 : 1,
+      outline: dragOverId === id && dragId !== id ? '2px solid var(--color-ui-accent)' : 'none',
+      outlineOffset: '2px',
+      transition: 'opacity 0.15s, outline 0.1s',
+    } as React.CSSProperties,
+  });
+
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="editor-panel">
 
-      {/* ── AI IMPROVEMENTS PANEL ────────────────────── */}
+      {/* ── AI IMPROVEMENTS ──────────────────────────── */}
       {improvements && (
         <div style={{
           borderBottom: '1px solid var(--color-ui-border)',
-          background: 'rgba(99,102,241,0.04)',
-          flexShrink: 0,
+          background: 'rgba(99,102,241,0.04)', flexShrink: 0,
           maxHeight: showImprovements ? '320px' : 'auto',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
+          overflow: 'hidden', display: 'flex', flexDirection: 'column',
         }}>
-          {/* Panel header */}
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '10px 14px', borderBottom: showImprovements ? '1px solid var(--color-ui-border)' : 'none',
-            flexShrink: 0,
-          }}>
-            <button
-              onClick={() => setShowImprovements(v => !v)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '6px',
-                background: 'transparent', border: 'none', cursor: 'pointer',
-                color: '#818CF8', fontSize: '12px', fontWeight: 700, padding: 0,
-              }}
-            >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderBottom: showImprovements ? '1px solid var(--color-ui-border)' : 'none', flexShrink: 0 }}>
+            <button onClick={() => setShowImprovements(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#818CF8', fontSize: '12px', fontWeight: 700, padding: 0 }}>
               <Sparkles size={13} />
               AI Suggestions ({improvements.suggestions.length})
               {showImprovements ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
             </button>
-            <button
-              onClick={onDismissImprovements}
-              style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-ui-text-muted)', padding: '2px' }}
-              title="Dismiss"
-            >
+            <button onClick={onDismissImprovements} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-ui-text-muted)', padding: '2px' }} title="Dismiss">
               <X size={14} />
             </button>
           </div>
-
-          {/* Panel content */}
           {showImprovements && (
             <div style={{ overflow: 'auto', flex: 1, padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {improvements.overallFeedback && (
-                <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)', lineHeight: 1.5, marginBottom: '4px', fontStyle: 'italic' }}>
-                  {improvements.overallFeedback}
-                </p>
+                <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)', lineHeight: 1.5, marginBottom: '4px', fontStyle: 'italic' }}>{improvements.overallFeedback}</p>
               )}
               {improvements.suggestions.map((s, i) => (
-                <div key={i} style={{
-                  padding: '10px 12px',
-                  background: 'var(--color-ui-surface)',
-                  border: '1px solid var(--color-ui-border)',
-                  borderRadius: '8px',
-                }}>
-                  <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#818CF8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '5px' }}>
-                    {s.section}
-                  </div>
-                  <p style={{ fontSize: '11.5px', color: 'var(--color-ui-text-muted)', lineHeight: 1.5, marginBottom: '5px' }}>
-                    <span style={{ fontWeight: 600 }}>Before:</span> {s.original}
-                  </p>
-                  <p style={{ fontSize: '11.5px', color: 'var(--color-ui-text)', lineHeight: 1.5, marginBottom: '8px' }}>
-                    <span style={{ fontWeight: 600, color: '#4ADE80' }}>After:</span> {s.suggested}
-                  </p>
-                  <button
-                    className="btn-primary"
-                    style={{ fontSize: '11px', padding: '4px 10px', gap: '4px' }}
-                    onClick={() => applyImprovement(s.original, s.suggested)}
-                  >
+                <div key={i} style={{ padding: '10px 12px', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderRadius: '8px' }}>
+                  <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#818CF8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '5px' }}>{s.section}</div>
+                  <p style={{ fontSize: '11.5px', color: 'var(--color-ui-text-muted)', lineHeight: 1.5, marginBottom: '5px' }}><span style={{ fontWeight: 600 }}>Before:</span> {s.original}</p>
+                  <p style={{ fontSize: '11.5px', color: 'var(--color-ui-text)', lineHeight: 1.5, marginBottom: '8px' }}><span style={{ fontWeight: 600, color: '#4ADE80' }}>After:</span> {s.suggested}</p>
+                  <button className="btn-primary" style={{ fontSize: '11px', padding: '4px 10px', gap: '4px' }} onClick={() => applyImprovement(s.original, s.suggested)}>
                     <Check size={11} /> Apply
                   </button>
                 </div>
@@ -226,7 +367,7 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
         </div>
       )}
 
-      {/* ── VERTICAL NAV ─────────────────────────────── */}
+      {/* ── SECTION NAV ──────────────────────────────── */}
       <div className="editor-nav">
         {TABS.map(({ id, label, icon: Icon, countKey }) => {
           const count = countKey ? getCount({ id, label, icon: Icon, countKey }) : 0;
@@ -234,9 +375,7 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
             <button key={id} className={`nav-item ${activeTab === id ? 'active' : ''}`} onClick={() => setActiveTab(id)}>
               <Icon size={15} strokeWidth={activeTab === id ? 2.5 : 2} />
               <span>{label}</span>
-              {countKey && count > 0 && (
-                <span className="nav-badge">{count}</span>
-              )}
+              {countKey && count > 0 && <span className="nav-badge">{count}</span>}
             </button>
           );
         })}
@@ -245,27 +384,46 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
       {/* ── SECTION CONTENT ──────────────────────────── */}
       <div className="editor-content">
 
-        {/* PERSONAL */}
+        {/* ── PERSONAL ─────────────────────────────────────────────────────── */}
         {activeTab === 'personal' && (
           <div className="fade-slide-in" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <SectionHeader title="Personal Info" />
-            <Field label="Full Name">
-              <input className="field-input" value={resume.personal.name} onChange={e => up('name', e.target.value)} placeholder="e.g. Jane Smith" />
+
+            <Field label="Full Name" error={err('personal.name', resume.personal.name, 'Name is required')}>
+              <input
+                className="field-input"
+                value={resume.personal.name}
+                onChange={e => up('name', e.target.value)}
+                onBlur={() => touch('personal.name')}
+                placeholder="e.g. Jane Smith"
+                style={{ borderColor: err('personal.name', resume.personal.name, '') ? 'var(--color-danger)' : undefined }}
+              />
             </Field>
+
             <Field label="Job Title">
               <input className="field-input" value={resume.personal.title} onChange={e => up('title', e.target.value)} placeholder="e.g. Senior Software Engineer" />
             </Field>
+
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <Field label="Email">
-                <input className="field-input" value={resume.personal.email} onChange={e => up('email', e.target.value)} placeholder="you@email.com" />
+              <Field label="Email" error={err('personal.email', resume.personal.email, 'Email is required')}>
+                <input
+                  className="field-input"
+                  value={resume.personal.email}
+                  onChange={e => up('email', e.target.value)}
+                  onBlur={() => touch('personal.email')}
+                  placeholder="you@email.com"
+                  style={{ borderColor: err('personal.email', resume.personal.email, '') ? 'var(--color-danger)' : undefined }}
+                />
               </Field>
               <Field label="Phone">
                 <input className="field-input" value={resume.personal.phone} onChange={e => up('phone', e.target.value)} placeholder="+1 (555) 000" />
               </Field>
             </div>
+
             <Field label="Location">
               <input className="field-input" value={resume.personal.location} onChange={e => up('location', e.target.value)} placeholder="City, State" />
             </Field>
+
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <Field label="LinkedIn">
                 <input className="field-input" value={resume.personal.linkedin} onChange={e => up('linkedin', e.target.value)} placeholder="linkedin.com/in/..." />
@@ -274,17 +432,22 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
                 <input className="field-input" value={resume.personal.website} onChange={e => up('website', e.target.value)} placeholder="yoursite.com" />
               </Field>
             </div>
+
             <Field label="Professional Summary">
               <div style={{ position: 'relative' }}>
-                <textarea
-                  className="field-textarea"
-                  rows={5}
+                <RichTextarea
                   value={resume.personal.summary}
-                  onChange={e => up('summary', e.target.value)}
+                  onChange={v => up('summary', v)}
+                  rows={5}
                   placeholder="Briefly describe your professional background..."
+                  maxLength={600}
                 />
-                <button className="btn-ai" style={{ position: 'absolute', bottom: '10px', right: '10px' }}
-                  onClick={handleGenerateSummary} disabled={loadingSummary}>
+                <button
+                  className="btn-ai"
+                  style={{ position: 'absolute', bottom: '30px', right: '10px' }}
+                  onClick={handleGenerateSummary}
+                  disabled={loadingSummary}
+                >
                   {loadingSummary ? <Loader2 size={11} className="spin" /> : <Sparkles size={11} />}
                   {loadingSummary ? 'Writing…' : 'AI Write'}
                 </button>
@@ -293,41 +456,46 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
           </div>
         )}
 
-        {/* EXPERIENCE */}
+        {/* ── EXPERIENCE ───────────────────────────────────────────────────── */}
         {activeTab === 'experience' && (
           <div className="fade-slide-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <SectionHeader title="Work Experience">
               <button className="btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={addExp}>
-                <Plus size={13} /> Add
+                <Plus size={13} /> Add Experience
               </button>
             </SectionHeader>
             {resume.experience.length === 0 && <EmptyState icon={<Briefcase size={20} />} text="No work experience added yet." />}
             {resume.experience.map(exp => {
-              const isCollapsed = collapsedExp.has(exp.id);
+              const isCollapsed = collapsed.has(exp.id);
               return (
-                <div key={exp.id} className="entry-card">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '12px' }}>
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-ui-text)', lineHeight: 1.3 }}>
-                        {exp.role || <span style={{ color: 'var(--color-ui-text-dim)' }}>New Role</span>}
+                <div key={exp.id} className="entry-card" {...dragCardProps('experience', exp.id)}>
+                  {/* Card header */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '12px', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+                      <GripVertical size={14} style={{ color: 'var(--color-ui-text-dim)', flexShrink: 0, cursor: 'grab' }} />
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-ui-text)', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {exp.role || <span style={{ color: 'var(--color-ui-text-dim)' }}>New Role</span>}
+                        </div>
+                        {exp.company && <div style={{ fontSize: '11.5px', color: 'var(--color-ui-text-muted)', marginTop: '1px' }}>{exp.company}</div>}
                       </div>
-                      {exp.company && <div style={{ fontSize: '11.5px', color: 'var(--color-ui-text-muted)', marginTop: '1px' }}>{exp.company}</div>}
                     </div>
-                    <div style={{ display: 'flex', gap: '4px' }}>
-                      <button className="btn-ghost" style={{ padding: '4px' }} onClick={() => setCollapsedExp(prev => { const s = new Set(prev); s.has(exp.id) ? s.delete(exp.id) : s.add(exp.id); return s; })}>
+                    <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                      <button className="btn-ghost" style={{ padding: '4px' }} onClick={() => toggleCollapsed(exp.id)}>
                         {isCollapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
                       </button>
                       <button className="btn-danger" onClick={() => removeExp(exp.id)}><Trash2 size={14} /></button>
                     </div>
                   </div>
+
                   {!isCollapsed && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                        <Field label="Company">
-                          <input className="field-input" value={exp.company} onChange={e => updateExp(exp.id, 'company', e.target.value)} placeholder="Company Inc." />
+                        <Field label="Company" error={err(`exp.${exp.id}.company`, exp.company, 'Required')}>
+                          <input className="field-input" value={exp.company} onChange={e => updateExp(exp.id, 'company', e.target.value)} onBlur={() => touch(`exp.${exp.id}.company`)} placeholder="Company Inc." style={{ borderColor: err(`exp.${exp.id}.company`, exp.company, '') ? 'var(--color-danger)' : undefined }} />
                         </Field>
-                        <Field label="Role">
-                          <input className="field-input" value={exp.role} onChange={e => updateExp(exp.id, 'role', e.target.value)} placeholder="Software Engineer" />
+                        <Field label="Role" error={err(`exp.${exp.id}.role`, exp.role, 'Required')}>
+                          <input className="field-input" value={exp.role} onChange={e => updateExp(exp.id, 'role', e.target.value)} onBlur={() => touch(`exp.${exp.id}.role`)} placeholder="Software Engineer" style={{ borderColor: err(`exp.${exp.id}.role`, exp.role, '') ? 'var(--color-danger)' : undefined }} />
                         </Field>
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
@@ -342,6 +510,8 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
                         <input type="checkbox" checked={exp.isCurrent} onChange={e => updateExp(exp.id, 'isCurrent', e.target.checked)} style={{ accentColor: 'var(--color-ui-accent)' }} />
                         Currently working here
                       </label>
+
+                      {/* Bullets */}
                       <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                           <label className="field-label" style={{ margin: 0 }}>Bullet Points</label>
@@ -351,20 +521,33 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
                           </button>
                         </div>
                         {exp.bullets.map((bullet, bi) => (
-                          <div key={bi} style={{ display: 'flex', gap: '6px', marginBottom: '6px' }}>
-                            <textarea className="field-textarea" rows={2} value={bullet}
-                              onChange={e => { const next = [...exp.bullets]; next[bi] = e.target.value; updateExp(exp.id, 'bullets', next); }}
-                              placeholder="Achieved X by doing Y, resulting in Z% improvement..." style={{ fontSize: '12.5px' }} />
-                            <button className="btn-danger" onClick={() => updateExp(exp.id, 'bullets', exp.bullets.filter((_, i) => i !== bi))} style={{ alignSelf: 'center' }}>
-                              <Trash2 size={12} />
-                            </button>
+                          <div key={bi} style={{ marginBottom: '6px' }}>
+                            <div style={{ display: 'flex', gap: '6px' }}>
+                              <textarea
+                                className="field-textarea"
+                                rows={2}
+                                value={bullet}
+                                onChange={e => { const next = [...exp.bullets]; next[bi] = e.target.value; updateExp(exp.id, 'bullets', next); }}
+                                placeholder="Achieved X by doing Y, resulting in Z% improvement..."
+                                style={{ fontSize: '12.5px', flex: 1 }}
+                              />
+                              <button className="btn-danger" onClick={() => updateExp(exp.id, 'bullets', exp.bullets.filter((_, i) => i !== bi))} style={{ alignSelf: 'center' }}>
+                                <Trash2 size={12} />
+                              </button>
+                            </div>
+                            <CharCount value={bullet} max={200} />
                           </div>
                         ))}
-                        <button className="btn-ghost" style={{ width: '100%', justifyContent: 'center', marginTop: '4px', border: '1px dashed var(--color-ui-border)', borderRadius: '6px', padding: '6px' }}
-                          onClick={() => updateExp(exp.id, 'bullets', [...exp.bullets, ''])}>
+                        <button
+                          className="btn-ghost"
+                          style={{ width: '100%', justifyContent: 'center', marginTop: '4px', border: '1px dashed var(--color-ui-border)', borderRadius: '6px', padding: '6px' }}
+                          onClick={() => updateExp(exp.id, 'bullets', [...exp.bullets, ''])}
+                        >
                           <Plus size={13} /> Add bullet
                         </button>
                       </div>
+
+                      {/* AI bullet suggestions */}
                       {bulletSuggestions?.expId === exp.id && (
                         <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '10px', padding: '12px' }}>
                           <div style={{ fontSize: '11px', fontWeight: 600, color: '#A78BFA', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>✨ AI Suggestions — Click to add</div>
@@ -387,41 +570,68 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
           </div>
         )}
 
-        {/* EDUCATION */}
+        {/* ── EDUCATION ────────────────────────────────────────────────────── */}
         {activeTab === 'education' && (
           <div className="fade-slide-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <SectionHeader title="Education">
-              <button className="btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={addEdu}><Plus size={13} /> Add</button>
+              <button className="btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={addEdu}>
+                <Plus size={13} /> Add Education
+              </button>
             </SectionHeader>
             {resume.education.length === 0 && <EmptyState icon={<GraduationCap size={20} />} text="No education added yet." />}
-            {resume.education.map(edu => (
-              <div key={edu.id} className="entry-card" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <button className="btn-danger" onClick={() => onChange({ ...resume, education: resume.education.filter(e => e.id !== edu.id) })}><Trash2 size={14} /></button>
+            {resume.education.map(edu => {
+              const isCollapsed = collapsed.has(edu.id);
+              return (
+                <div key={edu.id} className="entry-card" {...dragCardProps('education', edu.id)}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '10px', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+                      <GripVertical size={14} style={{ color: 'var(--color-ui-text-dim)', flexShrink: 0, cursor: 'grab' }} />
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-ui-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {edu.school || <span style={{ color: 'var(--color-ui-text-dim)' }}>New School</span>}
+                        </div>
+                        {(edu.degree || edu.field) && <div style={{ fontSize: '11.5px', color: 'var(--color-ui-text-muted)', marginTop: '1px' }}>{[edu.degree, edu.field].filter(Boolean).join(' · ')}</div>}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                      <button className="btn-ghost" style={{ padding: '4px' }} onClick={() => toggleCollapsed(edu.id)}>
+                        {isCollapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+                      </button>
+                      <button className="btn-danger" onClick={() => removeEdu(edu.id)}><Trash2 size={14} /></button>
+                    </div>
+                  </div>
+                  {!isCollapsed && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <Field label="School / University">
+                        <input className="field-input" value={edu.school} onChange={e => updateEdu(edu.id, 'school', e.target.value)} placeholder="MIT" />
+                      </Field>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        <Field label="Degree"><input className="field-input" value={edu.degree} onChange={e => updateEdu(edu.id, 'degree', e.target.value)} placeholder="B.S." /></Field>
+                        <Field label="Field of Study"><input className="field-input" value={edu.field} onChange={e => updateEdu(edu.id, 'field', e.target.value)} placeholder="Computer Science" /></Field>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                        <Field label="Start"><input className="field-input" value={edu.startDate} onChange={e => updateEdu(edu.id, 'startDate', e.target.value)} placeholder="Sep 2018" /></Field>
+                        <Field label="End"><input className="field-input" value={edu.endDate} onChange={e => updateEdu(edu.id, 'endDate', e.target.value)} placeholder="May 2022" /></Field>
+                        <Field label="GPA"><input className="field-input" value={edu.gpa} onChange={e => updateEdu(edu.id, 'gpa', e.target.value)} placeholder="3.9" /></Field>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <Field label="School / University">
-                  <input className="field-input" value={edu.school} onChange={e => updateEdu(edu.id, 'school', e.target.value)} placeholder="MIT" />
-                </Field>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <Field label="Degree"><input className="field-input" value={edu.degree} onChange={e => updateEdu(edu.id, 'degree', e.target.value)} placeholder="B.S." /></Field>
-                  <Field label="Field of Study"><input className="field-input" value={edu.field} onChange={e => updateEdu(edu.id, 'field', e.target.value)} placeholder="Computer Science" /></Field>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
-                  <Field label="Start"><input className="field-input" value={edu.startDate} onChange={e => updateEdu(edu.id, 'startDate', e.target.value)} placeholder="Sep 2018" /></Field>
-                  <Field label="End"><input className="field-input" value={edu.endDate} onChange={e => updateEdu(edu.id, 'endDate', e.target.value)} placeholder="May 2022" /></Field>
-                  <Field label="GPA"><input className="field-input" value={edu.gpa} onChange={e => updateEdu(edu.id, 'gpa', e.target.value)} placeholder="3.9" /></Field>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
-        {/* SKILLS */}
+        {/* ── SKILLS ───────────────────────────────────────────────────────── */}
         {activeTab === 'skills' && (
           <div className="fade-slide-in" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <SectionHeader title="Skills">
-              <button className="btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={() => addSkill()}><Plus size={13} /> Add</button>
+              <button className="btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={() => addSkill()}>
+                <Plus size={13} /> Add Skill
+              </button>
             </SectionHeader>
+
+            {/* AI skill finder */}
             <div style={{ padding: '14px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: '10px' }}>
               <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#A78BFA', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <Sparkles size={12} /> AI Skill Finder
@@ -449,74 +659,119 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
                 </div>
               )}
             </div>
+
             {resume.skills.length === 0 && <EmptyState icon={<Wrench size={20} />} text="No skills added yet." />}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {resume.skills.map(skill => (
-                <div key={skill.id} className="entry-card" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px' }}>
+                <div key={skill.id} className="entry-card" {...dragCardProps('skills', skill.id)} style={{ ...dragCardProps('skills', skill.id).style, display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px' }}>
+                  <GripVertical size={13} style={{ color: 'var(--color-ui-text-dim)', flexShrink: 0, cursor: 'grab' }} />
                   <input className="field-input" value={skill.name} onChange={e => updateSkill(skill.id, 'name', e.target.value)} placeholder="Skill name" style={{ flex: 1, fontSize: '13px' }} />
                   <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
                     {[25, 50, 75, 100].map(v => (
                       <button key={v} onClick={() => updateSkill(skill.id, 'level', v)} style={{ width: '18px', height: '6px', borderRadius: '3px', border: 'none', cursor: 'pointer', transition: 'background 0.15s', backgroundColor: skill.level >= v ? 'var(--color-ui-accent)' : 'var(--color-ui-border)' }} />
                     ))}
                   </div>
-                  <button className="btn-danger" onClick={() => onChange({ ...resume, skills: resume.skills.filter(s => s.id !== skill.id) })}><Trash2 size={13} /></button>
+                  <button className="btn-danger" onClick={() => removeSkill(skill.id)}><Trash2 size={13} /></button>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* PROJECTS */}
+        {/* ── PROJECTS ─────────────────────────────────────────────────────── */}
         {activeTab === 'projects' && (
           <div className="fade-slide-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <SectionHeader title="Projects">
-              <button className="btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={addProject}><Plus size={13} /> Add</button>
+              <button className="btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={addProject}>
+                <Plus size={13} /> Add Project
+              </button>
             </SectionHeader>
             {resume.projects.length === 0 && <EmptyState icon={<FolderOpen size={20} />} text="No projects added yet." />}
-            {resume.projects.map(p => (
-              <div key={p.id} className="entry-card" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <button className="btn-danger" onClick={() => onChange({ ...resume, projects: resume.projects.filter(x => x.id !== p.id) })}><Trash2 size={14} /></button>
+            {resume.projects.map(p => {
+              const isCollapsed = collapsed.has(p.id);
+              return (
+                <div key={p.id} className="entry-card" {...dragCardProps('projects', p.id)}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '10px', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+                      <GripVertical size={14} style={{ color: 'var(--color-ui-text-dim)', flexShrink: 0, cursor: 'grab' }} />
+                      <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-ui-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {p.title || <span style={{ color: 'var(--color-ui-text-dim)' }}>New Project</span>}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                      <button className="btn-ghost" style={{ padding: '4px' }} onClick={() => toggleCollapsed(p.id)}>
+                        {isCollapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+                      </button>
+                      <button className="btn-danger" onClick={() => removeProject(p.id)}><Trash2 size={14} /></button>
+                    </div>
+                  </div>
+                  {!isCollapsed && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <Field label="Project Name">
+                        <input className="field-input" value={p.title} onChange={e => updateProject(p.id, 'title', e.target.value)} placeholder="My Awesome Project" />
+                      </Field>
+                      <Field label="Description">
+                        <RichTextarea value={p.description} onChange={v => updateProject(p.id, 'description', v)} rows={3} placeholder="What does it do and what impact did it have?" maxLength={400} />
+                      </Field>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        <Field label="URL / Link"><input className="field-input" value={p.url} onChange={e => updateProject(p.id, 'url', e.target.value)} placeholder="github.com/..." /></Field>
+                        <Field label="Tech Stack (comma separated)"><input className="field-input" value={p.tech.join(', ')} onChange={e => updateProject(p.id, 'tech', e.target.value.split(',').map(t => t.trim()).filter(Boolean))} placeholder="React, Node.js, AWS" /></Field>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <Field label="Project Name"><input className="field-input" value={p.title} onChange={e => updateProject(p.id, 'title', e.target.value)} placeholder="My Awesome Project" /></Field>
-                <Field label="Description"><textarea className="field-textarea" rows={3} value={p.description} onChange={e => updateProject(p.id, 'description', e.target.value)} placeholder="What does it do and what impact did it have?" style={{ fontSize: '12.5px' }} /></Field>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <Field label="URL / Link"><input className="field-input" value={p.url} onChange={e => updateProject(p.id, 'url', e.target.value)} placeholder="github.com/..." /></Field>
-                  <Field label="Tech Stack (comma separated)"><input className="field-input" value={p.tech.join(', ')} onChange={e => updateProject(p.id, 'tech', e.target.value.split(',').map(t => t.trim()).filter(Boolean))} placeholder="React, Node.js, AWS" /></Field>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
-        {/* CERTIFICATIONS */}
+        {/* ── CERTIFICATIONS ───────────────────────────────────────────────── */}
         {activeTab === 'certifications' && (
           <div className="fade-slide-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <SectionHeader title="Certifications">
-              <button className="btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={addCert}><Plus size={13} /> Add</button>
+              <button className="btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={addCert}>
+                <Plus size={13} /> Add Certification
+              </button>
             </SectionHeader>
             {resume.certifications.length === 0 && <EmptyState icon={<Award size={20} />} text="No certifications added yet." />}
-            {resume.certifications.map(c => (
-              <div key={c.id} className="entry-card" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <button className="btn-danger" onClick={() => onChange({ ...resume, certifications: resume.certifications.filter(x => x.id !== c.id) })}><Trash2 size={14} /></button>
+            {resume.certifications.map(c => {
+              const isCollapsed = collapsed.has(c.id);
+              return (
+                <div key={c.id} className="entry-card">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '10px', gap: '8px' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-ui-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+                      {c.name || <span style={{ color: 'var(--color-ui-text-dim)' }}>New Certification</span>}
+                    </div>
+                    <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                      <button className="btn-ghost" style={{ padding: '4px' }} onClick={() => toggleCollapsed(c.id)}>
+                        {isCollapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+                      </button>
+                      <button className="btn-danger" onClick={() => removeCert(c.id)}><Trash2 size={14} /></button>
+                    </div>
+                  </div>
+                  {!isCollapsed && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <Field label="Certification Name"><input className="field-input" value={c.name} onChange={e => updateCert(c.id, 'name', e.target.value)} placeholder="AWS Solutions Architect" /></Field>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        <Field label="Issuer"><input className="field-input" value={c.issuer} onChange={e => updateCert(c.id, 'issuer', e.target.value)} placeholder="Amazon Web Services" /></Field>
+                        <Field label="Date"><input className="field-input" value={c.date} onChange={e => updateCert(c.id, 'date', e.target.value)} placeholder="Dec 2023" /></Field>
+                      </div>
+                      <Field label="Credential URL"><input className="field-input" value={c.url} onChange={e => updateCert(c.id, 'url', e.target.value)} placeholder="credly.com/..." /></Field>
+                    </div>
+                  )}
                 </div>
-                <Field label="Certification Name"><input className="field-input" value={c.name} onChange={e => updateCert(c.id, 'name', e.target.value)} placeholder="AWS Solutions Architect" /></Field>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <Field label="Issuer"><input className="field-input" value={c.issuer} onChange={e => updateCert(c.id, 'issuer', e.target.value)} placeholder="Amazon Web Services" /></Field>
-                  <Field label="Date"><input className="field-input" value={c.date} onChange={e => updateCert(c.id, 'date', e.target.value)} placeholder="Dec 2023" /></Field>
-                </div>
-                <Field label="Credential URL"><input className="field-input" value={c.url} onChange={e => updateCert(c.id, 'url', e.target.value)} placeholder="credly.com/..." /></Field>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
-        {/* LANGUAGES */}
+        {/* ── LANGUAGES ────────────────────────────────────────────────────── */}
         {activeTab === 'languages' && (
           <div className="fade-slide-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <SectionHeader title="Languages">
-              <button className="btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={addLang}><Plus size={13} /> Add</button>
+              <button className="btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={addLang}>
+                <Plus size={13} /> Add Language
+              </button>
             </SectionHeader>
             {resume.languages.length === 0 && <EmptyState icon={<Globe size={20} />} text="No languages added yet." />}
             {resume.languages.map(l => (
@@ -525,7 +780,7 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
                 <select className="field-input" value={l.proficiency} onChange={e => updateLang(l.id, 'proficiency', e.target.value)} style={{ flex: 1, cursor: 'pointer' }}>
                   {['Native', 'Fluent', 'Advanced', 'Intermediate', 'Basic'].map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
-                <button className="btn-danger" onClick={() => onChange({ ...resume, languages: resume.languages.filter(x => x.id !== l.id) })}><Trash2 size={14} /></button>
+                <button className="btn-danger" onClick={() => removeLang(l.id)}><Trash2 size={14} /></button>
               </div>
             ))}
           </div>
@@ -544,21 +799,5 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
     </div>
   );
 };
-
-const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
-  <div><label className="field-label">{label}</label>{children}</div>
-);
-const SectionHeader: React.FC<{ title: string; children?: React.ReactNode }> = ({ title, children }) => (
-  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-    <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-ui-text)', letterSpacing: '-0.01em' }}>{title}</h3>
-    {children}
-  </div>
-);
-const EmptyState: React.FC<{ icon: React.ReactNode; text: string }> = ({ icon, text }) => (
-  <div style={{ textAlign: 'center', padding: '32px 16px', color: 'var(--color-ui-text-dim)', border: '1px dashed var(--color-ui-border)', borderRadius: '10px' }}>
-    <div style={{ marginBottom: '8px', opacity: 0.4 }}>{icon}</div>
-    <p style={{ fontSize: '13px' }}>{text}</p>
-  </div>
-);
 
 export default ResumeBuilder;

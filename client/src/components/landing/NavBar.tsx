@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Zap } from 'lucide-react';
+import { Zap, LogOut } from 'lucide-react';
 import { scrollToSection } from '../../lib/scroll';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface Props { onStart: () => void }
 
 const NavBar: React.FC<Props> = ({ onStart }) => {
   const [scrollY, setScrollY] = useState(0);
+  const { currentUser, signOut } = useAuth();
 
   useEffect(() => {
     const el = document.querySelector('.landing-page') as HTMLElement | null;
@@ -60,22 +62,67 @@ const NavBar: React.FC<Props> = ({ onStart }) => {
         ))}
       </div>
 
-      {/* CTA */}
-      <button
-        onClick={onStart}
-        style={{
-          padding: '9px 22px', borderRadius: '8px',
-          background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-          border: 'none', color: 'white', fontSize: '14px', fontWeight: 600,
-          cursor: 'pointer', letterSpacing: '-0.01em',
-          boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
-          transition: 'opacity 0.2s, transform 0.2s',
-        }}
-        onMouseEnter={e => { e.currentTarget.style.opacity = '0.9'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-        onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)'; }}
-      >
-        Get Started →
-      </button>
+      {/* CTA / User section */}
+      {currentUser ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {currentUser.photoURL ? (
+            <img
+              src={currentUser.photoURL}
+              alt={currentUser.displayName ?? 'User'}
+              style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1.5px solid rgba(255,255,255,0.15)' }}
+            />
+          ) : (
+            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, color: 'white' }}>
+              {(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}
+            </div>
+          )}
+          <button
+            onClick={onStart}
+            style={{
+              padding: '9px 22px', borderRadius: '8px',
+              background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+              border: 'none', color: 'white', fontSize: '14px', fontWeight: 600,
+              cursor: 'pointer', letterSpacing: '-0.01em',
+              boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
+              transition: 'opacity 0.2s, transform 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.opacity = '0.9'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+            onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)'; }}
+          >
+            Open Builder →
+          </button>
+          <button
+            onClick={() => signOut()}
+            title="Sign out"
+            style={{
+              padding: '8px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)',
+              background: 'transparent', color: 'rgba(255,255,255,0.5)', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.color = 'white'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; e.currentTarget.style.background = 'transparent'; }}
+          >
+            <LogOut size={15} />
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={onStart}
+          style={{
+            padding: '9px 22px', borderRadius: '8px',
+            background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+            border: 'none', color: 'white', fontSize: '14px', fontWeight: 600,
+            cursor: 'pointer', letterSpacing: '-0.01em',
+            boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
+            transition: 'opacity 0.2s, transform 0.2s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.opacity = '0.9'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+          onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)'; }}
+        >
+          Get Started →
+        </button>
+      )}
     </nav>
   );
 };

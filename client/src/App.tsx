@@ -1,17 +1,20 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import LandingPage from './components/LandingPage';
+import LoginPage from './components/LoginPage';
 import ResumeBuilder from './components/ResumeBuilder';
 import ModeSelectModal from './components/ModeSelectModal';
 import PagedPreview from './components/PagedPreview';
 import TemplateRenderer from './templates/TemplateRenderer';
+import StylePanel from './components/StylePanel';
 import { templates, colorPalettes } from './templates';
 import { api } from './lib/api';
 import type { Resume, TemplateConfig, ImprovementSuggestions } from './shared/types';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './index.css';
 import {
-  Download, ZoomIn, ZoomOut, Zap, X, Sparkles,
-  ChevronDown, Loader2, Check, AlertCircle, ChevronLeft, ChevronRight, FileText
+  Download, Zap, X, Sparkles, Palette,
+  Loader2, Check, AlertCircle, ChevronLeft, ChevronRight, FileText, LogOut
 } from 'lucide-react';
 
 const initialResume: Resume = {
@@ -83,8 +86,11 @@ const initialResume: Resume = {
 
 type ModalType = 'tailor' | 'ats' | null;
 
-function App() {
-  const [view, setView] = useState<'landing' | 'mode-select' | 'builder'>('landing');
+function AppContent() {
+  const { currentUser, loading, signOut } = useAuth();
+  const [view, setView] = useState<'landing' | 'login' | 'mode-select' | 'builder'>('landing');
+  const [rightPanelOpen, setRightPanelOpen] = useState(true);
+  const [formExpanded, setFormExpanded] = useState(false);
   const [resume, setResume] = useState<Resume>(initialResume);
   const [improvements, setImprovements] = useState<ImprovementSuggestions | null>(null);
   const [activeTemplate, setActiveTemplate] = useState<TemplateConfig>({ ...templates[1]! });
@@ -111,21 +117,11 @@ function App() {
     feedback: string;
   } | null>(null);
 
-  // Color palette
-  const [showPalette, setShowPalette] = useState(false);
-
-  // Template strip scroll
-  const stripRef = useRef<HTMLDivElement>(null);
-  const scrollStrip = (dir: 'left' | 'right') => {
-    if (stripRef.current) stripRef.current.scrollBy({ left: dir === 'left' ? -200 : 200, behavior: 'smooth' });
-  };
-
-  const handlePaletteSelect = (palette: typeof colorPalettes[0]) => {
+  const handleColorChange = (palette: typeof colorPalettes[0]) => {
     setActiveTemplate(prev => ({
       ...prev,
       colors: { ...prev.colors, primary: palette.primary, accent: palette.accent },
     }));
-    setShowPalette(false);
   };
 
   const handleTailor = async () => {
@@ -182,21 +178,43 @@ function App() {
     setView('builder');
   };
 
+  const handleLogout = async () => {
+    await signOut();
+    setView('landing');
+    setResume(initialResume);
+    setImprovements(null);
+  };
+
+  // While Firebase resolves the persisted session, show a minimal spinner
+  if (loading) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '32px', height: '32px', borderRadius: '50%', border: '3px solid var(--color-ui-border)', borderTopColor: '#6366F1', animation: 'spin 0.7s linear infinite' }} />
+      </div>
+    );
+  }
+
   if (view === 'landing') {
-    return <LandingPage onStart={() => setView('mode-select')} />;
+    return <LandingPage onStart={() => currentUser ? setView('mode-select') : setView('login')} />;
+  }
+
+  if (view === 'login') {
+    return <LoginPage onLoginSuccess={() => setView('mode-select')} />;
   }
 
   if (view === 'mode-select') {
     return <ModeSelectModal onSelect={handleModeSelect} onBack={() => setView('landing')} />;
   }
 
+  const formWidth = formExpanded ? 520 : 400;
+
   return (
     <div className="app-grid" style={{ background: 'var(--color-ui-bg)' }}>
 
       {/* ── TOP BAR ─────────────────────────────────── */}
       <header className="top-bar no-print">
-        {/* Left: Logo + Template Switcher */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        {/* Left: Logo + active template badge */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div
             style={{ display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer' }}
             onClick={() => setView('landing')}
@@ -211,143 +229,70 @@ function App() {
 
           <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)' }} />
 
-          {/* Template strip */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <button
-              className="btn-ghost"
-              style={{ padding: '4px', borderRadius: '6px', flexShrink: 0 }}
-              onClick={() => scrollStrip('left')}
-            >
-              <ChevronLeft size={14} />
-            </button>
-            <div
-              ref={stripRef}
-              style={{
-                display: 'flex', gap: '6px', overflowX: 'hidden', maxWidth: '420px',
-                scrollBehavior: 'smooth', padding: '2px 0',
-              }}
-            >
-              {templates.map(t => {
-                const isActive = activeTemplate.id === t.id;
-                return (
-                  <button
-                    key={t.id}
-                    onClick={() => setActiveTemplate({ ...t })}
-                    style={{
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
-                      padding: '6px 10px', borderRadius: '8px', border: `1.5px solid ${isActive ? 'var(--color-ui-accent)' : 'var(--color-ui-border)'}`,
-                      background: isActive ? 'rgba(99,102,241,0.12)' : 'var(--color-ui-bg)',
-                      cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0, minWidth: '64px',
-                    }}
-                    title={t.name}
-                  >
-                    {/* Mini preview thumbnail */}
-                    <div style={{
-                      width: '40px', height: '28px', borderRadius: '3px', overflow: 'hidden',
-                      background: t.colors.background || '#fff',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                      position: 'relative',
-                    }}>
-                      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '8px', background: t.colors.primary, opacity: 0.9 }} />
-                      <div style={{ position: 'absolute', top: '10px', left: '3px', right: '3px', height: '2px', background: t.colors.accent, borderRadius: '1px', opacity: 0.7 }} />
-                      <div style={{ position: 'absolute', top: '14px', left: '3px', right: '8px', height: '1.5px', background: '#ccc', borderRadius: '1px' }} />
-                      <div style={{ position: 'absolute', top: '17px', left: '3px', right: '12px', height: '1.5px', background: '#ccc', borderRadius: '1px' }} />
-                    </div>
-                    <span style={{
-                      fontSize: '10px', fontWeight: isActive ? 700 : 500,
-                      color: isActive ? 'var(--color-ui-accent)' : 'var(--color-ui-text-muted)',
-                      whiteSpace: 'nowrap', letterSpacing: '0.01em',
-                    }}>
-                      {t.name}
-                    </span>
-                  </button>
-                );
-              })}
+          {/* Active template info */}
+          <button
+            className="btn-ghost"
+            style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '5px 10px', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}
+            onClick={() => setRightPanelOpen(true)}
+            title="Change template"
+          >
+            <div style={{ display: 'flex', gap: '3px' }}>
+              <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: activeTemplate.colors.primary }} />
+              <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: activeTemplate.colors.accent }} />
             </div>
-            <button
-              className="btn-ghost"
-              style={{ padding: '4px', borderRadius: '6px', flexShrink: 0 }}
-              onClick={() => scrollStrip('right')}
-            >
-              <ChevronRight size={14} />
-            </button>
-          </div>
-
-          {/* Color palette */}
-          <div style={{ position: 'relative' }}>
-            <button
-              className="btn-secondary"
-              style={{ fontSize: '12px', padding: '6px 12px', gap: '6px' }}
-              onClick={() => setShowPalette(v => !v)}
-            >
-              <div style={{ display: 'flex', gap: '3px' }}>
-                <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: activeTemplate.colors.primary }} />
-                <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: activeTemplate.colors.accent }} />
-              </div>
-              Color
-              <ChevronDown size={11} />
-            </button>
-            {showPalette && (
-              <div style={{
-                position: 'absolute', top: '100%', left: '0', marginTop: '6px', zIndex: 200,
-                background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)',
-                borderRadius: '12px', padding: '12px', width: '220px',
-                boxShadow: '0 16px 40px rgba(0,0,0,0.4)',
-              }}>
-                <div style={{ fontSize: '10.5px', fontWeight: 600, color: 'var(--color-ui-text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px' }}>
-                  Color Palette
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
-                  {colorPalettes.map(p => (
-                    <button
-                      key={p.name}
-                      onClick={() => handlePaletteSelect(p)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '8px',
-                        padding: '8px 10px', borderRadius: '8px', border: '1px solid var(--color-ui-border)',
-                        background: 'transparent', cursor: 'pointer', transition: 'all 0.15s',
-                      }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-ui-surface-2)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                    >
-                      <div style={{ display: 'flex', gap: '2px' }}>
-                        <div style={{ width: '14px', height: '14px', borderRadius: '4px', backgroundColor: p.primary }} />
-                        <div style={{ width: '14px', height: '14px', borderRadius: '4px', backgroundColor: p.accent }} />
-                      </div>
-                      <span style={{ fontSize: '12px', color: 'var(--color-ui-text)', fontWeight: 500 }}>{p.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-ui-text)' }}>{activeTemplate.name}</span>
+            <ChevronRight size={11} style={{ opacity: 0.5 }} />
+          </button>
         </div>
 
-        {/* Right: Zoom + Export */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 10px', background: 'var(--color-ui-bg)', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}>
-            <button className="btn-ghost" style={{ padding: '3px' }} onClick={() => setZoom(z => Math.max(0.4, z - 0.05))}>
-              <ZoomOut size={14} />
-            </button>
-            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-ui-accent)', minWidth: '36px', textAlign: 'center' }}>
-              {Math.round(zoom * 100)}%
-            </span>
-            <button className="btn-ghost" style={{ padding: '3px' }} onClick={() => setZoom(z => Math.min(1.2, z + 0.05))}>
-              <ZoomIn size={14} />
-            </button>
-          </div>
+        {/* Right: Style toggle + Export + User */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button
+            className={rightPanelOpen ? 'btn-primary' : 'btn-secondary'}
+            style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }}
+            onClick={() => setRightPanelOpen(v => !v)}
+          >
+            <Palette size={13} />
+            Style
+          </button>
 
           <button className="btn-primary" style={{ gap: '6px', fontSize: '13px' }} onClick={handleExportPdf}>
             <Download size={14} />
             Export PDF
           </button>
+
+          {currentUser && (
+            <>
+              <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {currentUser.photoURL ? (
+                  <img
+                    src={currentUser.photoURL}
+                    alt={currentUser.displayName ?? 'User'}
+                    style={{ width: '28px', height: '28px', borderRadius: '50%', border: '1.5px solid var(--color-ui-border)' }}
+                  />
+                ) : (
+                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: 'white' }}>
+                    {(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}
+                  </div>
+                )}
+                <span style={{ fontSize: '12.5px', fontWeight: 600, color: 'var(--color-ui-text)', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {currentUser.displayName ?? currentUser.email}
+                </span>
+                <button className="btn-ghost" style={{ padding: '4px', borderRadius: '6px' }} title="Sign out" onClick={handleLogout}>
+                  <LogOut size={14} />
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </header>
 
-      {/* ── MAIN SPLIT ──────────────────────────────── */}
-      <div className="main-split">
-        {/* Editor */}
-        <aside style={{ height: '100%', overflow: 'hidden' }} className="no-print">
+      {/* ── MAIN SPLIT (3-column flex) ───────────────── */}
+      <div style={{ display: 'flex', overflow: 'hidden', height: '100%' }}>
+
+        {/* Left: Form panel (expandable) */}
+        <div style={{ width: `${formWidth}px`, flexShrink: 0, transition: 'width 0.25s cubic-bezier(0.16,1,0.3,1)', position: 'relative', height: '100%', overflow: 'hidden' }} className="no-print">
           <ResumeBuilder
             resume={resume}
             onChange={setResume}
@@ -356,12 +301,30 @@ function App() {
             improvements={improvements}
             onDismissImprovements={() => setImprovements(null)}
           />
-        </aside>
+          {/* Expand handle */}
+          <button
+            onClick={() => setFormExpanded(v => !v)}
+            title={formExpanded ? 'Collapse panel' : 'Expand panel'}
+            style={{
+              position: 'absolute', top: '50%', right: '-11px', transform: 'translateY(-50%)',
+              width: '22px', height: '44px', borderRadius: '0 8px 8px 0',
+              background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)',
+              borderLeft: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center',
+              justifyContent: 'center', color: 'var(--color-ui-text-muted)', zIndex: 10,
+              transition: 'color 0.15s, background 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-ui-text)'; e.currentTarget.style.background = 'var(--color-ui-surface-2)'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-ui-text-muted)'; e.currentTarget.style.background = 'var(--color-ui-surface)'; }}
+          >
+            {formExpanded ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}
+          </button>
+        </div>
 
-        {/* Preview */}
-        <main className="preview-viewport">
+        {/* Center: Preview */}
+        <main className="preview-viewport" style={{ flex: 1, minWidth: 0 }}>
           {/* Preview toolbar */}
           <div className="no-print" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+            {/* Left: template info */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{ fontSize: '11.5px', color: 'var(--color-ui-text-muted)', fontWeight: 500 }}>
                 {activeTemplate.name}
@@ -375,17 +338,52 @@ function App() {
                 <FileText size={11} /> A4 · {pageCount} {pageCount === 1 ? 'page' : 'pages'}
               </span>
             </div>
-            <div style={{ display: 'flex', gap: '4px' }}>
-              {(['professional', 'minimal', 'creative'] as const).map(cat => (
-                <span key={cat} style={{
-                  padding: '2px 8px', borderRadius: '100px', fontSize: '10px', fontWeight: 600,
-                  background: activeTemplate.category === cat ? 'rgba(99,102,241,0.15)' : 'transparent',
-                  color: activeTemplate.category === cat ? 'var(--color-ui-accent)' : 'var(--color-ui-text-muted)',
-                  border: `1px solid ${activeTemplate.category === cat ? 'rgba(99,102,241,0.3)' : 'transparent'}`,
-                  textTransform: 'capitalize',
-                }}>
-                  {cat}
-                </span>
+
+            {/* Right: zoom controls */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '3px 6px', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderRadius: '8px' }}>
+              <button
+                className="btn-ghost"
+                style={{ padding: '3px 6px', borderRadius: '5px', fontSize: '13px', lineHeight: 1 }}
+                onClick={() => setZoom(z => Math.max(0.3, +(z - 0.1).toFixed(1)))}
+                title="Zoom out"
+              >
+                −
+              </button>
+              <button
+                onClick={() => setZoom(0.75)}
+                style={{
+                  minWidth: '46px', textAlign: 'center',
+                  fontSize: '11.5px', fontWeight: 700, color: 'var(--color-ui-accent)',
+                  background: 'transparent', border: 'none', cursor: 'pointer', padding: '2px 4px',
+                  borderRadius: '4px',
+                }}
+                title="Reset to 75%"
+              >
+                {Math.round(zoom * 100)}%
+              </button>
+              <button
+                className="btn-ghost"
+                style={{ padding: '3px 6px', borderRadius: '5px', fontSize: '13px', lineHeight: 1 }}
+                onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(1)))}
+                title="Zoom in"
+              >
+                +
+              </button>
+              <div style={{ width: '1px', height: '14px', background: 'var(--color-ui-border)', margin: '0 2px' }} />
+              {[50, 75, 100].map(v => (
+                <button
+                  key={v}
+                  onClick={() => setZoom(v / 100)}
+                  style={{
+                    padding: '2px 6px', borderRadius: '4px', fontSize: '10.5px', fontWeight: 600,
+                    border: 'none', cursor: 'pointer',
+                    background: Math.round(zoom * 100) === v ? 'rgba(99,102,241,0.2)' : 'transparent',
+                    color: Math.round(zoom * 100) === v ? 'var(--color-ui-accent)' : 'var(--color-ui-text-dim)',
+                    transition: 'all 0.12s',
+                  }}
+                >
+                  {v}%
+                </button>
               ))}
             </div>
           </div>
@@ -394,6 +392,25 @@ function App() {
             <PagedPreview resume={resume} config={activeTemplate} onPageCount={setPageCount} />
           </div>
         </main>
+
+        {/* Right: Style panel (collapsible) */}
+        <div style={{
+          width: rightPanelOpen ? '300px' : '0',
+          flexShrink: 0, overflow: 'hidden',
+          transition: 'width 0.25s cubic-bezier(0.16,1,0.3,1)',
+        }} className="no-print">
+          {rightPanelOpen && (
+            <StylePanel
+              templates={templates}
+              activeTemplate={activeTemplate}
+              onTemplateChange={setActiveTemplate}
+              onColorChange={handleColorChange}
+              onClose={() => setRightPanelOpen(false)}
+              zoom={zoom}
+              onZoomChange={setZoom}
+            />
+          )}
+        </div>
       </div>
 
       {/* ── JOB TAILOR MODAL ─────────────────────────── */}
@@ -631,6 +648,14 @@ function App() {
         document.getElementById('print-portal')!
       )}
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

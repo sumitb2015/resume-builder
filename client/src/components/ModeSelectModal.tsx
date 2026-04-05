@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Zap, PenLine, Upload, Link2, ArrowLeft, Loader2, AlertCircle, X } from 'lucide-react';
+import { Zap, PenLine, Upload, Link2, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import { api } from '../lib/api';
 import type { Resume, ImprovementSuggestions } from '../shared/types';
 

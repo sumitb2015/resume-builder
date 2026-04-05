@@ -74,8 +74,7 @@ body {
 }
 
 .main-split {
-  display: grid;
-  grid-template-columns: 420px 1fr;
+  display: flex;
   overflow: hidden;
   height: 100%;
 }
@@ -736,4 +735,50 @@ body {
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
+}
+
+/* ── DRAG AND DROP ─────────────────────────────────────── */
+.entry-card[draggable="true"] {
+  cursor: default;
+}
+.entry-card[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+/* ── RESPONSIVE: tablet & mobile ──────────────────────── */
+@media (max-width: 1024px) {
+  .app-grid {
+    grid-template-rows: 56px 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  html, body {
+    overflow: auto;
+  }
+  .app-grid {
+    grid-template-rows: auto;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+  .top-bar {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 10px 16px;
+    gap: 8px;
+  }
+  /* Stack all three panels vertically on mobile */
+  .main-split,
+  div[style*="display: flex"][style*="overflow: hidden"] {
+    flex-direction: column !important;
+    height: auto !important;
+  }
+  .editor-panel {
+    height: auto;
+    max-height: none;
+  }
+  .preview-viewport {
+    min-height: 600px;
+  }
 }
