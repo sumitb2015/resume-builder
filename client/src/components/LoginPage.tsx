@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Zap } from 'lucide-react';
+import { Zap, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface Props {
@@ -15,26 +15,129 @@ const GoogleIcon = () => (
   </svg>
 );
 
-export default function LoginPage({ onLoginSuccess }: Props) {
-  const { signInWithGoogle } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+type Mode = 'signin' | 'signup';
+type FieldErrors = { name?: string; email?: string; password?: string; general?: string };
 
-  const handleGoogleSignIn = async () => {
+function firebaseErrorToField(code: string): { field: keyof FieldErrors; msg: string } {
+  switch (code) {
+    case 'auth/email-already-in-use':
+      return { field: 'email', msg: 'An account with this email already exists.' };
+    case 'auth/invalid-email':
+      return { field: 'email', msg: 'Please enter a valid email address.' };
+    case 'auth/weak-password':
+      return { field: 'password', msg: 'Password must be at least 6 characters.' };
+    case 'auth/invalid-credential':
+    case 'auth/user-not-found':
+      return { field: 'email', msg: 'No account found with this email.' };
+    case 'auth/wrong-password':
+      return { field: 'password', msg: 'Incorrect password. Please try again.' };
+    case 'auth/too-many-requests':
+      return { field: 'general', msg: 'Too many attempts. Please try again later.' };
+    default:
+      return { field: 'general', msg: 'Something went wrong. Please try again.' };
+  }
+}
+
+export default function LoginPage({ onLoginSuccess }: Props) {
+  const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
+
+  const [mode, setMode] = useState<Mode>('signin');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  const switchMode = (next: Mode) => {
+    setMode(next);
+    setName('');
+    setEmail('');
+    setPassword('');
+    setFieldErrors({});
+  };
+
+  // Client-side validation before hitting Firebase
+  const validate = (): FieldErrors => {
+    const errors: FieldErrors = {};
+    if (mode === 'signup' && !name.trim()) {
+      errors.name = 'Name is required.';
+    }
+    if (!email.includes('@')) {
+      errors.email = 'Please enter a valid email address.';
+    }
+    if (password.length < 6) {
+      errors.password = 'Password must be at least 6 characters.';
+    }
+    return errors;
+  };
+
+  const handleEmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const errors = validate();
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
+    }
+    setFieldErrors({});
     setLoading(true);
-    setError(null);
+    try {
+      if (mode === 'signup') {
+        await signUpWithEmail(name.trim(), email.trim(), password);
+      } else {
+        await signInWithEmail(email.trim(), password);
+      }
+      onLoginSuccess();
+    } catch (err: unknown) {
+      const code = (err as { code?: string }).code ?? '';
+      const { field, msg } = firebaseErrorToField(code);
+      setFieldErrors({ [field]: msg });
+      setLoading(false);
+    }
+  };
+
+  // Unchanged Google flow
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    setFieldErrors({});
     try {
       await signInWithGoogle();
       onLoginSuccess();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Sign-in failed. Please try again.';
-      // User closed the popup — not really an error worth showing
+      const message = err instanceof Error ? err.message : '';
       if (!message.includes('popup-closed')) {
-        setError('Sign-in failed. Please try again.');
+        setFieldErrors({ general: 'Google sign-in failed. Please try again.' });
       }
-      setLoading(false);
+      setGoogleLoading(false);
     }
   };
+
+  const inputStyle = (hasError: boolean): React.CSSProperties => ({
+    borderColor: hasError ? 'var(--color-danger)' : undefined,
+    boxShadow: hasError ? '0 0 0 3px rgba(248,81,73,0.15)' : undefined,
+  });
+
+  const tabBtn = (label: string, value: Mode) => (
+    <button
+      type="button"
+      onClick={() => switchMode(value)}
+      style={{
+        flex: 1,
+        padding: '8px 0',
+        borderRadius: '8px',
+        border: `1.5px solid ${mode === value ? 'var(--color-ui-accent)' : 'var(--color-ui-border)'}`,
+        background: mode === value ? 'rgba(99,102,241,0.12)' : 'transparent',
+        color: mode === value ? 'var(--color-ui-accent)' : 'var(--color-ui-text-muted)',
+        fontSize: '13.5px',
+        fontWeight: 600,
+        cursor: 'pointer',
+        transition: 'all 0.15s',
+        fontFamily: 'var(--font-sans)',
+      }}
+    >
+      {label}
+    </button>
+  );
 
   return (
     <div style={{
@@ -47,16 +150,15 @@ export default function LoginPage({ onLoginSuccess }: Props) {
     }}>
       <div style={{
         width: '100%',
-        maxWidth: '400px',
+        maxWidth: '420px',
         background: 'var(--color-ui-surface)',
         border: '1px solid var(--color-ui-border)',
         borderRadius: '20px',
-        padding: '48px 40px',
-        textAlign: 'center',
+        padding: '40px 36px',
         boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
       }}>
         {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '28px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '24px' }}>
           <div style={{
             width: '38px', height: '38px',
             background: 'linear-gradient(135deg, #6366F1, #A855F7)',
@@ -70,17 +172,94 @@ export default function LoginPage({ onLoginSuccess }: Props) {
           </span>
         </div>
 
-        <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '8px' }}>
-          Welcome back
+        {/* Dynamic title */}
+        <h1 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '6px', textAlign: 'center' }}>
+          {mode === 'signin' ? 'Welcome back' : 'Create your account'}
         </h1>
-        <p style={{ fontSize: '14px', color: 'var(--color-ui-text-muted)', marginBottom: '36px', lineHeight: 1.6 }}>
-          Sign in to build your perfect resume with AI
+        <p style={{ fontSize: '13.5px', color: 'var(--color-ui-text-muted)', marginBottom: '24px', lineHeight: 1.6, textAlign: 'center' }}>
+          {mode === 'signin' ? 'Sign in to continue building your resume' : 'Start building your perfect resume with AI'}
         </p>
 
-        {/* Google sign-in button */}
+        {/* Tab toggle */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+          {tabBtn('Sign In', 'signin')}
+          {tabBtn('Create Account', 'signup')}
+        </div>
+
+        {/* Email / password form */}
+        <form onSubmit={handleEmailSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          {mode === 'signup' && (
+            <div>
+              <label className="field-label">Full Name</label>
+              <input
+                className="field-input"
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="Jane Smith"
+                autoComplete="name"
+                style={inputStyle(!!fieldErrors.name)}
+              />
+              {fieldErrors.name && <p style={{ fontSize: '12px', color: 'var(--color-danger)', marginTop: '5px' }}>{fieldErrors.name}</p>}
+            </div>
+          )}
+
+          <div>
+            <label className="field-label">Email</label>
+            <input
+              className="field-input"
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="you@email.com"
+              autoComplete={mode === 'signup' ? 'email' : 'username'}
+              style={inputStyle(!!fieldErrors.email)}
+            />
+            {fieldErrors.email && <p style={{ fontSize: '12px', color: 'var(--color-danger)', marginTop: '5px' }}>{fieldErrors.email}</p>}
+          </div>
+
+          <div>
+            <label className="field-label">Password</label>
+            <input
+              className="field-input"
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder={mode === 'signup' ? 'At least 6 characters' : '••••••••'}
+              autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+              style={inputStyle(!!fieldErrors.password)}
+            />
+            {fieldErrors.password && <p style={{ fontSize: '12px', color: 'var(--color-danger)', marginTop: '5px' }}>{fieldErrors.password}</p>}
+          </div>
+
+          {fieldErrors.general && (
+            <p style={{ fontSize: '12px', color: 'var(--color-danger)', textAlign: 'center' }}>{fieldErrors.general}</p>
+          )}
+
+          <button
+            type="submit"
+            className="btn-primary"
+            disabled={loading}
+            style={{ width: '100%', justifyContent: 'center', padding: '11px', fontSize: '14px', marginTop: '2px', opacity: loading ? 0.7 : 1 }}
+          >
+            {loading
+              ? <><Loader2 size={14} className="spin" /> {mode === 'signup' ? 'Creating account…' : 'Signing in…'}</>
+              : mode === 'signup' ? 'Create Account →' : 'Sign In →'
+            }
+          </button>
+        </form>
+
+        {/* Divider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '20px 0' }}>
+          <div style={{ flex: 1, height: '1px', background: 'var(--color-ui-border)' }} />
+          <span style={{ fontSize: '12px', color: 'var(--color-ui-text-dim)', fontWeight: 500 }}>or</span>
+          <div style={{ flex: 1, height: '1px', background: 'var(--color-ui-border)' }} />
+        </div>
+
+        {/* Google sign-in — unchanged */}
         <button
           onClick={handleGoogleSignIn}
-          disabled={loading}
+          disabled={googleLoading}
           style={{
             width: '100%',
             display: 'flex',
@@ -90,37 +269,27 @@ export default function LoginPage({ onLoginSuccess }: Props) {
             padding: '13px 20px',
             borderRadius: '10px',
             border: '1px solid var(--color-ui-border)',
-            background: loading ? 'var(--color-ui-bg)' : 'var(--color-ui-surface-2, #1C2128)',
+            background: googleLoading ? 'var(--color-ui-bg)' : 'var(--color-ui-surface-2, #1C2128)',
             color: 'var(--color-ui-text)',
             fontSize: '15px',
             fontWeight: 600,
-            cursor: loading ? 'not-allowed' : 'pointer',
+            cursor: googleLoading ? 'not-allowed' : 'pointer',
             transition: 'all 0.2s',
-            opacity: loading ? 0.7 : 1,
+            opacity: googleLoading ? 0.7 : 1,
+            fontFamily: 'var(--font-sans)',
           }}
-          onMouseEnter={e => { if (!loading) e.currentTarget.style.borderColor = 'rgba(99,102,241,0.5)'; }}
+          onMouseEnter={e => { if (!googleLoading) e.currentTarget.style.borderColor = 'rgba(99,102,241,0.5)'; }}
           onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--color-ui-border)'; }}
         >
-          {loading ? (
-            <div style={{
-              width: '18px', height: '18px', borderRadius: '50%',
-              border: '2px solid var(--color-ui-border)',
-              borderTopColor: '#6366F1',
-              animation: 'spin 0.7s linear infinite',
-            }} />
+          {googleLoading ? (
+            <div style={{ width: '18px', height: '18px', borderRadius: '50%', border: '2px solid var(--color-ui-border)', borderTopColor: '#6366F1', animation: 'spin 0.7s linear infinite' }} />
           ) : (
             <GoogleIcon />
           )}
-          {loading ? 'Signing in…' : 'Continue with Google'}
+          {googleLoading ? 'Signing in…' : 'Continue with Google'}
         </button>
 
-        {error && (
-          <p style={{ marginTop: '16px', fontSize: '13px', color: 'var(--color-danger)', lineHeight: 1.5 }}>
-            {error}
-          </p>
-        )}
-
-        <p style={{ marginTop: '28px', fontSize: '12px', color: 'var(--color-ui-text-muted)', lineHeight: 1.6 }}>
+        <p style={{ marginTop: '20px', fontSize: '11.5px', color: 'var(--color-ui-text-muted)', lineHeight: 1.6, textAlign: 'center' }}>
           By continuing, you agree to our Terms of Service.<br />
           Your data stays private and is never sold.
         </p>
