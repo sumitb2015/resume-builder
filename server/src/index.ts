@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import puppeteer from 'puppeteer';
 import * as aiService from './services/claude.service';
 import parseRoutes from './routes/parse.routes';
 
@@ -73,33 +72,6 @@ app.post('/api/ai/find-skills', async (req, res) => {
   }
 });
 
-// PDF Generation
-app.post('/api/export/pdf', async (req, res) => {
-  try {
-    const { html, filename } = req.body;
-    const browser = await puppeteer.launch({
-      headless: true,
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
-    });
-    const page = await browser.newPage();
-    
-    await page.setContent(html, { waitUntil: 'networkidle0' });
-    const pdf = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: { top: '0', right: '0', bottom: '0', left: '0' }
-    });
-
-    await browser.close();
-
-    res.contentType('application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=${filename || 'resume.pdf'}`);
-    res.send(pdf);
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
-  }
-});
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
