@@ -2,8 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import puppeteer from 'puppeteer';
-import * as aiService from './services/claude.service.js';
-import parseRoutes from './routes/parse.routes.js';
+import * as aiService from './services/claude.service';
+import parseRoutes from './routes/parse.routes';
 
 dotenv.config();
 

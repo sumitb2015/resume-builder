@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import multer from 'multer';
-import pdfParse from 'pdf-parse';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pdfParse: (buf: Buffer) => Promise<{ text: string }> = require('pdf-parse');
 import mammoth from 'mammoth';
-import * as parseService from '../services/parse.service.js';
+import * as parseService from '../services/parse.service';
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
