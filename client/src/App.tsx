@@ -5,6 +5,7 @@ import LoginPage from './components/LoginPage';
 import ResumeBuilder from './components/ResumeBuilder';
 import ModeSelectModal from './components/ModeSelectModal';
 import UpgradeModal from './components/UpgradeModal';
+import SavedResumesPanel from './components/SavedResumesPanel';
 import PagedPreview from './components/PagedPreview';
 import TemplateRenderer from './templates/TemplateRenderer';
 import StylePanel from './components/StylePanel';
@@ -14,10 +15,12 @@ import type { Resume, TemplateConfig, ImprovementSuggestions } from './shared/ty
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PlanProvider, usePlan } from './contexts/PlanContext';
 import type { Feature } from './contexts/PlanContext';
+import { useSavedResumes } from './hooks/useSavedResumes';
 import './index.css';
 import {
   Download, Zap, X, Sparkles, Palette,
   Loader2, Check, AlertCircle, ChevronLeft, ChevronRight, FileText, LogOut, Crown, Shield,
+  Save, FolderOpen,
 } from 'lucide-react';
 
 const initialResume: Resume = {
@@ -294,7 +297,9 @@ function PlanSelectPage({ onSelected }: { onSelected: () => void }) {
 
 function AppContent() {
   const { currentUser, loading, signOut } = useAuth();
-  const { plan, canAccess } = usePlan();
+  const { plan, canAccess, maxResumes } = usePlan();
+  const { savedResumes, canSaveMore, saveResume, deleteResume, renameResume } = useSavedResumes();
+
   const [view, setView] = useState<'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder'>('landing');
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
   const [formExpanded, setFormExpanded] = useState(false);
@@ -305,6 +310,13 @@ function AppContent() {
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [pageCount, setPageCount] = useState(1);
   const [upgradePrompt, setUpgradePrompt] = useState<{ requiredPlan: 'pro' | 'ultimate'; featureLabel: string } | null>(null);
+
+  // Saved resume state
+  const [currentResumeId, setCurrentResumeId] = useState<string | null>(null);
+  const [showSavedPanel, setShowSavedPanel] = useState(false);
+  const [savePrompt, setSavePrompt] = useState(false);  // name dialog for first save
+  const [saveNameValue, setSaveNameValue] = useState('');
+  const [savedToast, setSavedToast] = useState(false);
 
   // Tailor modal state
   const [jd, setJd] = useState('');
@@ -330,6 +342,65 @@ function AppContent() {
       requiredPlan: FEATURE_REQUIRED_PLAN[feature],
       featureLabel: FEATURE_LABELS[feature],
     });
+  };
+
+  const showSavedToast = () => {
+    setSavedToast(true);
+    setTimeout(() => setSavedToast(false), 2500);
+  };
+
+  // Called when user clicks Save button
+  const handleSave = () => {
+    if (currentResumeId) {
+      // Already saved once — just update silently
+      saveResume(
+        savedResumes.find(r => r.id === currentResumeId)?.name ?? 'My Resume',
+        resume,
+        activeTemplate,
+        currentResumeId,
+      );
+      showSavedToast();
+    } else {
+      // First save — ask for a name
+      setSaveNameValue(resume.personal.name ? `${resume.personal.name.split(' ')[0]}'s Resume` : 'My Resume');
+      setSavePrompt(true);
+    }
+  };
+
+  const handleSaveConfirm = () => {
+    const name = saveNameValue.trim() || 'My Resume';
+    if (!canSaveMore) {
+      // At limit — show upgrade
+      setUpgradePrompt({
+        requiredPlan: plan === 'basic' ? 'pro' : 'ultimate',
+        featureLabel: `Save more than ${maxResumes} resume${maxResumes === 1 ? '' : 's'}`,
+      });
+      setSavePrompt(false);
+      return;
+    }
+    const id = saveResume(name, resume, activeTemplate);
+    if (id) {
+      setCurrentResumeId(id);
+      showSavedToast();
+    }
+    setSavePrompt(false);
+  };
+
+  const handleLoadResume = (saved: import('./hooks/useSavedResumes').SavedResume) => {
+    setResume(saved.resumeData);
+    const tpl = templates.find(t => t.id === saved.templateId);
+    if (tpl) setActiveTemplate({ ...tpl });
+    setCurrentResumeId(saved.id);
+    setShowSavedPanel(false);
+    setImprovements(null);
+  };
+
+  const handleNewResume = () => {
+    setResume(initialResume);
+    setActiveTemplate({ ...templates[1]! });
+    setCurrentResumeId(null);
+    setImprovements(null);
+    setShowSavedPanel(false);
   };
 
   const handleColorChange = (palette: typeof colorPalettes[0]) => {
@@ -505,7 +576,7 @@ function AppContent() {
           </button>
         </div>
 
-        {/* Right: Style toggle + Export + User */}
+        {/* Right: Style toggle + Save + Export + User */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <button
             className={rightPanelOpen ? 'btn-primary' : 'btn-secondary'}
@@ -514,6 +585,33 @@ function AppContent() {
           >
             <Palette size={13} />
             Style
+          </button>
+
+          {/* My Resumes */}
+          <button
+            className="btn-secondary"
+            style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }}
+            onClick={() => setShowSavedPanel(true)}
+            title="My saved resumes"
+          >
+            <FolderOpen size={13} />
+            My Resumes
+            {savedResumes.length > 0 && (
+              <span style={{ position: 'absolute', top: '-5px', right: '-5px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-ui-accent)', fontSize: '9px', fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {savedResumes.length}
+              </span>
+            )}
+          </button>
+
+          {/* Save */}
+          <button
+            className="btn-secondary"
+            style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }}
+            onClick={handleSave}
+            title={currentResumeId ? 'Save changes' : 'Save resume'}
+          >
+            <Save size={13} />
+            {currentResumeId ? 'Save' : 'Save'}
           </button>
 
           <button className="btn-primary" style={{ gap: '6px', fontSize: '13px' }} onClick={handleExportPdf}>
@@ -823,6 +921,77 @@ function AppContent() {
           featureLabel={upgradePrompt.featureLabel}
           onClose={() => setUpgradePrompt(null)}
         />
+      )}
+
+      {/* ── SAVED RESUMES PANEL ─────────────────────── */}
+      {showSavedPanel && (
+        <SavedResumesPanel
+          savedResumes={savedResumes}
+          currentResumeId={currentResumeId}
+          maxResumes={maxResumes}
+          onLoad={handleLoadResume}
+          onDelete={deleteResume}
+          onRename={renameResume}
+          onNewResume={handleNewResume}
+          onClose={() => setShowSavedPanel(false)}
+          onUpgradeNeeded={() => setUpgradePrompt({
+            requiredPlan: plan === 'basic' ? 'pro' : 'ultimate',
+            featureLabel: `Save more than ${maxResumes} resume${maxResumes === 1 ? '' : 's'}`,
+          })}
+        />
+      )}
+
+      {/* ── SAVE NAME PROMPT ─────────────────────────── */}
+      {savePrompt && (
+        <div className="modal-overlay no-print" onClick={e => { if (e.target === e.currentTarget) setSavePrompt(false); }}>
+          <div className="modal-content" style={{ maxWidth: '400px' }}>
+            <div style={{ padding: '24px 24px 20px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '6px' }}>
+                <Save size={15} style={{ display: 'inline', marginRight: '8px', color: '#818CF8' }} />
+                Save Resume
+              </h3>
+              <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', marginBottom: '20px' }}>
+                Give this resume a name so you can find it later.
+              </p>
+              <input
+                autoFocus
+                className="field-input"
+                value={saveNameValue}
+                onChange={e => setSaveNameValue(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') handleSaveConfirm(); if (e.key === 'Escape') setSavePrompt(false); }}
+                placeholder="e.g. Software Engineer @ Google"
+                style={{ fontSize: '14px', marginBottom: '8px' }}
+              />
+              {!canSaveMore && (
+                <p style={{ fontSize: '12px', color: '#F87171', marginBottom: '4px' }}>
+                  You've reached the {maxResumes}-resume limit on your {plan} plan. Upgrade to save more.
+                </p>
+              )}
+            </div>
+            <div style={{ padding: '0 24px 20px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+              <button className="btn-secondary" onClick={() => setSavePrompt(false)}>Cancel</button>
+              <button className="btn-primary" style={{ gap: '6px' }} onClick={handleSaveConfirm}>
+                <Save size={13} /> Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── SAVED TOAST ──────────────────────────────── */}
+      {savedToast && (
+        <div style={{
+          position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)',
+          zIndex: 9998,
+          display: 'flex', alignItems: 'center', gap: '8px',
+          padding: '10px 18px', borderRadius: '10px',
+          background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)',
+          backdropFilter: 'blur(8px)',
+          animation: 'fadeIn 0.2s ease',
+        }}>
+          <Check size={14} color="#4ADE80" />
+          <span style={{ fontSize: '13px', fontWeight: 600, color: '#4ADE80' }}>Resume saved</span>
+        </div>
       )}
 
       {/* Print portal */}

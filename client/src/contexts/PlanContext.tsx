@@ -25,12 +25,19 @@ const PLAN_FEATURES: Record<Plan, Feature[]> = {
 
 const BASIC_BULLET_LIMIT = 3;
 
+export const MAX_RESUMES: Record<Plan, number> = {
+  basic: 1,
+  pro: 3,
+  ultimate: 10,
+};
+
 interface PlanContextType {
   plan: Plan | null;
   setPlan: (plan: Plan) => void;
   canAccess: (feature: Feature) => boolean;
   remainingBullets: number;
   incrementBulletUsage: () => void;
+  maxResumes: number;
 }
 
 const PlanContext = createContext<PlanContextType | null>(null);
@@ -115,8 +122,10 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
     setBulletData(next);
   };
 
+  const maxResumes = plan ? MAX_RESUMES[plan] : 0;
+
   return (
-    <PlanContext.Provider value={{ plan, setPlan, canAccess, remainingBullets, incrementBulletUsage }}>
+    <PlanContext.Provider value={{ plan, setPlan, canAccess, remainingBullets, incrementBulletUsage, maxResumes }}>
       {children}
     </PlanContext.Provider>
   );
