@@ -10,7 +10,11 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3001;
 
-app.use(cors());
+const allowedOrigins = process.env.FRONTEND_URL
+  ? [process.env.FRONTEND_URL, 'http://localhost:5173']
+  : ['http://localhost:5173', 'http://localhost:4173'];
+
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json({ limit: '50mb' }));
 app.use('/api/parse', parseRoutes);
 
@@ -73,7 +77,11 @@ app.post('/api/ai/find-skills', async (req, res) => {
 app.post('/api/export/pdf', async (req, res) => {
   try {
     const { html, filename } = req.body;
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({
+      headless: true,
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+    });
     const page = await browser.newPage();
     
     await page.setContent(html, { waitUntil: 'networkidle0' });

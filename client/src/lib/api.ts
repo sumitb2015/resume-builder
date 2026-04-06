@@ -1,6 +1,6 @@
 import type { Resume, ImprovementSuggestions } from '../shared/types';
 
-const BASE = 'http://localhost:3001';
+const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
 
 async function post<T>(path: string, body: unknown): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
