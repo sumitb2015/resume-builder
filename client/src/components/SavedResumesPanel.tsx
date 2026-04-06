@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, FolderOpen, Trash2, Edit3, Check, Clock, Plus, Lock } from 'lucide-react';
+import { X, FolderOpen, Trash2, Edit3, Clock, Plus, Lock } from 'lucide-react';
 import type { SavedResume } from '../hooks/useSavedResumes';
 import { usePlan, MAX_RESUMES } from '../contexts/PlanContext';
 
@@ -38,8 +38,6 @@ export default function SavedResumesPanel({
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-
-  const canAddMore = savedResumes.length < maxResumes;
 
   const startRename = (id: string, currentName: string) => {
     setRenamingId(id);
