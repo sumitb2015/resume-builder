@@ -85,6 +85,39 @@ app.post('/api/ai/find-skills', async (req, res) => {
   }
 });
 
+app.post('/api/fetch-job-url', async (req, res) => {
+  try {
+    const { url } = req.body;
+    if (!url || typeof url !== 'string') {
+      return res.status(400).json({ error: 'url is required' });
+    }
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ResumeBot/1.0)' },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!response.ok) {
+      return res.status(502).json({ error: `Failed to fetch URL: ${response.status} ${response.statusText}` });
+    }
+    const html = await response.text();
+    // Strip HTML tags and collapse whitespace
+    const text = html
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[\s\S]*?<\/style>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/\s{2,}/g, '\n')
+      .trim()
+      .slice(0, 8000); // limit to avoid token overflow
+    res.json({ text });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Failed to fetch URL' });
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

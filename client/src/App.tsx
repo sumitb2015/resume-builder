@@ -20,7 +20,7 @@ import './index.css';
 import {
   Download, Zap, X, Sparkles, Palette,
   Loader2, Check, AlertCircle, ChevronLeft, ChevronRight, FileText, LogOut, Crown, Shield,
-  Save, FolderOpen,
+  Save, FolderOpen, Link,
 } from 'lucide-react';
 
 const initialResume: Resume = {
@@ -320,12 +320,18 @@ function AppContent() {
 
   // Tailor modal state
   const [jd, setJd] = useState('');
+  const [tailorInputMode, setTailorInputMode] = useState<'text' | 'url'>('text');
+  const [jobUrl, setJobUrl] = useState('');
+  const [urlFetchLoading, setUrlFetchLoading] = useState(false);
+  const [urlFetchError, setUrlFetchError] = useState('');
   const [tailorLoading, setTailorLoading] = useState(false);
   const [tailorResult, setTailorResult] = useState<{
     missingKeywords: string[];
     rewrittenBullets: { original: string; suggested: string }[];
     suggestedSummary: string;
   } | null>(null);
+  const [appliedBullets, setAppliedBullets] = useState<Set<number>>(new Set());
+  const [appliedSummary, setAppliedSummary] = useState(false);
 
   // ATS modal state
   const [atsJd, setAtsJd] = useState('');
@@ -429,11 +435,33 @@ function AppContent() {
     if (!canAccess('job-tailor')) { showUpgrade('job-tailor'); return; }
     setActiveModal('tailor');
     setTailorResult(null);
+    setJd('');
+    setJobUrl('');
+    setUrlFetchError('');
+    setTailorInputMode('text');
+    setAppliedBullets(new Set());
+    setAppliedSummary(false);
   };
 
-  const applyTailorSuggestion = (type: 'summary' | 'bullet', value: string, originalBullet?: string) => {
+  const handleFetchJobUrl = async () => {
+    if (!jobUrl.trim()) return;
+    setUrlFetchLoading(true);
+    setUrlFetchError('');
+    try {
+      const { text } = await api.fetchJobUrl(jobUrl.trim());
+      setJd(text);
+      setTailorInputMode('text');
+    } catch (e: any) {
+      setUrlFetchError(e.message || 'Failed to fetch URL');
+    } finally {
+      setUrlFetchLoading(false);
+    }
+  };
+
+  const applyTailorSuggestion = (type: 'summary' | 'bullet', value: string, originalBullet?: string, bulletIndex?: number) => {
     if (type === 'summary') {
       setResume(prev => ({ ...prev, personal: { ...prev.personal, summary: value } }));
+      setAppliedSummary(true);
     } else if (type === 'bullet' && originalBullet) {
       setResume(prev => ({
         ...prev,
@@ -442,6 +470,9 @@ function AppContent() {
           bullets: exp.bullets.map(b => b === originalBullet ? value : b),
         })),
       }));
+      if (bulletIndex !== undefined) {
+        setAppliedBullets(prev => new Set(prev).add(bulletIndex));
+      }
     }
   };
 
@@ -764,8 +795,56 @@ function AppContent() {
             <div style={{ flex: 1, overflow: 'auto', padding: '24px 28px' }}>
               {!tailorResult ? (
                 <div>
-                  <label className="field-label">Job Description</label>
-                  <textarea className="field-textarea" rows={10} value={jd} onChange={e => setJd(e.target.value)} placeholder="Paste the full job description here..." style={{ fontSize: '13px' }} />
+                  {/* Input mode tabs */}
+                  <div style={{ display: 'flex', gap: '0', marginBottom: '14px', background: 'var(--color-ui-bg)', borderRadius: '8px', padding: '3px', border: '1px solid var(--color-ui-border)' }}>
+                    <button
+                      onClick={() => setTailorInputMode('text')}
+                      style={{ flex: 1, padding: '6px 12px', borderRadius: '6px', fontSize: '12.5px', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.15s', background: tailorInputMode === 'text' ? 'var(--color-ui-surface)' : 'transparent', color: tailorInputMode === 'text' ? 'var(--color-ui-text)' : 'var(--color-ui-text-muted)' }}
+                    >
+                      Paste Text
+                    </button>
+                    <button
+                      onClick={() => setTailorInputMode('url')}
+                      style={{ flex: 1, padding: '6px 12px', borderRadius: '6px', fontSize: '12.5px', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.15s', background: tailorInputMode === 'url' ? 'var(--color-ui-surface)' : 'transparent', color: tailorInputMode === 'url' ? 'var(--color-ui-text)' : 'var(--color-ui-text-muted)' }}
+                    >
+                      <Link size={12} style={{ display: 'inline', marginRight: '5px', verticalAlign: 'middle' }} />
+                      From URL
+                    </button>
+                  </div>
+
+                  {tailorInputMode === 'url' ? (
+                    <div>
+                      <label className="field-label">Job Posting URL</label>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <input
+                          className="field-input"
+                          type="url"
+                          value={jobUrl}
+                          onChange={e => { setJobUrl(e.target.value); setUrlFetchError(''); }}
+                          placeholder="https://jobs.example.com/posting/123"
+                          style={{ flex: 1, fontSize: '13px' }}
+                          onKeyDown={e => e.key === 'Enter' && handleFetchJobUrl()}
+                        />
+                        <button className="btn-primary" style={{ fontSize: '12px', padding: '0 16px', flexShrink: 0 }} onClick={handleFetchJobUrl} disabled={urlFetchLoading || !jobUrl.trim()}>
+                          {urlFetchLoading ? <Loader2 size={14} className="spin" /> : 'Fetch'}
+                        </button>
+                      </div>
+                      {urlFetchError && (
+                        <p style={{ marginTop: '8px', fontSize: '12px', color: '#F87171' }}>{urlFetchError}</p>
+                      )}
+                      {jd && (
+                        <div style={{ marginTop: '12px', padding: '10px 12px', background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.2)', borderRadius: '8px', fontSize: '12px', color: '#4ADE80' }}>
+                          <Check size={12} style={{ display: 'inline', marginRight: '5px' }} />
+                          Job description fetched ({jd.length} chars) — ready to analyze
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="field-label">Job Description</label>
+                      <textarea className="field-textarea" rows={10} value={jd} onChange={e => setJd(e.target.value)} placeholder="Paste the full job description here..." style={{ fontSize: '13px' }} />
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -784,14 +863,20 @@ function AppContent() {
                       <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '12px' }}>Suggested Bullet Rewrites</div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                         {tailorResult.rewrittenBullets.map((b, i) => (
-                          <div key={i} style={{ padding: '14px', background: 'var(--color-ui-bg)', borderRadius: '10px', border: '1px solid var(--color-ui-border)' }}>
+                          <div key={i} style={{ padding: '14px', background: 'var(--color-ui-bg)', borderRadius: '10px', border: `1px solid ${appliedBullets.has(i) ? 'rgba(74,222,128,0.3)' : 'var(--color-ui-border)'}` }}>
                             <div style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', marginBottom: '6px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Before</div>
                             <p style={{ fontSize: '12.5px', color: 'var(--color-ui-text-muted)', lineHeight: 1.6, marginBottom: '10px' }}>{b.original}</p>
                             <div style={{ fontSize: '11px', color: '#4ADE80', marginBottom: '6px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>After</div>
                             <p style={{ fontSize: '12.5px', color: 'var(--color-ui-text)', lineHeight: 1.6, marginBottom: '12px' }}>{b.suggested}</p>
-                            <button className="btn-primary" style={{ fontSize: '12px', padding: '6px 14px' }} onClick={() => applyTailorSuggestion('bullet', b.suggested, b.original)}>
-                              <Check size={12} /> Apply
-                            </button>
+                            {appliedBullets.has(i) ? (
+                              <button className="btn-secondary" style={{ fontSize: '12px', padding: '6px 14px', color: '#4ADE80', borderColor: 'rgba(74,222,128,0.3)', cursor: 'default' }} disabled>
+                                <Check size={12} /> Applied
+                              </button>
+                            ) : (
+                              <button className="btn-primary" style={{ fontSize: '12px', padding: '6px 14px' }} onClick={() => applyTailorSuggestion('bullet', b.suggested, b.original, i)}>
+                                <Check size={12} /> Apply
+                              </button>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -800,11 +885,17 @@ function AppContent() {
                   {tailorResult.suggestedSummary && (
                     <div>
                       <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '10px' }}>Tailored Summary</div>
-                      <div style={{ padding: '14px', background: 'var(--color-ui-bg)', borderRadius: '10px', border: '1px solid var(--color-ui-border)' }}>
+                      <div style={{ padding: '14px', background: 'var(--color-ui-bg)', borderRadius: '10px', border: `1px solid ${appliedSummary ? 'rgba(74,222,128,0.3)' : 'var(--color-ui-border)'}` }}>
                         <p style={{ fontSize: '13px', color: 'var(--color-ui-text)', lineHeight: 1.7, marginBottom: '12px' }}>{tailorResult.suggestedSummary}</p>
-                        <button className="btn-primary" style={{ fontSize: '12px', padding: '6px 14px' }} onClick={() => applyTailorSuggestion('summary', tailorResult.suggestedSummary)}>
-                          <Check size={12} /> Apply Summary
-                        </button>
+                        {appliedSummary ? (
+                          <button className="btn-secondary" style={{ fontSize: '12px', padding: '6px 14px', color: '#4ADE80', borderColor: 'rgba(74,222,128,0.3)', cursor: 'default' }} disabled>
+                            <Check size={12} /> Applied
+                          </button>
+                        ) : (
+                          <button className="btn-primary" style={{ fontSize: '12px', padding: '6px 14px' }} onClick={() => applyTailorSuggestion('summary', tailorResult.suggestedSummary)}>
+                            <Check size={12} /> Apply Summary
+                          </button>
+                        )}
                       </div>
                     </div>
                   )}
@@ -815,7 +906,7 @@ function AppContent() {
             <div style={{ padding: '16px 28px', borderTop: '1px solid var(--color-ui-border)', display: 'flex', justifyContent: 'flex-end', gap: '10px', flexShrink: 0 }}>
               {tailorResult ? (
                 <>
-                  <button className="btn-secondary" onClick={() => setTailorResult(null)}>Try Again</button>
+                  <button className="btn-secondary" onClick={() => { setTailorResult(null); setAppliedBullets(new Set()); setAppliedSummary(false); }}>Try Again</button>
                   <button className="btn-secondary" onClick={() => setActiveModal(null)}>Done</button>
                 </>
               ) : (

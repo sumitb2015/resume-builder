@@ -53,4 +53,7 @@ export const api = {
 
   syncLinkedIn: (text: string) =>
     post<{ resume: Resume }>('/api/parse/linkedin', { text }),
+
+  fetchJobUrl: (url: string) =>
+    post<{ text: string }>('/api/fetch-job-url', { url }),
 };
