@@ -380,6 +380,7 @@ function AppContent() {
   } | null>(null);
   const [appliedBullets, setAppliedBullets] = useState<Set<number>>(new Set());
   const [appliedSummary, setAppliedSummary] = useState(false);
+  const [addedKeywords, setAddedKeywords] = useState<Set<string>>(new Set());
 
   // ATS modal state
   const [atsJd, setAtsJd] = useState('');
@@ -489,6 +490,7 @@ function AppContent() {
     setTailorInputMode('text');
     setAppliedBullets(new Set());
     setAppliedSummary(false);
+    setAddedKeywords(new Set());
   };
 
   const handleFetchJobUrl = async () => {
@@ -522,6 +524,48 @@ function AppContent() {
         setAppliedBullets(prev => new Set(prev).add(bulletIndex));
       }
     }
+  };
+
+  const addKeywordAsSkill = (keyword: string) => {
+    const already = resume.skills.some(s => s.name.toLowerCase() === keyword.toLowerCase());
+    if (!already) {
+      setResume(prev => ({ ...prev, skills: [...prev.skills, { id: crypto.randomUUID(), name: keyword, level: 75 }] }));
+    }
+    setAddedKeywords(prev => new Set(prev).add(keyword));
+  };
+
+  const handleAcceptAll = () => {
+    if (!tailorResult) return;
+    setResume(prev => {
+      let updated = { ...prev };
+      // Apply summary
+      if (tailorResult.suggestedSummary) {
+        updated = { ...updated, personal: { ...updated.personal, summary: tailorResult.suggestedSummary } };
+      }
+      // Apply all bullet rewrites
+      tailorResult.rewrittenBullets.forEach(b => {
+        updated = {
+          ...updated,
+          experience: updated.experience.map(exp => ({
+            ...exp,
+            bullets: exp.bullets.map(bullet => bullet === b.original ? b.suggested : bullet),
+          })),
+        };
+      });
+      // Add all missing keywords as skills (skip duplicates)
+      const existingNames = new Set(updated.skills.map(s => s.name.toLowerCase()));
+      const newSkills = tailorResult.missingKeywords
+        .filter(k => !existingNames.has(k.toLowerCase()))
+        .map(k => ({ id: crypto.randomUUID(), name: k, level: 75 }));
+      if (newSkills.length > 0) {
+        updated = { ...updated, skills: [...updated.skills, ...newSkills] };
+      }
+      return updated;
+    });
+    // Mark everything as applied
+    setAppliedSummary(true);
+    setAppliedBullets(new Set(tailorResult.rewrittenBullets.map((_, i) => i)));
+    setAddedKeywords(new Set(tailorResult.missingKeywords));
   };
 
   const handleAtsScore = async () => {
@@ -915,10 +959,22 @@ function AppContent() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   {tailorResult.missingKeywords.length > 0 && (
                     <div>
-                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '10px' }}>Missing Keywords</div>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '6px' }}>Missing Keywords</div>
+                      <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)', marginBottom: '10px' }}>Click a keyword to add it to your Skills section.</p>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                         {tailorResult.missingKeywords.map(k => (
-                          <span key={k} style={{ padding: '4px 10px', background: 'rgba(248,81,73,0.1)', border: '1px solid rgba(248,81,73,0.2)', borderRadius: '100px', fontSize: '12px', color: '#F87171' }}>+ {k}</span>
+                          addedKeywords.has(k) ? (
+                            <span key={k} style={{ padding: '5px 12px', background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.25)', borderRadius: '100px', fontSize: '12px', color: '#4ADE80', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <Check size={11} /> {k}
+                            </span>
+                          ) : (
+                            <button key={k} onClick={() => addKeywordAsSkill(k)} style={{ padding: '5px 12px', background: 'rgba(248,81,73,0.08)', border: '1px solid rgba(248,81,73,0.25)', borderRadius: '100px', fontSize: '12px', color: '#F87171', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', transition: 'all 0.15s' }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(248,81,73,0.18)'; e.currentTarget.style.borderColor = 'rgba(248,81,73,0.5)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(248,81,73,0.08)'; e.currentTarget.style.borderColor = 'rgba(248,81,73,0.25)'; }}
+                            >
+                              <Plus size={11} /> {k}
+                            </button>
+                          )
                         ))}
                       </div>
                     </div>
@@ -971,7 +1027,19 @@ function AppContent() {
             <div style={{ padding: '16px 28px', borderTop: '1px solid var(--color-ui-border)', display: 'flex', justifyContent: 'flex-end', gap: '10px', flexShrink: 0 }}>
               {tailorResult ? (
                 <>
-                  <button className="btn-secondary" onClick={() => { setTailorResult(null); setAppliedBullets(new Set()); setAppliedSummary(false); }}>Try Again</button>
+                  <button className="btn-secondary" onClick={() => { setTailorResult(null); setAppliedBullets(new Set()); setAppliedSummary(false); setAddedKeywords(new Set()); }}>Try Again</button>
+                  <button
+                    className="btn-primary"
+                    style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', gap: '6px' }}
+                    onClick={handleAcceptAll}
+                    disabled={
+                      appliedSummary &&
+                      tailorResult.rewrittenBullets.every((_, i) => appliedBullets.has(i)) &&
+                      tailorResult.missingKeywords.every(k => addedKeywords.has(k))
+                    }
+                  >
+                    <Check size={14} /> Accept All
+                  </button>
                   <button className="btn-secondary" onClick={() => setActiveModal(null)}>Done</button>
                 </>
               ) : (
