@@ -1,7 +1,12 @@
 import { useState } from 'react';
-import { X, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, Lock } from 'lucide-react';
 import type { TemplateConfig } from '../shared/types';
 import { colorPalettes } from '../templates';
+import { usePlan } from '../contexts/PlanContext';
+import type { Feature } from '../contexts/PlanContext';
+
+// First 3 templates (by index in the full templates array) are available on Basic
+const FREE_TEMPLATE_COUNT = 3;
 
 interface Props {
   templates: TemplateConfig[];
@@ -11,9 +16,11 @@ interface Props {
   onClose: () => void;
   zoom: number;
   onZoomChange: (z: number) => void;
+  onUpgradeNeeded: (feature: Feature) => void;
 }
 
-export default function StylePanel({ templates, activeTemplate, onTemplateChange, onColorChange, onClose, zoom, onZoomChange }: Props) {
+export default function StylePanel({ templates, activeTemplate, onTemplateChange, onColorChange, onClose, zoom, onZoomChange, onUpgradeNeeded }: Props) {
+  const { canAccess } = usePlan();
   const [tplOpen, setTplOpen] = useState(true);
   const [colorOpen, setColorOpen] = useState(true);
   const [zoomOpen, setZoomOpen] = useState(true);
@@ -21,6 +28,11 @@ export default function StylePanel({ templates, activeTemplate, onTemplateChange
   const categories = ['professional', 'minimal', 'creative'] as const;
   const [activeCat, setActiveCat] = useState<'all' | typeof categories[number]>('all');
   const filtered = activeCat === 'all' ? templates : templates.filter(t => t.category === activeCat);
+
+  // IDs of the first FREE_TEMPLATE_COUNT templates (available on Basic)
+  const freeTemplateIds = new Set(templates.slice(0, FREE_TEMPLATE_COUNT).map(t => t.id));
+
+  const colorsLocked = !canAccess('style-colors');
 
   return (
     <div style={{
@@ -74,24 +86,43 @@ export default function StylePanel({ templates, activeTemplate, onTemplateChange
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
               {filtered.map(t => {
                 const isActive = activeTemplate.id === t.id;
+                const isLocked = !freeTemplateIds.has(t.id) && !canAccess('extra-templates');
+
                 return (
                   <button
                     key={t.id}
-                    onClick={() => onTemplateChange({ ...t })}
+                    onClick={() => {
+                      if (isLocked) { onUpgradeNeeded('extra-templates'); return; }
+                      onTemplateChange({ ...t });
+                    }}
                     style={{
                       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px',
                       padding: '8px', borderRadius: '10px',
-                      border: `2px solid ${isActive ? 'var(--color-ui-accent)' : 'var(--color-ui-border)'}`,
+                      border: `2px solid ${isActive ? 'var(--color-ui-accent)' : isLocked ? 'rgba(168,85,247,0.2)' : 'var(--color-ui-border)'}`,
                       background: isActive ? 'rgba(99,102,241,0.1)' : 'var(--color-ui-bg)',
                       cursor: 'pointer', transition: 'all 0.15s',
+                      position: 'relative',
+                      opacity: isLocked ? 0.65 : 1,
                     }}
-                    title={t.name}
+                    title={isLocked ? 'Pro plan required' : t.name}
                   >
+                    {/* Lock badge */}
+                    {isLocked && (
+                      <div style={{
+                        position: 'absolute', top: '4px', right: '4px',
+                        background: 'rgba(168,85,247,0.2)', borderRadius: '4px',
+                        padding: '2px 3px', display: 'flex', alignItems: 'center',
+                      }}>
+                        <Lock size={8} color="#C084FC" />
+                      </div>
+                    )}
+
                     {/* Thumbnail */}
                     <div style={{
                       width: '100%', height: '52px', borderRadius: '4px', overflow: 'hidden',
                       background: t.colors.background || '#fff', position: 'relative',
                       border: '1px solid rgba(255,255,255,0.06)',
+                      filter: isLocked ? 'grayscale(0.5)' : 'none',
                     }}>
                       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '10px', background: t.colors.primary }} />
                       <div style={{ position: 'absolute', top: '14px', left: '5px', right: '5px', height: '3px', background: t.colors.accent, borderRadius: '2px', opacity: 0.8 }} />
@@ -103,7 +134,7 @@ export default function StylePanel({ templates, activeTemplate, onTemplateChange
                     </div>
                     <div style={{
                       fontSize: '10px', fontWeight: isActive ? 700 : 500,
-                      color: isActive ? 'var(--color-ui-accent)' : 'var(--color-ui-text-muted)',
+                      color: isActive ? 'var(--color-ui-accent)' : isLocked ? 'rgba(192,132,252,0.6)' : 'var(--color-ui-text-muted)',
                       whiteSpace: 'nowrap', letterSpacing: '0.01em', overflow: 'hidden',
                       textOverflow: 'ellipsis', maxWidth: '100%',
                     }}>
@@ -112,10 +143,7 @@ export default function StylePanel({ templates, activeTemplate, onTemplateChange
                     <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
                       <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: t.colors.primary }} />
                       <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: t.colors.accent }} />
-                      <span style={{
-                        fontSize: '9px', fontWeight: 600, marginLeft: '2px', textTransform: 'capitalize',
-                        color: t.atsScore >= 90 ? 'var(--color-success)' : 'var(--color-warning)',
-                      }}>
+                      <span style={{ fontSize: '9px', fontWeight: 600, marginLeft: '2px', textTransform: 'capitalize', color: t.atsScore >= 90 ? 'var(--color-success)' : 'var(--color-warning)' }}>
                         ATS {t.atsScore}%
                       </span>
                     </div>
@@ -129,29 +157,50 @@ export default function StylePanel({ templates, activeTemplate, onTemplateChange
         {/* ── COLORS ── */}
         <SectionToggle label="Color Palette" open={colorOpen} onToggle={() => setColorOpen(v => !v)} />
         {colorOpen && (
-          <div style={{ padding: '0 12px 16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
-            {colorPalettes.map(p => {
-              const isActive = activeTemplate.colors.primary === p.primary && activeTemplate.colors.accent === p.accent;
-              return (
-                <button
-                  key={p.name}
-                  onClick={() => onColorChange(p)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '8px',
-                    padding: '8px 10px', borderRadius: '8px',
-                    border: `1px solid ${isActive ? 'var(--color-ui-accent)' : 'var(--color-ui-border)'}`,
-                    background: isActive ? 'rgba(99,102,241,0.1)' : 'transparent',
-                    cursor: 'pointer', transition: 'all 0.15s',
-                  }}
-                >
-                  <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
-                    <div style={{ width: '14px', height: '14px', borderRadius: '4px', background: p.primary }} />
-                    <div style={{ width: '14px', height: '14px', borderRadius: '4px', background: p.accent }} />
-                  </div>
-                  <span style={{ fontSize: '11.5px', color: 'var(--color-ui-text)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
-                </button>
-              );
-            })}
+          <div style={{ padding: '0 12px 16px' }}>
+            {/* Pro gate banner */}
+            {colorsLocked && (
+              <div
+                onClick={() => onUpgradeNeeded('style-colors')}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '10px 12px', borderRadius: '8px', marginBottom: '10px',
+                  background: 'rgba(168,85,247,0.08)',
+                  border: '1px solid rgba(192,132,252,0.25)',
+                  cursor: 'pointer',
+                }}
+              >
+                <Lock size={12} color="#C084FC" />
+                <span style={{ fontSize: '11.5px', color: '#C084FC', fontWeight: 600 }}>
+                  Pro required — click to upgrade
+                </span>
+              </div>
+            )}
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', opacity: colorsLocked ? 0.45 : 1, pointerEvents: colorsLocked ? 'none' : 'auto' }}>
+              {colorPalettes.map(p => {
+                const isActive = activeTemplate.colors.primary === p.primary && activeTemplate.colors.accent === p.accent;
+                return (
+                  <button
+                    key={p.name}
+                    onClick={() => onColorChange(p)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '8px',
+                      padding: '8px 10px', borderRadius: '8px',
+                      border: `1px solid ${isActive ? 'var(--color-ui-accent)' : 'var(--color-ui-border)'}`,
+                      background: isActive ? 'rgba(99,102,241,0.1)' : 'transparent',
+                      cursor: 'pointer', transition: 'all 0.15s',
+                    }}
+                  >
+                    <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
+                      <div style={{ width: '14px', height: '14px', borderRadius: '4px', background: p.primary }} />
+                      <div style={{ width: '14px', height: '14px', borderRadius: '4px', background: p.accent }} />
+                    </div>
+                    <span style={{ fontSize: '11.5px', color: 'var(--color-ui-text)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
 
@@ -160,16 +209,8 @@ export default function StylePanel({ templates, activeTemplate, onTemplateChange
         {zoomOpen && (
           <div style={{ padding: '0 12px 16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <input
-                type="range"
-                min={40} max={120} step={5}
-                value={Math.round(zoom * 100)}
-                onChange={e => onZoomChange(parseInt(e.target.value) / 100)}
-                style={{ flex: 1, accentColor: 'var(--color-ui-accent)' }}
-              />
-              <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-ui-accent)', minWidth: '40px', textAlign: 'right' }}>
-                {Math.round(zoom * 100)}%
-              </span>
+              <input type="range" min={40} max={120} step={5} value={Math.round(zoom * 100)} onChange={e => onZoomChange(parseInt(e.target.value) / 100)} style={{ flex: 1, accentColor: 'var(--color-ui-accent)' }} />
+              <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-ui-accent)', minWidth: '40px', textAlign: 'right' }}>{Math.round(zoom * 100)}%</span>
             </div>
             <div style={{ display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}>
               {[50, 65, 75, 90, 100].map(v => (

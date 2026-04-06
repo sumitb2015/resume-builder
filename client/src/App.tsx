@@ -4,6 +4,7 @@ import LandingPage from './components/LandingPage';
 import LoginPage from './components/LoginPage';
 import ResumeBuilder from './components/ResumeBuilder';
 import ModeSelectModal from './components/ModeSelectModal';
+import UpgradeModal from './components/UpgradeModal';
 import PagedPreview from './components/PagedPreview';
 import TemplateRenderer from './templates/TemplateRenderer';
 import StylePanel from './components/StylePanel';
@@ -11,10 +12,12 @@ import { templates, colorPalettes } from './templates';
 import { api } from './lib/api';
 import type { Resume, TemplateConfig, ImprovementSuggestions } from './shared/types';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { PlanProvider, usePlan } from './contexts/PlanContext';
+import type { Feature } from './contexts/PlanContext';
 import './index.css';
 import {
   Download, Zap, X, Sparkles, Palette,
-  Loader2, Check, AlertCircle, ChevronLeft, ChevronRight, FileText, LogOut
+  Loader2, Check, AlertCircle, ChevronLeft, ChevronRight, FileText, LogOut, Crown, Shield,
 } from 'lucide-react';
 
 const initialResume: Resume = {
@@ -86,9 +89,213 @@ const initialResume: Resume = {
 
 type ModalType = 'tailor' | 'ats' | null;
 
+// Maps a feature to the minimum plan required
+const FEATURE_REQUIRED_PLAN: Record<Feature, 'pro' | 'ultimate'> = {
+  'enhance-mode': 'ultimate',
+  'linkedin-mode': 'ultimate',
+  'job-tailor': 'ultimate',
+  'extra-templates': 'pro',
+  'dynamic-ats': 'pro',
+  'ai-summary': 'pro',
+  'ai-bullets': 'pro',
+  'skills-finder': 'pro',
+  'style-colors': 'pro',
+};
+
+const FEATURE_LABELS: Record<Feature, string> = {
+  'enhance-mode': 'Resume Import',
+  'linkedin-mode': 'LinkedIn Import',
+  'job-tailor': 'Job Tailoring',
+  'extra-templates': 'Premium Templates',
+  'dynamic-ats': 'Dynamic ATS Score',
+  'ai-summary': 'AI Summary Writer',
+  'ai-bullets': 'AI Bullet Writer',
+  'skills-finder': 'Skills Finder',
+  'style-colors': 'Style Customization',
+};
+
+// Plan badge config
+const PLAN_BADGE: Record<string, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
+  basic: { label: 'Basic', color: '#FCD34D', bg: 'rgba(245,158,11,0.15)', icon: <Shield size={11} /> },
+  pro: { label: 'Pro', color: '#818CF8', bg: 'rgba(99,102,241,0.15)', icon: <Zap size={11} /> },
+  ultimate: { label: 'Ultimate', color: '#C084FC', bg: 'rgba(168,85,247,0.15)', icon: <Crown size={11} /> },
+};
+
+// Plan-select page shown on first login
+const PLAN_OPTIONS = [
+  {
+    id: 'basic' as const,
+    name: 'Basic',
+    price: '₹199',
+    period: '14 days',
+    tagline: 'Try the essentials',
+    color: '#F59E0B',
+    gradient: 'linear-gradient(135deg, #F59E0B, #D97706)',
+    features: ['3 professional templates', 'Live preview & editor', 'PDF export (1/day)', 'ATS score (template)', 'AI bullets (3/day)'],
+  },
+  {
+    id: 'pro' as const,
+    name: 'Pro',
+    price: '₹499',
+    period: 'mo',
+    tagline: 'Core AI writing tools',
+    color: '#818CF8',
+    gradient: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+    features: ['All 15 templates', 'Dynamic ATS + JD matching', 'Unlimited AI bullets', 'AI summary writer', 'Skills finder', 'Color customization'],
+  },
+  {
+    id: 'ultimate' as const,
+    name: 'Ultimate',
+    price: '₹699',
+    period: 'mo',
+    tagline: 'Pro + advanced AI workflows',
+    color: '#C084FC',
+    gradient: 'linear-gradient(135deg, #A855F7, #7C3AED)',
+    features: ['Everything in Pro', 'Job tailoring (full rewrite)', 'Resume import PDF/DOCX', 'LinkedIn profile import', 'Diff review before/after', 'Priority PDF generation'],
+  },
+];
+
+function PlanBadge({ size = 'md' }: { size?: 'sm' | 'md' }) {
+  const { plan, setPlan } = usePlan();
+  if (!plan) return null;
+  const badge = PLAN_BADGE[plan];
+  const isSmall = size === 'sm';
+  return (
+    <div style={{ position: 'relative', display: 'inline-flex' }}>
+      <div
+        title="Click to change plan"
+        onClick={() => {
+          // cycle through plans for demo — in prod this opens payment
+          const order: ('basic' | 'pro' | 'ultimate')[] = ['basic', 'pro', 'ultimate'];
+          const next = order[(order.indexOf(plan) + 1) % order.length];
+          setPlan(next);
+        }}
+        style={{
+          display: 'inline-flex', alignItems: 'center', gap: '5px',
+          padding: isSmall ? '3px 8px' : '4px 10px',
+          borderRadius: '100px',
+          background: badge.bg,
+          border: `1px solid ${badge.color}40`,
+          cursor: 'pointer',
+          userSelect: 'none',
+          transition: 'opacity 0.15s',
+        }}
+      >
+        <span style={{ color: badge.color, display: 'flex', alignItems: 'center' }}>{badge.icon}</span>
+        <span style={{ fontSize: isSmall ? '10px' : '11px', fontWeight: 700, color: badge.color, letterSpacing: '0.03em' }}>
+          {badge.label}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function PlanSelectPage({ onSelected }: { onSelected: () => void }) {
+  const { setPlan } = usePlan();
+
+  const handleSelect = (planId: 'basic' | 'pro' | 'ultimate') => {
+    setPlan(planId);
+    onSelected();
+  };
+
+  return (
+    <div style={{
+      minHeight: '100vh', background: 'var(--color-ui-bg)',
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      padding: '40px 24px',
+    }}>
+      {/* Logo */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '48px' }}>
+        <div style={{ width: '32px', height: '32px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Zap size={16} color="white" fill="white" />
+        </div>
+        <span style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.03em', color: 'white' }}>
+          Bespoke<span style={{ color: '#818CF8' }}>CV</span>
+        </span>
+      </div>
+
+      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'white', letterSpacing: '-0.03em', marginBottom: '10px' }}>
+          Choose your plan
+        </h1>
+        <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.4)' }}>
+          Select a plan to get started. You can upgrade anytime.
+        </p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', maxWidth: '900px', width: '100%' }}>
+        {PLAN_OPTIONS.map((plan, i) => (
+          <div
+            key={plan.id}
+            style={{
+              borderRadius: '16px', padding: '28px 24px',
+              border: i === 1 ? `1px solid ${plan.color}50` : '1px solid rgba(255,255,255,0.07)',
+              background: i === 1 ? `linear-gradient(135deg, ${plan.color}12, ${plan.color}06)` : 'rgba(255,255,255,0.03)',
+              display: 'flex', flexDirection: 'column',
+              position: 'relative',
+            }}
+          >
+            {i === 1 && (
+              <div style={{
+                position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)',
+                padding: '4px 14px', borderRadius: '100px',
+                background: plan.gradient,
+                fontSize: '10.5px', fontWeight: 700, color: 'white', whiteSpace: 'nowrap',
+              }}>
+                Most Popular
+              </div>
+            )}
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{ fontSize: '16px', fontWeight: 700, color: 'white', marginBottom: '4px' }}>{plan.name}</div>
+              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginBottom: '16px' }}>{plan.tagline}</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>₹</span>
+                <span style={{ fontSize: '32px', fontWeight: 800, color: 'white', letterSpacing: '-0.03em' }}>
+                  {plan.price.replace('₹', '')}
+                </span>
+                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>/{plan.period}</span>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, marginBottom: '24px' }}>
+              {plan.features.map((f, fi) => (
+                <div key={fi} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                  <Check size={13} color={plan.color} style={{ flexShrink: 0, marginTop: '1px' }} />
+                  <span style={{ fontSize: '12.5px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.4 }}>{f}</span>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => handleSelect(plan.id)}
+              style={{
+                width: '100%', padding: '11px', borderRadius: '9px',
+                background: i === 1 ? plan.gradient : 'transparent',
+                border: i === 1 ? 'none' : `1px solid ${plan.color}50`,
+                color: i === 1 ? 'white' : plan.color,
+                fontSize: '14px', fontWeight: 700, cursor: 'pointer',
+                transition: 'opacity 0.15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
+            >
+              Start with {plan.name}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <p style={{ marginTop: '24px', fontSize: '12px', color: 'rgba(255,255,255,0.2)' }}>
+        Demo mode — payment integration coming soon. All plans activate instantly.
+      </p>
+    </div>
+  );
+}
+
 function AppContent() {
   const { currentUser, loading, signOut } = useAuth();
-  const [view, setView] = useState<'landing' | 'login' | 'mode-select' | 'builder'>('landing');
+  const { plan, canAccess } = usePlan();
+  const [view, setView] = useState<'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder'>('landing');
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
   const [formExpanded, setFormExpanded] = useState(false);
   const [resume, setResume] = useState<Resume>(initialResume);
@@ -97,6 +304,7 @@ function AppContent() {
   const [zoom, setZoom] = useState(0.75);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [pageCount, setPageCount] = useState(1);
+  const [upgradePrompt, setUpgradePrompt] = useState<{ requiredPlan: 'pro' | 'ultimate'; featureLabel: string } | null>(null);
 
   // Tailor modal state
   const [jd, setJd] = useState('');
@@ -117,6 +325,13 @@ function AppContent() {
     feedback: string;
   } | null>(null);
 
+  const showUpgrade = (feature: Feature) => {
+    setUpgradePrompt({
+      requiredPlan: FEATURE_REQUIRED_PLAN[feature],
+      featureLabel: FEATURE_LABELS[feature],
+    });
+  };
+
   const handleColorChange = (palette: typeof colorPalettes[0]) => {
     setActiveTemplate(prev => ({
       ...prev,
@@ -125,6 +340,7 @@ function AppContent() {
   };
 
   const handleTailor = async () => {
+    if (!canAccess('job-tailor')) { showUpgrade('job-tailor'); return; }
     if (!jd.trim()) return;
     setTailorLoading(true);
     setTailorResult(null);
@@ -136,6 +352,12 @@ function AppContent() {
     } finally {
       setTailorLoading(false);
     }
+  };
+
+  const openTailorModal = () => {
+    if (!canAccess('job-tailor')) { showUpgrade('job-tailor'); return; }
+    setActiveModal('tailor');
+    setTailorResult(null);
   };
 
   const applyTailorSuggestion = (type: 'summary' | 'bullet', value: string, originalBullet?: string) => {
@@ -153,6 +375,7 @@ function AppContent() {
   };
 
   const handleAtsScore = async () => {
+    if (!canAccess('dynamic-ats')) { showUpgrade('dynamic-ats'); return; }
     if (!atsJd.trim()) return;
     setAtsLoading(true);
     setAtsResult(null);
@@ -164,6 +387,12 @@ function AppContent() {
     } finally {
       setAtsLoading(false);
     }
+  };
+
+  const openAtsModal = () => {
+    if (!canAccess('dynamic-ats')) { showUpgrade('dynamic-ats'); return; }
+    setActiveModal('ats');
+    setAtsResult(null);
   };
 
   const handleExportPdf = () => window.print();
@@ -185,7 +414,13 @@ function AppContent() {
     setImprovements(null);
   };
 
-  // While Firebase resolves the persisted session, show a minimal spinner
+  // Navigate to builder entry — check auth + plan
+  const handleStart = () => {
+    if (!currentUser) { setView('login'); return; }
+    if (!plan) { setView('plan-select'); return; }
+    setView('mode-select');
+  };
+
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -195,15 +430,35 @@ function AppContent() {
   }
 
   if (view === 'landing') {
-    return <LandingPage onStart={() => currentUser ? setView('mode-select') : setView('login')} />;
+    return <LandingPage onStart={handleStart} />;
   }
 
   if (view === 'login') {
-    return <LoginPage onLoginSuccess={() => setView('mode-select')} />;
+    return (
+      <LoginPage onLoginSuccess={() => {
+        // plan check happens via usePlan which reads localStorage for the new uid
+        // We need to check after auth resolves — use a slight defer
+        setTimeout(() => {
+          const uid = currentUser?.uid;
+          const storedPlan = uid ? localStorage.getItem(`bespokecv_plan_${uid}`) : null;
+          setView(storedPlan ? 'mode-select' : 'plan-select');
+        }, 100);
+      }} />
+    );
+  }
+
+  if (view === 'plan-select') {
+    return <PlanSelectPage onSelected={() => setView('mode-select')} />;
   }
 
   if (view === 'mode-select') {
-    return <ModeSelectModal onSelect={handleModeSelect} onBack={() => setView('landing')} />;
+    return (
+      <ModeSelectModal
+        onSelect={handleModeSelect}
+        onBack={() => setView('landing')}
+        onUpgradeNeeded={showUpgrade}
+      />
+    );
   }
 
   const formWidth = formExpanded ? 520 : 400;
@@ -226,6 +481,11 @@ function AppContent() {
               Bespoke<span style={{ color: '#818CF8' }}>CV</span>
             </span>
           </div>
+
+          <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)' }} />
+
+          {/* Plan badge */}
+          <PlanBadge size="sm" />
 
           <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)' }} />
 
@@ -296,10 +556,11 @@ function AppContent() {
           <ResumeBuilder
             resume={resume}
             onChange={setResume}
-            onTailor={() => { setActiveModal('tailor'); setTailorResult(null); }}
-            onAtsScore={() => { setActiveModal('ats'); setAtsResult(null); }}
+            onTailor={openTailorModal}
+            onAtsScore={openAtsModal}
             improvements={improvements}
             onDismissImprovements={() => setImprovements(null)}
+            onUpgradeNeeded={showUpgrade}
           />
           {/* Expand handle */}
           <button
@@ -341,34 +602,11 @@ function AppContent() {
 
             {/* Right: zoom controls */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '3px 6px', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderRadius: '8px' }}>
-              <button
-                className="btn-ghost"
-                style={{ padding: '3px 6px', borderRadius: '5px', fontSize: '13px', lineHeight: 1 }}
-                onClick={() => setZoom(z => Math.max(0.3, +(z - 0.1).toFixed(1)))}
-                title="Zoom out"
-              >
-                −
-              </button>
-              <button
-                onClick={() => setZoom(0.75)}
-                style={{
-                  minWidth: '46px', textAlign: 'center',
-                  fontSize: '11.5px', fontWeight: 700, color: 'var(--color-ui-accent)',
-                  background: 'transparent', border: 'none', cursor: 'pointer', padding: '2px 4px',
-                  borderRadius: '4px',
-                }}
-                title="Reset to 75%"
-              >
+              <button className="btn-ghost" style={{ padding: '3px 6px', borderRadius: '5px', fontSize: '13px', lineHeight: 1 }} onClick={() => setZoom(z => Math.max(0.3, +(z - 0.1).toFixed(1)))} title="Zoom out">−</button>
+              <button onClick={() => setZoom(0.75)} style={{ minWidth: '46px', textAlign: 'center', fontSize: '11.5px', fontWeight: 700, color: 'var(--color-ui-accent)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '2px 4px', borderRadius: '4px' }} title="Reset to 75%">
                 {Math.round(zoom * 100)}%
               </button>
-              <button
-                className="btn-ghost"
-                style={{ padding: '3px 6px', borderRadius: '5px', fontSize: '13px', lineHeight: 1 }}
-                onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(1)))}
-                title="Zoom in"
-              >
-                +
-              </button>
+              <button className="btn-ghost" style={{ padding: '3px 6px', borderRadius: '5px', fontSize: '13px', lineHeight: 1 }} onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(1)))} title="Zoom in">+</button>
               <div style={{ width: '1px', height: '14px', background: 'var(--color-ui-border)', margin: '0 2px' }} />
               {[50, 75, 100].map(v => (
                 <button
@@ -394,11 +632,7 @@ function AppContent() {
         </main>
 
         {/* Right: Style panel (collapsible) */}
-        <div style={{
-          width: rightPanelOpen ? '300px' : '0',
-          flexShrink: 0, overflow: 'hidden',
-          transition: 'width 0.25s cubic-bezier(0.16,1,0.3,1)',
-        }} className="no-print">
+        <div style={{ width: rightPanelOpen ? '300px' : '0', flexShrink: 0, overflow: 'hidden', transition: 'width 0.25s cubic-bezier(0.16,1,0.3,1)' }} className="no-print">
           {rightPanelOpen && (
             <StylePanel
               templates={templates}
@@ -408,6 +642,7 @@ function AppContent() {
               onClose={() => setRightPanelOpen(false)}
               zoom={zoom}
               onZoomChange={setZoom}
+              onUpgradeNeeded={showUpgrade}
             />
           )}
         </div>
@@ -417,7 +652,6 @@ function AppContent() {
       {activeModal === 'tailor' && (
         <div className="modal-overlay no-print" onClick={e => e.target === e.currentTarget && setActiveModal(null)}>
           <div className="modal-content" style={{ maxWidth: '680px', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            {/* Header */}
             <div style={{ padding: '24px 28px', borderBottom: '1px solid var(--color-ui-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0 }}>
               <div>
                 <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '4px' }}>
@@ -429,60 +663,35 @@ function AppContent() {
               <button className="btn-ghost" style={{ padding: '4px' }} onClick={() => setActiveModal(null)}><X size={18} /></button>
             </div>
 
-            {/* Body */}
             <div style={{ flex: 1, overflow: 'auto', padding: '24px 28px' }}>
               {!tailorResult ? (
                 <div>
                   <label className="field-label">Job Description</label>
-                  <textarea
-                    className="field-textarea"
-                    rows={10}
-                    value={jd}
-                    onChange={e => setJd(e.target.value)}
-                    placeholder="Paste the full job description here..."
-                    style={{ fontSize: '13px' }}
-                  />
+                  <textarea className="field-textarea" rows={10} value={jd} onChange={e => setJd(e.target.value)} placeholder="Paste the full job description here..." style={{ fontSize: '13px' }} />
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                  {/* Missing Keywords */}
                   {tailorResult.missingKeywords.length > 0 && (
                     <div>
-                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '10px' }}>
-                        Missing Keywords
-                      </div>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '10px' }}>Missing Keywords</div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                         {tailorResult.missingKeywords.map(k => (
-                          <span key={k} style={{ padding: '4px 10px', background: 'rgba(248,81,73,0.1)', border: '1px solid rgba(248,81,73,0.2)', borderRadius: '100px', fontSize: '12px', color: '#F87171' }}>
-                            + {k}
-                          </span>
+                          <span key={k} style={{ padding: '4px 10px', background: 'rgba(248,81,73,0.1)', border: '1px solid rgba(248,81,73,0.2)', borderRadius: '100px', fontSize: '12px', color: '#F87171' }}>+ {k}</span>
                         ))}
                       </div>
                     </div>
                   )}
-
-                  {/* Bullet Rewrites */}
                   {tailorResult.rewrittenBullets.length > 0 && (
                     <div>
-                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '12px' }}>
-                        Suggested Bullet Rewrites
-                      </div>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '12px' }}>Suggested Bullet Rewrites</div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                         {tailorResult.rewrittenBullets.map((b, i) => (
                           <div key={i} style={{ padding: '14px', background: 'var(--color-ui-bg)', borderRadius: '10px', border: '1px solid var(--color-ui-border)' }}>
-                            <div style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', marginBottom: '6px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                              Before
-                            </div>
+                            <div style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', marginBottom: '6px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Before</div>
                             <p style={{ fontSize: '12.5px', color: 'var(--color-ui-text-muted)', lineHeight: 1.6, marginBottom: '10px' }}>{b.original}</p>
-                            <div style={{ fontSize: '11px', color: '#4ADE80', marginBottom: '6px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                              After
-                            </div>
+                            <div style={{ fontSize: '11px', color: '#4ADE80', marginBottom: '6px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>After</div>
                             <p style={{ fontSize: '12.5px', color: 'var(--color-ui-text)', lineHeight: 1.6, marginBottom: '12px' }}>{b.suggested}</p>
-                            <button
-                              className="btn-primary"
-                              style={{ fontSize: '12px', padding: '6px 14px' }}
-                              onClick={() => applyTailorSuggestion('bullet', b.suggested, b.original)}
-                            >
+                            <button className="btn-primary" style={{ fontSize: '12px', padding: '6px 14px' }} onClick={() => applyTailorSuggestion('bullet', b.suggested, b.original)}>
                               <Check size={12} /> Apply
                             </button>
                           </div>
@@ -490,20 +699,12 @@ function AppContent() {
                       </div>
                     </div>
                   )}
-
-                  {/* Suggested Summary */}
                   {tailorResult.suggestedSummary && (
                     <div>
-                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '10px' }}>
-                        Tailored Summary
-                      </div>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '10px' }}>Tailored Summary</div>
                       <div style={{ padding: '14px', background: 'var(--color-ui-bg)', borderRadius: '10px', border: '1px solid var(--color-ui-border)' }}>
                         <p style={{ fontSize: '13px', color: 'var(--color-ui-text)', lineHeight: 1.7, marginBottom: '12px' }}>{tailorResult.suggestedSummary}</p>
-                        <button
-                          className="btn-primary"
-                          style={{ fontSize: '12px', padding: '6px 14px' }}
-                          onClick={() => applyTailorSuggestion('summary', tailorResult.suggestedSummary)}
-                        >
+                        <button className="btn-primary" style={{ fontSize: '12px', padding: '6px 14px' }} onClick={() => applyTailorSuggestion('summary', tailorResult.suggestedSummary)}>
                           <Check size={12} /> Apply Summary
                         </button>
                       </div>
@@ -513,7 +714,6 @@ function AppContent() {
               )}
             </div>
 
-            {/* Footer */}
             <div style={{ padding: '16px 28px', borderTop: '1px solid var(--color-ui-border)', display: 'flex', justifyContent: 'flex-end', gap: '10px', flexShrink: 0 }}>
               {tailorResult ? (
                 <>
@@ -539,9 +739,7 @@ function AppContent() {
           <div className="modal-content" style={{ maxWidth: '600px', maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '24px 28px', borderBottom: '1px solid var(--color-ui-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0 }}>
               <div>
-                <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '4px' }}>
-                  ATS Compatibility Score
-                </h2>
+                <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '4px' }}>ATS Compatibility Score</h2>
                 <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)' }}>Check how well your resume matches a job description</p>
               </div>
               <button className="btn-ghost" style={{ padding: '4px' }} onClick={() => setActiveModal(null)}><X size={18} /></button>
@@ -551,25 +749,12 @@ function AppContent() {
               {!atsResult ? (
                 <div>
                   <label className="field-label">Job Description</label>
-                  <textarea
-                    className="field-textarea"
-                    rows={9}
-                    value={atsJd}
-                    onChange={e => setAtsJd(e.target.value)}
-                    placeholder="Paste the job description to analyze your match..."
-                    style={{ fontSize: '13px' }}
-                  />
+                  <textarea className="field-textarea" rows={9} value={atsJd} onChange={e => setAtsJd(e.target.value)} placeholder="Paste the job description to analyze your match..." style={{ fontSize: '13px' }} />
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                  {/* Score ring */}
                   <div style={{ textAlign: 'center', padding: '24px 0' }}>
-                    <div style={{
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      width: '120px', height: '120px', borderRadius: '50%',
-                      background: `conic-gradient(${atsResult.score >= 80 ? '#4ADE80' : atsResult.score >= 60 ? '#F59E0B' : '#F87171'} ${atsResult.score * 3.6}deg, rgba(255,255,255,0.05) 0deg)`,
-                      boxShadow: '0 0 30px rgba(0,0,0,0.3)',
-                    }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '120px', height: '120px', borderRadius: '50%', background: `conic-gradient(${atsResult.score >= 80 ? '#4ADE80' : atsResult.score >= 60 ? '#F59E0B' : '#F87171'} ${atsResult.score * 3.6}deg, rgba(255,255,255,0.05) 0deg)`, boxShadow: '0 0 30px rgba(0,0,0,0.3)' }}>
                       <div style={{ width: '90px', height: '90px', borderRadius: '50%', background: 'var(--color-ui-surface)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                         <span style={{ fontSize: '28px', fontWeight: 800, color: 'var(--color-ui-text)' }}>{atsResult.score}</span>
                         <span style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', fontWeight: 600 }}>/ 100</span>
@@ -579,16 +764,12 @@ function AppContent() {
                       {atsResult.score >= 80 ? '✓ Strong Match' : atsResult.score >= 60 ? '⚠ Moderate Match' : '✗ Needs Work'}
                     </div>
                   </div>
-
-                  {/* Feedback */}
                   {atsResult.feedback && (
                     <div style={{ padding: '14px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: '10px' }}>
                       <div style={{ fontSize: '11px', fontWeight: 600, color: '#818CF8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>Feedback</div>
                       <p style={{ fontSize: '13px', color: 'var(--color-ui-text)', lineHeight: 1.65 }}>{atsResult.feedback}</p>
                     </div>
                   )}
-
-                  {/* Missing keywords */}
                   {atsResult.missingKeywords.length > 0 && (
                     <div>
                       <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -596,25 +777,17 @@ function AppContent() {
                       </div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                         {atsResult.missingKeywords.map(k => (
-                          <span key={k} style={{ padding: '4px 10px', background: 'rgba(248,81,73,0.1)', border: '1px solid rgba(248,81,73,0.2)', borderRadius: '100px', fontSize: '12px', color: '#F87171' }}>
-                            {k}
-                          </span>
+                          <span key={k} style={{ padding: '4px 10px', background: 'rgba(248,81,73,0.1)', border: '1px solid rgba(248,81,73,0.2)', borderRadius: '100px', fontSize: '12px', color: '#F87171' }}>{k}</span>
                         ))}
                       </div>
                     </div>
                   )}
-
-                  {/* Weak sections */}
                   {atsResult.weakSections.length > 0 && (
                     <div>
-                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '8px' }}>
-                        Sections to Improve
-                      </div>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '8px' }}>Sections to Improve</div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                         {atsResult.weakSections.map(s => (
-                          <span key={s} style={{ padding: '4px 10px', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '100px', fontSize: '12px', color: '#F59E0B' }}>
-                            {s}
-                          </span>
+                          <span key={s} style={{ padding: '4px 10px', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '100px', fontSize: '12px', color: '#F59E0B' }}>{s}</span>
                         ))}
                       </div>
                     </div>
@@ -642,7 +815,17 @@ function AppContent() {
           </div>
         </div>
       )}
-      {/* Print portal — rendered outside the app shell so print CSS sees it cleanly */}
+
+      {/* ── UPGRADE MODAL ────────────────────────────── */}
+      {upgradePrompt && (
+        <UpgradeModal
+          requiredPlan={upgradePrompt.requiredPlan}
+          featureLabel={upgradePrompt.featureLabel}
+          onClose={() => setUpgradePrompt(null)}
+        />
+      )}
+
+      {/* Print portal */}
       {createPortal(
         <TemplateRenderer resume={resume} config={activeTemplate} />,
         document.getElementById('print-portal')!
@@ -654,7 +837,9 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <PlanProvider>
+        <AppContent />
+      </PlanProvider>
     </AuthProvider>
   );
 }

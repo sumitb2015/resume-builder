@@ -3,8 +3,10 @@ import type { Resume, ExperienceEntry, SkillEntry, EducationEntry, ProjectEntry,
 import { api } from '../lib/api';
 import {
   User, Briefcase, GraduationCap, Wrench, FolderOpen,
-  Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Zap, Check, X, GripVertical, Bold, Italic
+  Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Zap, Check, X, GripVertical, Bold, Italic, Lock
 } from 'lucide-react';
+import { usePlan } from '../contexts/PlanContext';
+import type { Feature } from '../contexts/PlanContext';
 
 interface Props {
   resume: Resume;
@@ -13,6 +15,7 @@ interface Props {
   onAtsScore: () => void;
   improvements?: ImprovementSuggestions | null;
   onDismissImprovements?: () => void;
+  onUpgradeNeeded: (feature: Feature) => void;
 }
 
 type TabId = 'personal' | 'experience' | 'education' | 'skills' | 'projects' | 'certifications' | 'languages';
@@ -154,7 +157,8 @@ const EmptyState: React.FC<{ icon: React.ReactNode; text: string }> = ({ icon, t
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore, improvements, onDismissImprovements }) => {
+const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore, improvements, onDismissImprovements, onUpgradeNeeded }) => {
+  const { canAccess, remainingBullets, incrementBulletUsage } = usePlan();
   const [activeTab, setActiveTab] = useState<TabId>('personal');
   const [showImprovements, setShowImprovements] = useState(true);
 
@@ -252,10 +256,15 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
   // ── AI ────────────────────────────────────────────────────────────────────
   const handleAIBullets = async (exp: ExperienceEntry) => {
     if (!exp.role && !exp.company) return;
+    if (remainingBullets <= 0) {
+      alert('Daily limit reached (3/day on Basic plan). Upgrade to Pro for unlimited AI bullets.');
+      return;
+    }
     setLoadingBullets(exp.id);
     try {
       const data = await api.generateBullets(exp.role, exp.company, 'Technology');
       setBulletSuggestions({ expId: exp.id, bullets: data.bullets });
+      incrementBulletUsage();
     } catch {
       alert('AI unavailable. Check server is running with OPENAI_API_KEY set.');
     } finally { setLoadingBullets(null); }
@@ -270,6 +279,7 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
   };
 
   const handleFindSkills = async () => {
+    if (!canAccess('skills-finder')) { onUpgradeNeeded('skills-finder'); return; }
     if (!skillJobTitle.trim()) return;
     setLoadingSkills(true);
     try {
@@ -281,6 +291,7 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
   };
 
   const handleGenerateSummary = async () => {
+    if (!canAccess('ai-summary')) { onUpgradeNeeded('ai-summary'); return; }
     setLoadingSummary(true);
     try {
       const skills = resume.skills.map(s => s.name).filter(Boolean);
@@ -447,8 +458,9 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
                   style={{ position: 'absolute', bottom: '30px', right: '10px' }}
                   onClick={handleGenerateSummary}
                   disabled={loadingSummary}
+                  title={!canAccess('ai-summary') ? 'Pro plan required' : 'Generate AI summary'}
                 >
-                  {loadingSummary ? <Loader2 size={11} className="spin" /> : <Sparkles size={11} />}
+                  {!canAccess('ai-summary') ? <Lock size={11} /> : loadingSummary ? <Loader2 size={11} className="spin" /> : <Sparkles size={11} />}
                   {loadingSummary ? 'Writing…' : 'AI Write'}
                 </button>
               </div>
@@ -515,9 +527,14 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
                       <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                           <label className="field-label" style={{ margin: 0 }}>Bullet Points</label>
-                          <button className="btn-ai" onClick={() => handleAIBullets(exp)} disabled={loadingBullets === exp.id}>
-                            {loadingBullets === exp.id ? <Loader2 size={11} className="spin" /> : <Sparkles size={11} />}
-                            {loadingBullets === exp.id ? 'Generating…' : '✨ AI Bullets'}
+                          <button
+                            className="btn-ai"
+                            onClick={() => handleAIBullets(exp)}
+                            disabled={loadingBullets === exp.id || remainingBullets <= 0}
+                            title={remainingBullets <= 0 ? 'Daily limit reached — upgrade to Pro' : `AI Bullets${remainingBullets !== Infinity ? ` (${remainingBullets} left today)` : ''}`}
+                          >
+                            {loadingBullets === exp.id ? <Loader2 size={11} className="spin" /> : remainingBullets <= 0 ? <Lock size={11} /> : <Sparkles size={11} />}
+                            {loadingBullets === exp.id ? 'Generating…' : remainingBullets !== Infinity && remainingBullets >= 0 ? `AI Bullets (${remainingBullets})` : '✨ AI Bullets'}
                           </button>
                         </div>
                         {exp.bullets.map((bullet, bi) => (

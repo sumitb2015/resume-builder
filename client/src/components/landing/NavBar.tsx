@@ -1,13 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Zap, LogOut } from 'lucide-react';
+import { Zap, LogOut, Shield, Crown } from 'lucide-react';
 import { scrollToSection } from '../../lib/scroll';
 import { useAuth } from '../../contexts/AuthContext';
+import { usePlan } from '../../contexts/PlanContext';
 
 interface Props { onStart: () => void }
+
+const PLAN_BADGE_CONFIG = {
+  basic:   { label: 'Basic',    color: '#FCD34D', bg: 'rgba(245,158,11,0.15)', icon: (size: number) => <Shield size={size} /> },
+  pro:     { label: 'Pro',      color: '#818CF8', bg: 'rgba(99,102,241,0.15)', icon: (size: number) => <Zap size={size} /> },
+  ultimate:{ label: 'Ultimate', color: '#C084FC', bg: 'rgba(168,85,247,0.15)', icon: (size: number) => <Crown size={size} /> },
+} as const;
 
 const NavBar: React.FC<Props> = ({ onStart }) => {
   const [scrollY, setScrollY] = useState(0);
   const { currentUser, signOut } = useAuth();
+  const { plan } = usePlan();
 
   useEffect(() => {
     const el = document.querySelector('.landing-page') as HTMLElement | null;
@@ -22,6 +30,8 @@ const NavBar: React.FC<Props> = ({ onStart }) => {
     { label: 'AI Features', id: 'ai-features' },
     { label: 'Pricing', id: 'pricing' },
   ];
+
+  const badge = plan ? PLAN_BADGE_CONFIG[plan] : null;
 
   return (
     <nav style={{
@@ -76,6 +86,24 @@ const NavBar: React.FC<Props> = ({ onStart }) => {
               {(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}
             </div>
           )}
+
+          {/* Plan badge */}
+          {badge && (
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '5px',
+              padding: '4px 10px', borderRadius: '100px',
+              background: badge.bg,
+              border: `1px solid ${badge.color}40`,
+            }}>
+              <span style={{ color: badge.color, display: 'flex', alignItems: 'center' }}>
+                {badge.icon(11)}
+              </span>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: badge.color, letterSpacing: '0.03em' }}>
+                {badge.label}
+              </span>
+            </div>
+          )}
+
           <button
             onClick={onStart}
             style={{
