@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import multer from 'multer';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdfParse: (buf: Buffer) => Promise<{ text: string }> = require('pdf-parse');
+const _pdfParseModule = require('pdf-parse');
+const pdfParse: (buf: Buffer) => Promise<{ text: string }> = _pdfParseModule.default ?? _pdfParseModule;
 import mammoth from 'mammoth';
 import * as parseService from '../services/parse.service';
 
