@@ -37,6 +37,13 @@ export const api = {
       feedback: string;
     }>('/api/ai/ats-score', { resume, jobDescription }),
 
+  atsTailor: (resume: unknown, jobDescription: string, atsResult: { score: number; missingKeywords: string[]; weakSections: string[]; feedback: string }) =>
+    post<{
+      missingKeywords: string[];
+      rewrittenBullets: { original: string; suggested: string }[];
+      suggestedSummary: string;
+    }>('/api/ai/ats-tailor', { resume, jobDescription, atsResult }),
+
   findSkills: (jobTitle: string) =>
     post<{ technical: string[]; soft: string[] }>('/api/ai/find-skills', { jobTitle }),
 

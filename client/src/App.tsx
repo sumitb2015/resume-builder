@@ -385,6 +385,7 @@ function AppContent() {
   // ATS modal state
   const [atsJd, setAtsJd] = useState('');
   const [atsLoading, setAtsLoading] = useState(false);
+  const [atsTailorLoading, setAtsTailorLoading] = useState(false);
   const [atsResult, setAtsResult] = useState<{
     score: number;
     missingKeywords: string[];
@@ -583,6 +584,25 @@ function AppContent() {
     }
   };
 
+  const handleAtsTailor = async () => {
+    if (!atsResult || !atsJd.trim()) return;
+    setAtsTailorLoading(true);
+    try {
+      const result = await api.atsTailor(resume, atsJd, atsResult);
+      // Pre-populate the tailor modal with these results and open it
+      setJd(atsJd);
+      setTailorResult(result);
+      setAppliedBullets(new Set());
+      setAppliedSummary(false);
+      setAddedKeywords(new Set());
+      setActiveModal('tailor');
+    } catch {
+      alert('AI unavailable. Make sure the server is running with OPENAI_API_KEY set.');
+    } finally {
+      setAtsTailorLoading(false);
+    }
+  };
+
   const openAtsModal = () => {
     if (!canAccess('dynamic-ats')) { showUpgrade('dynamic-ats'); return; }
     setActiveModal('ats');
@@ -655,7 +675,7 @@ function AppContent() {
     );
   }
 
-  const formWidth = formExpanded ? '58%' : '50%';
+  const formWidth = formExpanded ? '48%' : '40%';
 
   return (
     <div className="app-grid" style={{ background: 'var(--color-ui-bg)' }}>
@@ -1122,8 +1142,17 @@ function AppContent() {
               {atsResult ? (
                 <>
                   <button className="btn-secondary" onClick={() => setAtsResult(null)}>Try Again</button>
-                  <button className="btn-secondary" onClick={() => { setActiveModal(null); setActiveModal('tailor'); }}>Tailor Resume</button>
                   <button className="btn-secondary" onClick={() => setActiveModal(null)}>Close</button>
+                  <button
+                    className="btn-primary"
+                    style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', gap: '6px' }}
+                    onClick={handleAtsTailor}
+                    disabled={atsTailorLoading}
+                  >
+                    {atsTailorLoading
+                      ? <><Loader2 size={14} className="spin" /> Generating Fixes…</>
+                      : <><Sparkles size={14} /> Fix with AI</>}
+                  </button>
                 </>
               ) : (
                 <>

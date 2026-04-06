@@ -65,6 +65,16 @@ app.post('/api/ai/tailor-resume', async (req, res) => {
   }
 });
 
+app.post('/api/ai/ats-tailor', async (req, res) => {
+  try {
+    const { resume, jobDescription, atsResult } = req.body;
+    const result = await aiService.atsTailor(resume, jobDescription, atsResult);
+    res.json(result);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post('/api/ai/ats-score', async (req, res) => {
   try {
     const { resume, jobDescription } = req.body;

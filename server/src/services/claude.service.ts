@@ -63,6 +63,33 @@ Analyze carefully and return ONLY valid JSON with this exact structure:
   return extractJSON(text);
 };
 
+export const atsTailor = async (resumeData: any, jobDescription: string, atsResult: { score: number; missingKeywords: string[]; weakSections: string[]; feedback: string }) => {
+  const prompt = `You are an expert resume consultant. An ATS scan of this resume against the job description returned a score of ${atsResult.score}/100.
+
+ATS Findings:
+- Missing keywords: ${atsResult.missingKeywords.join(', ') || 'none identified'}
+- Weak sections: ${atsResult.weakSections.join(', ') || 'none identified'}
+- Feedback: ${atsResult.feedback}
+
+Resume: ${JSON.stringify(resumeData, null, 2)}
+
+Job Description: ${jobDescription}
+
+Using the ATS findings as your guide, produce specific, actionable resume fixes. Focus on the weak sections and missing keywords identified above.
+Return ONLY valid JSON with this exact structure:
+{
+  "missingKeywords": ["keywords from the ATS findings or JD still missing from the resume, up to 10"],
+  "rewrittenBullets": [
+    {"original": "exact bullet from resume that is weak", "suggested": "rewritten version that incorporates missing keywords and better matches the JD"},
+    {"original": "another weak bullet", "suggested": "improved version"}
+  ],
+  "suggestedSummary": "rewritten professional summary that directly addresses the ATS gaps and targets this specific role"
+}`;
+
+  const text = await ask(prompt);
+  return extractJSON(text);
+};
+
 export const analyzeAtsScore = async (resumeData: any, jobDescription: string) => {
   const prompt = `You are an ATS (Applicant Tracking System) expert. Analyze this resume against the job description.
 
