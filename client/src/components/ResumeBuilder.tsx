@@ -142,15 +142,15 @@ const Field: React.FC<{ label: string; children: React.ReactNode; error?: string
 );
 
 const SectionHeader: React.FC<{ title: string; children?: React.ReactNode }> = ({ title, children }) => (
-  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-    <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-ui-text)', letterSpacing: '-0.01em' }}>{title}</h3>
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #1E2738' }}>
+    <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#E2E8F0', letterSpacing: '-0.02em' }}>{title}</h3>
     {children}
   </div>
 );
 
 const EmptyState: React.FC<{ icon: React.ReactNode; text: string }> = ({ icon, text }) => (
-  <div style={{ textAlign: 'center', padding: '32px 16px', color: 'var(--color-ui-text-dim)', border: '1px dashed var(--color-ui-border)', borderRadius: '10px' }}>
-    <div style={{ marginBottom: '8px', opacity: 0.4 }}>{icon}</div>
+  <div style={{ textAlign: 'center', padding: '36px 16px', color: '#4B5563', border: '1px dashed #252E3F', borderRadius: '12px' }}>
+    <div style={{ marginBottom: '10px', opacity: 0.5 }}>{icon}</div>
     <p style={{ fontSize: '13px' }}>{text}</p>
   </div>
 );
@@ -805,12 +805,12 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
       </div>
 
       {/* ── BOTTOM ACTIONS ────────────────────────────── */}
-      <div style={{ padding: '12px 16px', borderTop: '1px solid var(--color-ui-border)', backgroundColor: 'var(--color-ui-surface)', display: 'flex', gap: '8px', flexShrink: 0 }}>
-        <button className="btn-secondary" style={{ flex: 1, justifyContent: 'center', gap: '6px', fontSize: '12.5px' }} onClick={onAtsScore}>
-          <Award size={14} /> ATS Score
+      <div style={{ padding: '14px 20px', borderTop: '1px solid #1E2738', backgroundColor: '#0A0E14', display: 'flex', gap: '10px', flexShrink: 0 }}>
+        <button className="btn-secondary" style={{ flex: 1, justifyContent: 'center', gap: '6px', fontSize: '13px', padding: '10px', borderColor: '#252E3F', color: '#9CA3AF' }} onClick={onAtsScore}>
+          <Award size={15} /> ATS Score
         </button>
-        <button className="btn-primary" style={{ flex: 1, justifyContent: 'center', gap: '6px', fontSize: '12.5px', background: 'linear-gradient(135deg, #6366F1, #8B5CF6)' }} onClick={onTailor}>
-          <Zap size={14} /> Job Tailor
+        <button className="btn-primary" style={{ flex: 1, justifyContent: 'center', gap: '6px', fontSize: '13px', padding: '10px', background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', boxShadow: '0 4px 16px rgba(99,102,241,0.35)' }} onClick={onTailor}>
+          <Zap size={15} /> Job Tailor
         </button>
       </div>
     </div>

@@ -611,7 +611,7 @@ function AppContent() {
     );
   }
 
-  const formWidth = formExpanded ? 520 : 400;
+  const formWidth = formExpanded ? '58%' : '50%';
 
   return (
     <div className="app-grid" style={{ background: 'var(--color-ui-bg)' }}>
@@ -741,7 +741,7 @@ function AppContent() {
       <div style={{ display: 'flex', overflow: 'hidden', height: '100%' }}>
 
         {/* Left: Form panel (expandable) */}
-        <div style={{ width: `${formWidth}px`, flexShrink: 0, transition: 'width 0.25s cubic-bezier(0.16,1,0.3,1)', position: 'relative', height: '100%', overflow: 'hidden' }} className="no-print">
+        <div style={{ width: formWidth, flexShrink: 0, transition: 'width 0.25s cubic-bezier(0.16,1,0.3,1)', position: 'relative', height: '100%', overflow: 'hidden' }} className="no-print">
           <ResumeBuilder
             resume={resume}
             onChange={setResume}
