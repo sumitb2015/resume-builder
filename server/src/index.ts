@@ -116,7 +116,12 @@ app.post('/api/fetch-job-url', async (req, res) => {
       .replace(/&#39;/g, "'")
       .replace(/\s{2,}/g, '\n')
       .trim()
-      .slice(0, 8000); // limit to avoid token overflow
+      .slice(0, 8000);
+
+    if (text.length < 200) {
+      return res.status(422).json({ error: 'This site uses JavaScript rendering — no job content could be extracted. Please copy-paste the job description text instead.' });
+    }
+
     res.json({ text });
   } catch (error: any) {
     res.status(500).json({ error: error.message || 'Failed to fetch URL' });
