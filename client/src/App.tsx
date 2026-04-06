@@ -830,7 +830,12 @@ function AppContent() {
                         </button>
                       </div>
                       {urlFetchError && (
-                        <p style={{ marginTop: '8px', fontSize: '12px', color: '#F87171' }}>{urlFetchError}</p>
+                        <div style={{ marginTop: '8px', padding: '10px 12px', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: '8px' }}>
+                          <p style={{ fontSize: '12px', color: '#F87171', marginBottom: '6px' }}>{urlFetchError}</p>
+                          <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>
+                            Tip: Switch to "Paste Text" and copy-paste the job description directly from the page.
+                          </p>
+                        </div>
                       )}
                       {jd && (
                         <div style={{ marginTop: '12px', padding: '10px 12px', background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.2)', borderRadius: '8px', fontSize: '12px', color: '#4ADE80' }}>
