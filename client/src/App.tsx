@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import LandingPage from './components/LandingPage';
 import LoginPage from './components/LoginPage';
@@ -20,8 +20,48 @@ import './index.css';
 import {
   Download, Zap, X, Sparkles, Palette,
   Loader2, Check, AlertCircle, ChevronLeft, ChevronRight, FileText, LogOut, Crown, Shield,
-  Save, FolderOpen, Link,
+  Save, FolderOpen, Link, GitCompare, Plus, Minus,
 } from 'lucide-react';
+
+// ── Word-level diff ────────────────────────────────────────────────────────────
+type DiffToken = { text: string; type: 'same' | 'add' | 'del' };
+
+function wordDiff(before: string, after: string): DiffToken[] {
+  if (before === after) return [{ text: before, type: 'same' }];
+  const b = before.split(/\s+/).filter(Boolean);
+  const a = after.split(/\s+/).filter(Boolean);
+  const dp = Array.from({ length: b.length + 1 }, () => new Array(a.length + 1).fill(0));
+  for (let i = 1; i <= b.length; i++)
+    for (let j = 1; j <= a.length; j++)
+      dp[i][j] = b[i-1] === a[j-1] ? dp[i-1][j-1] + 1 : Math.max(dp[i-1][j], dp[i][j-1]);
+  const tokens: DiffToken[] = [];
+  let i = b.length, j = a.length;
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && b[i-1] === a[j-1]) {
+      tokens.unshift({ text: b[i-1], type: 'same' }); i--; j--;
+    } else if (j > 0 && (i === 0 || dp[i][j-1] >= dp[i-1][j])) {
+      tokens.unshift({ text: a[j-1], type: 'add' }); j--;
+    } else {
+      tokens.unshift({ text: b[i-1], type: 'del' }); i--;
+    }
+  }
+  return tokens;
+}
+
+function DiffText({ before, after }: { before: string; after: string }) {
+  if (!before && !after) return null;
+  if (before === after) return <span style={{ fontSize: '13px', color: 'var(--color-ui-text)', lineHeight: 1.7 }}>{after}</span>;
+  const tokens = wordDiff(before || '', after || '');
+  return (
+    <span style={{ fontSize: '13px', lineHeight: 1.7 }}>
+      {tokens.map((t, idx) =>
+        t.type === 'same' ? <span key={idx}>{t.text} </span>
+        : t.type === 'add' ? <mark key={idx} style={{ background: 'rgba(74,222,128,0.25)', color: 'inherit', borderRadius: '3px', padding: '1px 3px' }}>{t.text} </mark>
+        : <del key={idx} style={{ background: 'rgba(248,113,113,0.15)', color: '#F87171', borderRadius: '3px', padding: '1px 3px' }}>{t.text} </del>
+      )}
+    </span>
+  );
+}
 
 const initialResume: Resume = {
   personal: {
@@ -90,7 +130,7 @@ const initialResume: Resume = {
   custom: [],
 };
 
-type ModalType = 'tailor' | 'ats' | null;
+type ModalType = 'tailor' | 'ats' | 'diff' | null;
 
 // Maps a feature to the minimum plan required
 const FEATURE_REQUIRED_PLAN: Record<Feature, 'pro' | 'ultimate'> = {
@@ -301,6 +341,14 @@ function AppContent() {
   const { savedResumes, canSaveMore, saveResume, deleteResume, renameResume } = useSavedResumes();
 
   const [view, setView] = useState<'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder'>('landing');
+  const initialResumeRef = useRef<Resume | null>(null);
+  useEffect(() => {
+    if (view === 'builder' && !initialResumeRef.current) {
+      initialResumeRef.current = JSON.parse(JSON.stringify(resume));
+    }
+    if (view !== 'builder') initialResumeRef.current = null;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view]);
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
   const [formExpanded, setFormExpanded] = useState(false);
   const [resume, setResume] = useState<Resume>(initialResume);
@@ -609,6 +657,18 @@ function AppContent() {
 
         {/* Right: Style toggle + Save + Export + User */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button
+            className="btn-secondary"
+            style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }}
+            onClick={() => setActiveModal('diff')}
+            title="View all changes this session"
+          >
+            <GitCompare size={13} />
+            Changes
+            {initialResumeRef.current && JSON.stringify(initialResumeRef.current) !== JSON.stringify(resume) && (
+              <span style={{ position: 'absolute', top: '-4px', right: '-4px', width: '8px', height: '8px', borderRadius: '50%', background: '#818CF8' }} />
+            )}
+          </button>
           <button
             className={rightPanelOpen ? 'btn-primary' : 'btn-secondary'}
             style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }}
@@ -1009,6 +1069,148 @@ function AppContent() {
           </div>
         </div>
       )}
+
+      {/* ── DIFF / CHANGES MODAL ─────────────────────── */}
+      {activeModal === 'diff' && (() => {
+        const before = initialResumeRef.current;
+        if (!before) return (
+          <div className="modal-overlay no-print" onClick={() => setActiveModal(null)}>
+            <div className="modal-content" style={{ maxWidth: '560px', padding: '32px', textAlign: 'center' }}>
+              <p style={{ color: 'var(--color-ui-text-muted)' }}>No baseline captured yet. Start editing to track changes.</p>
+              <button className="btn-secondary" style={{ marginTop: '16px' }} onClick={() => setActiveModal(null)}>Close</button>
+            </div>
+          </div>
+        );
+
+        // ── Compute diff ─────────────────────────────
+        const personalKeys = ['name', 'title', 'email', 'phone', 'location', 'linkedin', 'website', 'summary'] as const;
+        const personalLabels: Record<typeof personalKeys[number], string> = { name: 'Name', title: 'Title', email: 'Email', phone: 'Phone', location: 'Location', linkedin: 'LinkedIn', website: 'Website', summary: 'Summary' };
+        const changedPersonal = personalKeys.filter(k => (before.personal[k] ?? '') !== (resume.personal[k] ?? ''));
+
+        const expChanges = resume.experience.flatMap(exp => {
+          const prev = before.experience.find(e => e.id === exp.id);
+          if (!prev) return [{ label: `${exp.role} @ ${exp.company}`, isNew: true, items: [] as { type: 'add'|'del'|'changed'; before: string; after: string }[] }];
+          const items: { type: 'add'|'del'|'changed'; before: string; after: string }[] = [];
+          if (prev.role !== exp.role || prev.company !== exp.company) items.push({ type: 'changed', before: `${prev.role} @ ${prev.company}`, after: `${exp.role} @ ${exp.company}` });
+          const prevSet = new Set(prev.bullets);
+          const currSet = new Set(exp.bullets);
+          prev.bullets.forEach(b => { if (!currSet.has(b)) items.push({ type: 'del', before: b, after: '' }); });
+          exp.bullets.forEach(b => { if (!prevSet.has(b)) items.push({ type: 'add', before: '', after: b }); });
+          if (items.length === 0) return [];
+          return [{ label: `${exp.role} @ ${exp.company}`, isNew: false, items }];
+        });
+        const removedExp = before.experience.filter(e => !resume.experience.find(r => r.id === e.id))
+          .map(e => ({ label: `${e.role} @ ${e.company}`, isNew: false, isRemoved: true, items: [] as { type: 'add'|'del'|'changed'; before: string; after: string }[] }));
+
+        const prevSkillNames = new Set(before.skills.map(s => s.name));
+        const currSkillNames = new Set(resume.skills.map(s => s.name));
+        const addedSkills = resume.skills.filter(s => !prevSkillNames.has(s.name));
+        const removedSkills = before.skills.filter(s => !currSkillNames.has(s.name));
+
+        const allExpChanges = [...expChanges, ...removedExp];
+        const hasAnything = changedPersonal.length > 0 || allExpChanges.length > 0 || addedSkills.length > 0 || removedSkills.length > 0;
+
+        const sectionStyle = { marginBottom: '24px' };
+        const sectionTitle = { fontSize: '11px', fontWeight: 700, color: 'var(--color-ui-text-muted)', textTransform: 'uppercase' as const, letterSpacing: '0.1em', marginBottom: '10px' };
+        const rowStyle = { padding: '10px 12px', borderRadius: '8px', marginBottom: '6px' };
+
+        return (
+          <div className="modal-overlay no-print" onClick={e => e.target === e.currentTarget && setActiveModal(null)}>
+            <div className="modal-content" style={{ maxWidth: '680px', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ padding: '24px 28px', borderBottom: '1px solid var(--color-ui-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0 }}>
+                <div>
+                  <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '4px' }}>
+                    <GitCompare size={16} style={{ display: 'inline', marginRight: '8px', color: '#818CF8' }} />
+                    Session Changes
+                  </h2>
+                  <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)' }}>
+                    All changes since you opened this session.{' '}
+                    <span style={{ color: '#4ADE80' }}>Green = added</span>, <span style={{ color: '#F87171', textDecoration: 'line-through' }}>red = removed</span>.
+                  </p>
+                </div>
+                <button className="btn-ghost" style={{ padding: '4px' }} onClick={() => setActiveModal(null)}><X size={18} /></button>
+              </div>
+
+              <div style={{ flex: 1, overflow: 'auto', padding: '24px 28px' }}>
+                {!hasAnything ? (
+                  <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--color-ui-text-muted)' }}>
+                    <GitCompare size={32} style={{ opacity: 0.3, marginBottom: '12px' }} />
+                    <p style={{ fontSize: '14px' }}>No changes yet this session.</p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Personal */}
+                    {changedPersonal.length > 0 && (
+                      <div style={sectionStyle}>
+                        <div style={sectionTitle}>Personal Info</div>
+                        {changedPersonal.map(k => (
+                          <div key={k} style={{ ...rowStyle, background: 'var(--color-ui-bg)', border: '1px solid var(--color-ui-border)' }}>
+                            <div style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', fontWeight: 600, marginBottom: '6px' }}>{personalLabels[k]}</div>
+                            <DiffText before={before.personal[k] ?? ''} after={resume.personal[k] ?? ''} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Experience */}
+                    {allExpChanges.length > 0 && (
+                      <div style={sectionStyle}>
+                        <div style={sectionTitle}>Experience</div>
+                        {allExpChanges.map((ec, i) => (
+                          <div key={i} style={{ marginBottom: '12px' }}>
+                            <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              {(ec as any).isRemoved
+                                ? <><span style={{ color: '#F87171' }}><Minus size={11} /></span> <span style={{ textDecoration: 'line-through', color: '#F87171' }}>{ec.label}</span></>
+                                : ec.isNew
+                                ? <><span style={{ color: '#4ADE80' }}><Plus size={11} /></span> <span style={{ color: '#4ADE80' }}>{ec.label}</span></>
+                                : ec.label}
+                            </div>
+                            {ec.items.map((item, j) => (
+                              <div key={j} style={{ ...rowStyle, background: item.type === 'add' ? 'rgba(74,222,128,0.06)' : item.type === 'del' ? 'rgba(248,113,113,0.06)' : 'var(--color-ui-bg)', border: `1px solid ${item.type === 'add' ? 'rgba(74,222,128,0.2)' : item.type === 'del' ? 'rgba(248,113,113,0.2)' : 'var(--color-ui-border)'}`, display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                                {item.type === 'add' && <Plus size={12} style={{ color: '#4ADE80', flexShrink: 0, marginTop: '3px' }} />}
+                                {item.type === 'del' && <Minus size={12} style={{ color: '#F87171', flexShrink: 0, marginTop: '3px' }} />}
+                                {item.type === 'changed' && <GitCompare size={12} style={{ color: '#818CF8', flexShrink: 0, marginTop: '3px' }} />}
+                                <div style={{ fontSize: '13px', lineHeight: 1.6 }}>
+                                  {item.type === 'add' && <span style={{ color: '#4ADE80' }}>{item.after}</span>}
+                                  {item.type === 'del' && <span style={{ color: '#F87171', textDecoration: 'line-through' }}>{item.before}</span>}
+                                  {item.type === 'changed' && <DiffText before={item.before} after={item.after} />}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Skills */}
+                    {(addedSkills.length > 0 || removedSkills.length > 0) && (
+                      <div style={sectionStyle}>
+                        <div style={sectionTitle}>Skills</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                          {addedSkills.map(s => (
+                            <span key={s.id} style={{ padding: '4px 10px', background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.25)', borderRadius: '100px', fontSize: '12px', color: '#4ADE80', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <Plus size={10} /> {s.name}
+                            </span>
+                          ))}
+                          {removedSkills.map(s => (
+                            <span key={s.id} style={{ padding: '4px 10px', background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.25)', borderRadius: '100px', fontSize: '12px', color: '#F87171', display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'line-through' }}>
+                              <Minus size={10} /> {s.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+
+              <div style={{ padding: '16px 28px', borderTop: '1px solid var(--color-ui-border)', display: 'flex', justifyContent: 'flex-end', flexShrink: 0 }}>
+                <button className="btn-secondary" onClick={() => setActiveModal(null)}>Close</button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── UPGRADE MODAL ────────────────────────────── */}
       {upgradePrompt && (
