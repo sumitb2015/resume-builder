@@ -1,21 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Check, X } from 'lucide-react';
 
 interface Props { onStart: () => void }
 
-type BillingCycle = 'monthly' | 'annual';
-
 const TIERS = [
   {
-    name: 'Free',
-    monthlyPrice: 0,
-    annualPrice: 0,
-    tagline: 'Perfect for getting started',
-    cta: 'Get Started Free',
+    name: 'Basic',
+    price: 199,
+    period: '14 days',
+    tagline: 'Try all essentials, no commitment',
+    cta: 'Start 14-Day Trial',
     ctaStyle: 'secondary' as const,
     popular: false,
     features: [
-      { label: '5 professional templates', included: true },
+      { label: '3 professional templates', included: true },
       { label: 'Live preview & editor', included: true },
       { label: 'PDF export (1 per day)', included: true },
       { label: 'ATS compatibility score', included: true },
@@ -29,8 +27,8 @@ const TIERS = [
   },
   {
     name: 'Pro',
-    monthlyPrice: 12,
-    annualPrice: 9,
+    price: 499,
+    period: 'mo',
     tagline: 'For serious job seekers',
     cta: 'Start Pro',
     ctaStyle: 'primary' as const,
@@ -50,8 +48,8 @@ const TIERS = [
   },
   {
     name: 'Enterprise',
-    monthlyPrice: 29,
-    annualPrice: 23,
+    price: 1999,
+    period: 'mo',
     tagline: 'For teams & organizations',
     cta: 'Contact Sales',
     ctaStyle: 'secondary' as const,
@@ -72,8 +70,6 @@ const TIERS = [
 ];
 
 const PricingSection: React.FC<Props> = ({ onStart }) => {
-  const [billing, setBilling] = useState<BillingCycle>('monthly');
-
   return (
     <section id="pricing" style={{ padding: '100px 48px' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
@@ -90,47 +86,14 @@ const PricingSection: React.FC<Props> = ({ onStart }) => {
           <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'white', marginBottom: '14px' }}>
             Simple, transparent pricing
           </h2>
-          <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.4)', marginBottom: '36px' }}>
-            Start free. Upgrade when you need more power.
+          <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.4)' }}>
+            Try Basic for 14 days. Upgrade to Pro when you need more power.
           </p>
-
-          {/* Billing toggle */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '4px' }}>
-            {(['monthly', 'annual'] as BillingCycle[]).map(cycle => (
-              <button
-                key={cycle}
-                onClick={() => setBilling(cycle)}
-                style={{
-                  padding: '8px 20px', borderRadius: '7px', border: 'none', cursor: 'pointer',
-                  fontSize: '13.5px', fontWeight: 600,
-                  background: billing === cycle ? 'rgba(99,102,241,0.9)' : 'transparent',
-                  color: billing === cycle ? 'white' : 'rgba(255,255,255,0.4)',
-                  transition: 'all 0.2s',
-                  display: 'flex', alignItems: 'center', gap: '8px',
-                }}
-              >
-                {cycle === 'monthly' ? 'Monthly' : 'Annual'}
-                {cycle === 'annual' && (
-                  <span style={{
-                    fontSize: '10px', fontWeight: 700, padding: '2px 7px', borderRadius: '4px',
-                    background: billing === 'annual' ? 'rgba(74,222,128,0.25)' : 'rgba(74,222,128,0.15)',
-                    color: '#4ADE80',
-                  }}>
-                    Save 20%
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Pricing cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', alignItems: 'stretch' }}>
-          {TIERS.map((tier) => {
-            const price = billing === 'monthly' ? tier.monthlyPrice : tier.annualPrice;
-            const originalPrice = billing === 'annual' && tier.monthlyPrice > 0 ? tier.monthlyPrice : null;
-
-            return (
+          {TIERS.map((tier) => (
               <div
                 key={tier.name}
                 style={{
@@ -162,20 +125,11 @@ const PricingSection: React.FC<Props> = ({ onStart }) => {
                   <h3 style={{ fontSize: '20px', fontWeight: 700, color: 'white', marginBottom: '6px' }}>{tier.name}</h3>
                   <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', marginBottom: '20px' }}>{tier.tagline}</p>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                    <span style={{ fontSize: '14px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', alignSelf: 'flex-start', marginTop: '10px' }}>₹</span>
                     <span style={{ fontSize: '42px', fontWeight: 800, color: 'white', letterSpacing: '-0.03em' }}>
-                      ${price}
+                      {tier.price}
                     </span>
-                    {tier.monthlyPrice > 0 && (
-                      <div>
-                        <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.35)' }}>/mo</span>
-                        {originalPrice && (
-                          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)', textDecoration: 'line-through' }}>
-                            ${originalPrice}/mo
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    {tier.monthlyPrice === 0 && <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.35)' }}>forever</span>}
+                    <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.35)' }}>/{tier.period}</span>
                   </div>
                 </div>
 
@@ -226,8 +180,7 @@ const PricingSection: React.FC<Props> = ({ onStart }) => {
                   ))}
                 </div>
               </div>
-            );
-          })}
+          ))}
         </div>
 
         {/* Footer note */}
