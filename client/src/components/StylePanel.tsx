@@ -26,7 +26,7 @@ const SAMPLE_RESUME: Resume = {
   projects: [], certifications: [], languages: [], custom: [],
 };
 
-const THUMB_SCALE = 0.145;
+const THUMB_SCALE = 0.126;
 const TEMPLATE_W = 794;
 const TEMPLATE_H = 1123;
 const THUMB_W = Math.round(TEMPLATE_W * THUMB_SCALE);
@@ -119,8 +119,8 @@ export default function StylePanel({ templates, activeTemplate, onTemplateChange
               ))}
             </div>
 
-            {/* Template grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            {/* Template list */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {filtered.map(t => {
                 const isActive = activeTemplate.id === t.id;
                 const isLocked = !freeTemplateIds.has(t.id) && !canAccess('extra-templates');
@@ -133,8 +133,8 @@ export default function StylePanel({ templates, activeTemplate, onTemplateChange
                       onTemplateChange({ ...t });
                     }}
                     style={{
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px',
-                      padding: '8px', borderRadius: '10px',
+                      display: 'flex', flexDirection: 'row', alignItems: 'stretch', gap: '10px',
+                      padding: '8px', borderRadius: '10px', textAlign: 'left',
                       border: `2px solid ${isActive ? 'var(--color-ui-accent)' : isLocked ? 'rgba(168,85,247,0.2)' : 'var(--color-ui-border)'}`,
                       background: isActive ? 'rgba(99,102,241,0.1)' : 'var(--color-ui-bg)',
                       cursor: 'pointer', transition: 'all 0.15s',
@@ -143,41 +143,52 @@ export default function StylePanel({ templates, activeTemplate, onTemplateChange
                     }}
                     title={isLocked ? 'Pro plan required' : t.name}
                   >
-                    {/* Lock badge */}
-                    {isLocked && (
-                      <div style={{
-                        position: 'absolute', top: '4px', right: '4px',
-                        background: 'rgba(168,85,247,0.2)', borderRadius: '4px',
-                        padding: '2px 3px', display: 'flex', alignItems: 'center',
-                      }}>
-                        <Lock size={8} color="#C084FC" />
-                      </div>
-                    )}
-
                     {/* Thumbnail */}
                     <div style={{
-                      width: '100%', borderRadius: '4px', overflow: 'hidden',
+                      flexShrink: 0, borderRadius: '4px', overflow: 'hidden',
                       border: '1px solid rgba(255,255,255,0.06)',
                       filter: isLocked ? 'grayscale(0.5)' : 'none',
-                      display: 'flex', justifyContent: 'center',
                     }}>
                       <TemplateThumbnail config={t} />
                     </div>
-                    <div style={{
-                      fontSize: '10px', fontWeight: isActive ? 700 : 500,
-                      color: isActive ? 'var(--color-ui-accent)' : isLocked ? 'rgba(192,132,252,0.6)' : 'var(--color-ui-text-muted)',
-                      whiteSpace: 'nowrap', letterSpacing: '0.01em', overflow: 'hidden',
-                      textOverflow: 'ellipsis', maxWidth: '100%',
-                    }}>
-                      {t.name}
+
+                    {/* Info */}
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '6px', minWidth: 0 }}>
+                      <div style={{
+                        fontSize: '12px', fontWeight: isActive ? 700 : 600,
+                        color: isActive ? 'var(--color-ui-accent)' : isLocked ? 'rgba(192,132,252,0.7)' : 'var(--color-ui-text)',
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                      }}>
+                        {t.name}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap' }}>
+                        <span style={{
+                          fontSize: '10px', fontWeight: 600, textTransform: 'capitalize',
+                          color: 'var(--color-ui-text-muted)',
+                          background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: '4px',
+                        }}>{t.category}</span>
+                        <span style={{
+                          fontSize: '10px', fontWeight: 700,
+                          color: t.atsScore >= 90 ? 'var(--color-success)' : 'var(--color-warning)',
+                        }}>ATS {t.atsScore}%</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '4px' }}>
+                        <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: t.colors.primary }} />
+                        <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: t.colors.accent }} />
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                      <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: t.colors.primary }} />
-                      <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: t.colors.accent }} />
-                      <span style={{ fontSize: '9px', fontWeight: 600, marginLeft: '2px', textTransform: 'capitalize', color: t.atsScore >= 90 ? 'var(--color-success)' : 'var(--color-warning)' }}>
-                        ATS {t.atsScore}%
-                      </span>
-                    </div>
+
+                    {/* Lock badge */}
+                    {isLocked && (
+                      <div style={{
+                        position: 'absolute', top: '6px', right: '6px',
+                        background: 'rgba(168,85,247,0.2)', borderRadius: '4px',
+                        padding: '2px 4px', display: 'flex', alignItems: 'center', gap: '3px',
+                      }}>
+                        <Lock size={8} color="#C084FC" />
+                        <span style={{ fontSize: '9px', color: '#C084FC', fontWeight: 600 }}>Pro</span>
+                      </div>
+                    )}
                   </button>
                 );
               })}
