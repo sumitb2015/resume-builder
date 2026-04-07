@@ -1,6 +1,69 @@
 import React, { useState } from 'react';
 import { templates } from '../../templates';
-import type { TemplateConfig } from '../../shared/types';
+import type { TemplateConfig, Resume } from '../../shared/types';
+import TemplateRenderer from '../../templates/TemplateRenderer';
+
+const SAMPLE_RESUME: Resume = {
+  personal: {
+    name: 'Alexandra Chen',
+    title: 'Senior Product Designer',
+    email: 'alex@example.com',
+    phone: '+1 (555) 234-5678',
+    location: 'San Francisco, CA',
+    linkedin: 'linkedin.com/in/alexchen',
+    website: 'alexchen.design',
+    summary: 'Results-driven designer with 8+ years crafting intuitive digital experiences. Led design teams at Fortune 500 companies delivering products used by millions worldwide.',
+  },
+  experience: [
+    {
+      id: '1',
+      company: 'Stripe',
+      role: 'Senior Product Designer',
+      startDate: 'Jan 2021',
+      endDate: '',
+      isCurrent: true,
+      bullets: [
+        'Led redesign of core payment flow, increasing conversion by 23%',
+        'Managed team of 4 designers across 3 product lines',
+        'Established design system adopted by 40+ engineers',
+      ],
+    },
+    {
+      id: '2',
+      company: 'Airbnb',
+      role: 'Product Designer',
+      startDate: 'Mar 2018',
+      endDate: 'Dec 2020',
+      isCurrent: false,
+      bullets: [
+        'Redesigned host onboarding flow reducing drop-off by 35%',
+        'Collaborated with PMs and engineers to ship 12 major features',
+      ],
+    },
+  ],
+  education: [
+    {
+      id: '1',
+      school: 'Stanford University',
+      degree: 'B.S.',
+      field: 'Computer Science',
+      startDate: '2011',
+      endDate: '2015',
+      gpa: '3.9',
+    },
+  ],
+  skills: [
+    { id: '1', name: 'Figma', level: 95 },
+    { id: '2', name: 'React', level: 75 },
+    { id: '3', name: 'User Research', level: 88 },
+    { id: '4', name: 'Prototyping', level: 90 },
+    { id: '5', name: 'TypeScript', level: 72 },
+  ],
+  projects: [],
+  certifications: [],
+  languages: [],
+  custom: [],
+};
 
 interface Props { onStart: () => void }
 
@@ -27,76 +90,29 @@ function getAtsBadgeBg(score: number): string {
   return 'rgba(251,146,60,0.1)';
 }
 
-const TemplateMockup: React.FC<{ t: TemplateConfig }> = ({ t }) => {
-  const isTwoCol = t.layout === 'two-column';
-  const isDark = t.colors.background && t.colors.background.startsWith('#1');
+const SCALE = 0.3;
+const TEMPLATE_W = 794;
+const TEMPLATE_H = 1123;
 
-  return (
+const TemplatePreview: React.FC<{ t: TemplateConfig }> = ({ t }) => (
+  <div style={{
+    width: `${TEMPLATE_W * SCALE}px`,
+    height: `${TEMPLATE_H * SCALE}px`,
+    overflow: 'hidden',
+    margin: '0 auto',
+    flexShrink: 0,
+  }}>
     <div style={{
-      background: t.colors.background || '#fff',
-      borderRadius: '4px',
-      overflow: 'hidden',
-      boxShadow: '0 4px 16px rgba(0,0,0,0.35)',
-      display: 'flex',
-      minHeight: '100px',
-      position: 'relative',
+      width: `${TEMPLATE_W}px`,
+      transformOrigin: 'top left',
+      transform: `scale(${SCALE})`,
+      pointerEvents: 'none',
+      userSelect: 'none',
     }}>
-      {/* Sidebar for two-column */}
-      {isTwoCol && (
-        <div style={{ width: '30%', background: t.colors.primary, padding: '8px 5px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <div style={{ width: '60%', height: '3px', background: 'rgba(255,255,255,0.6)', borderRadius: '2px', marginBottom: '2px' }} />
-          <div style={{ width: '80%', height: '2px', background: 'rgba(255,255,255,0.3)', borderRadius: '1px' }} />
-          <div style={{ height: '6px' }} />
-          {[80,90,70,85].map((w, i) => (
-            <div key={i} style={{ height: '2px', background: 'rgba(255,255,255,0.2)', borderRadius: '1px', width: `${w}%` }} />
-          ))}
-          <div style={{ height: '6px' }} />
-          <div style={{ width: '50%', height: '2px', background: t.colors.accent + '99', borderRadius: '1px' }} />
-          {[65,75,60].map((w, i) => (
-            <div key={i} style={{ height: '2px', background: 'rgba(255,255,255,0.15)', borderRadius: '1px', width: `${w}%`, marginTop: '2px' }} />
-          ))}
-        </div>
-      )}
-      {/* Main content */}
-      <div style={{ flex: 1, padding: '8px 7px' }}>
-        {/* Header */}
-        {!isTwoCol ? (
-          <div style={{ background: t.colors.primary, margin: '-8px -7px 6px', padding: '6px 7px' }}>
-            <div style={{ height: '5px', background: 'rgba(255,255,255,0.85)', borderRadius: '2px', width: '55%', marginBottom: '3px' }} />
-            <div style={{ height: '3px', background: t.colors.accent + 'cc', borderRadius: '1px', width: '35%' }} />
-          </div>
-        ) : (
-          <div style={{ marginBottom: '6px' }}>
-            <div style={{ height: '5px', background: t.colors.primary, borderRadius: '2px', width: '60%', marginBottom: '3px' }} />
-            <div style={{ height: '2px', background: t.colors.accent, borderRadius: '1px', width: '40%' }} />
-          </div>
-        )}
-        {/* Content lines */}
-        <div style={{ height: '2px', background: isDark ? 'rgba(255,255,255,0.12)' : '#d1d5db', width: '40%', marginBottom: '4px', borderRadius: '1px' }} />
-        {[100, 85, 90, 70, 95, 80].map((w, i) => (
-          <div key={i} style={{
-            height: '2px',
-            background: isDark ? 'rgba(255,255,255,0.1)' : '#e5e7eb',
-            width: `${w}%`,
-            borderRadius: '1px',
-            marginBottom: '3px',
-          }} />
-        ))}
-        <div style={{ height: '4px' }} />
-        <div style={{ height: '2px', background: t.colors.accent + '80', width: '35%', borderRadius: '1px', marginBottom: '4px' }} />
-        {[80, 65, 90].map((w, i) => (
-          <div key={i} style={{
-            height: '2px',
-            background: isDark ? 'rgba(255,255,255,0.08)' : '#e5e7eb',
-            width: `${w}%`,
-            borderRadius: '1px',
-            marginBottom: '3px',
-          }} />
-        ))}
-      </div>
+      <TemplateRenderer resume={SAMPLE_RESUME} config={t} />
     </div>
-  );
-};
+  </div>
+);
 
 const TemplateCard: React.FC<{ t: TemplateConfig; onStart: () => void }> = ({ t, onStart }) => {
   const [hovered, setHovered] = useState(false);
@@ -120,20 +136,18 @@ const TemplateCard: React.FC<{ t: TemplateConfig; onStart: () => void }> = ({ t,
     >
       {/* Preview area */}
       <div style={{
-        height: '160px', padding: '14px',
-        background: `linear-gradient(135deg, ${t.colors.primary}22, ${t.colors.accent}15)`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
         position: 'relative',
         borderBottom: '1px solid rgba(255,255,255,0.04)',
+        display: 'flex',
+        justifyContent: 'center',
+        padding: '10px',
       }}>
-        <div style={{ width: '75%' }}>
-          <TemplateMockup t={t} />
-        </div>
+        <TemplatePreview t={t} />
         {hovered && (
           <div style={{
             position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(6,6,9,0.6)', backdropFilter: 'blur(2px)',
-            borderRadius: '0',
+            background: 'rgba(6,6,9,0.65)', backdropFilter: 'blur(2px)',
+            borderRadius: '4px',
           }}>
             <span style={{
               padding: '8px 18px', borderRadius: '8px',
@@ -233,7 +247,7 @@ const TemplateShowcase: React.FC<Props> = ({ onStart }) => {
         {/* Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(5, 1fr)',
+          gridTemplateColumns: 'repeat(4, 1fr)',
           gap: '16px',
         }}>
           {filtered.map(t => (

@@ -9,9 +9,13 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3001;
 
-const allowedOrigins = process.env.FRONTEND_URL
-  ? [process.env.FRONTEND_URL, 'http://localhost:5173']
-  : ['http://localhost:5173', 'http://localhost:4173'];
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:4173',
+  'https://bespokecv.in',
+  'https://www.bespokecv.in',
+  ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+];
 
 app.use(cors({
   origin: (origin, callback) => {
