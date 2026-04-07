@@ -20,7 +20,7 @@ import './index.css';
 import {
   Download, Zap, X, Sparkles, Palette,
   Loader2, Check, AlertCircle, ChevronLeft, ChevronRight, FileText, LogOut, Crown, Shield,
-  Save, FolderOpen, Link, GitCompare, Plus, Minus,
+  Save, FolderOpen, Link, GitCompare, Plus, Minus, Sun, Moon,
 } from 'lucide-react';
 
 // ── Word-level diff ────────────────────────────────────────────────────────────
@@ -339,6 +339,17 @@ function AppContent() {
   const { currentUser, loading, signOut } = useAuth();
   const { plan, canAccess, maxResumes } = usePlan();
   const { savedResumes, canSaveMore, saveResume, deleteResume, renameResume } = useSavedResumes();
+
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    const saved = (localStorage.getItem('theme') as 'dark' | 'light') ?? 'dark';
+    document.documentElement.dataset.theme = saved;
+    return saved;
+  });
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
 
   const [view, setView] = useState<'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder'>('landing');
   const initialResumeRef = useRef<Resume | null>(null);
@@ -732,6 +743,14 @@ function AppContent() {
             {initialResumeRef.current && JSON.stringify(initialResumeRef.current) !== JSON.stringify(resume) && (
               <span style={{ position: 'absolute', top: '-4px', right: '-4px', width: '8px', height: '8px', borderRadius: '50%', background: '#818CF8' }} />
             )}
+          </button>
+          <button
+            className="btn-ghost"
+            style={{ padding: '7px 10px' }}
+            onClick={toggleTheme}
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
           </button>
           <button
             className={rightPanelOpen ? 'btn-primary' : 'btn-secondary'}

@@ -73,7 +73,7 @@ export default function UpgradeModal({ requiredPlan, featureLabel, onClose }: Pr
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div style={{
-        background: '#0F0F14',
+        background: 'var(--color-ui-surface)',
         border: `1px solid ${details.color}40`,
         borderRadius: '20px',
         padding: '32px',
@@ -88,7 +88,7 @@ export default function UpgradeModal({ requiredPlan, featureLabel, onClose }: Pr
           style={{
             position: 'absolute', top: '16px', right: '16px',
             background: 'transparent', border: 'none', cursor: 'pointer',
-            color: 'rgba(255,255,255,0.3)', padding: '4px',
+            color: 'var(--color-ui-text-dim)', padding: '4px',
             borderRadius: '6px',
           }}
         >
@@ -109,13 +109,13 @@ export default function UpgradeModal({ requiredPlan, featureLabel, onClose }: Pr
             <div style={{ fontSize: '11px', fontWeight: 600, color: details.color, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '2px' }}>
               {planLabel} Required
             </div>
-            <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'white', letterSpacing: '-0.02em', margin: 0 }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.02em', margin: 0 }}>
               Unlock {featureLabel}
             </h2>
           </div>
         </div>
 
-        <p style={{ fontSize: '13.5px', color: 'rgba(255,255,255,0.45)', marginBottom: '24px', lineHeight: 1.6 }}>
+        <p style={{ fontSize: '13.5px', color: 'var(--color-ui-text-muted)', marginBottom: '24px', lineHeight: 1.6 }}>
           This feature is available on the <strong style={{ color: details.color }}>{planLabel}</strong> plan. Upgrade to access it along with:
         </p>
 
@@ -124,7 +124,7 @@ export default function UpgradeModal({ requiredPlan, featureLabel, onClose }: Pr
           {details.features.map((f, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
               <Check size={14} color={details.color} style={{ flexShrink: 0, marginTop: '2px' }} />
-              <span style={{ fontSize: '13.5px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.4 }}>{f}</span>
+              <span style={{ fontSize: '13.5px', color: 'var(--color-ui-text)', lineHeight: 1.4 }}>{f}</span>
             </div>
           ))}
         </div>
@@ -139,10 +139,10 @@ export default function UpgradeModal({ requiredPlan, featureLabel, onClose }: Pr
           marginBottom: '12px',
         }}>
           <div>
-            <div style={{ fontSize: '24px', fontWeight: 800, color: 'white', letterSpacing: '-0.03em' }}>
+            <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em' }}>
               {details.price}
             </div>
-            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>per month</div>
+            <div style={{ fontSize: '12px', color: 'var(--color-ui-text-dim)' }}>per month</div>
           </div>
           <button
             onClick={handleActivate}
@@ -160,7 +160,7 @@ export default function UpgradeModal({ requiredPlan, featureLabel, onClose }: Pr
           </button>
         </div>
 
-        <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', textAlign: 'center', margin: 0 }}>
+        <p style={{ fontSize: '11px', color: 'var(--color-ui-text-dim)', textAlign: 'center', margin: 0 }}>
           Demo mode — plan activated instantly. Payment integration coming soon.
         </p>
       </div>
