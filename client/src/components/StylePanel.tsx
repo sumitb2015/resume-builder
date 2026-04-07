@@ -1,9 +1,46 @@
 import { useState } from 'react';
 import { X, ChevronDown, ChevronUp, Lock } from 'lucide-react';
-import type { TemplateConfig } from '../shared/types';
+import type { TemplateConfig, Resume } from '../shared/types';
 import { colorPalettes } from '../templates';
 import { usePlan } from '../contexts/PlanContext';
 import type { Feature } from '../contexts/PlanContext';
+import TemplateRenderer from '../templates/TemplateRenderer';
+
+const SAMPLE_RESUME: Resume = {
+  personal: {
+    name: 'Alexandra Chen',
+    title: 'Senior Product Designer',
+    email: 'alex@example.com',
+    phone: '+1 (555) 234-5678',
+    location: 'San Francisco, CA',
+    linkedin: 'linkedin.com/in/alexchen',
+    website: 'alexchen.design',
+    summary: 'Results-driven designer with 8+ years crafting intuitive digital experiences. Led design teams at Fortune 500 companies delivering products used by millions.',
+  },
+  experience: [
+    { id: '1', company: 'Stripe', role: 'Senior Product Designer', startDate: 'Jan 2021', endDate: '', isCurrent: true, bullets: ['Led redesign of core payment flow, increasing conversion by 23%', 'Managed team of 4 designers across 3 product lines'] },
+    { id: '2', company: 'Airbnb', role: 'Product Designer', startDate: 'Mar 2018', endDate: 'Dec 2020', isCurrent: false, bullets: ['Redesigned host onboarding reducing drop-off by 35%'] },
+  ],
+  education: [{ id: '1', school: 'Stanford University', degree: 'B.S.', field: 'Computer Science', startDate: '2011', endDate: '2015', gpa: '3.9' }],
+  skills: [{ id: '1', name: 'Figma', level: 95 }, { id: '2', name: 'React', level: 75 }, { id: '3', name: 'User Research', level: 88 }],
+  projects: [], certifications: [], languages: [], custom: [],
+};
+
+const THUMB_SCALE = 0.145;
+const TEMPLATE_W = 794;
+const TEMPLATE_H = 1123;
+const THUMB_W = Math.round(TEMPLATE_W * THUMB_SCALE);
+const THUMB_H = Math.round(TEMPLATE_H * THUMB_SCALE);
+
+function TemplateThumbnail({ config }: { config: TemplateConfig }) {
+  return (
+    <div style={{ width: `${THUMB_W}px`, height: `${THUMB_H}px`, overflow: 'hidden', borderRadius: '3px', flexShrink: 0 }}>
+      <div style={{ width: `${TEMPLATE_W}px`, transformOrigin: 'top left', transform: `scale(${THUMB_SCALE})`, pointerEvents: 'none', userSelect: 'none' }}>
+        <TemplateRenderer resume={SAMPLE_RESUME} config={config} />
+      </div>
+    </div>
+  );
+}
 
 // First 3 templates (by index in the full templates array) are available on Basic
 const FREE_TEMPLATE_COUNT = 3;
@@ -119,18 +156,12 @@ export default function StylePanel({ templates, activeTemplate, onTemplateChange
 
                     {/* Thumbnail */}
                     <div style={{
-                      width: '100%', height: '52px', borderRadius: '4px', overflow: 'hidden',
-                      background: t.colors.background || '#fff', position: 'relative',
+                      width: '100%', borderRadius: '4px', overflow: 'hidden',
                       border: '1px solid rgba(255,255,255,0.06)',
                       filter: isLocked ? 'grayscale(0.5)' : 'none',
+                      display: 'flex', justifyContent: 'center',
                     }}>
-                      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '10px', background: t.colors.primary }} />
-                      <div style={{ position: 'absolute', top: '14px', left: '5px', right: '5px', height: '3px', background: t.colors.accent, borderRadius: '2px', opacity: 0.8 }} />
-                      <div style={{ position: 'absolute', top: '20px', left: '5px', right: '14px', height: '2px', background: '#ccc', borderRadius: '1px' }} />
-                      <div style={{ position: 'absolute', top: '24px', left: '5px', right: '20px', height: '2px', background: '#ccc', borderRadius: '1px' }} />
-                      <div style={{ position: 'absolute', top: '30px', left: '5px', right: '10px', height: '2px', background: t.colors.accent, opacity: 0.4, borderRadius: '1px' }} />
-                      <div style={{ position: 'absolute', top: '35px', left: '5px', right: '16px', height: '1.5px', background: '#ccc', borderRadius: '1px' }} />
-                      <div style={{ position: 'absolute', top: '39px', left: '5px', right: '22px', height: '1.5px', background: '#ccc', borderRadius: '1px' }} />
+                      <TemplateThumbnail config={t} />
                     </div>
                     <div style={{
                       fontSize: '10px', fontWeight: isActive ? 700 : 500,
