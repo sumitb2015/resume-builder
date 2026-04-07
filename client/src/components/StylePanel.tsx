@@ -26,15 +26,16 @@ const SAMPLE_RESUME: Resume = {
   projects: [], certifications: [], languages: [], custom: [],
 };
 
-const THUMB_SCALE = 0.126;
+// Panel is 300px wide, 12px padding each side = 276px content, 2px border each side = 272px inner
+const THUMB_W = 272;
 const TEMPLATE_W = 794;
 const TEMPLATE_H = 1123;
-const THUMB_W = Math.round(TEMPLATE_W * THUMB_SCALE);
+const THUMB_SCALE = THUMB_W / TEMPLATE_W;
 const THUMB_H = Math.round(TEMPLATE_H * THUMB_SCALE);
 
 function TemplateThumbnail({ config }: { config: TemplateConfig }) {
   return (
-    <div style={{ width: `${THUMB_W}px`, height: `${THUMB_H}px`, overflow: 'hidden', borderRadius: '3px', flexShrink: 0 }}>
+    <div style={{ width: `${THUMB_W}px`, height: `${THUMB_H}px`, overflow: 'hidden', flexShrink: 0 }}>
       <div style={{ width: `${TEMPLATE_W}px`, transformOrigin: 'top left', transform: `scale(${THUMB_SCALE})`, pointerEvents: 'none', userSelect: 'none' }}>
         <TemplateRenderer resume={SAMPLE_RESUME} config={config} />
       </div>
@@ -133,62 +134,44 @@ export default function StylePanel({ templates, activeTemplate, onTemplateChange
                       onTemplateChange({ ...t });
                     }}
                     style={{
-                      display: 'flex', flexDirection: 'row', alignItems: 'stretch', gap: '10px',
-                      padding: '8px', borderRadius: '10px', textAlign: 'left',
+                      display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 0,
+                      padding: 0, borderRadius: '10px', textAlign: 'left', overflow: 'hidden',
                       border: `2px solid ${isActive ? 'var(--color-ui-accent)' : isLocked ? 'rgba(168,85,247,0.2)' : 'var(--color-ui-border)'}`,
                       background: isActive ? 'rgba(99,102,241,0.1)' : 'var(--color-ui-bg)',
-                      cursor: 'pointer', transition: 'all 0.15s',
+                      cursor: 'pointer', transition: 'border-color 0.15s',
                       position: 'relative',
-                      opacity: isLocked ? 0.65 : 1,
+                      opacity: isLocked ? 0.7 : 1,
                     }}
                     title={isLocked ? 'Pro plan required' : t.name}
                   >
-                    {/* Thumbnail */}
+                    {/* Info row at top */}
                     <div style={{
-                      flexShrink: 0, borderRadius: '4px', overflow: 'hidden',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                      filter: isLocked ? 'grayscale(0.5)' : 'none',
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '7px 10px 6px',
+                      borderBottom: '1px solid rgba(255,255,255,0.05)',
                     }}>
-                      <TemplateThumbnail config={t} />
-                    </div>
-
-                    {/* Info */}
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '6px', minWidth: 0 }}>
-                      <div style={{
-                        fontSize: '12px', fontWeight: isActive ? 700 : 600,
-                        color: isActive ? 'var(--color-ui-accent)' : isLocked ? 'rgba(192,132,252,0.7)' : 'var(--color-ui-text)',
-                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                      }}>
-                        {t.name}
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: t.colors.primary, flexShrink: 0 }} />
+                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: t.colors.accent, flexShrink: 0 }} />
                         <span style={{
-                          fontSize: '10px', fontWeight: 600, textTransform: 'capitalize',
-                          color: 'var(--color-ui-text-muted)',
-                          background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: '4px',
-                        }}>{t.category}</span>
+                          fontSize: '11.5px', fontWeight: isActive ? 700 : 600,
+                          color: isActive ? 'var(--color-ui-accent)' : isLocked ? 'rgba(192,132,252,0.7)' : 'var(--color-ui-text)',
+                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        }}>{t.name}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
                         <span style={{
                           fontSize: '10px', fontWeight: 700,
                           color: t.atsScore >= 90 ? 'var(--color-success)' : 'var(--color-warning)',
                         }}>ATS {t.atsScore}%</span>
-                      </div>
-                      <div style={{ display: 'flex', gap: '4px' }}>
-                        <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: t.colors.primary }} />
-                        <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: t.colors.accent }} />
+                        {isLocked && <Lock size={10} color="#C084FC" />}
                       </div>
                     </div>
 
-                    {/* Lock badge */}
-                    {isLocked && (
-                      <div style={{
-                        position: 'absolute', top: '6px', right: '6px',
-                        background: 'rgba(168,85,247,0.2)', borderRadius: '4px',
-                        padding: '2px 4px', display: 'flex', alignItems: 'center', gap: '3px',
-                      }}>
-                        <Lock size={8} color="#C084FC" />
-                        <span style={{ fontSize: '9px', color: '#C084FC', fontWeight: 600 }}>Pro</span>
-                      </div>
-                    )}
+                    {/* Full-width thumbnail */}
+                    <div style={{ filter: isLocked ? 'grayscale(0.4)' : 'none' }}>
+                      <TemplateThumbnail config={t} />
+                    </div>
                   </button>
                 );
               })}
