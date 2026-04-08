@@ -17,13 +17,13 @@ export const LegalModal: React.FC<Props> = ({ onClose, title = 'Terms of Service
     >
       <div className="modal-content" style={{ maxWidth: '720px', maxHeight: '82vh', display: 'flex', flexDirection: 'column' }}>
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 28px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'white' }}>{title}</h2>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 28px', borderBottom: '1px solid var(--color-ui-border)' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)' }}>{title}</h2>
           <button
             onClick={onClose}
-            style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: '4px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'color 0.2s' }}
-            onMouseEnter={e => e.currentTarget.style.color = 'white'}
-            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
+            style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-ui-text-muted)', padding: '4px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'color 0.2s' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--color-ui-text)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--color-ui-text-muted)'}
           >
             <X size={18} />
           </button>
@@ -35,12 +35,12 @@ export const LegalModal: React.FC<Props> = ({ onClose, title = 'Terms of Service
         </div>
 
         {/* Footer */}
-        <div style={{ padding: '20px 28px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ padding: '20px 28px', borderTop: '1px solid var(--color-ui-border)', display: 'flex', justifyContent: 'flex-end' }}>
           <button
             onClick={onClose}
-            style={{ padding: '9px 24px', borderRadius: '8px', background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)', fontSize: '14px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'; e.currentTarget.style.color = 'white'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; }}
+            style={{ padding: '9px 24px', borderRadius: '8px', background: 'transparent', border: '1px solid var(--color-ui-border)', color: 'var(--color-ui-text-muted)', fontSize: '14px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--color-ui-text-dim)'; e.currentTarget.style.color = 'var(--color-ui-text)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--color-ui-border)'; e.currentTarget.style.color = 'var(--color-ui-text-muted)'; }}
           >
             Close
           </button>
@@ -50,9 +50,9 @@ export const LegalModal: React.FC<Props> = ({ onClose, title = 'Terms of Service
   );
 };
 
-const h2Style: React.CSSProperties = { fontSize: '16px', fontWeight: 700, color: 'white', marginBottom: '10px', marginTop: '28px' };
-const pStyle: React.CSSProperties = { fontSize: '14px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.8, marginBottom: '14px' };
-const lastUpdated: React.CSSProperties = { fontSize: '12px', color: 'rgba(255,255,255,0.25)', marginBottom: '24px' };
+const h2Style: React.CSSProperties = { fontSize: '16px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '10px', marginTop: '28px' };
+const pStyle: React.CSSProperties = { fontSize: '14px', color: 'var(--color-ui-text-muted)', lineHeight: 1.8, marginBottom: '14px' };
+const lastUpdated: React.CSSProperties = { fontSize: '12px', color: 'var(--color-ui-text-dim)', marginBottom: '24px' };
 
 export const TosModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
   <LegalModal onClose={onClose} title="Terms of Service">

@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
-import { MapPin, Mail, Clock, Tag, Briefcase, Users, Rocket, Heart } from 'lucide-react';
+import { MapPin, Mail, Clock, Tag, Briefcase, Rocket, Heart, Users } from 'lucide-react';
 import { LegalModal } from './TosModal';
+
+// Shared styles that respect CSS variables (light/dark mode)
+const h2Style: React.CSSProperties = { fontSize: '16px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '10px', marginTop: '28px' };
+const pStyle: React.CSSProperties = { fontSize: '14px', color: 'var(--color-ui-text-muted)', lineHeight: 1.8, marginBottom: '14px' };
 
 // ─── About Modal ──────────────────────────────────────────────────────────────
 
 export const AboutModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const h2Style: React.CSSProperties = { fontSize: '16px', fontWeight: 700, color: 'white', marginBottom: '10px', marginTop: '28px' };
-  const pStyle: React.CSSProperties = { fontSize: '14px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.8, marginBottom: '14px' };
-
   const statCard = (icon: React.ReactNode, value: string, label: string) => (
     <div style={{
-      background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
+      background: 'var(--color-ui-surface-2)', border: '1px solid var(--color-ui-border)',
       borderRadius: '12px', padding: '20px', textAlign: 'center',
     }}>
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px', color: '#818CF8' }}>{icon}</div>
-      <div style={{ fontSize: '22px', fontWeight: 800, color: 'white', marginBottom: '4px' }}>{value}</div>
-      <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>{label}</div>
+      <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--color-ui-text)', marginBottom: '4px' }}>{value}</div>
+      <div style={{ fontSize: '12px', color: 'var(--color-ui-text-dim)' }}>{label}</div>
     </div>
   );
 
@@ -44,8 +45,8 @@ export const AboutModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       }}>
         <MapPin size={18} color="#818CF8" />
         <div>
-          <div style={{ fontSize: '14px', fontWeight: 600, color: 'white' }}>Pune, Maharashtra, India</div>
-          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>Proudly built in India, serving job seekers worldwide</div>
+          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ui-text)' }}>Pune, Maharashtra, India</div>
+          <div style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>Proudly built in India, serving job seekers worldwide</div>
         </div>
       </div>
       <p style={pStyle}>
@@ -88,14 +89,14 @@ const blogPosts = [
     title: 'Tailoring Your Resume for Each Job Application',
     date: 'February 22, 2026',
     readTime: '6 min read',
-    excerpt: 'Sending the same resume to every job? That\'s leaving interviews on the table. Discover how to quickly customize your resume for each role — focusing on the right keywords, reordering sections, and tweaking your summary to mirror the job description.',
+    excerpt: "Sending the same resume to every job? That's leaving interviews on the table. Discover how to quickly customize your resume for each role — focusing on the right keywords, reordering sections, and tweaking your summary to mirror the job description.",
   },
   {
     tag: 'Resume Writing',
     title: 'The Perfect Resume Summary: A Step-by-Step Guide',
     date: 'February 8, 2026',
     readTime: '5 min read',
-    excerpt: 'Your resume summary is prime real estate — it\'s the first thing a recruiter reads. We\'ll walk you through crafting a 3–4 line summary that packs your years of experience, top skills, and career goal into a punchy opening that demands attention.',
+    excerpt: "Your resume summary is prime real estate — it's the first thing a recruiter reads. We'll walk you through crafting a 3–4 line summary that packs your years of experience, top skills, and career goal into a punchy opening that demands attention.",
   },
 ];
 
@@ -106,154 +107,149 @@ const tagColors: Record<string, string> = {
   'Resume Writing': '#F59E0B',
 };
 
-export const BlogModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const pStyle: React.CSSProperties = { fontSize: '14px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.8, marginBottom: '14px' };
+export const BlogModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
+  <LegalModal onClose={onClose} title="Blog — Resume Tips & Insights">
+    <p style={pStyle}>
+      Practical advice from our team to help you craft a resume that gets results.
+    </p>
 
-  return (
-    <LegalModal onClose={onClose} title="Blog — Resume Tips & Insights">
-      <p style={pStyle}>
-        Practical advice from our team to help you craft a resume that gets results.
-      </p>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '8px' }}>
-        {blogPosts.map((post) => (
-          <div
-            key={post.title}
-            style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.07)',
-              borderRadius: '12px',
-              padding: '20px 22px',
-              transition: 'border-color 0.2s',
-            }}
-            onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)')}
-            onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: '4px',
-                fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
-                color: tagColors[post.tag] ?? '#818CF8',
-                background: `${tagColors[post.tag] ?? '#818CF8'}18`,
-                border: `1px solid ${tagColors[post.tag] ?? '#818CF8'}33`,
-                borderRadius: '6px', padding: '3px 8px',
-              }}>
-                <Tag size={9} />
-                {post.tag}
-              </span>
-              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>
-                <Clock size={11} style={{ display: 'inline', marginRight: '3px', verticalAlign: '-1px' }} />
-                {post.readTime}
-              </span>
-            </div>
-
-            <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'white', marginBottom: '8px', lineHeight: 1.4 }}>
-              {post.title}
-            </h3>
-            <p style={{ fontSize: '13.5px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, marginBottom: '12px' }}>
-              {post.excerpt}
-            </p>
-
-            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>{post.date}</div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '8px' }}>
+      {blogPosts.map((post) => (
+        <div
+          key={post.title}
+          style={{
+            background: 'var(--color-ui-surface-2)',
+            border: '1px solid var(--color-ui-border)',
+            borderRadius: '12px',
+            padding: '20px 22px',
+            transition: 'border-color 0.2s',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--color-ui-text-dim)')}
+          onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--color-ui-border)')}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', gap: '4px',
+              fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
+              color: tagColors[post.tag] ?? '#818CF8',
+              background: `${tagColors[post.tag] ?? '#818CF8'}18`,
+              border: `1px solid ${tagColors[post.tag] ?? '#818CF8'}33`,
+              borderRadius: '6px', padding: '3px 8px',
+            }}>
+              <Tag size={9} />
+              {post.tag}
+            </span>
+            <span style={{ fontSize: '12px', color: 'var(--color-ui-text-dim)' }}>
+              <Clock size={11} style={{ display: 'inline', marginRight: '3px', verticalAlign: '-1px' }} />
+              {post.readTime}
+            </span>
           </div>
-        ))}
-      </div>
 
-      <p style={{ ...pStyle, marginTop: '24px', textAlign: 'center' as const, fontSize: '13px' }}>
-        More articles coming soon. Follow us or check back regularly for new resume tips.
-      </p>
-    </LegalModal>
-  );
-};
+          <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '8px', lineHeight: 1.4 }}>
+            {post.title}
+          </h3>
+          <p style={{ fontSize: '13.5px', color: 'var(--color-ui-text-muted)', lineHeight: 1.7, marginBottom: '12px' }}>
+            {post.excerpt}
+          </p>
+
+          <div style={{ fontSize: '12px', color: 'var(--color-ui-text-dim)' }}>{post.date}</div>
+        </div>
+      ))}
+    </div>
+
+    <p style={{ ...pStyle, marginTop: '24px', textAlign: 'center' as const, fontSize: '13px' }}>
+      More articles coming soon. Follow us or check back regularly for new resume tips.
+    </p>
+  </LegalModal>
+);
 
 // ─── Careers Modal ────────────────────────────────────────────────────────────
 
 const upcomingRoles = [
-  { icon: <Briefcase size={16} />, role: 'Full Stack Engineer', team: 'Product' },
-  { icon: <Briefcase size={16} />, role: 'AI / ML Engineer', team: 'AI' },
-  { icon: <Briefcase size={16} />, role: 'Product Designer (UI/UX)', team: 'Design' },
-  { icon: <Briefcase size={16} />, role: 'Growth & Marketing Manager', team: 'Growth' },
+  { role: 'Full Stack Engineer', team: 'Product' },
+  { role: 'AI / ML Engineer', team: 'AI' },
+  { role: 'Product Designer (UI/UX)', team: 'Design' },
+  { role: 'Growth & Marketing Manager', team: 'Growth' },
 ];
 
-export const CareersModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const h2Style: React.CSSProperties = { fontSize: '16px', fontWeight: 700, color: 'white', marginBottom: '10px', marginTop: '28px' };
-  const pStyle: React.CSSProperties = { fontSize: '14px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.8, marginBottom: '14px' };
-
-  return (
-    <LegalModal onClose={onClose} title="Careers at BespokeCV">
-      {/* Hero banner */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(168,85,247,0.1))',
-        border: '1px solid rgba(99,102,241,0.2)',
-        borderRadius: '14px', padding: '28px 24px', textAlign: 'center', marginBottom: '8px',
-      }}>
-        <div style={{ fontSize: '32px', marginBottom: '10px' }}>🚀</div>
-        <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'white', marginBottom: '8px' }}>
-          We're Hiring Soon!
-        </h3>
-        <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, margin: 0 }}>
-          We're growing fast and will be opening positions shortly. If you're passionate about helping people land their dream jobs, we'd love to meet you.
-        </p>
-      </div>
-
-      <h2 style={h2Style}>Our Culture</h2>
-      <p style={pStyle}>
-        At BespokeCV, we move fast, care deeply about our users, and believe the best products come from small, empowered teams. We're based in Pune, India — and we're building something that matters: giving every job seeker a fair shot.
+export const CareersModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
+  <LegalModal onClose={onClose} title="Careers at BespokeCV">
+    {/* Hero banner */}
+    <div style={{
+      background: 'rgba(99,102,241,0.1)',
+      border: '1px solid rgba(99,102,241,0.2)',
+      borderRadius: '14px', padding: '28px 24px', textAlign: 'center', marginBottom: '8px',
+    }}>
+      <div style={{ fontSize: '32px', marginBottom: '10px' }}>🚀</div>
+      <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--color-ui-text)', marginBottom: '8px' }}>
+        We're Hiring Soon!
+      </h3>
+      <p style={{ fontSize: '14px', color: 'var(--color-ui-text-muted)', lineHeight: 1.7, margin: 0 }}>
+        We're growing fast and will be opening positions shortly. If you're passionate about helping people land their dream jobs, we'd love to meet you.
       </p>
+    </div>
 
-      <h2 style={h2Style}>Roles We're Planning to Open</h2>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '8px' }}>
-        {upcomingRoles.map(({ role, team }) => (
-          <div key={role} style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
-            borderRadius: '10px', padding: '14px 18px',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ color: '#818CF8' }}><Briefcase size={15} /></span>
-              <span style={{ fontSize: '14px', fontWeight: 600, color: 'white' }}>{role}</span>
-            </div>
-            <span style={{
-              fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
-              color: '#818CF8', background: 'rgba(99,102,241,0.12)',
-              border: '1px solid rgba(99,102,241,0.2)', borderRadius: '6px', padding: '3px 8px',
-            }}>
-              {team}
-            </span>
+    <h2 style={h2Style}>Our Culture</h2>
+    <p style={pStyle}>
+      At BespokeCV, we move fast, care deeply about our users, and believe the best products come from small, empowered teams. We're based in Pune, India — and we're building something that matters: giving every job seeker a fair shot.
+    </p>
+
+    <h2 style={h2Style}>Roles We're Planning to Open</h2>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '8px' }}>
+      {upcomingRoles.map(({ role, team }) => (
+        <div key={role} style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          background: 'var(--color-ui-surface-2)', border: '1px solid var(--color-ui-border)',
+          borderRadius: '10px', padding: '14px 18px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ color: '#818CF8' }}><Briefcase size={15} /></span>
+            <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ui-text)' }}>{role}</span>
           </div>
-        ))}
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '16px 18px', marginTop: '20px' }}>
-        <MapPin size={16} color="#818CF8" style={{ flexShrink: 0, marginTop: '2px' }} />
-        <div>
-          <div style={{ fontSize: '14px', fontWeight: 600, color: 'white', marginBottom: '2px' }}>Pune, Maharashtra, India</div>
-          <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>Roles will be a mix of in-office and remote-friendly</div>
+          <span style={{
+            fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
+            color: '#818CF8', background: 'rgba(99,102,241,0.12)',
+            border: '1px solid rgba(99,102,241,0.2)', borderRadius: '6px', padding: '3px 8px',
+          }}>
+            {team}
+          </span>
         </div>
-      </div>
+      ))}
+    </div>
 
-      <h2 style={h2Style}>Interested? Say Hello.</h2>
-      <p style={pStyle}>
-        Even though positions aren't open yet, we'd love to hear from exceptional people. Send us a brief intro and we'll reach out when roles go live.
-      </p>
-      <a
-        href="mailto:support@bespokecv.in?subject=Career Interest — BespokeCV"
-        style={{
-          display: 'inline-flex', alignItems: 'center', gap: '8px',
-          padding: '10px 20px', borderRadius: '8px',
-          background: 'linear-gradient(135deg, #6366F1, #A855F7)',
-          color: 'white', fontSize: '14px', fontWeight: 600, textDecoration: 'none',
-          transition: 'opacity 0.2s',
-        }}
-        onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
-        onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-      >
-        <Mail size={14} />
-        Send an intro to support@bespokecv.in
-      </a>
-    </LegalModal>
-  );
-};
+    <div style={{
+      display: 'flex', alignItems: 'flex-start', gap: '10px',
+      background: 'var(--color-ui-surface-2)', border: '1px solid var(--color-ui-border)',
+      borderRadius: '10px', padding: '16px 18px', marginTop: '20px',
+    }}>
+      <MapPin size={16} color="#818CF8" style={{ flexShrink: 0, marginTop: '2px' }} />
+      <div>
+        <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ui-text)', marginBottom: '2px' }}>Pune, Maharashtra, India</div>
+        <div style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)' }}>Roles will be a mix of in-office and remote-friendly</div>
+      </div>
+    </div>
+
+    <h2 style={h2Style}>Interested? Say Hello.</h2>
+    <p style={pStyle}>
+      Even though positions aren't open yet, we'd love to hear from exceptional people. Send us a brief intro and we'll reach out when roles go live.
+    </p>
+    <a
+      href="mailto:support@bespokecv.in?subject=Career Interest — BespokeCV"
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: '8px',
+        padding: '10px 20px', borderRadius: '8px',
+        background: 'linear-gradient(135deg, #6366F1, #A855F7)',
+        color: 'white', fontSize: '14px', fontWeight: 600, textDecoration: 'none',
+        transition: 'opacity 0.2s',
+      }}
+      onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
+      onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+    >
+      <Mail size={14} />
+      Send an intro to support@bespokecv.in
+    </a>
+  </LegalModal>
+);
 
 // ─── Contact Modal ────────────────────────────────────────────────────────────
 
@@ -265,16 +261,15 @@ export const ContactModal: React.FC<{ onClose: () => void }> = ({ onClose }) => 
 
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '10px 14px',
-    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: '8px', color: 'white', fontSize: '14px',
+    background: 'var(--color-ui-input-bg)', border: '1px solid var(--color-ui-input-border)',
+    borderRadius: '8px', color: 'var(--color-ui-input-text)', fontSize: '14px',
     outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit',
     transition: 'border-color 0.2s',
   };
   const labelStyle: React.CSSProperties = {
     display: 'block', fontSize: '13px', fontWeight: 600,
-    color: 'rgba(255,255,255,0.6)', marginBottom: '6px',
+    color: 'var(--color-ui-field-label)', marginBottom: '6px',
   };
-  const pStyle: React.CSSProperties = { fontSize: '14px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.8, marginBottom: '14px' };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -294,8 +289,8 @@ export const ContactModal: React.FC<{ onClose: () => void }> = ({ onClose }) => 
       }}>
         <MapPin size={18} color="#818CF8" style={{ flexShrink: 0, marginTop: '1px' }} />
         <div>
-          <div style={{ fontSize: '14px', fontWeight: 700, color: 'white', marginBottom: '3px' }}>Pune, Maharashtra, India</div>
-          <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
+          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '3px' }}>Pune, Maharashtra, India</div>
+          <div style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)' }}>
             Reach us anytime at{' '}
             <a href="mailto:support@bespokecv.in" style={{ color: '#818CF8', textDecoration: 'none' }}>
               support@bespokecv.in
@@ -311,7 +306,7 @@ export const ContactModal: React.FC<{ onClose: () => void }> = ({ onClose }) => 
           borderRadius: '12px',
         }}>
           <div style={{ fontSize: '28px', marginBottom: '12px' }}>✅</div>
-          <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'white', marginBottom: '8px' }}>Your email client should open now</h3>
+          <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '8px' }}>Your email client should open now</h3>
           <p style={pStyle}>
             If it didn't open automatically, email us directly at{' '}
             <a href="mailto:support@bespokecv.in" style={{ color: '#818CF8', textDecoration: 'none' }}>support@bespokecv.in</a>
@@ -329,7 +324,7 @@ export const ContactModal: React.FC<{ onClose: () => void }> = ({ onClose }) => 
               onChange={e => setName(e.target.value)}
               style={inputStyle}
               onFocus={e => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.5)')}
-              onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
+              onBlur={e => (e.currentTarget.style.borderColor = 'var(--color-ui-input-border)')}
             />
           </div>
 
@@ -343,7 +338,7 @@ export const ContactModal: React.FC<{ onClose: () => void }> = ({ onClose }) => 
               onChange={e => setEmail(e.target.value)}
               style={inputStyle}
               onFocus={e => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.5)')}
-              onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
+              onBlur={e => (e.currentTarget.style.borderColor = 'var(--color-ui-input-border)')}
             />
           </div>
 
@@ -357,7 +352,7 @@ export const ContactModal: React.FC<{ onClose: () => void }> = ({ onClose }) => 
               onChange={e => setMessage(e.target.value)}
               style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.6 }}
               onFocus={e => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.5)')}
-              onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
+              onBlur={e => (e.currentTarget.style.borderColor = 'var(--color-ui-input-border)')}
             />
           </div>
 
