@@ -134,7 +134,12 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
     onUpdateConfig({ ...config, colors: { ...config.colors, [key]: value } });
   };
 
-  const handlePrint = () => window.print();
+  const handlePrint = () => {
+    // Small delay ensures portal has rendered and print styles are applied
+    setTimeout(() => {
+      window.print();
+    }, 150);
+  };
 
   return (
     <div style={{

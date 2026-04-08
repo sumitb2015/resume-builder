@@ -564,7 +564,10 @@ body {
 /* ── PRINT ─────────────────────────────────────────────── */
 /* Print portal — hidden on screen, only thing shown when printing */
 #print-portal {
-  display: none;
+  position: absolute;
+  top: 0;
+  left: -9999px;
+  width: 210mm;
 }
 
 @media print {
@@ -573,28 +576,22 @@ body {
     margin: 0 !important;
   }
 
-  /* Hide everything except the print portal */
-  body > :not(#print-portal) {
+  #root {
     display: none !important;
   }
 
   #print-portal {
     display: block !important;
     position: static !important;
-    visibility: visible !important;
     width: 100% !important;
     height: auto !important;
     overflow: visible !important;
     background: white !important;
-  }
-
-  html, body {
-    height: auto !important;
-    width: auto !important;
-    overflow: visible !important;
-    background: white !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    /* Force light mode colors for print */
+    --color-ui-text: #0F172A !important;
+    --color-ui-text-muted: #475569 !important;
+    --color-ui-text-dim: #64748B !important;
+    color: #0F172A !important;
   }
 
   /* Force all colors and backgrounds to print */

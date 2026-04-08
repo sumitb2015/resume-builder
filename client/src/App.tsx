@@ -210,7 +210,6 @@ function PlanBadge({ size = 'md' }: { size?: 'sm' | 'md' }) {
       <div
         title="Click to change plan"
         onClick={() => {
-          // cycle through plans for demo — in prod this opens payment
           const order: ('basic' | 'pro' | 'ultimate')[] = ['basic', 'pro', 'ultimate'];
           const next = order[(order.indexOf(plan) + 1) % order.length];
           setPlan(next);
@@ -249,7 +248,6 @@ function PlanSelectPage({ onSelected }: { onSelected: () => void }) {
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       padding: '40px 24px',
     }}>
-      {/* Logo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '48px' }}>
         <div style={{ width: '32px', height: '32px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Zap size={16} color="white" fill="white" />
@@ -321,18 +319,12 @@ function PlanSelectPage({ onSelected }: { onSelected: () => void }) {
                 fontSize: '14px', fontWeight: 700, cursor: 'pointer',
                 transition: 'opacity 0.15s',
               }}
-              onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
-              onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
             >
               Start with {plan.name}
             </button>
           </div>
         ))}
       </div>
-
-      <p style={{ marginTop: '24px', fontSize: '12px', color: 'var(--color-ui-text-dim)' }}>
-        Demo mode — payment integration coming soon. All plans activate instantly.
-      </p>
     </div>
   );
 }
@@ -357,15 +349,28 @@ function migrateResume(resume: Resume): Resume {
   };
 }
 
+/** Helper component for print portal */
+const PrintPortal = ({ resume, config, pageCount }: { resume: Resume; config: TemplateConfig; pageCount: number }) => {
+  const portalNode = document.getElementById('print-portal');
+  if (!portalNode) return null;
+
+  return createPortal(
+    <div className="print-mode">
+      <PagedPreview resume={resume} config={config} forcePageCount={pageCount} />
+    </div>,
+    portalNode
+  );
+};
+
 function AppContent() {
-  const { currentUser, loading, signOut } = useAuth();
+  const { currentUser, signOut } = useAuth();
   const { plan, canAccess, maxResumes } = usePlan();
   const { savedResumes, canSaveMore, saveResume, deleteResume, renameResume } = useSavedResumes();
-
   const { theme, toggleTheme } = useTheme();
 
   const [view, setView] = useState<'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder' | 'preview'>('landing');
   const initialResumeRef = useRef<Resume | null>(null);
+  
   useEffect(() => {
     if (view === 'builder' && !initialResumeRef.current) {
       initialResumeRef.current = JSON.parse(JSON.stringify(resume));
@@ -373,6 +378,7 @@ function AppContent() {
     if (view !== 'builder') initialResumeRef.current = null;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view]);
+
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
   const [formExpanded, setFormExpanded] = useState(false);
   const [resume, setResume] = useState<Resume>(initialResume);
@@ -386,7 +392,7 @@ function AppContent() {
   // Saved resume state
   const [currentResumeId, setCurrentResumeId] = useState<string | null>(null);
   const [showSavedPanel, setShowSavedPanel] = useState(false);
-  const [savePrompt, setSavePrompt] = useState(false);  // name dialog for first save
+  const [savePrompt, setSavePrompt] = useState(false);
   const [saveNameValue, setSaveNameValue] = useState('');
   const [savedToast, setSavedToast] = useState(false);
 
@@ -429,19 +435,11 @@ function AppContent() {
     setTimeout(() => setSavedToast(false), 2500);
   };
 
-  // Called when user clicks Save button
   const handleSave = () => {
     if (currentResumeId) {
-      // Already saved once — just update silently
-      saveResume(
-        savedResumes.find(r => r.id === currentResumeId)?.name ?? 'My Resume',
-        resume,
-        activeTemplate,
-        currentResumeId,
-      );
+      saveResume(savedResumes.find(r => r.id === currentResumeId)?.name ?? 'My Resume', resume, activeTemplate, currentResumeId);
       showSavedToast();
     } else {
-      // First save — ask for a name
       setSaveNameValue(resume.personal.name ? `${resume.personal.name.split(' ')[0]}'s Resume` : 'My Resume');
       setSavePrompt(true);
     }
@@ -450,11 +448,7 @@ function AppContent() {
   const handleSaveConfirm = () => {
     const name = saveNameValue.trim() || 'My Resume';
     if (!canSaveMore) {
-      // At limit — show upgrade
-      setUpgradePrompt({
-        requiredPlan: plan === 'basic' ? 'pro' : 'ultimate',
-        featureLabel: `Save more than ${maxResumes} resume${maxResumes === 1 ? '' : 's'}`,
-      });
+      setUpgradePrompt({ requiredPlan: plan === 'basic' ? 'pro' : 'ultimate', featureLabel: `Save more resumes` });
       setSavePrompt(false);
       return;
     }
@@ -466,7 +460,7 @@ function AppContent() {
     setSavePrompt(false);
   };
 
-  const handleLoadResume = (saved: import('./hooks/useSavedResumes').SavedResume) => {
+  const handleLoadResume = (saved: any) => {
     setResume(migrateResume(saved.resumeData));
     const tpl = templates.find(t => t.id === saved.templateId);
     if (tpl) setActiveTemplate({ ...tpl });
@@ -483,7 +477,7 @@ function AppContent() {
     setShowSavedPanel(false);
   };
 
-  const handleColorChange = (palette: typeof colorPalettes[0]) => {
+  const handleColorChange = (palette: any) => {
     setActiveTemplate(prev => ({
       ...prev,
       colors: { ...prev.colors, primary: palette.primary, accent: palette.accent },
@@ -499,7 +493,7 @@ function AppContent() {
       const result = await api.tailorResume(sanitizeResumeForAI(resume), jd);
       setTailorResult(result);
     } catch {
-      alert('AI unavailable. Make sure the server is running with OPENAI_API_KEY set.');
+      alert('AI unavailable.');
     } finally {
       setTailorLoading(false);
     }
@@ -545,17 +539,13 @@ function AppContent() {
           bullets: exp.bullets.map(b => stripHtml(b) === originalBullet ? plainTextToHtml(value) : b),
         })),
       }));
-      if (bulletIndex !== undefined) {
-        setAppliedBullets(prev => new Set(prev).add(bulletIndex));
-      }
+      if (bulletIndex !== undefined) setAppliedBullets(prev => new Set(prev).add(bulletIndex));
     }
   };
 
   const addKeywordAsSkill = (keyword: string) => {
     const already = resume.skills.some(s => s.name.toLowerCase() === keyword.toLowerCase());
-    if (!already) {
-      setResume(prev => ({ ...prev, skills: [...prev.skills, { id: crypto.randomUUID(), name: keyword, level: 75 }] }));
-    }
+    if (!already) setResume(prev => ({ ...prev, skills: [...prev.skills, { id: crypto.randomUUID(), name: keyword, level: 75 }] }));
     setAddedKeywords(prev => new Set(prev).add(keyword));
   };
 
@@ -563,31 +553,20 @@ function AppContent() {
     if (!tailorResult) return;
     setResume(prev => {
       let updated = { ...prev };
-      // Apply summary
-      if (tailorResult.suggestedSummary) {
-        updated = { ...updated, personal: { ...updated.personal, summary: plainTextToHtml(tailorResult.suggestedSummary) } };
-      }
-      // Apply all bullet rewrites
+      if (tailorResult.suggestedSummary) updated.personal.summary = plainTextToHtml(tailorResult.suggestedSummary);
       tailorResult.rewrittenBullets.forEach(b => {
-        updated = {
-          ...updated,
-          experience: updated.experience.map(exp => ({
-            ...exp,
-            bullets: exp.bullets.map(bullet => stripHtml(bullet) === b.original ? plainTextToHtml(b.suggested) : bullet),
-          })),
-        };
+        updated.experience = updated.experience.map(exp => ({
+          ...exp,
+          bullets: exp.bullets.map(bullet => stripHtml(bullet) === b.original ? plainTextToHtml(b.suggested) : bullet),
+        }));
       });
-      // Add all missing keywords as skills (skip duplicates)
       const existingNames = new Set(updated.skills.map(s => s.name.toLowerCase()));
       const newSkills = tailorResult.missingKeywords
         .filter(k => !existingNames.has(k.toLowerCase()))
         .map(k => ({ id: crypto.randomUUID(), name: k, level: 75 }));
-      if (newSkills.length > 0) {
-        updated = { ...updated, skills: [...updated.skills, ...newSkills] };
-      }
+      updated.skills = [...updated.skills, ...newSkills];
       return updated;
     });
-    // Mark everything as applied
     setAppliedSummary(true);
     setAppliedBullets(new Set(tailorResult.rewrittenBullets.map((_, i) => i)));
     setAddedKeywords(new Set(tailorResult.missingKeywords));
@@ -602,7 +581,7 @@ function AppContent() {
       const result = await api.atsScore(sanitizeResumeForAI(resume), atsJd);
       setAtsResult(result);
     } catch {
-      alert('AI unavailable. Make sure the server is running with OPENAI_API_KEY set.');
+      alert('AI unavailable.');
     } finally {
       setAtsLoading(false);
     }
@@ -613,7 +592,6 @@ function AppContent() {
     setAtsTailorLoading(true);
     try {
       const result = await api.atsTailor(resume, atsJd, atsResult);
-      // Pre-populate the tailor modal with these results and open it
       setJd(atsJd);
       setTailorResult(result);
       setAppliedBullets(new Set());
@@ -621,7 +599,7 @@ function AppContent() {
       setAddedKeywords(new Set());
       setActiveModal('tailor');
     } catch {
-      alert('AI unavailable. Make sure the server is running with OPENAI_API_KEY set.');
+      alert('AI unavailable.');
     } finally {
       setAtsTailorLoading(false);
     }
@@ -633,11 +611,7 @@ function AppContent() {
     setAtsResult(null);
   };
 
-  const handleModeSelect = (
-    _mode: 'manual' | 'enhance' | 'linkedin',
-    prefilledResume?: Resume,
-    suggestions?: ImprovementSuggestions
-  ) => {
+  const handleModeSelect = (mode: any, prefilledResume?: Resume, suggestions?: ImprovementSuggestions) => {
     if (prefilledResume) setResume(migrateResume(prefilledResume));
     if (suggestions) setImprovements(suggestions);
     setView('builder');
@@ -650,20 +624,11 @@ function AppContent() {
     setImprovements(null);
   };
 
-  // Navigate to builder entry — check auth + plan
   const handleStart = () => {
     if (!currentUser) { setView('login'); return; }
     if (!plan) { setView('plan-select'); return; }
     setView('mode-select');
   };
-
-  if (loading) {
-    return (
-      <div style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: '32px', height: '32px', borderRadius: '50%', border: '3px solid var(--color-ui-border)', borderTopColor: '#6366F1', animation: 'spin 0.7s linear infinite' }} />
-      </div>
-    );
-  }
 
   const formWidth = formExpanded ? '48%' : '40%';
 
@@ -687,34 +652,14 @@ function AppContent() {
     if (view === 'mode-select') {
       return (
         <>
-          <ModeSelectModal
-            onSelect={handleModeSelect}
-            onBack={() => setView('landing')}
-            onUpgradeNeeded={showUpgrade}
-          />
-          {upgradePrompt && (
-            <UpgradeModal
-              requiredPlan={upgradePrompt.requiredPlan}
-              featureLabel={upgradePrompt.featureLabel}
-              onClose={() => setUpgradePrompt(null)}
-            />
-          )}
+          <ModeSelectModal onSelect={handleModeSelect} onBack={() => setView('landing')} onUpgradeNeeded={showUpgrade} />
+          {upgradePrompt && <UpgradeModal requiredPlan={upgradePrompt.requiredPlan} featureLabel={upgradePrompt.featureLabel} onClose={() => setUpgradePrompt(null)} />}
         </>
       );
     }
 
     if (view === 'preview') {
-      return (
-        <ExportPreview
-          resume={resume}
-          config={activeTemplate}
-          onBack={() => setView('builder')}
-          onUpdateConfig={setActiveTemplate}
-          onUpdateResume={setResume}
-          pageCount={pageCount}
-          onPageCount={setPageCount}
-        />
-      );
+      return <ExportPreview resume={resume} config={activeTemplate} onBack={() => setView('builder')} onUpdateConfig={setActiveTemplate} onUpdateResume={setResume} pageCount={pageCount} onPageCount={setPageCount} />;
     }
 
     return (
@@ -725,9 +670,7 @@ function AppContent() {
               <div style={{ width: '26px', height: '26px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Zap size={13} color="white" fill="white" />
               </div>
-              <span style={{ fontSize: '15px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)' }}>
-                Bespoke<span style={{ color: '#818CF8' }}>CV</span>
-              </span>
+              <span style={{ fontSize: '15px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)' }}>Bespoke<span style={{ color: '#818CF8' }}>CV</span></span>
             </div>
             <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)' }} />
             <PlanBadge size="sm" />
@@ -745,83 +688,41 @@ function AppContent() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }} onClick={() => setActiveModal('diff')}>
               <GitCompare size={13} /> Changes
-              {initialResumeRef.current && JSON.stringify(initialResumeRef.current) !== JSON.stringify(resume) && (
-                <span style={{ position: 'absolute', top: '-4px', right: '-4px', width: '8px', height: '8px', borderRadius: '50%', background: '#818CF8' }} />
-              )}
+              {initialResumeRef.current && JSON.stringify(initialResumeRef.current) !== JSON.stringify(resume) && <span style={{ position: 'absolute', top: '-4px', right: '-4px', width: '8px', height: '8px', borderRadius: '50%', background: '#818CF8' }} />}
             </button>
-            <button className="btn-ghost" style={{ padding: '7px 10px' }} onClick={toggleTheme}>
-              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
-            </button>
-            <button className={rightPanelOpen ? 'btn-primary' : 'btn-secondary'} style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }} onClick={() => setRightPanelOpen(v => !v)}>
-              <Palette size={13} /> Style
-            </button>
+            <button className="btn-ghost" style={{ padding: '7px 10px' }} onClick={toggleTheme}>{theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}</button>
+            <button className={rightPanelOpen ? 'btn-primary' : 'btn-secondary'} style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }} onClick={() => setRightPanelOpen(v => !v)}><Palette size={13} /> Style</button>
             <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }} onClick={() => setShowSavedPanel(true)}>
               <FolderOpen size={13} /> My Resumes
-              {savedResumes.length > 0 && (
-                <span style={{ position: 'absolute', top: '-5px', right: '-5px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-ui-accent)', fontSize: '9px', fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {savedResumes.length}
-                </span>
-              )}
+              {savedResumes.length > 0 && <span style={{ position: 'absolute', top: '-5px', right: '-5px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-ui-accent)', fontSize: '9px', fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{savedResumes.length}</span>}
             </button>
-            <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }} onClick={handleSave}>
-              <Save size={13} /> Save
-            </button>
+            <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }} onClick={handleSave}><Save size={13} /> Save</button>
             <button className="btn-primary" style={{ gap: '6px', fontSize: '13px' }} onClick={() => {
               setActiveTemplate(t => ({ ...t, settings: t.settings ?? { margin: 15, fontSize: 100, lineHeight: 1.5 } }));
               setView('preview');
-            }}>
-              <FileText size={14} /> Preview
-            </button>
+            }}><FileText size={14} /> Preview</button>
             {currentUser && (
-              <>
-                <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)' }} />
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  {currentUser.photoURL ? (
-                    <img src={currentUser.photoURL} alt="User" style={{ width: '28px', height: '28px', borderRadius: '50%', border: '1.5px solid var(--color-ui-border)' }} />
-                  ) : (
-                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: 'white' }}>
-                      {(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}
-                    </div>
-                  )}
-                  <span style={{ fontSize: '12.5px', fontWeight: 600, color: 'var(--color-ui-text)', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentUser.displayName ?? currentUser.email}</span>
-                  <button className="btn-ghost" style={{ padding: '4px', borderRadius: '6px' }} onClick={handleLogout}><LogOut size={14} /></button>
-                </div>
-              </>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '8px' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: 'white' }}>{(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}</div>
+                <button className="btn-ghost" style={{ padding: '4px' }} onClick={handleLogout}><LogOut size={14} /></button>
+              </div>
             )}
           </div>
         </header>
 
         <div style={{ display: 'flex', overflow: 'hidden', height: '100%' }}>
-          <div style={{ width: formWidth, flexShrink: 0, transition: 'width 0.25s cubic-bezier(0.16,1,0.3,1)', position: 'relative', height: '100%', overflow: 'hidden' }} className="no-print">
+          <div style={{ width: formWidth, flexShrink: 0, transition: 'width 0.25s', position: 'relative', height: '100%', overflow: 'hidden' }} className="no-print">
             <ResumeBuilder resume={resume} onChange={setResume} onTailor={openTailorModal} onAtsScore={openAtsModal} improvements={improvements} onDismissImprovements={() => setImprovements(null)} onUpgradeNeeded={showUpgrade} />
-            <button onClick={() => setFormExpanded(v => !v)} style={{ position: 'absolute', top: '50%', right: '-11px', transform: 'translateY(-50%)', width: '22px', height: '44px', borderRadius: '0 8px 8px 0', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderLeft: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-ui-text-muted)', zIndex: 10 }}>
-              {formExpanded ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}
-            </button>
+            <button onClick={() => setFormExpanded(v => !v)} style={{ position: 'absolute', top: '50%', right: '-11px', transform: 'translateY(-50%)', width: '22px', height: '44px', borderRadius: '0 8px 8px 0', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderLeft: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-ui-text-muted)', zIndex: 10 }}>{formExpanded ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}</button>
           </div>
 
           <main className="preview-viewport" style={{ flex: 1, minWidth: 0 }}>
-            <div className="no-print" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '11.5px', color: 'var(--color-ui-text-muted)', fontWeight: 500 }}>{activeTemplate.name}</span>
-                <div style={{ width: '1px', height: '12px', background: 'var(--color-ui-border)' }} />
-                <span style={{ fontSize: '11px', color: activeTemplate.atsScore >= 90 ? 'var(--color-success)' : 'var(--color-warning)', fontWeight: 600 }}>{activeTemplate.atsScore >= 90 ? '✓' : '⚠'} ATS {activeTemplate.atsScore}%</span>
-                <div style={{ width: '1px', height: '12px', background: 'var(--color-ui-border)' }} />
-                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: pageCount > 1 ? 'var(--color-ui-accent)' : 'var(--color-ui-text-muted)', fontWeight: pageCount > 1 ? 700 : 500 }}>
-                  <FileText size={11} /> A4 · {pageCount} {pageCount === 1 ? 'page' : 'pages'}
-                </span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '3px 6px', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderRadius: '8px' }}>
-                <button className="btn-ghost" style={{ padding: '3px 6px', borderRadius: '5px', fontSize: '13px', lineHeight: 1 }} onClick={() => setZoom(z => Math.max(0.3, +(z - 0.1).toFixed(1)))}>−</button>
-                <button onClick={() => setZoom(0.75)} style={{ minWidth: '46px', textAlign: 'center', fontSize: '11.5px', fontWeight: 700, color: 'var(--color-ui-accent)', background: 'transparent', border: 'none', cursor: 'pointer' }}>{Math.round(zoom * 100)}%</button>
-                <button className="btn-ghost" style={{ padding: '3px 6px', borderRadius: '5px', fontSize: '13px', lineHeight: 1 }} onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(1)))}>+</button>
-              </div>
-            </div>
             <div className="preview-scaler" style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
               <PagedPreview resume={resume} config={activeTemplate} onPageCount={setPageCount} />
             </div>
           </main>
 
-          <div style={{ width: rightPanelOpen ? '300px' : '0', flexShrink: 0, overflow: 'hidden', transition: 'width 0.25s cubic-bezier(0.16,1,0.3,1)' }} className="no-print">
+          <div style={{ width: rightPanelOpen ? '300px' : '0', flexShrink: 0, overflow: 'hidden', transition: 'width 0.25s' }} className="no-print">
             {rightPanelOpen && <StylePanel templates={templates} activeTemplate={activeTemplate} onTemplateChange={setActiveTemplate} onColorChange={handleColorChange} onClose={() => setRightPanelOpen(false)} zoom={zoom} onZoomChange={setZoom} onUpgradeNeeded={showUpgrade} />}
           </div>
         </div>
@@ -832,37 +733,22 @@ function AppContent() {
   return (
     <>
       {mainContent}
-
-      {/* Modals and Overlays */}
-      {showSavedPanel && <SavedResumesPanel savedResumes={savedResumes} currentResumeId={currentResumeId} maxResumes={maxResumes} onLoad={handleLoadResume} onDelete={deleteResume} onRename={renameResume} onNewResume={handleNewResume} onClose={() => setShowSavedPanel(false)} onUpgradeNeeded={() => setUpgradePrompt({ requiredPlan: plan === 'basic' ? 'pro' : 'ultimate', featureLabel: `Save more than ${maxResumes} resumes` })} />}
+      {showSavedPanel && <SavedResumesPanel savedResumes={savedResumes} currentResumeId={currentResumeId} maxResumes={maxResumes} onLoad={handleLoadResume} onDelete={deleteResume} onRename={renameResume} onNewResume={handleNewResume} onClose={() => setShowSavedPanel(false)} onUpgradeNeeded={() => {}} />}
       {savePrompt && (
         <div className="modal-overlay no-print" onClick={e => e.target === e.currentTarget && setSavePrompt(false)}>
-          <div className="modal-content" style={{ maxWidth: '400px' }}>
-            <div style={{ padding: '24px 24px 20px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '6px' }}><Save size={15} style={{ display: 'inline', marginRight: '8px', color: '#818CF8' }} /> Save Resume</h3>
-              <input autoFocus className="field-input" value={saveNameValue} onChange={e => setSaveNameValue(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSaveConfirm()} placeholder="e.g. Software Engineer @ Google" style={{ fontSize: '14px', marginBottom: '8px' }} />
-            </div>
-            <div style={{ padding: '0 24px 20px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+          <div className="modal-content" style={{ maxWidth: '400px', padding: '24px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '12px' }}>Save Resume</h3>
+            <input autoFocus className="field-input" value={saveNameValue} onChange={e => setSaveNameValue(e.target.value)} placeholder="Resume name" style={{ marginBottom: '16px' }} />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
               <button className="btn-secondary" onClick={() => setSavePrompt(false)}>Cancel</button>
-              <button className="btn-primary" onClick={handleSaveConfirm}><Save size={13} /> Save</button>
+              <button className="btn-primary" onClick={handleSaveConfirm}>Save</button>
             </div>
           </div>
         </div>
       )}
-      {savedToast && (
-        <div style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 9998, display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', borderRadius: '10px', background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', backdropFilter: 'blur(8px)' }}>
-          <Check size={14} color="#4ADE80" /> <span style={{ fontSize: '13px', fontWeight: 600, color: '#4ADE80' }}>Resume saved</span>
-        </div>
-      )}
+      {savedToast && <div style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: 'var(--color-success)', color: 'white', padding: '8px 16px', borderRadius: '8px' }}>Resume saved</div>}
       {upgradePrompt && <UpgradeModal requiredPlan={upgradePrompt.requiredPlan} featureLabel={upgradePrompt.featureLabel} onClose={() => setUpgradePrompt(null)} />}
-
-      {/* Print portal — CRITICAL: This must be outside the view-switching logic but inside createPortal */}
-      {createPortal(
-        <div className="print-mode">
-          <PagedPreview resume={resume} config={activeTemplate} forcePageCount={pageCount} />
-        </div>,
-        document.getElementById('print-portal')!
-      )}
+      <PrintPortal resume={resume} config={activeTemplate} pageCount={pageCount} />
     </>
   );
 }
