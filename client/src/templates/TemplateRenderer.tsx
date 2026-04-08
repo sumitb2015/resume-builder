@@ -42,8 +42,13 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config }) => {
       <style dangerouslySetInnerHTML={{ __html: `
         .template-container {
           font-size: ${fontSizeFactor}em;
+          width: 100%;
         }
-        ${margin !== undefined ? `.resume-paper { padding: ${margin}mm !important; }` : ''}
+        .resume-paper {
+            padding: ${printPadding} !important;
+            box-sizing: border-box !important;
+            overflow: visible !important;
+        }
         ${lineHeight !== undefined ? `.resume-paper, .resume-paper * { line-height: ${lineHeight} !important; }` : ''}
         @media print {
           @page { size: A4; margin: 0; }
@@ -53,7 +58,7 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config }) => {
             min-height: 0 !important;
             width: 210mm !important;
             box-shadow: none !important;
-            font-size: ${fontSizeFactor}em !important;
+            background: white !important;
           }
           html, body { background: white !important; }
         }
