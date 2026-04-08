@@ -3,7 +3,7 @@ import type { Resume, ExperienceEntry, SkillEntry, EducationEntry, ProjectEntry,
 import { api } from '../lib/api';
 import {
   User, Briefcase, GraduationCap, Wrench, FolderOpen,
-  Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Zap, Check, X, GripVertical, Bold, Italic, Lock
+  Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Zap, Check, X, GripVertical, Bold, Italic, Lock, FileText
 } from 'lucide-react';
 import { usePlan } from '../contexts/PlanContext';
 import type { Feature } from '../contexts/PlanContext';
@@ -160,7 +160,7 @@ const EmptyState: React.FC<{ icon: React.ReactNode; text: string }> = ({ icon, t
 const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore, improvements, onDismissImprovements, onUpgradeNeeded }) => {
   const { canAccess, remainingBullets, incrementBulletUsage } = usePlan();
   const [activeTab, setActiveTab] = useState<TabId>('personal');
-  const [showImprovements, setShowImprovements] = useState(true);
+  const [editorTab, setEditorTab] = useState<'builder' | 'suggestions'>('suggestions');
   const [appliedSuggestions, setAppliedSuggestions] = useState<Set<number>>(new Set());
 
   // AI state
@@ -342,55 +342,96 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
   return (
     <div className="editor-panel">
 
-      {/* ── AI IMPROVEMENTS ──────────────────────────── */}
+      {/* ── TOP TAB BAR (only when AI suggestions are present) ── */}
       {improvements && (
         <div style={{
+          display: 'flex', alignItems: 'stretch', flexShrink: 0,
           borderBottom: '1px solid var(--color-ui-border)',
-          background: 'rgba(99,102,241,0.04)', flexShrink: 0,
-          maxHeight: showImprovements ? '320px' : 'auto',
-          overflow: 'hidden', display: 'flex', flexDirection: 'column',
+          background: 'var(--color-ui-surface)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderBottom: showImprovements ? '1px solid var(--color-ui-border)' : 'none', flexShrink: 0 }}>
-            <button onClick={() => setShowImprovements(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#818CF8', fontSize: '12px', fontWeight: 700, padding: 0 }}>
-              <Sparkles size={13} />
-              AI Suggestions ({improvements.suggestions.length})
-              {showImprovements ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-            </button>
-            <button onClick={onDismissImprovements} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-ui-text-muted)', padding: '2px' }} title="Dismiss">
-              <X size={14} />
-            </button>
-          </div>
-          {showImprovements && (
-            <div style={{ overflow: 'auto', flex: 1, padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {improvements.overallFeedback && (
-                <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)', lineHeight: 1.5, marginBottom: '4px', fontStyle: 'italic' }}>{improvements.overallFeedback}</p>
-              )}
-              {improvements.suggestions.map((s, i) => {
-                const applied = appliedSuggestions.has(i);
-                return (
-                  <div key={i} style={{ padding: '10px 12px', background: 'var(--color-ui-surface)', border: `1px solid ${applied ? 'var(--color-success-border)' : 'var(--color-ui-border)'}`, borderRadius: '8px', transition: 'border-color 0.2s', opacity: applied ? 0.7 : 1 }}>
-                    <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#818CF8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '5px' }}>{s.section}</div>
-                    <p style={{ fontSize: '11.5px', color: 'var(--color-ui-text-muted)', lineHeight: 1.5, marginBottom: '5px' }}><span style={{ fontWeight: 600 }}>Before:</span> {s.original}</p>
-                    <p style={{ fontSize: '11.5px', color: 'var(--color-ui-text)', lineHeight: 1.5, marginBottom: '8px' }}><span style={{ fontWeight: 600, color: 'var(--color-success)' }}>After:</span> {s.suggested}</p>
-                    {applied ? (
-                      <button className="btn-applied" disabled>
-                        <Check size={11} /> Applied
-                      </button>
-                    ) : (
-                      <button className="btn-primary" style={{ fontSize: '11px', padding: '4px 10px', gap: '4px' }} onClick={() => applyImprovement(s.original, s.suggested, i)}>
-                        <Check size={11} /> Apply
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
+          {(['builder', 'suggestions'] as const).map(tab => {
+            const isActive = editorTab === tab;
+            const isBuilder = tab === 'builder';
+            const pendingCount = improvements.suggestions.length - appliedSuggestions.size;
+            return (
+              <button
+                key={tab}
+                onClick={() => setEditorTab(tab)}
+                style={{
+                  flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  gap: '6px', padding: '10px 12px', background: 'transparent', border: 'none',
+                  borderBottom: isActive ? '2px solid var(--color-ui-accent)' : '2px solid transparent',
+                  color: isActive ? 'var(--color-ui-accent)' : 'var(--color-ui-text-muted)',
+                  fontSize: '12px', fontWeight: isActive ? 700 : 500, cursor: 'pointer',
+                  transition: 'color 0.15s, border-color 0.15s',
+                }}
+              >
+                {isBuilder ? <FileText size={13} /> : <Sparkles size={13} />}
+                {isBuilder ? 'Resume Editor' : 'AI Suggestions'}
+                {!isBuilder && pendingCount > 0 && (
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    minWidth: '16px', height: '16px', padding: '0 4px',
+                    background: isActive ? 'var(--color-ui-accent)' : 'rgba(99,102,241,0.2)',
+                    color: isActive ? 'white' : 'var(--color-ui-accent)',
+                    borderRadius: '8px', fontSize: '10px', fontWeight: 700,
+                  }}>
+                    {pendingCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+          <button
+            onClick={onDismissImprovements}
+            title="Dismiss AI suggestions"
+            style={{
+              background: 'transparent', border: 'none', borderBottom: '2px solid transparent',
+              cursor: 'pointer', color: 'var(--color-ui-text-muted)', padding: '10px 10px',
+              display: 'flex', alignItems: 'center', flexShrink: 0,
+            }}
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
+      {/* ── AI SUGGESTIONS PANEL ─────────────────────── */}
+      {improvements && editorTab === 'suggestions' && (
+        <div style={{ overflow: 'auto', flex: 1, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {improvements.overallFeedback && (
+            <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)', lineHeight: 1.5, marginBottom: '4px', fontStyle: 'italic', padding: '8px 10px', background: 'rgba(99,102,241,0.06)', borderRadius: '6px', border: '1px solid rgba(99,102,241,0.12)' }}>{improvements.overallFeedback}</p>
+          )}
+          {improvements.suggestions.map((s, i) => {
+            const applied = appliedSuggestions.has(i);
+            return (
+              <div key={i} style={{ padding: '10px 12px', background: 'var(--color-ui-surface)', border: `1px solid ${applied ? 'var(--color-success-border)' : 'var(--color-ui-border)'}`, borderRadius: '8px', transition: 'border-color 0.2s, opacity 0.2s', opacity: applied ? 0.6 : 1 }}>
+                <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#818CF8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '5px' }}>{s.section}</div>
+                <p style={{ fontSize: '11.5px', color: 'var(--color-ui-text-muted)', lineHeight: 1.5, marginBottom: '5px' }}><span style={{ fontWeight: 600 }}>Before:</span> {s.original}</p>
+                <p style={{ fontSize: '11.5px', color: 'var(--color-ui-text)', lineHeight: 1.5, marginBottom: '8px' }}><span style={{ fontWeight: 600, color: 'var(--color-success)' }}>After:</span> {s.suggested}</p>
+                {applied ? (
+                  <button className="btn-applied" disabled>
+                    <Check size={11} /> Applied
+                  </button>
+                ) : (
+                  <button className="btn-primary" style={{ fontSize: '11px', padding: '4px 10px', gap: '4px' }} onClick={() => applyImprovement(s.original, s.suggested, i)}>
+                    <Check size={11} /> Apply
+                  </button>
+                )}
+              </div>
+            );
+          })}
+          {appliedSuggestions.size === improvements.suggestions.length && (
+            <div style={{ textAlign: 'center', padding: '20px 12px', color: 'var(--color-success)', fontSize: '12px', fontWeight: 600 }}>
+              <Check size={16} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
+              All suggestions applied! Switch to Resume Editor to continue.
             </div>
           )}
         </div>
       )}
 
       {/* ── SECTION NAV ──────────────────────────────── */}
-      <div className="editor-nav">
+      <div className="editor-nav" style={{ display: improvements && editorTab === 'suggestions' ? 'none' : undefined }}>
         {TABS.map(({ id, label, icon: Icon, countKey }) => {
           const count = countKey ? getCount({ id, label, icon: Icon, countKey }) : 0;
           return (
@@ -404,7 +445,7 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
       </div>
 
       {/* ── SECTION CONTENT ──────────────────────────── */}
-      <div className="editor-content">
+      <div className="editor-content" style={{ display: improvements && editorTab === 'suggestions' ? 'none' : undefined }}>
 
         {/* ── PERSONAL ─────────────────────────────────────────────────────── */}
         {activeTab === 'personal' && (
