@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import PagedPreview from './PagedPreview';
 import { api } from '../lib/api';
-import { ChevronLeft, Download, Type, Move, Palette, Sparkles, Loader2 } from 'lucide-react';
+import { ChevronLeft, Download, Type, Move, Palette, Sparkles, Loader2, Undo2, Redo2 } from 'lucide-react';
 
 interface Props {
   resume: Resume;
@@ -16,9 +16,12 @@ interface Props {
 
 const SAFE_DEFAULTS = { margin: 15, fontSize: 100, lineHeight: 1.5 };
 
-// 14 resume-appropriate fonts, grouped serif → sans
+interface HistoryItem {
+  resume: Resume;
+  config: TemplateConfig;
+}
+
 const FONT_OPTIONS = [
-  // Serifs (traditional, editorial, executive)
   { label: 'EB Garamond — Classic Serif',        value: '"EB Garamond", Georgia, serif' },
   { label: 'Libre Baskerville — Traditional',     value: '"Libre Baskerville", Georgia, serif' },
   { label: 'Merriweather — Readable Serif',       value: '"Merriweather", Georgia, serif' },
@@ -26,7 +29,6 @@ const FONT_OPTIONS = [
   { label: 'Cormorant Garamond — Executive',      value: '"Cormorant Garamond", Georgia, serif' },
   { label: 'Playfair Display — Elegant',          value: '"Playfair Display", Georgia, serif' },
   { label: 'Georgia — Classic',                   value: 'Georgia, "Times New Roman", serif' },
-  // Sans-serifs (modern, clean, geometric)
   { label: 'Inter — Modern Sans',                 value: '"Inter", system-ui, sans-serif' },
   { label: 'DM Sans — Clean',                     value: '"DM Sans", system-ui, sans-serif' },
   { label: 'Montserrat — Bold Geometric',         value: '"Montserrat", system-ui, sans-serif' },
@@ -42,22 +44,56 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
   const [targetPages, setTargetPages] = useState(1);
   const [userPrompt, setUserPrompt] = useState('');
 
+  // Undo/Redo State
+  const [past, setPast] = useState<HistoryItem[]>([]);
+  const [future, setFuture] = useState<HistoryItem[]>([]);
+
   const settings = { ...SAFE_DEFAULTS, ...(config.settings || {}) };
 
+  const pushToHistory = (newResume: Resume, newConfig: TemplateConfig) => {
+    setPast(prev => [...prev, { resume, config }]);
+    setFuture([]); // Clear future on new action
+    onUpdateResume(newResume);
+    onUpdateConfig(newConfig);
+  };
+
+  const handleUndo = () => {
+    if (past.length === 0) return;
+    const previous = past[past.length - 1];
+    const newPast = past.slice(0, past.length - 1);
+    
+    setFuture(prev => [{ resume, config }, ...prev]);
+    setPast(newPast);
+    
+    onUpdateResume(previous.resume);
+    onUpdateConfig(previous.config);
+  };
+
+  const handleRedo = () => {
+    if (future.length === 0) return;
+    const next = future[0];
+    const newFuture = future.slice(1);
+    
+    setPast(prev => [...prev, { resume, config }]);
+    setFuture(newFuture);
+    
+    onUpdateResume(next.resume);
+    onUpdateConfig(next.config);
+  };
+
   const updateSettings = (updates: Partial<typeof SAFE_DEFAULTS>) => {
-    onUpdateConfig({
+    const newConfig = {
       ...config,
       settings: { ...settings, ...updates },
-    });
+    };
+    pushToHistory(resume, newConfig);
   };
 
   const handleSmartFit = async () => {
     setIsOptimizing(true);
     
     try {
-      // If we have a prompt or we want to use AI for better fitting
       if (userPrompt.trim() || targetPages !== pageCount) {
-        // Sanitize resume for AI (strip HTML for better processing)
         const sanitizedResume = {
           ...resume,
           personal: { ...resume.personal, summary: resume.personal.summary.replace(/<[^>]*>?/gm, '') },
@@ -73,10 +109,11 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
 
         const result = await api.smartFit(sanitizedResume, config, targetPages, userPrompt);
         
-        // 1. Update styling
-        updateSettings(result.suggestedSettings);
-        
-        // 2. Update resume content (refactored text)
+        const newConfig = {
+          ...config,
+          settings: { ...settings, ...result.suggestedSettings },
+        };
+
         const newResume = { ...resume };
         if (result.refactoredResume.personal?.summary) {
           newResume.personal = { ...newResume.personal, summary: result.refactoredResume.personal.summary };
@@ -93,15 +130,14 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
             return refactored ? { ...p, description: refactored.description } : p;
           });
         }
-        onUpdateResume(newResume);
-        setUserPrompt(''); // Clear prompt after success
+        
+        pushToHistory(newResume, newConfig);
+        setUserPrompt('');
       } else {
-        // Fallback basic heuristic if no special prompt/target
         applyHeuristicFit();
       }
     } catch (error) {
       console.error('Smart Fit error:', error);
-      // Even if AI fails, try the basic heuristic as a fallback
       applyHeuristicFit();
     } finally {
       setIsOptimizing(false);
@@ -123,19 +159,24 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
       newLineHeight = Math.min(1.65, settings.lineHeight + 0.1);
     }
 
-    updateSettings({ fontSize: newFontSize, margin: newMargin, lineHeight: newLineHeight });
+    const newConfig = {
+      ...config,
+      settings: { fontSize: newFontSize, margin: newMargin, lineHeight: newLineHeight }
+    };
+    pushToHistory(resume, newConfig);
   };
 
   const updateFont = (key: 'heading' | 'body', value: string) => {
-    onUpdateConfig({ ...config, fonts: { ...config.fonts, [key]: value } });
+    const newConfig = { ...config, fonts: { ...config.fonts, [key]: value } };
+    pushToHistory(resume, newConfig);
   };
 
   const updateColor = (key: keyof typeof config.colors, value: string) => {
-    onUpdateConfig({ ...config, colors: { ...config.colors, [key]: value } });
+    const newConfig = { ...config, colors: { ...config.colors, [key]: value } };
+    pushToHistory(resume, newConfig);
   };
 
   const handlePrint = () => {
-    // Small delay ensures portal has rendered and print styles are applied
     setTimeout(() => {
       window.print();
     }, 150);
@@ -242,9 +283,39 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
 
               {/* ── AI SMART FIT ── */}
               <div style={{ marginTop: '8px', padding: '16px', borderRadius: '12px', background: 'rgba(99,102,241,0.04)', border: '1px solid rgba(99,102,241,0.1)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                  <Sparkles size={14} color="#818CF8" />
-                  <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#6366F1' }}>AI Layout Assistant</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Sparkles size={14} color="#818CF8" />
+                    <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#6366F1' }}>AI Layout Assistant</span>
+                  </div>
+                  
+                  {/* UNDO / REDO BUTTONS */}
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    <button
+                      onClick={handleUndo}
+                      disabled={past.length === 0}
+                      title="Undo change"
+                      style={{ 
+                        padding: '4px', background: 'transparent', border: 'none', cursor: past.length === 0 ? 'default' : 'pointer',
+                        color: past.length === 0 ? 'var(--color-ui-text-dim)' : 'var(--color-ui-text-muted)',
+                        display: 'flex', alignItems: 'center'
+                      }}
+                    >
+                      <Undo2 size={14} />
+                    </button>
+                    <button
+                      onClick={handleRedo}
+                      disabled={future.length === 0}
+                      title="Redo change"
+                      style={{ 
+                        padding: '4px', background: 'transparent', border: 'none', cursor: future.length === 0 ? 'default' : 'pointer',
+                        color: future.length === 0 ? 'var(--color-ui-text-dim)' : 'var(--color-ui-text-muted)',
+                        display: 'flex', alignItems: 'center'
+                      }}
+                    >
+                      <Redo2 size={14} />
+                    </button>
+                  </div>
                 </div>
 
                 <div style={{ marginBottom: '12px' }}>
@@ -396,7 +467,7 @@ const SliderControl: React.FC<{
       style={{ width: '100%', accentColor: 'var(--color-ui-accent)' }}
     />
     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--color-ui-text-dim)' }}>
-      <span>{min}{typeof min === 'number' && step < 1 ? '×' : (label.includes('Font') && !label.includes('Size') ? '' : '')}</span>
+      <span>{min}{typeof min === 'number' && step < 1 ? '×' : ''}</span>
       <span>{max}{typeof max === 'number' && step < 1 ? '×' : ''}</span>
     </div>
   </div>
