@@ -665,50 +665,46 @@ function AppContent() {
     );
   }
 
-  if (view === 'landing') {
-    return <LandingPage onStart={handleStart} />;
-  }
+  const formWidth = formExpanded ? '48%' : '40%';
 
-  if (view === 'login') {
-    return (
-      <LoginPage onLoginSuccess={() => {
-        // plan check happens via usePlan which reads localStorage for the new uid
-        // We need to check after auth resolves — use a slight defer
-        setTimeout(() => {
-          const uid = currentUser?.uid;
-          const storedPlan = uid ? localStorage.getItem(`bespokecv_plan_${uid}`) : null;
-          setView(storedPlan ? 'mode-select' : 'plan-select');
-        }, 100);
-      }} />
-    );
-  }
+  const mainContent = (() => {
+    if (view === 'landing') return <LandingPage onStart={handleStart} />;
+    
+    if (view === 'login') {
+      return (
+        <LoginPage onLoginSuccess={() => {
+          setTimeout(() => {
+            const uid = currentUser?.uid;
+            const storedPlan = uid ? localStorage.getItem(`bespokecv_plan_${uid}`) : null;
+            setView(storedPlan ? 'mode-select' : 'plan-select');
+          }, 100);
+        }} />
+      );
+    }
 
-  if (view === 'plan-select') {
-    return <PlanSelectPage onSelected={() => setView('mode-select')} />;
-  }
+    if (view === 'plan-select') return <PlanSelectPage onSelected={() => setView('mode-select')} />;
 
-  if (view === 'mode-select') {
-    return (
-      <>
-        <ModeSelectModal
-          onSelect={handleModeSelect}
-          onBack={() => setView('landing')}
-          onUpgradeNeeded={showUpgrade}
-        />
-        {upgradePrompt && (
-          <UpgradeModal
-            requiredPlan={upgradePrompt.requiredPlan}
-            featureLabel={upgradePrompt.featureLabel}
-            onClose={() => setUpgradePrompt(null)}
+    if (view === 'mode-select') {
+      return (
+        <>
+          <ModeSelectModal
+            onSelect={handleModeSelect}
+            onBack={() => setView('landing')}
+            onUpgradeNeeded={showUpgrade}
           />
-        )}
-      </>
-    );
-  }
+          {upgradePrompt && (
+            <UpgradeModal
+              requiredPlan={upgradePrompt.requiredPlan}
+              featureLabel={upgradePrompt.featureLabel}
+              onClose={() => setUpgradePrompt(null)}
+            />
+          )}
+        </>
+      );
+    }
 
-  if (view === 'preview') {
-    return (
-      <>
+    if (view === 'preview') {
+      return (
         <ExportPreview
           resume={resume}
           config={activeTemplate}
@@ -718,746 +714,156 @@ function AppContent() {
           pageCount={pageCount}
           onPageCount={setPageCount}
         />
-      </>
-    );
-  }
+      );
+    }
 
-  const formWidth = formExpanded ? '48%' : '40%';
-
-  return (
-    <div className="app-grid" style={{ background: 'var(--color-ui-bg)' }}>
-
-      {/* ── TOP BAR ─────────────────────────────────── */}
-      <header className="top-bar no-print">
-        {/* Left: Logo + active template badge */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div
-            style={{ display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer' }}
-            onClick={() => setView('landing')}
-          >
-            <div style={{ width: '26px', height: '26px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Zap size={13} color="white" fill="white" />
-            </div>
-            <span style={{ fontSize: '15px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)' }}>
-              Bespoke<span style={{ color: '#818CF8' }}>CV</span>
-            </span>
-          </div>
-
-          <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)' }} />
-
-          {/* Plan badge */}
-          <PlanBadge size="sm" />
-
-          <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)' }} />
-
-          {/* Active template info */}
-          <button
-            className="btn-ghost"
-            style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '5px 10px', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}
-            onClick={() => setRightPanelOpen(true)}
-            title="Change template"
-          >
-            <div style={{ display: 'flex', gap: '3px' }}>
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: activeTemplate.colors.primary }} />
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: activeTemplate.colors.accent }} />
-            </div>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-ui-text)' }}>{activeTemplate.name}</span>
-            <ChevronRight size={11} style={{ opacity: 0.5 }} />
-          </button>
-        </div>
-
-        {/* Right: Style toggle + Save + Export + User */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <button
-            className="btn-secondary"
-            style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }}
-            onClick={() => setActiveModal('diff')}
-            title="View all changes this session"
-          >
-            <GitCompare size={13} />
-            Changes
-            {initialResumeRef.current && JSON.stringify(initialResumeRef.current) !== JSON.stringify(resume) && (
-              <span style={{ position: 'absolute', top: '-4px', right: '-4px', width: '8px', height: '8px', borderRadius: '50%', background: '#818CF8' }} />
-            )}
-          </button>
-          <button
-            className="btn-ghost"
-            style={{ padding: '7px 10px' }}
-            onClick={toggleTheme}
-            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
-          </button>
-          <button
-            className={rightPanelOpen ? 'btn-primary' : 'btn-secondary'}
-            style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }}
-            onClick={() => setRightPanelOpen(v => !v)}
-          >
-            <Palette size={13} />
-            Style
-          </button>
-
-          {/* My Resumes */}
-          <button
-            className="btn-secondary"
-            style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }}
-            onClick={() => setShowSavedPanel(true)}
-            title="My saved resumes"
-          >
-            <FolderOpen size={13} />
-            My Resumes
-            {savedResumes.length > 0 && (
-              <span style={{ position: 'absolute', top: '-5px', right: '-5px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-ui-accent)', fontSize: '9px', fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {savedResumes.length}
-              </span>
-            )}
-          </button>
-
-          {/* Save */}
-          <button
-            className="btn-secondary"
-            style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }}
-            onClick={handleSave}
-            title={currentResumeId ? 'Save changes' : 'Save resume'}
-          >
-            <Save size={13} />
-            {currentResumeId ? 'Save' : 'Save'}
-          </button>
-
-          <button className="btn-primary" style={{ gap: '6px', fontSize: '13px' }} onClick={() => {
-            setActiveTemplate(t => ({
-              ...t,
-              settings: t.settings ?? { margin: 15, fontSize: 100, lineHeight: 1.5 },
-            }));
-            setView('preview');
-          }}>
-            <FileText size={14} />
-            Preview
-          </button>
-
-          {currentUser && (
-            <>
-              <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)' }} />
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {currentUser.photoURL ? (
-                  <img
-                    src={currentUser.photoURL}
-                    alt={currentUser.displayName ?? 'User'}
-                    style={{ width: '28px', height: '28px', borderRadius: '50%', border: '1.5px solid var(--color-ui-border)' }}
-                  />
-                ) : (
-                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: 'white' }}>
-                    {(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}
-                  </div>
-                )}
-                <span style={{ fontSize: '12.5px', fontWeight: 600, color: 'var(--color-ui-text)', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {currentUser.displayName ?? currentUser.email}
-                </span>
-                <button className="btn-ghost" style={{ padding: '4px', borderRadius: '6px' }} title="Sign out" onClick={handleLogout}>
-                  <LogOut size={14} />
-                </button>
+    return (
+      <div className="app-grid" style={{ background: 'var(--color-ui-bg)' }}>
+        <header className="top-bar no-print">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer' }} onClick={() => setView('landing')}>
+              <div style={{ width: '26px', height: '26px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Zap size={13} color="white" fill="white" />
               </div>
-            </>
-          )}
-        </div>
-      </header>
-
-      {/* ── MAIN SPLIT (3-column flex) ───────────────── */}
-      <div style={{ display: 'flex', overflow: 'hidden', height: '100%' }}>
-
-        {/* Left: Form panel (expandable) */}
-        <div style={{ width: formWidth, flexShrink: 0, transition: 'width 0.25s cubic-bezier(0.16,1,0.3,1)', position: 'relative', height: '100%', overflow: 'hidden' }} className="no-print">
-          <ResumeBuilder
-            resume={resume}
-            onChange={setResume}
-            onTailor={openTailorModal}
-            onAtsScore={openAtsModal}
-            improvements={improvements}
-            onDismissImprovements={() => setImprovements(null)}
-            onUpgradeNeeded={showUpgrade}
-          />
-          {/* Expand handle */}
-          <button
-            onClick={() => setFormExpanded(v => !v)}
-            title={formExpanded ? 'Collapse panel' : 'Expand panel'}
-            style={{
-              position: 'absolute', top: '50%', right: '-11px', transform: 'translateY(-50%)',
-              width: '22px', height: '44px', borderRadius: '0 8px 8px 0',
-              background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)',
-              borderLeft: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center',
-              justifyContent: 'center', color: 'var(--color-ui-text-muted)', zIndex: 10,
-              transition: 'color 0.15s, background 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-ui-text)'; e.currentTarget.style.background = 'var(--color-ui-surface-2)'; }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-ui-text-muted)'; e.currentTarget.style.background = 'var(--color-ui-surface)'; }}
-          >
-            {formExpanded ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}
-          </button>
-        </div>
-
-        {/* Center: Preview */}
-        <main className="preview-viewport" style={{ flex: 1, minWidth: 0 }}>
-          {/* Preview toolbar */}
-          <div className="no-print" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-            {/* Left: template info */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '11.5px', color: 'var(--color-ui-text-muted)', fontWeight: 500 }}>
-                {activeTemplate.name}
-              </span>
-              <div style={{ width: '1px', height: '12px', background: 'var(--color-ui-border)' }} />
-              <span style={{ fontSize: '11px', color: activeTemplate.atsScore >= 90 ? 'var(--color-success)' : 'var(--color-warning)', fontWeight: 600 }}>
-                {activeTemplate.atsScore >= 90 ? '✓' : '⚠'} ATS {activeTemplate.atsScore}%
-              </span>
-              <div style={{ width: '1px', height: '12px', background: 'var(--color-ui-border)' }} />
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: pageCount > 1 ? 'var(--color-ui-accent)' : 'var(--color-ui-text-muted)', fontWeight: pageCount > 1 ? 700 : 500 }}>
-                <FileText size={11} /> A4 · {pageCount} {pageCount === 1 ? 'page' : 'pages'}
+              <span style={{ fontSize: '15px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)' }}>
+                Bespoke<span style={{ color: '#818CF8' }}>CV</span>
               </span>
             </div>
+            <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)' }} />
+            <PlanBadge size="sm" />
+            <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)' }} />
+            <button className="btn-ghost" style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '5px 10px', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }} onClick={() => setRightPanelOpen(true)}>
+              <div style={{ display: 'flex', gap: '3px' }}>
+                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: activeTemplate.colors.primary }} />
+                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: activeTemplate.colors.accent }} />
+              </div>
+              <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-ui-text)' }}>{activeTemplate.name}</span>
+              <ChevronRight size={11} style={{ opacity: 0.5 }} />
+            </button>
+          </div>
 
-            {/* Right: zoom controls */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '3px 6px', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderRadius: '8px' }}>
-              <button className="btn-ghost" style={{ padding: '3px 6px', borderRadius: '5px', fontSize: '13px', lineHeight: 1 }} onClick={() => setZoom(z => Math.max(0.3, +(z - 0.1).toFixed(1)))} title="Zoom out">−</button>
-              <button onClick={() => setZoom(0.75)} style={{ minWidth: '46px', textAlign: 'center', fontSize: '11.5px', fontWeight: 700, color: 'var(--color-ui-accent)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '2px 4px', borderRadius: '4px' }} title="Reset to 75%">
-                {Math.round(zoom * 100)}%
-              </button>
-              <button className="btn-ghost" style={{ padding: '3px 6px', borderRadius: '5px', fontSize: '13px', lineHeight: 1 }} onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(1)))} title="Zoom in">+</button>
-              <div style={{ width: '1px', height: '14px', background: 'var(--color-ui-border)', margin: '0 2px' }} />
-              {[50, 75, 100].map(v => (
-                <button
-                  key={v}
-                  onClick={() => setZoom(v / 100)}
-                  style={{
-                    padding: '2px 6px', borderRadius: '4px', fontSize: '10.5px', fontWeight: 600,
-                    border: 'none', cursor: 'pointer',
-                    background: Math.round(zoom * 100) === v ? 'rgba(99,102,241,0.2)' : 'transparent',
-                    color: Math.round(zoom * 100) === v ? 'var(--color-ui-accent)' : 'var(--color-ui-text-dim)',
-                    transition: 'all 0.12s',
-                  }}
-                >
-                  {v}%
-                </button>
-              ))}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }} onClick={() => setActiveModal('diff')}>
+              <GitCompare size={13} /> Changes
+              {initialResumeRef.current && JSON.stringify(initialResumeRef.current) !== JSON.stringify(resume) && (
+                <span style={{ position: 'absolute', top: '-4px', right: '-4px', width: '8px', height: '8px', borderRadius: '50%', background: '#818CF8' }} />
+              )}
+            </button>
+            <button className="btn-ghost" style={{ padding: '7px 10px' }} onClick={toggleTheme}>
+              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+            </button>
+            <button className={rightPanelOpen ? 'btn-primary' : 'btn-secondary'} style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }} onClick={() => setRightPanelOpen(v => !v)}>
+              <Palette size={13} /> Style
+            </button>
+            <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }} onClick={() => setShowSavedPanel(true)}>
+              <FolderOpen size={13} /> My Resumes
+              {savedResumes.length > 0 && (
+                <span style={{ position: 'absolute', top: '-5px', right: '-5px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-ui-accent)', fontSize: '9px', fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {savedResumes.length}
+                </span>
+              )}
+            </button>
+            <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }} onClick={handleSave}>
+              <Save size={13} /> Save
+            </button>
+            <button className="btn-primary" style={{ gap: '6px', fontSize: '13px' }} onClick={() => {
+              setActiveTemplate(t => ({ ...t, settings: t.settings ?? { margin: 15, fontSize: 100, lineHeight: 1.5 } }));
+              setView('preview');
+            }}>
+              <FileText size={14} /> Preview
+            </button>
+            {currentUser && (
+              <>
+                <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {currentUser.photoURL ? (
+                    <img src={currentUser.photoURL} alt="User" style={{ width: '28px', height: '28px', borderRadius: '50%', border: '1.5px solid var(--color-ui-border)' }} />
+                  ) : (
+                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: 'white' }}>
+                      {(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}
+                    </div>
+                  )}
+                  <span style={{ fontSize: '12.5px', fontWeight: 600, color: 'var(--color-ui-text)', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentUser.displayName ?? currentUser.email}</span>
+                  <button className="btn-ghost" style={{ padding: '4px', borderRadius: '6px' }} onClick={handleLogout}><LogOut size={14} /></button>
+                </div>
+              </>
+            )}
+          </div>
+        </header>
+
+        <div style={{ display: 'flex', overflow: 'hidden', height: '100%' }}>
+          <div style={{ width: formWidth, flexShrink: 0, transition: 'width 0.25s cubic-bezier(0.16,1,0.3,1)', position: 'relative', height: '100%', overflow: 'hidden' }} className="no-print">
+            <ResumeBuilder resume={resume} onChange={setResume} onTailor={openTailorModal} onAtsScore={openAtsModal} improvements={improvements} onDismissImprovements={() => setImprovements(null)} onUpgradeNeeded={showUpgrade} />
+            <button onClick={() => setFormExpanded(v => !v)} style={{ position: 'absolute', top: '50%', right: '-11px', transform: 'translateY(-50%)', width: '22px', height: '44px', borderRadius: '0 8px 8px 0', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderLeft: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-ui-text-muted)', zIndex: 10 }}>
+              {formExpanded ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}
+            </button>
+          </div>
+
+          <main className="preview-viewport" style={{ flex: 1, minWidth: 0 }}>
+            <div className="no-print" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '11.5px', color: 'var(--color-ui-text-muted)', fontWeight: 500 }}>{activeTemplate.name}</span>
+                <div style={{ width: '1px', height: '12px', background: 'var(--color-ui-border)' }} />
+                <span style={{ fontSize: '11px', color: activeTemplate.atsScore >= 90 ? 'var(--color-success)' : 'var(--color-warning)', fontWeight: 600 }}>{activeTemplate.atsScore >= 90 ? '✓' : '⚠'} ATS {activeTemplate.atsScore}%</span>
+                <div style={{ width: '1px', height: '12px', background: 'var(--color-ui-border)' }} />
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: pageCount > 1 ? 'var(--color-ui-accent)' : 'var(--color-ui-text-muted)', fontWeight: pageCount > 1 ? 700 : 500 }}>
+                  <FileText size={11} /> A4 · {pageCount} {pageCount === 1 ? 'page' : 'pages'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '3px 6px', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderRadius: '8px' }}>
+                <button className="btn-ghost" style={{ padding: '3px 6px', borderRadius: '5px', fontSize: '13px', lineHeight: 1 }} onClick={() => setZoom(z => Math.max(0.3, +(z - 0.1).toFixed(1)))}>−</button>
+                <button onClick={() => setZoom(0.75)} style={{ minWidth: '46px', textAlign: 'center', fontSize: '11.5px', fontWeight: 700, color: 'var(--color-ui-accent)', background: 'transparent', border: 'none', cursor: 'pointer' }}>{Math.round(zoom * 100)}%</button>
+                <button className="btn-ghost" style={{ padding: '3px 6px', borderRadius: '5px', fontSize: '13px', lineHeight: 1 }} onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(1)))}>+</button>
+              </div>
             </div>
-          </div>
+            <div className="preview-scaler" style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
+              <PagedPreview resume={resume} config={activeTemplate} onPageCount={setPageCount} />
+            </div>
+          </main>
 
-          <div className="preview-scaler" style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
-            <PagedPreview resume={resume} config={activeTemplate} onPageCount={setPageCount} />
+          <div style={{ width: rightPanelOpen ? '300px' : '0', flexShrink: 0, overflow: 'hidden', transition: 'width 0.25s cubic-bezier(0.16,1,0.3,1)' }} className="no-print">
+            {rightPanelOpen && <StylePanel templates={templates} activeTemplate={activeTemplate} onTemplateChange={setActiveTemplate} onColorChange={handleColorChange} onClose={() => setRightPanelOpen(false)} zoom={zoom} onZoomChange={setZoom} onUpgradeNeeded={showUpgrade} />}
           </div>
-        </main>
-
-        {/* Right: Style panel (collapsible) */}
-        <div style={{ width: rightPanelOpen ? '300px' : '0', flexShrink: 0, overflow: 'hidden', transition: 'width 0.25s cubic-bezier(0.16,1,0.3,1)' }} className="no-print">
-          {rightPanelOpen && (
-            <StylePanel
-              templates={templates}
-              activeTemplate={activeTemplate}
-              onTemplateChange={setActiveTemplate}
-              onColorChange={handleColorChange}
-              onClose={() => setRightPanelOpen(false)}
-              zoom={zoom}
-              onZoomChange={setZoom}
-              onUpgradeNeeded={showUpgrade}
-            />
-          )}
         </div>
       </div>
+    );
+  })();
 
-      {/* ── JOB TAILOR MODAL ─────────────────────────── */}
-      {activeModal === 'tailor' && (
-        <div className="modal-overlay no-print" onClick={e => e.target === e.currentTarget && setActiveModal(null)}>
-          <div className="modal-content" style={{ maxWidth: '680px', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '24px 28px', borderBottom: '1px solid var(--color-ui-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0 }}>
-              <div>
-                <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '4px' }}>
-                  <Sparkles size={16} style={{ display: 'inline', marginRight: '8px', color: '#818CF8' }} />
-                  Intelligent Job Tailoring
-                </h2>
-                <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)' }}>Paste a job description to optimize your resume for it</p>
-              </div>
-              <button className="btn-ghost" style={{ padding: '4px' }} onClick={() => setActiveModal(null)}><X size={18} /></button>
-            </div>
+  return (
+    <>
+      {mainContent}
 
-            <div style={{ flex: 1, overflow: 'auto', padding: '24px 28px' }}>
-              {!tailorResult ? (
-                <div>
-                  {/* Input mode tabs */}
-                  <div style={{ display: 'flex', gap: '0', marginBottom: '14px', background: 'var(--color-ui-bg)', borderRadius: '8px', padding: '3px', border: '1px solid var(--color-ui-border)' }}>
-                    <button
-                      onClick={() => setTailorInputMode('text')}
-                      style={{ flex: 1, padding: '6px 12px', borderRadius: '6px', fontSize: '12.5px', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.15s', background: tailorInputMode === 'text' ? 'var(--color-ui-surface)' : 'transparent', color: tailorInputMode === 'text' ? 'var(--color-ui-text)' : 'var(--color-ui-text-muted)' }}
-                    >
-                      Paste Text
-                    </button>
-                    <button
-                      onClick={() => setTailorInputMode('url')}
-                      style={{ flex: 1, padding: '6px 12px', borderRadius: '6px', fontSize: '12.5px', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.15s', background: tailorInputMode === 'url' ? 'var(--color-ui-surface)' : 'transparent', color: tailorInputMode === 'url' ? 'var(--color-ui-text)' : 'var(--color-ui-text-muted)' }}
-                    >
-                      <Link size={12} style={{ display: 'inline', marginRight: '5px', verticalAlign: 'middle' }} />
-                      From URL
-                    </button>
-                  </div>
-
-                  {tailorInputMode === 'url' ? (
-                    <div>
-                      <label className="field-label">Job Posting URL</label>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <input
-                          className="field-input"
-                          type="url"
-                          value={jobUrl}
-                          onChange={e => { setJobUrl(e.target.value); setUrlFetchError(''); }}
-                          placeholder="https://jobs.example.com/posting/123"
-                          style={{ flex: 1, fontSize: '13px' }}
-                          onKeyDown={e => e.key === 'Enter' && handleFetchJobUrl()}
-                        />
-                        <button className="btn-primary" style={{ fontSize: '12px', padding: '0 16px', flexShrink: 0 }} onClick={handleFetchJobUrl} disabled={urlFetchLoading || !jobUrl.trim()}>
-                          {urlFetchLoading ? <Loader2 size={14} className="spin" /> : 'Fetch'}
-                        </button>
-                      </div>
-                      {urlFetchError && (
-                        <div style={{ marginTop: '8px', padding: '10px 12px', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: '8px' }}>
-                          <p style={{ fontSize: '12px', color: '#F87171', marginBottom: '6px' }}>{urlFetchError}</p>
-                          <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>
-                            Tip: Switch to "Paste Text" and copy-paste the job description directly from the page.
-                          </p>
-                        </div>
-                      )}
-                      {jd && (
-                        <div style={{ marginTop: '12px', padding: '10px 12px', background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.2)', borderRadius: '8px', fontSize: '12px', color: '#4ADE80' }}>
-                          <Check size={12} style={{ display: 'inline', marginRight: '5px' }} />
-                          Job description fetched ({jd.length} chars) — ready to analyze
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div>
-                      <label className="field-label">Job Description</label>
-                      <textarea className="field-textarea" rows={10} value={jd} onChange={e => setJd(e.target.value)} placeholder="Paste the full job description here..." style={{ fontSize: '13px' }} />
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                  {tailorResult.missingKeywords.length > 0 && (
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '6px' }}>Missing Keywords</div>
-                      <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)', marginBottom: '10px' }}>Click a keyword to add it to your Skills section.</p>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                        {tailorResult.missingKeywords.map(k => (
-                          addedKeywords.has(k) ? (
-                            <span key={k} style={{ padding: '5px 12px', background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.25)', borderRadius: '100px', fontSize: '12px', color: '#4ADE80', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <Check size={11} /> {k}
-                            </span>
-                          ) : (
-                            <button key={k} onClick={() => addKeywordAsSkill(k)} style={{ padding: '5px 12px', background: 'rgba(248,81,73,0.08)', border: '1px solid rgba(248,81,73,0.25)', borderRadius: '100px', fontSize: '12px', color: '#F87171', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', transition: 'all 0.15s' }}
-                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(248,81,73,0.18)'; e.currentTarget.style.borderColor = 'rgba(248,81,73,0.5)'; }}
-                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(248,81,73,0.08)'; e.currentTarget.style.borderColor = 'rgba(248,81,73,0.25)'; }}
-                            >
-                              <Plus size={11} /> {k}
-                            </button>
-                          )
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {tailorResult.rewrittenBullets.length > 0 && (
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '12px' }}>Suggested Bullet Rewrites</div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                        {tailorResult.rewrittenBullets.map((b, i) => (
-                          <div key={i} style={{ padding: '14px', background: 'var(--color-ui-bg)', borderRadius: '10px', border: `1px solid ${appliedBullets.has(i) ? 'rgba(74,222,128,0.3)' : 'var(--color-ui-border)'}` }}>
-                            <div style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', marginBottom: '6px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Before</div>
-                            <p style={{ fontSize: '12.5px', color: 'var(--color-ui-text-muted)', lineHeight: 1.6, marginBottom: '10px' }}>{b.original}</p>
-                            <div style={{ fontSize: '11px', color: '#4ADE80', marginBottom: '6px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>After</div>
-                            <p style={{ fontSize: '12.5px', color: 'var(--color-ui-text)', lineHeight: 1.6, marginBottom: '12px' }}>{b.suggested}</p>
-                            {appliedBullets.has(i) ? (
-                              <button className="btn-secondary" style={{ fontSize: '12px', padding: '6px 14px', color: '#4ADE80', borderColor: 'rgba(74,222,128,0.3)', cursor: 'default' }} disabled>
-                                <Check size={12} /> Applied
-                              </button>
-                            ) : (
-                              <button className="btn-primary" style={{ fontSize: '12px', padding: '6px 14px' }} onClick={() => applyTailorSuggestion('bullet', b.suggested, b.original, i)}>
-                                <Check size={12} /> Apply
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {tailorResult.suggestedSummary && (
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '10px' }}>Tailored Summary</div>
-                      <div style={{ padding: '14px', background: 'var(--color-ui-bg)', borderRadius: '10px', border: `1px solid ${appliedSummary ? 'rgba(74,222,128,0.3)' : 'var(--color-ui-border)'}` }}>
-                        <p style={{ fontSize: '13px', color: 'var(--color-ui-text)', lineHeight: 1.7, marginBottom: '12px' }}>{tailorResult.suggestedSummary}</p>
-                        {appliedSummary ? (
-                          <button className="btn-secondary" style={{ fontSize: '12px', padding: '6px 14px', color: '#4ADE80', borderColor: 'rgba(74,222,128,0.3)', cursor: 'default' }} disabled>
-                            <Check size={12} /> Applied
-                          </button>
-                        ) : (
-                          <button className="btn-primary" style={{ fontSize: '12px', padding: '6px 14px' }} onClick={() => applyTailorSuggestion('summary', tailorResult.suggestedSummary)}>
-                            <Check size={12} /> Apply Summary
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div style={{ padding: '16px 28px', borderTop: '1px solid var(--color-ui-border)', display: 'flex', justifyContent: 'flex-end', gap: '10px', flexShrink: 0 }}>
-              {tailorResult ? (
-                <>
-                  <button className="btn-secondary" onClick={() => { setTailorResult(null); setAppliedBullets(new Set()); setAppliedSummary(false); setAddedKeywords(new Set()); }}>Try Again</button>
-                  <button
-                    className="btn-primary"
-                    style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', gap: '6px' }}
-                    onClick={handleAcceptAll}
-                    disabled={
-                      appliedSummary &&
-                      tailorResult.rewrittenBullets.every((_, i) => appliedBullets.has(i)) &&
-                      tailorResult.missingKeywords.every(k => addedKeywords.has(k))
-                    }
-                  >
-                    <Check size={14} /> Accept All
-                  </button>
-                  <button className="btn-secondary" onClick={() => setActiveModal(null)}>Done</button>
-                </>
-              ) : (
-                <>
-                  <button className="btn-secondary" onClick={() => setActiveModal(null)}>Cancel</button>
-                  <button className="btn-primary" onClick={handleTailor} disabled={tailorLoading || !jd.trim()}>
-                    {tailorLoading ? <><Loader2 size={14} className="spin" /> Analyzing…</> : <><Sparkles size={14} /> Tailor Resume</>}
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── ATS SCORE MODAL ──────────────────────────── */}
-      {activeModal === 'ats' && (
-        <div className="modal-overlay no-print" onClick={e => e.target === e.currentTarget && setActiveModal(null)}>
-          <div className="modal-content" style={{ maxWidth: '600px', maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '24px 28px', borderBottom: '1px solid var(--color-ui-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0 }}>
-              <div>
-                <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '4px' }}>ATS Compatibility Score</h2>
-                <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)' }}>Check how well your resume matches a job description</p>
-              </div>
-              <button className="btn-ghost" style={{ padding: '4px' }} onClick={() => setActiveModal(null)}><X size={18} /></button>
-            </div>
-
-            <div style={{ flex: 1, overflow: 'auto', padding: '24px 28px' }}>
-              {!atsResult ? (
-                <div>
-                  <label className="field-label">Job Description</label>
-                  <textarea className="field-textarea" rows={9} value={atsJd} onChange={e => setAtsJd(e.target.value)} placeholder="Paste the job description to analyze your match..." style={{ fontSize: '13px' }} />
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                  <div style={{ textAlign: 'center', padding: '24px 0' }}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '120px', height: '120px', borderRadius: '50%', background: `conic-gradient(${atsResult.score >= 80 ? '#4ADE80' : atsResult.score >= 60 ? '#F59E0B' : '#F87171'} ${atsResult.score * 3.6}deg, rgba(255,255,255,0.05) 0deg)`, boxShadow: '0 0 30px rgba(0,0,0,0.3)' }}>
-                      <div style={{ width: '90px', height: '90px', borderRadius: '50%', background: 'var(--color-ui-surface)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ fontSize: '28px', fontWeight: 800, color: 'var(--color-ui-text)' }}>{atsResult.score}</span>
-                        <span style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', fontWeight: 600 }}>/ 100</span>
-                      </div>
-                    </div>
-                    <div style={{ marginTop: '12px', fontSize: '14px', fontWeight: 700, color: atsResult.score >= 80 ? '#4ADE80' : atsResult.score >= 60 ? '#F59E0B' : '#F87171' }}>
-                      {atsResult.score >= 80 ? '✓ Strong Match' : atsResult.score >= 60 ? '⚠ Moderate Match' : '✗ Needs Work'}
-                    </div>
-                  </div>
-                  {atsResult.feedback && (
-                    <div style={{ padding: '14px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: '10px' }}>
-                      <div style={{ fontSize: '11px', fontWeight: 600, color: '#818CF8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>Feedback</div>
-                      <p style={{ fontSize: '13px', color: 'var(--color-ui-text)', lineHeight: 1.65 }}>{atsResult.feedback}</p>
-                    </div>
-                  )}
-                  {atsResult.missingKeywords.length > 0 && (
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <AlertCircle size={14} color="#F87171" /> Missing Keywords
-                      </div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                        {atsResult.missingKeywords.map(k => (
-                          <span key={k} style={{ padding: '4px 10px', background: 'rgba(248,81,73,0.1)', border: '1px solid rgba(248,81,73,0.2)', borderRadius: '100px', fontSize: '12px', color: '#F87171' }}>{k}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {atsResult.weakSections.length > 0 && (
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '8px' }}>Sections to Improve</div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                        {atsResult.weakSections.map(s => (
-                          <span key={s} style={{ padding: '4px 10px', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '100px', fontSize: '12px', color: '#F59E0B' }}>{s}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div style={{ padding: '16px 28px', borderTop: '1px solid var(--color-ui-border)', display: 'flex', justifyContent: 'flex-end', gap: '10px', flexShrink: 0 }}>
-              {atsResult ? (
-                <>
-                  <button className="btn-secondary" onClick={() => setAtsResult(null)}>Try Again</button>
-                  <button className="btn-secondary" onClick={() => setActiveModal(null)}>Close</button>
-                  <button
-                    className="btn-primary"
-                    style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', gap: '6px' }}
-                    onClick={handleAtsTailor}
-                    disabled={atsTailorLoading}
-                  >
-                    {atsTailorLoading
-                      ? <><Loader2 size={14} className="spin" /> Generating Fixes…</>
-                      : <><Sparkles size={14} /> Fix with AI</>}
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button className="btn-secondary" onClick={() => setActiveModal(null)}>Cancel</button>
-                  <button className="btn-primary" onClick={handleAtsScore} disabled={atsLoading || !atsJd.trim()}>
-                    {atsLoading ? <><Loader2 size={14} className="spin" /> Analyzing…</> : 'Check Score'}
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── DIFF / CHANGES MODAL ─────────────────────── */}
-      {activeModal === 'diff' && (() => {
-        const before = initialResumeRef.current;
-        if (!before) return (
-          <div className="modal-overlay no-print" onClick={() => setActiveModal(null)}>
-            <div className="modal-content" style={{ maxWidth: '560px', padding: '32px', textAlign: 'center' }}>
-              <p style={{ color: 'var(--color-ui-text-muted)' }}>No baseline captured yet. Start editing to track changes.</p>
-              <button className="btn-secondary" style={{ marginTop: '16px' }} onClick={() => setActiveModal(null)}>Close</button>
-            </div>
-          </div>
-        );
-
-        // ── Compute diff ─────────────────────────────
-        const personalKeys = ['name', 'title', 'email', 'phone', 'location', 'linkedin', 'website', 'summary'] as const;
-        const personalLabels: Record<typeof personalKeys[number], string> = { name: 'Name', title: 'Title', email: 'Email', phone: 'Phone', location: 'Location', linkedin: 'LinkedIn', website: 'Website', summary: 'Summary' };
-        const changedPersonal = personalKeys.filter(k => (before.personal[k] ?? '') !== (resume.personal[k] ?? ''));
-
-        const expChanges = resume.experience.flatMap(exp => {
-          const prev = before.experience.find(e => e.id === exp.id);
-          if (!prev) return [{ label: `${exp.role} @ ${exp.company}`, isNew: true, items: [] as { type: 'add'|'del'|'changed'; before: string; after: string }[] }];
-          const items: { type: 'add'|'del'|'changed'; before: string; after: string }[] = [];
-          if (prev.role !== exp.role || prev.company !== exp.company) items.push({ type: 'changed', before: `${prev.role} @ ${prev.company}`, after: `${exp.role} @ ${exp.company}` });
-          const prevSet = new Set(prev.bullets);
-          const currSet = new Set(exp.bullets);
-          prev.bullets.forEach(b => { if (!currSet.has(b)) items.push({ type: 'del', before: b, after: '' }); });
-          exp.bullets.forEach(b => { if (!prevSet.has(b)) items.push({ type: 'add', before: '', after: b }); });
-          if (items.length === 0) return [];
-          return [{ label: `${exp.role} @ ${exp.company}`, isNew: false, items }];
-        });
-        const removedExp = before.experience.filter(e => !resume.experience.find(r => r.id === e.id))
-          .map(e => ({ label: `${e.role} @ ${e.company}`, isNew: false, isRemoved: true, items: [] as { type: 'add'|'del'|'changed'; before: string; after: string }[] }));
-
-        const prevSkillNames = new Set(before.skills.map(s => s.name));
-        const currSkillNames = new Set(resume.skills.map(s => s.name));
-        const addedSkills = resume.skills.filter(s => !prevSkillNames.has(s.name));
-        const removedSkills = before.skills.filter(s => !currSkillNames.has(s.name));
-
-        const allExpChanges = [...expChanges, ...removedExp];
-        const hasAnything = changedPersonal.length > 0 || allExpChanges.length > 0 || addedSkills.length > 0 || removedSkills.length > 0;
-
-        const sectionStyle = { marginBottom: '24px' };
-        const sectionTitle = { fontSize: '11px', fontWeight: 700, color: 'var(--color-ui-text-muted)', textTransform: 'uppercase' as const, letterSpacing: '0.1em', marginBottom: '10px' };
-        const rowStyle = { padding: '10px 12px', borderRadius: '8px', marginBottom: '6px' };
-
-        return (
-          <div className="modal-overlay no-print" onClick={e => e.target === e.currentTarget && setActiveModal(null)}>
-            <div className="modal-content" style={{ maxWidth: '680px', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ padding: '24px 28px', borderBottom: '1px solid var(--color-ui-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0 }}>
-                <div>
-                  <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '4px' }}>
-                    <GitCompare size={16} style={{ display: 'inline', marginRight: '8px', color: '#818CF8' }} />
-                    Session Changes
-                  </h2>
-                  <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)' }}>
-                    All changes since you opened this session.{' '}
-                    <span style={{ color: '#4ADE80' }}>Green = added</span>, <span style={{ color: '#F87171', textDecoration: 'line-through' }}>red = removed</span>.
-                  </p>
-                </div>
-                <button className="btn-ghost" style={{ padding: '4px' }} onClick={() => setActiveModal(null)}><X size={18} /></button>
-              </div>
-
-              <div style={{ flex: 1, overflow: 'auto', padding: '24px 28px' }}>
-                {!hasAnything ? (
-                  <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--color-ui-text-muted)' }}>
-                    <GitCompare size={32} style={{ opacity: 0.3, marginBottom: '12px' }} />
-                    <p style={{ fontSize: '14px' }}>No changes yet this session.</p>
-                  </div>
-                ) : (
-                  <>
-                    {/* Personal */}
-                    {changedPersonal.length > 0 && (
-                      <div style={sectionStyle}>
-                        <div style={sectionTitle}>Personal Info</div>
-                        {changedPersonal.map(k => (
-                          <div key={k} style={{ ...rowStyle, background: 'var(--color-ui-bg)', border: '1px solid var(--color-ui-border)' }}>
-                            <div style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', fontWeight: 600, marginBottom: '6px' }}>{personalLabels[k]}</div>
-                            <DiffText before={before.personal[k] ?? ''} after={resume.personal[k] ?? ''} />
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Experience */}
-                    {allExpChanges.length > 0 && (
-                      <div style={sectionStyle}>
-                        <div style={sectionTitle}>Experience</div>
-                        {allExpChanges.map((ec, i) => (
-                          <div key={i} style={{ marginBottom: '12px' }}>
-                            <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              {(ec as any).isRemoved
-                                ? <><span style={{ color: '#F87171' }}><Minus size={11} /></span> <span style={{ textDecoration: 'line-through', color: '#F87171' }}>{ec.label}</span></>
-                                : ec.isNew
-                                ? <><span style={{ color: '#4ADE80' }}><Plus size={11} /></span> <span style={{ color: '#4ADE80' }}>{ec.label}</span></>
-                                : ec.label}
-                            </div>
-                            {ec.items.map((item, j) => (
-                              <div key={j} style={{ ...rowStyle, background: item.type === 'add' ? 'rgba(74,222,128,0.06)' : item.type === 'del' ? 'rgba(248,113,113,0.06)' : 'var(--color-ui-bg)', border: `1px solid ${item.type === 'add' ? 'rgba(74,222,128,0.2)' : item.type === 'del' ? 'rgba(248,113,113,0.2)' : 'var(--color-ui-border)'}`, display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-                                {item.type === 'add' && <Plus size={12} style={{ color: '#4ADE80', flexShrink: 0, marginTop: '3px' }} />}
-                                {item.type === 'del' && <Minus size={12} style={{ color: '#F87171', flexShrink: 0, marginTop: '3px' }} />}
-                                {item.type === 'changed' && <GitCompare size={12} style={{ color: '#818CF8', flexShrink: 0, marginTop: '3px' }} />}
-                                <div style={{ fontSize: '13px', lineHeight: 1.6 }}>
-                                  {item.type === 'add' && <span style={{ color: '#4ADE80' }}>{item.after}</span>}
-                                  {item.type === 'del' && <span style={{ color: '#F87171', textDecoration: 'line-through' }}>{item.before}</span>}
-                                  {item.type === 'changed' && <DiffText before={item.before} after={item.after} />}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Skills */}
-                    {(addedSkills.length > 0 || removedSkills.length > 0) && (
-                      <div style={sectionStyle}>
-                        <div style={sectionTitle}>Skills</div>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                          {addedSkills.map(s => (
-                            <span key={s.id} style={{ padding: '4px 10px', background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.25)', borderRadius: '100px', fontSize: '12px', color: '#4ADE80', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <Plus size={10} /> {s.name}
-                            </span>
-                          ))}
-                          {removedSkills.map(s => (
-                            <span key={s.id} style={{ padding: '4px 10px', background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.25)', borderRadius: '100px', fontSize: '12px', color: '#F87171', display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'line-through' }}>
-                              <Minus size={10} /> {s.name}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-
-              <div style={{ padding: '16px 28px', borderTop: '1px solid var(--color-ui-border)', display: 'flex', justifyContent: 'flex-end', flexShrink: 0 }}>
-                <button className="btn-secondary" onClick={() => setActiveModal(null)}>Close</button>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* ── UPGRADE MODAL ────────────────────────────── */}
-      {upgradePrompt && (
-        <UpgradeModal
-          requiredPlan={upgradePrompt.requiredPlan}
-          featureLabel={upgradePrompt.featureLabel}
-          onClose={() => setUpgradePrompt(null)}
-        />
-      )}
-
-      {/* ── SAVED RESUMES PANEL ─────────────────────── */}
-      {showSavedPanel && (
-        <SavedResumesPanel
-          savedResumes={savedResumes}
-          currentResumeId={currentResumeId}
-          maxResumes={maxResumes}
-          onLoad={handleLoadResume}
-          onDelete={deleteResume}
-          onRename={renameResume}
-          onNewResume={handleNewResume}
-          onClose={() => setShowSavedPanel(false)}
-          onUpgradeNeeded={() => setUpgradePrompt({
-            requiredPlan: plan === 'basic' ? 'pro' : 'ultimate',
-            featureLabel: `Save more than ${maxResumes} resume${maxResumes === 1 ? '' : 's'}`,
-          })}
-        />
-      )}
-
-      {/* ── SAVE NAME PROMPT ─────────────────────────── */}
+      {/* Modals and Overlays */}
+      {showSavedPanel && <SavedResumesPanel savedResumes={savedResumes} currentResumeId={currentResumeId} maxResumes={maxResumes} onLoad={handleLoadResume} onDelete={deleteResume} onRename={renameResume} onNewResume={handleNewResume} onClose={() => setShowSavedPanel(false)} onUpgradeNeeded={() => setUpgradePrompt({ requiredPlan: plan === 'basic' ? 'pro' : 'ultimate', featureLabel: `Save more than ${maxResumes} resumes` })} />}
       {savePrompt && (
-        <div className="modal-overlay no-print" onClick={e => { if (e.target === e.currentTarget) setSavePrompt(false); }}>
+        <div className="modal-overlay no-print" onClick={e => e.target === e.currentTarget && setSavePrompt(false)}>
           <div className="modal-content" style={{ maxWidth: '400px' }}>
             <div style={{ padding: '24px 24px 20px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '6px' }}>
-                <Save size={15} style={{ display: 'inline', marginRight: '8px', color: '#818CF8' }} />
-                Save Resume
-              </h3>
-              <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', marginBottom: '20px' }}>
-                Give this resume a name so you can find it later.
-              </p>
-              <input
-                autoFocus
-                className="field-input"
-                value={saveNameValue}
-                onChange={e => setSaveNameValue(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') handleSaveConfirm(); if (e.key === 'Escape') setSavePrompt(false); }}
-                placeholder="e.g. Software Engineer @ Google"
-                style={{ fontSize: '14px', marginBottom: '8px' }}
-              />
-              {!canSaveMore && (
-                <p style={{ fontSize: '12px', color: '#F87171', marginBottom: '4px' }}>
-                  You've reached the {maxResumes}-resume limit on your {plan} plan. Upgrade to save more.
-                </p>
-              )}
+              <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '6px' }}><Save size={15} style={{ display: 'inline', marginRight: '8px', color: '#818CF8' }} /> Save Resume</h3>
+              <input autoFocus className="field-input" value={saveNameValue} onChange={e => setSaveNameValue(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSaveConfirm()} placeholder="e.g. Software Engineer @ Google" style={{ fontSize: '14px', marginBottom: '8px' }} />
             </div>
             <div style={{ padding: '0 24px 20px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
               <button className="btn-secondary" onClick={() => setSavePrompt(false)}>Cancel</button>
-              <button className="btn-primary" style={{ gap: '6px' }} onClick={handleSaveConfirm}>
-                <Save size={13} /> Save
-              </button>
+              <button className="btn-primary" onClick={handleSaveConfirm}><Save size={13} /> Save</button>
             </div>
           </div>
         </div>
       )}
-
-      {/* ── SAVED TOAST ──────────────────────────────── */}
       {savedToast && (
-        <div style={{
-          position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)',
-          zIndex: 9998,
-          display: 'flex', alignItems: 'center', gap: '8px',
-          padding: '10px 18px', borderRadius: '10px',
-          background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)',
-          backdropFilter: 'blur(8px)',
-          animation: 'fadeIn 0.2s ease',
-        }}>
-          <Check size={14} color="#4ADE80" />
-          <span style={{ fontSize: '13px', fontWeight: 600, color: '#4ADE80' }}>Resume saved</span>
+        <div style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 9998, display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', borderRadius: '10px', background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', backdropFilter: 'blur(8px)' }}>
+          <Check size={14} color="#4ADE80" /> <span style={{ fontSize: '13px', fontWeight: 600, color: '#4ADE80' }}>Resume saved</span>
         </div>
       )}
+      {upgradePrompt && <UpgradeModal requiredPlan={upgradePrompt.requiredPlan} featureLabel={upgradePrompt.featureLabel} onClose={() => setUpgradePrompt(null)} />}
 
-      {/* Print portal */}
+      {/* Print portal — CRITICAL: This must be outside the view-switching logic but inside createPortal */}
       {createPortal(
         <div className="print-mode">
           <PagedPreview resume={resume} config={activeTemplate} forcePageCount={pageCount} />
         </div>,
         document.getElementById('print-portal')!
       )}
-    </div>
+    </>
   );
 }
 
