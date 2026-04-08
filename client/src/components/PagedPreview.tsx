@@ -20,10 +20,13 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount }) => {
   const marginMm = config.settings?.margin ?? 15;
   const marginPx = marginMm * MM_TO_PX;
   
-  // We use exactly the same "Usable Height" as the PDF.
-  // PAGE_H is the full 297mm. The content inside .resume-paper is already padded by marginPx.
-  // So the slicing should happen exactly at PAGE_H.
-  const USABLE_PAGE_H = PAGE_H; 
+  // THE FIX: We add a small 5mm "buffer" to the usable height.
+  // This ensures that if a line of text is right on the edge, 
+  // it gets pushed to the next page in the preview rather than being cut.
+  // We subtract it from the total PAGE_H (297mm) because TemplateRenderer
+  // already applies marginPx as padding inside the 297mm height.
+  const SAFE_THRESHOLD = 5 * MM_TO_PX; 
+  const USABLE_PAGE_H = PAGE_H - SAFE_THRESHOLD; 
 
   useEffect(() => {
     if (!measureRef.current) return;
