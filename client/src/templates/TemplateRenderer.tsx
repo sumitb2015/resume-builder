@@ -55,14 +55,18 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config }) => {
         @media print {
           @page { 
             size: A4; 
-            margin: ${margin}mm !important; 
+            margin: 0 !important; 
           }
-          body {
+          html, body {
             margin: 0 !important;
             padding: 0 !important;
+            height: 100%;
+            background: white !important;
           }
           .template-container {
             width: 100% !important;
+            padding: ${margin}mm !important;
+            box-sizing: border-box !important;
           }
           .resume-paper {
             padding: 0 !important;
@@ -72,7 +76,6 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config }) => {
             background: white !important;
             transform: none !important;
           }
-          html, body { background: white !important; }
         }
       `}} />
       <div className="template-container">
