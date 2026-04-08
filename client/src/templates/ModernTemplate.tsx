@@ -6,7 +6,6 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
   const primary = config.colors.primary;
   const accent = config.colors.accent;
-  const padding = config.settings?.padding !== undefined ? `${config.settings.padding}mm` : '15mm 18mm';
 
   return (
     <div
@@ -15,7 +14,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
         fontFamily: config.fonts.body,
         display: 'flex',
         backgroundColor: config.colors.background || '#FFFFFF',
-        padding,
+        padding: 0,
       }}
     >
       {/* LEFT SIDEBAR */}
@@ -23,7 +22,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
         width: '240px',
         minWidth: '240px',
         backgroundColor: primary,
-        padding: '15mm 18px',
+        padding: '0 18px',
         display: 'flex',
         flexDirection: 'column',
         gap: '28px',
@@ -105,7 +104,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
       </aside>
 
       {/* MAIN CONTENT */}
-      <main style={{ flex: 1, padding: '15mm 12mm', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <main style={{ flex: 1, padding: '0 12mm', display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {/* Summary */}
         {personal.summary && (
           <div>

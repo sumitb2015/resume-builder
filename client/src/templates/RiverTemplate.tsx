@@ -14,7 +14,7 @@ const RiverTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
       fontFamily: 'Georgia, "Times New Roman", serif',
       backgroundColor: config.colors.background || '#FFFFFF',
       color: text,
-      padding: '15mm 18mm',
+      padding: 0,
       lineHeight: 1.5,
     }}>
       {/* HEADER */}

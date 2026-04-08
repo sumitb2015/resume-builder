@@ -8,9 +8,9 @@ const SlateTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
   const primary = config.colors.primary || '#0F172A';
 
   return (
-    <div className="resume-paper" style={{ fontFamily: '"DM Sans", system-ui, sans-serif', backgroundColor: '#F8FAFC' }}>
+    <div className="resume-paper" style={{ fontFamily: '"DM Sans", system-ui, sans-serif', backgroundColor: '#F8FAFC', padding: 0 }}>
       {/* HEADER */}
-      <header style={{ backgroundColor: '#fff', padding: '36px 48px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <header style={{ backgroundColor: '#fff', padding: '24px 32px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h1 style={{ fontSize: '30px', fontWeight: 700, color: primary, letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '6px' }}>{personal.name || 'YOUR NAME'}</h1>
           {personal.title && (
@@ -30,14 +30,14 @@ const SlateTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
       </header>
 
       {personal.summary && (
-        <div style={{ backgroundColor: primary, padding: '18px 48px' }}>
+        <div style={{ backgroundColor: primary, padding: '16px 32px' }}>
           <RichContent html={personal.summary} style={{ fontSize: '12.5px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.75, fontStyle: 'italic' }} />
         </div>
       )}
 
       {/* BODY */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 210px', padding: '0' }}>
-        <div style={{ padding: '10mm 15mm 15mm 15mm', backgroundColor: '#fff', borderRight: '1px solid #E2E8F0' }}>
+        <div style={{ padding: '8mm 12mm 12mm 12mm', backgroundColor: '#fff', borderRight: '1px solid #E2E8F0' }}>
           {experience.length > 0 && (
             <SlateSec title="Work Experience" accent={accent}>
               {experience.map(exp => (

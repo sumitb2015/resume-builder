@@ -14,6 +14,7 @@ const NightTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
       fontFamily: '"Inter", system-ui, sans-serif',
       backgroundColor: config.colors.background || '#FFFFFF',
       color: text,
+      padding: 0,
     }}>
       {/* FULL-BLEED BLACK HEADER */}
       <header style={{ backgroundColor: primary, padding: '36px 52px' }}>

@@ -33,11 +33,6 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config }) => {
   const fontSizeFactor = (config.settings?.fontSize || 100) / 100;
   const lineHeight = config.settings?.lineHeight;
 
-  // We use the margin setting as internal padding for the .resume-paper
-  // This ensures that the slicing logic in PagedPreview (which measures the height)
-  // and the actual print output (which renders the whole thing) see the exact same layout.
-  const visualPadding = `${margin}mm`;
-
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
@@ -47,12 +42,10 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config }) => {
           background: white;
         }
         .resume-paper {
-            padding: ${visualPadding} !important;
+            padding: 0 !important;
             box-sizing: border-box !important;
             overflow: visible !important;
-            width: 210mm !important;
-            min-height: 297mm;
-            margin: 0 auto;
+            width: 100% !important;
             background: white;
         }
         ${lineHeight !== undefined ? `.resume-paper, .resume-paper * { line-height: ${lineHeight} !important; }` : ''}
@@ -60,23 +53,21 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config }) => {
         @media print {
           @page { 
             size: A4; 
-            margin: 0 !important; 
+            margin: ${margin}mm !important; 
           }
           body {
             margin: 0 !important;
             padding: 0 !important;
           }
           .template-container {
-            width: 210mm !important;
+            width: 100% !important;
           }
           .resume-paper {
-            padding: ${visualPadding} !important;
+            padding: 0 !important;
             margin: 0 !important;
-            width: 210mm !important;
-            min-height: 297mm !important;
+            width: 100% !important;
             box-shadow: none !important;
             background: white !important;
-            /* Force exact scale to 1 to prevent browser margin-fit logic from shrinking it */
             transform: none !important;
           }
           html, body { background: white !important; }

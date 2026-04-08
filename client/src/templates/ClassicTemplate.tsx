@@ -5,7 +5,6 @@ import RichContent from './RichContent';
 const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
   const primary = config.colors.primary;
-  const padding = config.settings?.padding !== undefined ? `${config.settings.padding}mm` : '15mm 18mm';
 
   return (
     <div
@@ -14,7 +13,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
         fontFamily: config.fonts.body,
         color: '#1a1a1a',
         backgroundColor: config.colors.background || '#FFFFFF',
-        padding,
+        padding: 0,
         lineHeight: 1.5,
       }}
     >

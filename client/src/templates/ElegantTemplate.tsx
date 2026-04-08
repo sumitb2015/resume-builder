@@ -5,14 +5,13 @@ import RichContent from './RichContent';
 const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
   const accent = config.colors.accent;
-  const padding = config.settings?.padding !== undefined ? `${config.settings.padding}mm` : '15mm 18mm';
 
   return (
     <div className="resume-paper" style={{
       fontFamily: config.fonts.body,
       backgroundColor: config.colors.background || '#FFFEF9',
       color: '#2C2C2C',
-      padding,
+      padding: 0,
     }}>
       {/* DECORATIVE TOP BORDER */}
       <div style={{ height: '3px', background: `linear-gradient(to right, transparent, ${accent}, transparent)`, marginBottom: '32px' }} />

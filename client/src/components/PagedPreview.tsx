@@ -20,17 +20,16 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount }) => {
   const marginMm = config.settings?.margin ?? 15;
   const marginPx = marginMm * MM_TO_PX;
   
-  // THE FIX: We add a small 5mm "buffer" to the usable height.
-  // This ensures that if a line of text is right on the edge, 
-  // it gets pushed to the next page in the preview rather than being cut.
-  // We subtract it from the total PAGE_H (297mm) because TemplateRenderer
-  // already applies marginPx as padding inside the 297mm height.
+  // THE FIX:
+  // USABLE_PAGE_H is the vertical space available for content on one A4 page.
+  // We subtract top margin, bottom margin, and a 5mm "Safe Threshold" buffer.
   const SAFE_THRESHOLD = 5 * MM_TO_PX; 
-  const USABLE_PAGE_H = PAGE_H - SAFE_THRESHOLD; 
+  const USABLE_PAGE_H = PAGE_H - (marginPx * 2) - SAFE_THRESHOLD; 
 
   useEffect(() => {
     if (!measureRef.current) return;
     const obs = new ResizeObserver(entries => {
+      // scrollHeight of the raw, un-padded template
       const h = entries[0]?.target.scrollHeight ?? 0;
       const n = Math.max(1, Math.ceil(h / USABLE_PAGE_H));
       setPageCount(n);
@@ -38,11 +37,11 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount }) => {
     });
     obs.observe(measureRef.current);
     return () => obs.disconnect();
-  }, [onPageCount, USABLE_PAGE_H, resume, config]); // Re-run on config change
+  }, [onPageCount, USABLE_PAGE_H, resume, config]);
 
   return (
     <div className="paged-preview-root" style={{ display: 'flex', flexDirection: 'column', gap: `${PAGE_GAP}px`, alignItems: 'center' }}>
-      {/* Off-screen measurement render */}
+      {/* Off-screen measurement render — NO PADDING HERE */}
       <div
         ref={measureRef}
         style={{
@@ -51,7 +50,7 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount }) => {
           left: '-9999px',
           visibility: 'hidden',
           pointerEvents: 'none',
-          width: '210mm',
+          width: `calc(210mm - ${marginPx * 2}px)`, // Measure at the actual content width
         }}
       >
         <TemplateRenderer resume={resume} config={config} />
@@ -69,39 +68,49 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount }) => {
             position: 'relative',
             background: 'white',
             boxShadow: '0 12px 40px rgba(0,0,0,0.12), 0 0 1px rgba(0,0,0,0.2)',
+            padding: `${marginMm}mm`, // Apply the actual margin as padding
+            display: 'flex',
+            flexDirection: 'column'
           }}
         >
-          {/* Shift the full template up so this page's slice is visible */}
+          {/* Content area within the margins */}
           <div style={{ 
-            position: 'absolute', 
-            top: `${-i * USABLE_PAGE_H}px`, 
-            left: 0,
-            right: 0
+            flex: 1, 
+            position: 'relative', 
+            overflow: 'hidden',
+            width: '100%'
           }}>
-            <TemplateRenderer resume={resume} config={config} />
+             <div style={{ 
+                position: 'absolute', 
+                top: `${-i * USABLE_PAGE_H}px`, 
+                left: 0,
+                right: 0
+              }}>
+                <TemplateRenderer resume={resume} config={config} />
+              </div>
           </div>
 
           {/* Visual threshold line in preview only */}
           <div className="no-print" style={{
             position: 'absolute',
             bottom: `${marginPx}px`,
-            left: 0,
-            right: 0,
-            borderTop: '1px dashed rgba(99,102,241,0.15)',
+            left: `${marginPx}px`,
+            right: `${marginPx}px`,
+            height: `${SAFE_THRESHOLD}px`,
+            borderTop: '1px dashed rgba(99,102,241,0.2)',
+            background: 'rgba(99,102,241,0.02)',
             display: 'flex',
             justifyContent: 'center',
+            alignItems: 'center',
             pointerEvents: 'none'
           }}>
             <span style={{ 
                 fontSize: '7px', 
-                color: 'rgba(99,102,241,0.3)', 
-                background: 'white',
-                padding: '0 8px',
-                marginTop: '-5px',
+                color: 'rgba(99,102,241,0.4)', 
                 textTransform: 'uppercase',
                 fontWeight: 800,
                 letterSpacing: '0.15em'
-            }}>Page {i + 1} Bottom Margin</span>
+            }}>Safe Threshold</span>
           </div>
         </div>
       ))}

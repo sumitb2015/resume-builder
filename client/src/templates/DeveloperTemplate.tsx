@@ -9,7 +9,7 @@ const DeveloperTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
   const primary = config.colors.primary || '#0D1117';
 
   return (
-    <div className="resume-paper" style={{ fontFamily: '"Inter", system-ui, sans-serif', backgroundColor: '#fff' }}>
+    <div className="resume-paper" style={{ fontFamily: '"Inter", system-ui, sans-serif', backgroundColor: '#fff', padding: 0 }}>
       {/* DARK HEADER */}
       <header style={{ backgroundColor: primary, padding: '36px 48px 28px', color: '#fff' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

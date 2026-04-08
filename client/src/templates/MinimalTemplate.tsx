@@ -5,14 +5,13 @@ import RichContent from './RichContent';
 const MinimalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
   const accent = config.colors.accent;
-  const padding = config.settings?.padding !== undefined ? `${config.settings.padding}mm` : '15mm 18mm';
 
   return (
     <div className="resume-paper" style={{
       fontFamily: config.fonts.body,
       backgroundColor: config.colors.background || '#FFFFFF',
       color: '#1a1a1a',
-      padding,
+      padding: 0,
     }}>
       {/* HEADER */}
       <header style={{ marginBottom: '32px' }}>

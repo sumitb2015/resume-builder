@@ -8,7 +8,7 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
   const accent = config.colors.accent || '#F59E0B';
 
   return (
-    <div className="resume-paper" style={{ fontFamily: '"Poppins", system-ui, sans-serif', backgroundColor: '#FFFBF5' }}>
+    <div className="resume-paper" style={{ fontFamily: '"Poppins", system-ui, sans-serif', backgroundColor: '#FFFBF5', padding: 0 }}>
       {/* HEADER */}
       <header style={{ backgroundColor: primary, padding: '40px 48px 30px', borderBottom: `6px solid ${accent}` }}>
         <h1 style={{ fontSize: '32px', fontWeight: 700, color: '#FFFBF5', letterSpacing: '-0.02em', lineHeight: 1.1, marginBottom: '6px' }}>{personal.name || 'YOUR NAME'}</h1>

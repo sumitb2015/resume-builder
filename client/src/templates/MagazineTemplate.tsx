@@ -8,7 +8,7 @@ const MagazineTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
   const accent = config.colors.accent || '#DC2626';
 
   return (
-    <div className="resume-paper" style={{ fontFamily: '"Poppins", system-ui, sans-serif', backgroundColor: '#fff' }}>
+    <div className="resume-paper" style={{ fontFamily: '"Poppins", system-ui, sans-serif', backgroundColor: '#fff', padding: 0 }}>
       {/* DRAMATIC HEADER */}
       <header style={{ padding: '0' }}>
         <div style={{ background: primary, padding: '13mm 16mm 11mm', position: 'relative' }}>

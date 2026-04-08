@@ -6,16 +6,15 @@ const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
   const primary = config.colors.primary;
   const accent = config.colors.accent;
-  const padding = config.settings?.padding !== undefined ? `${config.settings.padding}mm` : '15mm 18mm';
 
   return (
     <div className="resume-paper" style={{
       fontFamily: config.fonts.body,
       backgroundColor: config.colors.background || '#FFFFFF',
-      padding,
+      padding: 0,
     }}>
       {/* GRADIENT HEADER */}
-      <header style={{ background: `linear-gradient(135deg, ${primary} 0%, ${accent} 100%)`, padding: '40px 48px 36px', position: 'relative', overflow: 'hidden', margin: `${config.settings?.padding ? -config.settings.padding : -15}mm ${config.settings?.padding ? -config.settings.padding : -18}mm 0` }}>
+      <header style={{ background: `linear-gradient(135deg, ${primary} 0%, ${accent} 100%)`, padding: '40px 48px 36px', position: 'relative', overflow: 'hidden', margin: 0 }}>
         <div style={{ position: 'absolute', top: 0, right: 0, width: '300px', height: '300px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', transform: 'translate(100px,-100px)' }} />
         <div style={{ position: 'absolute', bottom: 0, left: '40%', width: '200px', height: '200px', background: 'rgba(0,0,0,0.06)', borderRadius: '50%', transform: 'translateY(80px)' }} />
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

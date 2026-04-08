@@ -5,14 +5,13 @@ import RichContent from './RichContent';
 const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
   const accent = config.colors.accent;
-  const padding = config.settings?.padding !== undefined ? `${config.settings.padding}mm` : '15mm 18mm';
 
   return (
     <div className="resume-paper" style={{
       fontFamily: config.fonts.body,
       color: '#1E293B',
       backgroundColor: config.colors.background || '#FFFFFF',
-      padding,
+      padding: 0,
       fontSize: '11.5px',
       lineHeight: 1.55
     }}>

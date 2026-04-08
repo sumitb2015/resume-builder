@@ -13,6 +13,7 @@ const ForestTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
       fontFamily: '"DM Sans", system-ui, sans-serif',
       display: 'flex',
       backgroundColor: config.colors.background || '#FFFFFF',
+      padding: 0,
     }}>
       {/* LEFT SIDEBAR */}
       <aside style={{

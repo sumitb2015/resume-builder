@@ -6,17 +6,16 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
   const primary = config.colors.primary;
   const accent = config.colors.accent;
-  const padding = config.settings?.padding !== undefined ? `${config.settings.padding}mm` : '15mm 18mm';
 
   return (
     <div className="resume-paper" style={{
       fontFamily: config.fonts.body,
       backgroundColor: config.colors.background || '#FFFFFF',
-      padding,
+      padding: 0,
     }}>
 
       {/* BOLD HEADER BAND */}
-      <header style={{ backgroundColor: primary, padding: '12mm 15mm 11mm', position: 'relative', overflow: 'hidden' }}>
+      <header style={{ backgroundColor: primary, padding: '0 15mm 11mm', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '180px', height: '180px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.06)' }} />
         <div style={{ position: 'absolute', bottom: '-60px', right: '80px', width: '120px', height: '120px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.04)' }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
@@ -45,7 +44,7 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 220px' }}>
 
         {/* LEFT MAIN */}
-        <div style={{ padding: '11mm 11mm', borderRight: '1px solid #F3F4F6' }}>
+        <div style={{ padding: '0 11mm', borderRight: '1px solid #F3F4F6', paddingTop: '11mm' }}>
           {personal.summary && (
             <div style={{ marginBottom: '28px' }}>
               <CreativeSectionTitle title="About Me" primary={primary} config={config} />

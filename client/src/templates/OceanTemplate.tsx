@@ -18,6 +18,7 @@ const OceanTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
       color: text,
       display: 'flex',
       flexDirection: 'column',
+      padding: 0,
     }}>
       {/* FULL-WIDTH HEADER */}
       <header style={{ backgroundColor: primary, padding: '11mm 15mm' }}>

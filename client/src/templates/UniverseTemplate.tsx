@@ -15,7 +15,7 @@ const UniverseTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
       fontFamily: '"Inter", system-ui, sans-serif',
       backgroundColor: config.colors.background || '#FFFFFF',
       color: text,
-      padding: '40px 48px',
+      padding: 0,
     }}>
       {/* HEADER */}
       <header style={{ marginBottom: '24px' }}>

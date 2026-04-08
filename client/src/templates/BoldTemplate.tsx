@@ -8,9 +8,9 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
   const accent = config.colors.accent || '#6366F1';
 
   return (
-    <div className="resume-paper" style={{ fontFamily: '"Poppins", system-ui, sans-serif', backgroundColor: '#fff', display: 'flex', flexDirection: 'column' }}>
+    <div className="resume-paper" style={{ fontFamily: '"Poppins", system-ui, sans-serif', backgroundColor: '#fff', display: 'flex', flexDirection: 'column', padding: 0 }}>
       {/* DRAMATIC HERO */}
-      <div style={{ backgroundColor: primary, padding: '15mm 17mm 12mm', position: 'relative' }}>
+      <div style={{ backgroundColor: primary, padding: '12mm 15mm 10mm', position: 'relative' }}>
         <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '240px', height: '240px', borderRadius: '50%', border: `2px solid ${accent}30`, opacity: 0.6 }} />
         <div style={{ position: 'absolute', top: '20px', right: '20px', width: '140px', height: '140px', borderRadius: '50%', border: `2px solid ${accent}20`, opacity: 0.4 }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
@@ -29,14 +29,14 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
       </div>
 
       {/* ACCENT BAR with contact */}
-      <div style={{ backgroundColor: accent, padding: '4mm 17mm', display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
+      <div style={{ backgroundColor: accent, padding: '4mm 15mm', display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
         {[personal.email, personal.phone, personal.location, personal.linkedin, personal.website].filter(Boolean).map((v, i) => (
           <span key={i} style={{ fontSize: '11px', fontWeight: 600, color: '#fff', letterSpacing: '0.02em' }}>{v}</span>
         ))}
       </div>
 
       {/* MAIN CONTENT */}
-      <div style={{ flex: 1, padding: '12mm 17mm', display: 'grid', gridTemplateColumns: '1fr 200px', gap: '40px' }}>
+      <div style={{ flex: 1, padding: '12mm 15mm', display: 'grid', gridTemplateColumns: '1fr 200px', gap: '40px' }}>
         <div>
           {experience.length > 0 && (
             <BoldSec title="Experience" accent={accent} primary={primary}>

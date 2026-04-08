@@ -6,17 +6,16 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
   const primary = config.colors.primary;
   const accent = config.colors.accent;
-  const padding = config.settings?.padding !== undefined ? `${config.settings.padding}mm` : '15mm 18mm';
 
   return (
     <div className="resume-paper" style={{
       fontFamily: config.fonts.body,
       backgroundColor: config.colors.background || '#FAFAF8',
       color: '#1a1a1a',
-      padding,
+      padding: 0,
     }}>
       {/* TOP ACCENT BAR */}
-      <div style={{ height: '6px', background: `linear-gradient(to right, ${primary}, ${accent}, ${primary})`, margin: `${config.settings?.padding ? -config.settings.padding : -15}mm ${config.settings?.padding ? -config.settings.padding : -18}mm 32px` }} />
+      <div style={{ height: '6px', background: `linear-gradient(to right, ${primary}, ${accent}, ${primary})`, margin: '0 0 32px' }} />
 
       <div>
         {/* HEADER */}
