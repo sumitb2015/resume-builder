@@ -717,10 +717,6 @@ function AppContent() {
           onUpdateConfig={setActiveTemplate}
           onUpdateResume={setResume}
         />
-        {createPortal(
-          <TemplateRenderer resume={resume} config={activeTemplate} />,
-          document.getElementById('print-portal')!
-        )}
       </>
     );
   }
@@ -1455,7 +1451,9 @@ function AppContent() {
 
       {/* Print portal */}
       {createPortal(
-        <TemplateRenderer resume={resume} config={activeTemplate} isPaged={true} />,
+        <div className="print-mode">
+          <PagedPreview resume={resume} config={activeTemplate} />
+        </div>,
         document.getElementById('print-portal')!
       )}
     </div>

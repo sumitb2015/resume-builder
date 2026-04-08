@@ -600,6 +600,23 @@ body {
     margin: 0 !important;
   }
 
+  /* PagedPreview print styles */
+  .print-mode .paged-preview-root {
+    display: block !important;
+    gap: 0 !important;
+  }
+
+  .print-mode .preview-page {
+    box-shadow: none !important;
+    margin: 0 !important;
+    page-break-after: always !important;
+    break-after: always !important;
+  }
+
+  .print-mode .no-print {
+    display: none !important;
+  }
+
   @page {
     size: A4;
     margin: 0;
