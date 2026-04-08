@@ -108,7 +108,7 @@ export const TosModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
 
     <h2 style={h2Style}>10. Changes to Terms</h2>
     <p style={pStyle}>
-      We reserve the right to modify these Terms at any time. We will provide notice of significant changes by updating the "last updated" date above. Your continued use of the service after such changes constitutes acceptance of the revised Terms. If you have questions about these Terms, please contact us at legal@bespokecv.com.
+      We reserve the right to modify these Terms at any time. We will provide notice of significant changes by updating the "last updated" date above. Your continued use of the service after such changes constitutes acceptance of the revised Terms. If you have questions about these Terms, please contact us at legal@bespokecv.in.
     </p>
   </LegalModal>
 );
@@ -137,12 +137,12 @@ export const PrivacyModal: React.FC<{ onClose: () => void }> = ({ onClose }) => 
 
     <h2 style={h2Style}>4. Your Rights</h2>
     <p style={pStyle}>
-      Depending on your jurisdiction, you may have rights to access, correct, delete, or port your data. To exercise these rights, contact us at privacy@bespokecv.com. We will respond to all requests within 30 days.
+      Depending on your jurisdiction, you may have rights to access, correct, delete, or port your data. To exercise these rights, contact us at privacy@bespokecv.in. We will respond to all requests within 30 days.
     </p>
 
     <h2 style={h2Style}>5. Contact</h2>
     <p style={pStyle}>
-      For privacy-related questions, contact our Data Protection Officer at privacy@bespokecv.com or write to BespokeCV, Inc., 548 Market St, San Francisco, CA 94104.
+      For privacy-related questions, contact our Data Protection Officer at privacy@bespokecv.in or write to BespokeCV, Inc., 548 Market St, San Francisco, CA 94104.
     </p>
   </LegalModal>
 );
