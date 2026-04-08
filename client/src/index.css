@@ -576,6 +576,12 @@ body {
     margin: 0 !important;
   }
 
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+    background: white !important;
+  }
+
   #root {
     display: none !important;
   }
