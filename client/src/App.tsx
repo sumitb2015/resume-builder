@@ -718,7 +718,7 @@ function AppContent() {
           onUpdateResume={setResume}
         />
         {createPortal(
-          <TemplateRenderer resume={resume} config={activeTemplate} isPaged={true} />,
+          <TemplateRenderer resume={resume} config={activeTemplate} />,
           document.getElementById('print-portal')!
         )}
       </>
