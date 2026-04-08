@@ -27,7 +27,7 @@ const HowItWorksSection: React.FC = () => (
       <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)', marginBottom: '14px' }}>
         From zero to hired in 3 steps
       </h2>
-      <p style={{ fontSize: '16px', color: 'var(--color-ui-text-dim)', marginBottom: '72px' }}>
+      <p style={{ fontSize: '16px', color: 'var(--color-ui-text-muted)', marginBottom: '72px' }}>
         No fuss, no friction. Most users create a polished resume in under 15 minutes.
       </p>
 

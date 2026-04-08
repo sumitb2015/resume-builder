@@ -42,7 +42,7 @@ const FooterSection: React.FC<Props> = ({ onOpenTos, onOpenPrivacy, onOpenAbout,
                 Bespoke<span style={{ color: '#818CF8' }}>CV</span>
               </span>
             </div>
-            <p style={{ fontSize: '14px', color: 'var(--color-ui-text-dim)', lineHeight: 1.7, maxWidth: '260px', marginBottom: '24px' }}>
+            <p style={{ fontSize: '14px', color: 'var(--color-ui-text-muted)', lineHeight: 1.7, maxWidth: '260px', marginBottom: '24px' }}>
               AI-powered resume builder that helps you create ATS-optimized resumes and land more interviews.
             </p>
             {/* Social icons */}

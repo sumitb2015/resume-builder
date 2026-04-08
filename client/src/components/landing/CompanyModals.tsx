@@ -16,7 +16,7 @@ export const AboutModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }}>
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px', color: '#818CF8' }}>{icon}</div>
       <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--color-ui-text)', marginBottom: '4px' }}>{value}</div>
-      <div style={{ fontSize: '12px', color: 'var(--color-ui-text-dim)' }}>{label}</div>
+      <div style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>{label}</div>
     </div>
   );
 
@@ -46,7 +46,7 @@ export const AboutModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         <MapPin size={18} color="#818CF8" />
         <div>
           <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ui-text)' }}>Pune, Maharashtra, India</div>
-          <div style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>Proudly built in India, serving job seekers worldwide</div>
+          <div style={{ fontSize: '12px', color: 'var(--color-ui-text)' }}>Proudly built in India, serving job seekers worldwide</div>
         </div>
       </div>
       <p style={pStyle}>
@@ -139,7 +139,7 @@ export const BlogModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
               <Tag size={9} />
               {post.tag}
             </span>
-            <span style={{ fontSize: '12px', color: 'var(--color-ui-text-dim)' }}>
+            <span style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>
               <Clock size={11} style={{ display: 'inline', marginRight: '3px', verticalAlign: '-1px' }} />
               {post.readTime}
             </span>

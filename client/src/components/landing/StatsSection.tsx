@@ -26,7 +26,7 @@ const StatsSection: React.FC = () => (
           }}>
             {stat.value}
           </div>
-          <div style={{ fontSize: '13px', color: 'var(--color-ui-text-dim)', fontWeight: 500, letterSpacing: '0.02em' }}>
+          <div style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', fontWeight: 500, letterSpacing: '0.02em' }}>
             {stat.label}
           </div>
         </div>
