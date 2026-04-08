@@ -535,8 +535,8 @@ body {
 .landing-page {
   height: 100vh;
   overflow-y: auto;
-  background: #060609;
-  color: white;
+  background: var(--color-ui-bg);
+  color: var(--color-ui-text);
 }
 
 /* ── PRINT ─────────────────────────────────────────────── */
