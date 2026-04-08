@@ -1451,7 +1451,7 @@ function AppContent() {
       {/* Print portal */}
       {createPortal(
         <div className="print-mode">
-          <PagedPreview resume={resume} config={activeTemplate} />
+          <PagedPreview resume={resume} config={activeTemplate} forcePageCount={pageCount} />
         </div>,
         document.getElementById('print-portal')!
       )}

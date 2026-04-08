@@ -10,11 +10,13 @@ interface Props {
   resume: Resume;
   config: TemplateConfig;
   onPageCount?: (n: number) => void;
+  forcePageCount?: number;
 }
 
-const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount }) => {
+const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount, forcePageCount }) => {
   const measureRef = useRef<HTMLDivElement>(null);
-  const [pageCount, setPageCount] = useState(1);
+  const [internalPageCount, setPageCount] = useState(1);
+  const pageCount = forcePageCount !== undefined ? forcePageCount : internalPageCount;
 
   // Extract margin from config settings (default to 15mm)
   const marginMm = config.settings?.margin ?? 15;
