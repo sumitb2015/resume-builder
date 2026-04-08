@@ -368,24 +368,19 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
               {improvements.suggestions.map((s, i) => {
                 const applied = appliedSuggestions.has(i);
                 return (
-                  <div key={i} style={{ padding: '10px 12px', background: 'var(--color-ui-surface)', border: `1px solid ${applied ? 'rgba(74,222,128,0.35)' : 'var(--color-ui-border)'}`, borderRadius: '8px', transition: 'border-color 0.2s', opacity: applied ? 0.7 : 1 }}>
+                  <div key={i} style={{ padding: '10px 12px', background: 'var(--color-ui-surface)', border: `1px solid ${applied ? 'var(--color-success-border)' : 'var(--color-ui-border)'}`, borderRadius: '8px', transition: 'border-color 0.2s', opacity: applied ? 0.7 : 1 }}>
                     <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#818CF8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '5px' }}>{s.section}</div>
                     <p style={{ fontSize: '11.5px', color: 'var(--color-ui-text-muted)', lineHeight: 1.5, marginBottom: '5px' }}><span style={{ fontWeight: 600 }}>Before:</span> {s.original}</p>
-                    <p style={{ fontSize: '11.5px', color: 'var(--color-ui-text)', lineHeight: 1.5, marginBottom: '8px' }}><span style={{ fontWeight: 600, color: '#4ADE80' }}>After:</span> {s.suggested}</p>
-                    <button
-                      disabled={applied}
-                      style={{
-                        display: 'inline-flex', alignItems: 'center', gap: '4px',
-                        fontSize: '11px', padding: '4px 10px', borderRadius: '6px',
-                        border: 'none', cursor: applied ? 'default' : 'pointer', fontWeight: 600,
-                        background: applied ? 'rgba(74,222,128,0.15)' : 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-                        color: applied ? '#4ADE80' : 'white',
-                        transition: 'background 0.2s, color 0.2s',
-                      }}
-                      onClick={() => !applied && applyImprovement(s.original, s.suggested, i)}
-                    >
-                      <Check size={11} /> {applied ? 'Applied' : 'Apply'}
-                    </button>
+                    <p style={{ fontSize: '11.5px', color: 'var(--color-ui-text)', lineHeight: 1.5, marginBottom: '8px' }}><span style={{ fontWeight: 600, color: 'var(--color-success)' }}>After:</span> {s.suggested}</p>
+                    {applied ? (
+                      <button className="btn-applied" disabled>
+                        <Check size={11} /> Applied
+                      </button>
+                    ) : (
+                      <button className="btn-primary" style={{ fontSize: '11px', padding: '4px 10px', gap: '4px' }} onClick={() => applyImprovement(s.original, s.suggested, i)}>
+                        <Check size={11} /> Apply
+                      </button>
+                    )}
                   </div>
                 );
               })}
