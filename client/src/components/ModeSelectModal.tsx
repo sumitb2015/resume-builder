@@ -127,7 +127,7 @@ export default function ModeSelectModal({ onSelect, onBack, onUpgradeNeeded }: P
                 onClick={() => onSelect('manual')}
               />
 
-              {/* Enhance Existing — Ultimate only */}
+              {/* Enhance Existing — Pro only */}
               <ModeCard
                 icon={<Upload size={28} />}
                 iconColor="#F59E0B"
@@ -138,7 +138,7 @@ export default function ModeSelectModal({ onSelect, onBack, onUpgradeNeeded }: P
                 badgeColor="#F59E0B"
                 badgeBg="rgba(245,158,11,0.12)"
                 locked={!canAccess('enhance-mode')}
-                requiredPlan="Ultimate"
+                requiredPlan="Pro"
                 onClick={() => {
                   if (!canAccess('enhance-mode')) { onUpgradeNeeded('enhance-mode'); return; }
                   setError(''); setFile(null); setStep('enhance');

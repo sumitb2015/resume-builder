@@ -135,7 +135,7 @@ type ModalType = 'tailor' | 'ats' | 'diff' | null;
 
 // Maps a feature to the minimum plan required
 const FEATURE_REQUIRED_PLAN: Record<Feature, 'pro' | 'ultimate'> = {
-  'enhance-mode': 'ultimate',
+  'enhance-mode': 'pro',
   'linkedin-mode': 'ultimate',
   'job-tailor': 'ultimate',
   'extra-templates': 'pro',
@@ -670,11 +670,20 @@ function AppContent() {
 
   if (view === 'mode-select') {
     return (
-      <ModeSelectModal
-        onSelect={handleModeSelect}
-        onBack={() => setView('landing')}
-        onUpgradeNeeded={showUpgrade}
-      />
+      <>
+        <ModeSelectModal
+          onSelect={handleModeSelect}
+          onBack={() => setView('landing')}
+          onUpgradeNeeded={showUpgrade}
+        />
+        {upgradePrompt && (
+          <UpgradeModal
+            requiredPlan={upgradePrompt.requiredPlan}
+            featureLabel={upgradePrompt.featureLabel}
+            onClose={() => setUpgradePrompt(null)}
+          />
+        )}
+      </>
     );
   }
 

@@ -42,8 +42,8 @@ const TIERS = [
       { label: 'AI summary writer', included: true },
       { label: 'Skills finder', included: true },
       { label: 'Color & style customization', included: true },
+      { label: 'Resume import from PDF / DOCX', included: true },
       { label: 'Job tailoring (full resume rewrite)', included: false },
-      { label: 'Resume import & LinkedIn sync', included: false },
     ],
   },
   {

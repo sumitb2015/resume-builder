@@ -16,7 +16,7 @@ export type Feature =
 
 const PLAN_FEATURES: Record<Plan, Feature[]> = {
   basic: ['ai-bullets'],
-  pro: ['extra-templates', 'dynamic-ats', 'ai-summary', 'ai-bullets', 'skills-finder', 'style-colors'],
+  pro: ['enhance-mode', 'extra-templates', 'dynamic-ats', 'ai-summary', 'ai-bullets', 'skills-finder', 'style-colors'],
   ultimate: [
     'enhance-mode', 'linkedin-mode', 'extra-templates', 'dynamic-ats',
     'ai-summary', 'ai-bullets', 'skills-finder', 'style-colors', 'job-tailor',
