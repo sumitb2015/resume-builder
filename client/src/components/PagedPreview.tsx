@@ -4,7 +4,6 @@ import TemplateRenderer from '../templates/TemplateRenderer';
 
 const MM_TO_PX = 96 / 25.4;
 const PAGE_H = 297 * MM_TO_PX; // 1122.519... px
-const PAGE_W = 210 * MM_TO_PX; // 793.7 px
 
 interface Props {
   resume: Resume;
