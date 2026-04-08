@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 
 interface Props { onClose: () => void; title?: string; children?: React.ReactNode }
 
-const LegalModal: React.FC<Props> = ({ onClose, title = 'Terms of Service', children }) => {
+export const LegalModal: React.FC<Props> = ({ onClose, title = 'Terms of Service', children }) => {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', handler);

@@ -5,9 +5,13 @@ import { scrollToSection } from '../../lib/scroll';
 interface Props {
   onOpenTos: () => void;
   onOpenPrivacy: () => void;
+  onOpenAbout: () => void;
+  onOpenBlog: () => void;
+  onOpenCareers: () => void;
+  onOpenContact: () => void;
 }
 
-const FooterSection: React.FC<Props> = ({ onOpenTos, onOpenPrivacy }) => {
+const FooterSection: React.FC<Props> = ({ onOpenTos, onOpenPrivacy, onOpenAbout, onOpenBlog, onOpenCareers, onOpenContact }) => {
   const linkStyle: React.CSSProperties = {
     fontSize: '14px', color: 'rgba(255,255,255,0.4)', textDecoration: 'none',
     background: 'none', border: 'none', cursor: 'pointer', padding: '0',
@@ -74,24 +78,15 @@ const FooterSection: React.FC<Props> = ({ onOpenTos, onOpenPrivacy }) => {
             <button style={linkStyle} onClick={() => scrollToSection('templates')} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Templates</button>
             <button style={linkStyle} onClick={() => scrollToSection('ai-features')} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>AI Features</button>
             <button style={linkStyle} onClick={() => scrollToSection('pricing')} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Pricing</button>
-            <a href="#" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Changelog</a>
-            <a href="#" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Roadmap</a>
           </div>
 
           {/* Company column */}
           <div>
             <h4 style={{ fontSize: '13px', fontWeight: 700, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '20px' }}>Company</h4>
-            <a href="#" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>About</a>
-            <a href="#" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Blog</a>
-            <a href="#" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Careers</a>
-            <a
-              href="mailto:hello@bespokecv.com"
-              style={linkStyle}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-            >
-              Contact Us
-            </a>
+            <button style={linkStyle} onClick={onOpenAbout} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>About</button>
+            <button style={linkStyle} onClick={onOpenBlog} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Blog</button>
+            <button style={linkStyle} onClick={onOpenCareers} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Careers</button>
+            <button style={linkStyle} onClick={onOpenContact} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Contact Us</button>
           </div>
 
           {/* Legal column */}
