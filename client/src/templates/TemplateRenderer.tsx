@@ -37,7 +37,8 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config }) => {
     <>
       <style dangerouslySetInnerHTML={{ __html: `
         .template-container {
-          font-size: ${fontSizeFactor}em;
+          --font-scale: ${fontSizeFactor};
+          font-size: calc(16px * var(--font-scale));
           width: 100%;
           background: white;
         }
@@ -47,6 +48,7 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config }) => {
             overflow: visible !important;
             width: 100% !important;
             background: white;
+            font-size: 1em;
         }
         ${lineHeight !== undefined ? `.resume-paper, .resume-paper * { line-height: ${lineHeight} !important; }` : ''}
         

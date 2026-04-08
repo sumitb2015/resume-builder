@@ -19,11 +19,11 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
         <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '180px', height: '180px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.06)' }} />
         <div style={{ position: 'absolute', bottom: '-60px', right: '80px', width: '120px', height: '120px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.04)' }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <h1 style={{ fontFamily: config.fonts.heading, fontSize: '34px', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.03em', lineHeight: 1.05, marginBottom: '6px' }}>
+          <h1 style={{ fontFamily: config.fonts.heading, fontSize: '2.125em', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.03em', lineHeight: 1.05, marginBottom: '6px' }}>
             {personal.name || 'YOUR NAME'}
           </h1>
           {personal.title && (
-            <p style={{ fontSize: '14px', fontWeight: 500, color: accent, marginBottom: '18px', letterSpacing: '0.01em' }}>
+            <p style={{ fontSize: '0.875em', fontWeight: 500, color: accent, marginBottom: '18px', letterSpacing: '0.01em' }}>
               {personal.title}
             </p>
           )}
@@ -48,7 +48,7 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
           {personal.summary && (
             <div style={{ marginBottom: '28px' }}>
               <CreativeSectionTitle title="About Me" primary={primary} config={config} />
-              <RichContent html={personal.summary} style={{ fontSize: '12.5px', lineHeight: 1.8, color: '#374151' }} />
+              <RichContent html={personal.summary} style={{ fontSize: '0.7813em', lineHeight: 1.8, color: '#374151' }} />
             </div>
           )}
 
@@ -69,17 +69,17 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
                       }} />
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
                         <div>
-                          <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#111827', letterSpacing: '-0.01em' }}>{exp.role}</div>
-                          <div style={{ fontSize: '12px', fontWeight: 600, color: primary, marginTop: '1px' }}>{exp.company}</div>
+                          <div style={{ fontSize: '0.8438em', fontWeight: 700, color: '#111827', letterSpacing: '-0.01em' }}>{exp.role}</div>
+                          <div style={{ fontSize: '0.75em', fontWeight: 600, color: primary, marginTop: '1px' }}>{exp.company}</div>
                         </div>
-                        <span style={{ fontSize: '10.5px', color: '#9CA3AF', whiteSpace: 'nowrap', marginLeft: '8px', backgroundColor: '#F9FAFB', padding: '2px 8px', borderRadius: '12px', flexShrink: 0 }}>
+                        <span style={{ fontSize: '0.6563em', color: '#9CA3AF', whiteSpace: 'nowrap', marginLeft: '8px', backgroundColor: '#F9FAFB', padding: '2px 8px', borderRadius: '12px', flexShrink: 0 }}>
                           {exp.startDate}{(exp.startDate || exp.endDate) ? ' – ' : ''}{exp.isCurrent ? 'Present' : exp.endDate}
                         </span>
                       </div>
                       {exp.bullets.filter(b => b).length > 0 && (
                         <ul style={{ paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           {exp.bullets.filter(b => b).map((bullet, i) => (
-                            <li key={i} style={{ display: 'flex', gap: '8px', fontSize: '12px', color: '#4B5563', lineHeight: 1.65, listStyle: 'none' }}>
+                            <li key={i} style={{ display: 'flex', gap: '8px', fontSize: '0.75em', color: '#4B5563', lineHeight: 1.65, listStyle: 'none' }}>
                               <span style={{ color: accent, flexShrink: 0 }}>▸</span>
                               <RichContent html={bullet} />
                             </li>
@@ -100,14 +100,14 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
                 {projects.map(p => (
                   <div key={p.id} style={{ padding: '12px 14px', backgroundColor: '#F9FAFB', borderRadius: '10px', borderLeft: `3px solid ${primary}` }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#111827' }}>{p.title}</span>
-                      {p.url && <span style={{ fontSize: '11px', color: primary }}>{p.url}</span>}
+                      <span style={{ fontSize: '0.8125em', fontWeight: 700, color: '#111827' }}>{p.title}</span>
+                      {p.url && <span style={{ fontSize: '0.6875em', color: primary }}>{p.url}</span>}
                     </div>
-                    {p.description && <RichContent html={p.description} style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px', lineHeight: 1.6 }} />}
+                    {p.description && <RichContent html={p.description} style={{ fontSize: '0.75em', color: '#6B7280', marginTop: '4px', lineHeight: 1.6 }} />}
                     {p.tech.length > 0 && (
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '8px' }}>
                         {p.tech.map((t, i) => (
-                          <span key={i} style={{ fontSize: '10px', backgroundColor: primary + '15', color: primary, padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>{t}</span>
+                          <span key={i} style={{ fontSize: '0.625em', backgroundColor: primary + '15', color: primary, padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>{t}</span>
                         ))}
                       </div>
                     )}
@@ -123,10 +123,10 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
               {education.map(edu => (
                 <div key={edu.id} style={{ marginBottom: '12px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#111827' }}>{edu.school}</div>
-                    <span style={{ fontSize: '11px', color: '#9CA3AF' }}>{edu.startDate}{(edu.startDate || edu.endDate) ? ' – ' : ''}{edu.endDate}</span>
+                    <div style={{ fontSize: '0.8438em', fontWeight: 700, color: '#111827' }}>{edu.school}</div>
+                    <span style={{ fontSize: '0.6875em', color: '#9CA3AF' }}>{edu.startDate}{(edu.startDate || edu.endDate) ? ' – ' : ''}{edu.endDate}</span>
                   </div>
-                  <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>
+                  <div style={{ fontSize: '0.75em', color: '#6B7280', marginTop: '2px' }}>
                     {[edu.degree, edu.field].filter(Boolean).join(' in ')}
                     {edu.gpa && <span style={{ marginLeft: '6px', fontWeight: 600, color: '#374151' }}>· GPA {edu.gpa}</span>}
                   </div>
@@ -144,7 +144,7 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                 {skills.map(s => (
                   <span key={s.id} style={{
-                    fontSize: '11px', fontWeight: 600,
+                    fontSize: '0.6875em', fontWeight: 600,
                     padding: '4px 10px', borderRadius: '20px',
                     backgroundColor: s.level >= 75 ? primary : s.level >= 50 ? primary + 'CC' : '#E5E7EB',
                     color: s.level >= 50 ? '#FFFFFF' : '#374151',
@@ -161,9 +161,9 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
               <CreativeSectionTitle title="Certifications" primary={primary} config={config} />
               {certifications.map(c => (
                 <div key={c.id} style={{ marginBottom: '10px', padding: '8px 10px', backgroundColor: '#FFFFFF', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
-                  <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#111827' }}>{c.name}</div>
-                  {c.issuer && <div style={{ fontSize: '10.5px', color: '#9CA3AF', marginTop: '1px' }}>{c.issuer}</div>}
-                  {c.date && <div style={{ fontSize: '10px', color: primary, marginTop: '2px', fontWeight: 600 }}>{c.date}</div>}
+                  <div style={{ fontSize: '0.7188em', fontWeight: 700, color: '#111827' }}>{c.name}</div>
+                  {c.issuer && <div style={{ fontSize: '0.6563em', color: '#9CA3AF', marginTop: '1px' }}>{c.issuer}</div>}
+                  {c.date && <div style={{ fontSize: '0.625em', color: primary, marginTop: '2px', fontWeight: 600 }}>{c.date}</div>}
                 </div>
               ))}
             </div>
@@ -174,9 +174,9 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
               <CreativeSectionTitle title="Languages" primary={primary} config={config} />
               {languages.map(l => (
                 <div key={l.id} style={{ marginBottom: '8px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', marginBottom: '4px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7188em', marginBottom: '4px' }}>
                     <span style={{ fontWeight: 600, color: '#111827' }}>{l.language}</span>
-                    <span style={{ color: '#9CA3AF', fontSize: '10.5px' }}>{l.proficiency}</span>
+                    <span style={{ color: '#9CA3AF', fontSize: '0.6563em' }}>{l.proficiency}</span>
                   </div>
                   <div style={{ height: '3px', backgroundColor: '#E5E7EB', borderRadius: '2px', overflow: 'hidden' }}>
                     <div style={{
@@ -196,7 +196,7 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
 
 const CreativeSectionTitle: React.FC<{ title: string; primary: string; config: TemplateConfig }> = ({ title, primary, config }) => (
   <h2 style={{
-    fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em',
+    fontSize: '0.6875em', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em',
     color: primary, marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px',
     fontFamily: config.fonts.heading,
   }}>
@@ -209,10 +209,10 @@ const ContactPill: React.FC<{ value: string; accent: string; icon: string }> = (
   <div style={{
     display: 'inline-flex', alignItems: 'center', gap: '5px',
     backgroundColor: 'rgba(255,255,255,0.1)', padding: '4px 10px', borderRadius: '20px',
-    fontSize: '11px', fontWeight: 500, color: 'rgba(255,255,255,0.85)',
+    fontSize: '0.6875em', fontWeight: 500, color: 'rgba(255,255,255,0.85)',
     border: '1px solid rgba(255,255,255,0.15)',
   }}>
-    <span style={{ color: accent, fontSize: '10px', fontWeight: 700 }}>{icon}</span>
+    <span style={{ color: accent, fontSize: '0.625em', fontWeight: 700 }}>{icon}</span>
     <span>{value}</span>
   </div>
 );
