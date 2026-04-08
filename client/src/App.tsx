@@ -9,6 +9,7 @@ import SavedResumesPanel from './components/SavedResumesPanel';
 import PagedPreview from './components/PagedPreview';
 import TemplateRenderer from './templates/TemplateRenderer';
 import StylePanel from './components/StylePanel';
+import ExportPreview from './components/ExportPreview';
 import { templates, colorPalettes } from './templates';
 import { api } from './lib/api';
 import type { Resume, TemplateConfig, ImprovementSuggestions } from './shared/types';
@@ -364,7 +365,7 @@ function AppContent() {
 
   const { theme, toggleTheme } = useTheme();
 
-  const [view, setView] = useState<'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder'>('landing');
+  const [view, setView] = useState<'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder' | 'preview'>('landing');
   const initialResumeRef = useRef<Resume | null>(null);
   useEffect(() => {
     if (view === 'builder' && !initialResumeRef.current) {
@@ -708,6 +709,17 @@ function AppContent() {
     );
   }
 
+  if (view === 'preview') {
+    return (
+      <ExportPreview 
+        resume={resume} 
+        config={activeTemplate} 
+        onBack={() => setView('builder')}
+        onUpdateConfig={setActiveTemplate}
+      />
+    );
+  }
+
   const formWidth = formExpanded ? '48%' : '40%';
 
   return (
@@ -810,9 +822,9 @@ function AppContent() {
             {currentResumeId ? 'Save' : 'Save'}
           </button>
 
-          <button className="btn-primary" style={{ gap: '6px', fontSize: '13px' }} onClick={handleExportPdf}>
-            <Download size={14} />
-            Export PDF
+          <button className="btn-primary" style={{ gap: '6px', fontSize: '13px' }} onClick={() => setView('preview')}>
+            <FileText size={14} />
+            Preview
           </button>
 
           {currentUser && (

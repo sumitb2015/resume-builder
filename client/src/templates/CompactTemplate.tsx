@@ -4,15 +4,23 @@ import RichContent from './RichContent';
 
 const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
-  const accent = config.colors.accent || '#2563EB';
+  const accent = config.colors.accent;
+  const padding = config.settings?.padding !== undefined ? `${config.settings.padding}mm` : '15mm 18mm';
 
   return (
-    <div className="resume-paper" style={{ fontFamily: '"Inter", system-ui, sans-serif', color: '#1E293B', backgroundColor: '#fff', padding: '36px 44px', fontSize: '11.5px', lineHeight: 1.55 }}>
+    <div className="resume-paper" style={{
+      fontFamily: config.fonts.body,
+      color: '#1E293B',
+      backgroundColor: config.colors.background || '#FFFFFF',
+      padding,
+      fontSize: '11.5px',
+      lineHeight: 1.55
+    }}>
       {/* HEADER */}
       <header style={{ borderBottom: `2px solid ${accent}`, paddingBottom: '10px', marginBottom: '14px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
           <div>
-            <h1 style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '-0.03em', color: '#0F172A', lineHeight: 1.1, marginBottom: '3px' }}>{personal.name || 'YOUR NAME'}</h1>
+            <h1 style={{ fontFamily: config.fonts.heading, fontSize: '22px', fontWeight: 800, letterSpacing: '-0.03em', color: config.colors.primary, lineHeight: 1.1, marginBottom: '3px' }}>{personal.name || 'YOUR NAME'}</h1>
             {personal.title && <p style={{ fontSize: '12px', color: accent, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{personal.title}</p>}
           </div>
           <div style={{ textAlign: 'right', fontSize: '10.5px', color: '#64748B', lineHeight: 1.8 }}>
@@ -29,7 +37,7 @@ const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
       )}
 
       {experience.length > 0 && (
-        <CSection title="Experience" accent={accent}>
+        <CSection title="Experience" accent={accent} config={config}>
           {experience.map(exp => (
             <div key={exp.id} style={{ marginBottom: '12px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -48,7 +56,7 @@ const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
         <div>
           {education.length > 0 && (
-            <CSection title="Education" accent={accent}>
+            <CSection title="Education" accent={accent} config={config}>
               {education.map(edu => (
                 <div key={edu.id} style={{ marginBottom: '8px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ fontWeight: 700, fontSize: '11.5px', color: '#0F172A' }}>{edu.school}</div>
@@ -59,7 +67,7 @@ const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             </CSection>
           )}
           {projects.length > 0 && (
-            <CSection title="Projects" accent={accent}>
+            <CSection title="Projects" accent={accent} config={config}>
               {projects.map(p => (
                 <div key={p.id} style={{ marginBottom: '8px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -75,7 +83,7 @@ const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
         </div>
         <div>
           {skills.length > 0 && (
-            <CSection title="Skills" accent={accent}>
+            <CSection title="Skills" accent={accent} config={config}>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                 {skills.map(s => (
                   <span key={s.id} style={{ fontSize: '10.5px', fontWeight: 600, padding: '2px 8px', borderRadius: '12px', backgroundColor: accent + '15', color: accent }}>{s.name}</span>
@@ -84,7 +92,7 @@ const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             </CSection>
           )}
           {languages.length > 0 && (
-            <CSection title="Languages" accent={accent}>
+            <CSection title="Languages" accent={accent} config={config}>
               {languages.map(l => (
                 <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', lineHeight: 1.9, breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <span style={{ fontWeight: 600 }}>{l.language}</span><span style={{ color: '#94A3B8' }}>{l.proficiency}</span>
@@ -93,7 +101,7 @@ const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             </CSection>
           )}
           {certifications.length > 0 && (
-            <CSection title="Certifications" accent={accent}>
+            <CSection title="Certifications" accent={accent} config={config}>
               {certifications.map(c => (
                 <div key={c.id} style={{ marginBottom: '6px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ fontWeight: 700, fontSize: '11px' }}>{c.name}</div>
@@ -108,9 +116,9 @@ const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
   );
 };
 
-const CSection: React.FC<{ title: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
+const CSection: React.FC<{ title: string; accent: string; config: TemplateConfig; children: React.ReactNode }> = ({ title, accent, config, children }) => (
   <div style={{ marginBottom: '14px' }}>
-    <h2 style={{ fontSize: '9.5px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.18em', color: accent, marginBottom: '8px', paddingBottom: '3px', borderBottom: `1px solid ${accent}40` }}>{title}</h2>
+    <h2 style={{ fontFamily: config.fonts.heading, fontSize: '9.5px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.18em', color: accent, marginBottom: '8px', paddingBottom: '3px', borderBottom: `1px solid ${accent}40` }}>{title}</h2>
     {children}
   </div>
 );

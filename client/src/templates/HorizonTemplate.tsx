@@ -4,18 +4,23 @@ import RichContent from './RichContent';
 
 const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
-  const primary = config.colors.primary || '#0F4C81';
-  const accent = config.colors.accent || '#00B4D8';
+  const primary = config.colors.primary;
+  const accent = config.colors.accent;
+  const padding = config.settings?.padding !== undefined ? `${config.settings.padding}mm` : '15mm 18mm';
 
   return (
-    <div className="resume-paper" style={{ fontFamily: '"Inter", system-ui, sans-serif', backgroundColor: '#fff' }}>
+    <div className="resume-paper" style={{
+      fontFamily: config.fonts.body,
+      backgroundColor: config.colors.background || '#FFFFFF',
+      padding,
+    }}>
       {/* GRADIENT HEADER */}
-      <header style={{ background: `linear-gradient(135deg, ${primary} 0%, ${accent} 100%)`, padding: '40px 48px 36px', position: 'relative', overflow: 'hidden' }}>
+      <header style={{ background: `linear-gradient(135deg, ${primary} 0%, ${accent} 100%)`, padding: '40px 48px 36px', position: 'relative', overflow: 'hidden', margin: `${config.settings?.padding ? -config.settings.padding : -15}mm ${config.settings?.padding ? -config.settings.padding : -18}mm 0` }}>
         <div style={{ position: 'absolute', top: 0, right: 0, width: '300px', height: '300px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', transform: 'translate(100px,-100px)' }} />
         <div style={{ position: 'absolute', bottom: 0, left: '40%', width: '200px', height: '200px', background: 'rgba(0,0,0,0.06)', borderRadius: '50%', transform: 'translateY(80px)' }} />
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
-            <h1 style={{ fontSize: '34px', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '6px' }}>{personal.name || 'YOUR NAME'}</h1>
+            <h1 style={{ fontFamily: config.fonts.heading, fontSize: '34px', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '6px' }}>{personal.name || 'YOUR NAME'}</h1>
             {personal.title && <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.8)', fontWeight: 500, letterSpacing: '0.04em' }}>{personal.title}</p>}
           </div>
           {personal.summary && (
@@ -39,7 +44,7 @@ const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
         {/* MAIN */}
         <div style={{ padding: '10mm 15mm 15mm 15mm', borderRight: `3px solid ${accent}20` }}>
           {experience.length > 0 && (
-            <HSection title="Experience" accent={accent}>
+            <HSection title="Experience" accent={accent} config={config}>
               {experience.map(exp => (
                 <div key={exp.id} style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #F1F5F9' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
@@ -63,7 +68,7 @@ const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             </HSection>
           )}
           {projects.length > 0 && (
-            <HSection title="Projects" accent={accent}>
+            <HSection title="Projects" accent={accent} config={config}>
               {projects.map(p => (
                 <div key={p.id} style={{ marginBottom: '14px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -81,7 +86,7 @@ const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             </HSection>
           )}
           {education.length > 0 && (
-            <HSection title="Education" accent={accent}>
+            <HSection title="Education" accent={accent} config={config}>
               {education.map(edu => (
                 <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
                   <div>
@@ -99,7 +104,7 @@ const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
         <div style={{ padding: '36px 24px', background: '#FAFBFF', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {skills.length > 0 && (
             <div>
-              <HSideTitle title="Skills" accent={accent} />
+              <HSideTitle title="Skills" accent={accent} config={config} />
               {skills.map(s => (
                 <div key={s.id} style={{ marginBottom: '10px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
@@ -114,7 +119,7 @@ const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
           )}
           {certifications.length > 0 && (
             <div>
-              <HSideTitle title="Certifications" accent={accent} />
+              <HSideTitle title="Certifications" accent={accent} config={config} />
               {certifications.map(c => (
                 <div key={c.id} style={{ marginBottom: '10px', padding: '8px', background: '#fff', borderRadius: '6px', border: '1px solid #E2E8F0' }}>
                   <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#1E293B' }}>{c.name}</div>
@@ -126,7 +131,7 @@ const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
           )}
           {languages.length > 0 && (
             <div>
-              <HSideTitle title="Languages" accent={accent} />
+              <HSideTitle title="Languages" accent={accent} config={config} />
               {languages.map(l => (
                 <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', lineHeight: 2, color: '#334155' }}>
                   <span style={{ fontWeight: 600 }}>{l.language}</span>
@@ -141,18 +146,18 @@ const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
   );
 };
 
-const HSection: React.FC<{ title: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
+const HSection: React.FC<{ title: string; accent: string; config: TemplateConfig; children: React.ReactNode }> = ({ title, accent, config, children }) => (
   <div style={{ marginBottom: '28px' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
       <div style={{ width: '20px', height: '3px', background: accent, borderRadius: '2px' }} />
-      <h2 style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.14em', color: accent }}>{title}</h2>
+      <h2 style={{ fontFamily: config.fonts.heading, fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.14em', color: accent }}>{title}</h2>
     </div>
     {children}
   </div>
 );
 
-const HSideTitle: React.FC<{ title: string; accent: string }> = ({ title, accent }) => (
-  <h3 style={{ fontSize: '9.5px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.16em', color: accent, marginBottom: '12px', paddingBottom: '6px', borderBottom: `2px solid ${accent}30` }}>{title}</h3>
+const HSideTitle: React.FC<{ title: string; accent: string; config: TemplateConfig }> = ({ title, accent, config }) => (
+  <h3 style={{ fontFamily: config.fonts.heading, fontSize: '9.5px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.16em', color: accent, marginBottom: '12px', paddingBottom: '6px', borderBottom: `2px solid ${accent}30` }}>{title}</h3>
 );
 
 export default HorizonTemplate;

@@ -4,16 +4,22 @@ import RichContent from './RichContent';
 
 const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
-  const accent = config.colors.accent || '#9D7B4F';
+  const accent = config.colors.accent;
+  const padding = config.settings?.padding !== undefined ? `${config.settings.padding}mm` : '15mm 18mm';
 
   return (
-    <div className="resume-paper" style={{ fontFamily: '"EB Garamond", Georgia, serif', backgroundColor: '#FFFEF9', color: '#2C2C2C', padding: '15mm 18mm' }}>
+    <div className="resume-paper" style={{
+      fontFamily: config.fonts.body,
+      backgroundColor: config.colors.background || '#FFFEF9',
+      color: '#2C2C2C',
+      padding,
+    }}>
       {/* DECORATIVE TOP BORDER */}
       <div style={{ height: '3px', background: `linear-gradient(to right, transparent, ${accent}, transparent)`, marginBottom: '32px' }} />
 
       {/* HEADER */}
       <header style={{ textAlign: 'center', marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '38px', fontWeight: 400, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#1A1A1A', marginBottom: '6px', lineHeight: 1.1 }}>
+        <h1 style={{ fontFamily: config.fonts.heading, fontSize: '38px', fontWeight: 400, letterSpacing: '0.12em', textTransform: 'uppercase', color: config.colors.primary, marginBottom: '6px', lineHeight: 1.1 }}>
           {personal.name || 'YOUR NAME'}
         </h1>
         {personal.title && (
@@ -42,7 +48,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
         {/* LEFT COLUMN */}
         <div style={{ flex: 1 }}>
           {experience.length > 0 && (
-            <ESection title="Professional Experience" accent={accent}>
+            <ESection title="Professional Experience" accent={accent} config={config}>
               {experience.map(exp => (
                 <div key={exp.id} style={{ marginBottom: '18px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '2px' }}>
@@ -58,7 +64,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             </ESection>
           )}
           {projects.length > 0 && (
-            <ESection title="Notable Projects" accent={accent}>
+            <ESection title="Notable Projects" accent={accent} config={config}>
               {projects.map(p => (
                 <div key={p.id} style={{ marginBottom: '12px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -76,7 +82,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
         {/* RIGHT COLUMN */}
         <div style={{ width: '180px', flexShrink: 0 }}>
           {education.length > 0 && (
-            <ESection title="Education" accent={accent}>
+            <ESection title="Education" accent={accent} config={config}>
               {education.map(edu => (
                 <div key={edu.id} style={{ marginBottom: '14px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#1A1A1A' }}>{edu.school}</div>
@@ -87,7 +93,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             </ESection>
           )}
           {skills.length > 0 && (
-            <ESection title="Expertise" accent={accent}>
+            <ESection title="Expertise" accent={accent} config={config}>
               {skills.map(s => (
                 <div key={s.id} style={{ fontSize: '12px', color: '#444', lineHeight: 1.9, display: 'flex', alignItems: 'center', gap: '6px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <span style={{ color: accent, fontSize: '10px' }}>✦</span>{s.name}
@@ -96,7 +102,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             </ESection>
           )}
           {languages.length > 0 && (
-            <ESection title="Languages" accent={accent}>
+            <ESection title="Languages" accent={accent} config={config}>
               {languages.map(l => (
                 <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', lineHeight: 1.9, breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <span>{l.language}</span><span style={{ color: '#888', fontStyle: 'italic', fontSize: '11px' }}>{l.proficiency}</span>
@@ -105,7 +111,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             </ESection>
           )}
           {certifications.length > 0 && (
-            <ESection title="Certifications" accent={accent}>
+            <ESection title="Certifications" accent={accent} config={config}>
               {certifications.map(c => (
                 <div key={c.id} style={{ marginBottom: '8px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ fontSize: '12px', fontWeight: 700 }}>{c.name}</div>
@@ -123,10 +129,10 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
   );
 };
 
-const ESection: React.FC<{ title: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
+const ESection: React.FC<{ title: string; accent: string; config: TemplateConfig; children: React.ReactNode }> = ({ title, accent, config, children }) => (
   <div style={{ marginBottom: '22px' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-      <h2 style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.24em', color: accent, whiteSpace: 'nowrap' }}>{title}</h2>
+      <h2 style={{ fontFamily: config.fonts.heading, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.24em', color: accent, whiteSpace: 'nowrap' }}>{title}</h2>
       <div style={{ flex: 1, height: '1px', background: `linear-gradient(to right, ${accent}60, transparent)` }} />
     </div>
     {children}

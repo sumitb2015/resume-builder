@@ -102,4 +102,9 @@ export interface TemplateConfig {
   layout: 'two-column' | 'single-column';
   atsScore: number;
   category: 'professional' | 'creative' | 'minimal';
+  settings?: {
+    margin: number;     // mm
+    padding: number;    // mm
+    fontSize: number;   // pt or relative
+  };
 }

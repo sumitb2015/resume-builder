@@ -31,12 +31,13 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config }) => {
 
   // Standard resume margins are usually 12.7mm (0.5in) to 15.9mm (0.625in)
   const getPadding = () => {
+    if (config.settings?.margin !== undefined) {
+      return `${config.settings.margin}mm`;
+    }
     switch (config.id) {
       case 'creative':
       case 'magazine':
       case 'night':
-        // These templates have full-bleed headers or sidebars, so we keep top margin 0
-        // but still need side and bottom margins for the content if it's not full-bleed
         return '0 15mm 15mm 15mm';
       default:
         return '15mm 18mm';
@@ -44,6 +45,7 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config }) => {
   };
 
   const pageMargin = getPadding();
+  const fontSizeFactor = (config.settings?.fontSize || 100) / 100;
 
   return (
     <>
@@ -60,11 +62,15 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config }) => {
             width: 100% !important;
             box-shadow: none !important;
             background: transparent !important;
+            font-size: ${fontSizeFactor}em !important;
           }
           /* Ensure we don't have blank pages */
           html, body {
             background: white !important;
           }
+        }
+        .template-container {
+          font-size: ${fontSizeFactor}em;
         }
       `}} />
       <div className="template-container">

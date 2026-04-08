@@ -2,23 +2,25 @@ import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
-const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume }) => {
+const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const primary = config.colors.primary;
+  const padding = config.settings?.padding !== undefined ? `${config.settings.padding}mm` : '15mm 18mm';
 
   return (
     <div
       className="resume-paper"
       style={{
-        fontFamily: '"EB Garamond", Georgia, serif',
+        fontFamily: config.fonts.body,
         color: '#1a1a1a',
-        backgroundColor: '#FFFFFF',
-        padding: '15mm 18mm',
+        backgroundColor: config.colors.background || '#FFFFFF',
+        padding,
         lineHeight: 1.5,
       }}
     >
       {/* HEADER */}
-      <header style={{ textAlign: 'center', marginBottom: '28px', paddingBottom: '20px', borderBottom: '2.5px solid #1a1a1a' }}>
-        <h1 style={{ fontSize: '30px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '6px', lineHeight: 1.1 }}>
+      <header style={{ textAlign: 'center', marginBottom: '28px', paddingBottom: '20px', borderBottom: `2.5px solid ${primary}` }}>
+        <h1 style={{ fontFamily: config.fonts.heading, fontSize: '30px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '6px', lineHeight: 1.1, color: primary }}>
           {personal.name || 'YOUR NAME'}
         </h1>
         {personal.title && (
@@ -57,14 +59,14 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
 
       {/* PROFESSIONAL SUMMARY */}
       {personal.summary && (
-        <Section title="Professional Summary">
+        <Section title="Professional Summary" config={config}>
           <RichContent html={personal.summary} style={{ fontSize: '13px', lineHeight: 1.75, textAlign: 'justify', color: '#2a2a2a' }} />
         </Section>
       )}
 
       {/* EXPERIENCE */}
       {experience.length > 0 && (
-        <Section title="Professional Experience">
+        <Section title="Professional Experience" config={config}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {experience.map((exp) => (
               <div key={exp.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
@@ -97,7 +99,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
 
       {/* EDUCATION */}
       {education.length > 0 && (
-        <Section title="Education">
+        <Section title="Education" config={config}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {education.map((edu) => (
               <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
@@ -122,7 +124,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginTop: '20px' }}>
           {skills.length > 0 && (
             <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
-              <SectionTitle title="Core Competencies" />
+              <SectionTitle title="Core Competencies" config={config} />
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 16px' }}>
                 {skills.map(s => (
                   <span key={s.id} style={{ fontSize: '12px', color: '#2a2a2a', lineHeight: 2 }}>• {s.name}</span>
@@ -133,7 +135,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {certifications.length > 0 && (
               <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
-                <SectionTitle title="Certifications" />
+                <SectionTitle title="Certifications" config={config} />
                 {certifications.map(c => (
                   <div key={c.id} style={{ fontSize: '12px', marginBottom: '4px', lineHeight: 1.7 }}>
                     <span style={{ fontWeight: 600 }}>{c.name}</span>
@@ -145,7 +147,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             )}
             {languages.length > 0 && (
               <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
-                <SectionTitle title="Languages" />
+                <SectionTitle title="Languages" config={config} />
                 {languages.map(l => (
                   <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', lineHeight: 1.9 }}>
                     <span style={{ fontWeight: 600 }}>{l.language}</span>
@@ -160,7 +162,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
 
       {/* PROJECTS */}
       {projects.length > 0 && (
-        <Section title="Selected Projects">
+        <Section title="Selected Projects" config={config}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {projects.map(p => (
               <div key={p.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
@@ -183,25 +185,25 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
   );
 };
 
-const SectionTitle: React.FC<{ title: string }> = ({ title }) => (
+const SectionTitle: React.FC<{ title: string; config: TemplateConfig }> = ({ title, config }) => (
   <h2 style={{
     fontSize: '10px',
     fontWeight: 700,
     textTransform: 'uppercase',
     letterSpacing: '0.18em',
-    color: '#1a1a1a',
-    borderBottom: '1px solid #ccc',
+    color: config.colors.primary,
+    borderBottom: `1px solid ${config.colors.primary}40`,
     paddingBottom: '4px',
     marginBottom: '10px',
-    fontFamily: '"EB Garamond", Georgia, serif',
+    fontFamily: config.fonts.heading,
   }}>
     {title}
   </h2>
 );
 
-const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
+const Section: React.FC<{ title: string; config: TemplateConfig; children: React.ReactNode }> = ({ title, config, children }) => (
   <section style={{ marginBottom: '20px' }}>
-    <SectionTitle title={title} />
+    <SectionTitle title={title} config={config} />
     {children}
   </section>
 );

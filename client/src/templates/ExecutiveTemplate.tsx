@@ -4,25 +4,27 @@ import RichContent from './RichContent';
 
 const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
-  const primary = config.colors.primary || '#1A1A2E';
-  const accent = config.colors.accent || '#C9A84C';
+  const primary = config.colors.primary;
+  const accent = config.colors.accent;
+  const padding = config.settings?.padding !== undefined ? `${config.settings.padding}mm` : '15mm 18mm';
 
   return (
     <div className="resume-paper" style={{
-      fontFamily: '"Lato", system-ui, sans-serif',
-      backgroundColor: '#FAFAF8',
+      fontFamily: config.fonts.body,
+      backgroundColor: config.colors.background || '#FAFAF8',
       color: '#1a1a1a',
+      padding,
     }}>
       {/* TOP ACCENT BAR */}
-      <div style={{ height: '6px', background: `linear-gradient(to right, ${primary}, ${accent}, ${primary})` }} />
+      <div style={{ height: '6px', background: `linear-gradient(to right, ${primary}, ${accent}, ${primary})`, margin: `${config.settings?.padding ? -config.settings.padding : -15}mm ${config.settings?.padding ? -config.settings.padding : -18}mm 32px` }} />
 
-      <div style={{ padding: '40px 48px' }}>
+      <div>
         {/* HEADER */}
         <header style={{ marginBottom: '32px', paddingBottom: '28px', borderBottom: `1px solid ${accent}40` }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <h1 style={{
-                fontFamily: '"Cormorant Garamond", Georgia, serif',
+                fontFamily: config.fonts.heading,
                 fontSize: '46px', fontWeight: 700, color: primary,
                 letterSpacing: '-0.02em', lineHeight: 1.0, marginBottom: '8px',
               }}>
@@ -54,7 +56,7 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
         {personal.summary && (
           <div style={{ marginBottom: '32px', padding: '20px 28px', backgroundColor: primary + '06', borderLeft: `4px solid ${accent}`, borderRadius: '0 6px 6px 0' }}>
             <RichContent html={personal.summary} style={{
-              fontFamily: '"Cormorant Garamond", Georgia, serif',
+              fontFamily: config.fonts.heading,
               fontSize: '15px', fontStyle: 'italic', color: '#2a2a2a',
               lineHeight: 1.8, fontWeight: 500,
             }} />
@@ -69,14 +71,14 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
             {/* Experience */}
             {experience.length > 0 && (
               <div style={{ marginBottom: '28px' }}>
-                <ExecSectionTitle title="Professional Experience" primary={primary} accent={accent} />
+                <ExecSectionTitle title="Professional Experience" primary={primary} accent={accent} config={config} />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
                   {experience.map(exp => (
                     <div key={exp.id}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '5px' }}>
                         <div>
                           <div style={{
-                            fontFamily: '"Cormorant Garamond", Georgia, serif',
+                            fontFamily: config.fonts.heading,
                             fontSize: '18px', fontWeight: 700, color: primary, letterSpacing: '-0.01em', lineHeight: 1.2,
                           }}>{exp.role}</div>
                           <div style={{ fontSize: '12px', fontWeight: 700, color: accent, textTransform: 'uppercase', letterSpacing: '0.12em', marginTop: '2px' }}>{exp.company}</div>
@@ -104,13 +106,13 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
             {/* Projects */}
             {projects.length > 0 && (
               <div style={{ marginBottom: '28px' }}>
-                <ExecSectionTitle title="Key Projects" primary={primary} accent={accent} />
+                <ExecSectionTitle title="Key Projects" primary={primary} accent={accent} config={config} />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   {projects.map(p => (
                     <div key={p.id}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                         <span style={{
-                          fontFamily: '"Cormorant Garamond", Georgia, serif',
+                          fontFamily: config.fonts.heading,
                           fontSize: '15px', fontWeight: 700, color: primary
                         }}>{p.title}</span>
                         {p.url && <span style={{ fontSize: '11px', color: accent }}>{p.url}</span>}
@@ -131,11 +133,11 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
             {/* Education */}
             {education.length > 0 && (
               <div>
-                <ExecSectionTitle title="Education" primary={primary} accent={accent} />
+                <ExecSectionTitle title="Education" primary={primary} accent={accent} config={config} />
                 {education.map(edu => (
                   <div key={edu.id} style={{ marginBottom: '14px' }}>
                     <div style={{
-                      fontFamily: '"Cormorant Garamond", Georgia, serif',
+                      fontFamily: config.fonts.heading,
                       fontSize: '15px', fontWeight: 700, color: primary, lineHeight: 1.3,
                     }}>{edu.school}</div>
                     <div style={{ fontSize: '12px', color: '#555', marginTop: '3px', lineHeight: 1.5 }}>
@@ -153,7 +155,7 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
             {/* Skills */}
             {skills.length > 0 && (
               <div>
-                <ExecSectionTitle title="Core Expertise" primary={primary} accent={accent} />
+                <ExecSectionTitle title="Core Expertise" primary={primary} accent={accent} config={config} />
                 {skills.map(s => (
                   <div key={s.id} style={{ marginBottom: '10px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
@@ -170,7 +172,7 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
             {/* Languages */}
             {languages.length > 0 && (
               <div>
-                <ExecSectionTitle title="Languages" primary={primary} accent={accent} />
+                <ExecSectionTitle title="Languages" primary={primary} accent={accent} config={config} />
                 {languages.map(l => (
                   <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', lineHeight: 2 }}>
                     <span style={{ fontWeight: 600 }}>{l.language}</span>
@@ -183,7 +185,7 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
             {/* Certifications */}
             {certifications.length > 0 && (
               <div>
-                <ExecSectionTitle title="Certifications" primary={primary} accent={accent} />
+                <ExecSectionTitle title="Certifications" primary={primary} accent={accent} config={config} />
                 {certifications.map(c => (
                   <div key={c.id} style={{ marginBottom: '10px', paddingBottom: '10px', borderBottom: '1px solid #EDE8DE' }}>
                     <div style={{ fontSize: '12px', fontWeight: 700, color: primary }}>{c.name}</div>
@@ -200,10 +202,10 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
   );
 };
 
-const ExecSectionTitle: React.FC<{ title: string; primary: string; accent: string }> = ({ title, primary, accent }) => (
+const ExecSectionTitle: React.FC<{ title: string; primary: string; accent: string; config: TemplateConfig }> = ({ title, primary, accent, config }) => (
   <div style={{ marginBottom: '14px', breakAfter: 'avoid', pageBreakAfter: 'avoid' }}>
     <h2 style={{
-      fontFamily: '"Lato", system-ui, sans-serif',
+      fontFamily: config.fonts.heading,
       fontSize: '9.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.22em',
       color: primary,
     }}>

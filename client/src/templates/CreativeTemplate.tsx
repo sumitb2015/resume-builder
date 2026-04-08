@@ -4,18 +4,23 @@ import RichContent from './RichContent';
 
 const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
-  const primary = config.colors.primary || '#7C3AED';
-  const accent = config.colors.accent || '#F59E0B';
+  const primary = config.colors.primary;
+  const accent = config.colors.accent;
+  const padding = config.settings?.padding !== undefined ? `${config.settings.padding}mm` : '15mm 18mm';
 
   return (
-    <div className="resume-paper" style={{ fontFamily: '"Poppins", system-ui, sans-serif', backgroundColor: '#FFFFFF' }}>
+    <div className="resume-paper" style={{
+      fontFamily: config.fonts.body,
+      backgroundColor: config.colors.background || '#FFFFFF',
+      padding,
+    }}>
 
       {/* BOLD HEADER BAND */}
       <header style={{ backgroundColor: primary, padding: '12mm 15mm 11mm', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '180px', height: '180px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.06)' }} />
         <div style={{ position: 'absolute', bottom: '-60px', right: '80px', width: '120px', height: '120px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.04)' }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <h1 style={{ fontSize: '34px', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.03em', lineHeight: 1.05, marginBottom: '6px' }}>
+          <h1 style={{ fontFamily: config.fonts.heading, fontSize: '34px', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.03em', lineHeight: 1.05, marginBottom: '6px' }}>
             {personal.name || 'YOUR NAME'}
           </h1>
           {personal.title && (
@@ -43,14 +48,14 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
         <div style={{ padding: '11mm 11mm', borderRight: '1px solid #F3F4F6' }}>
           {personal.summary && (
             <div style={{ marginBottom: '28px' }}>
-              <CreativeSectionTitle title="About Me" primary={primary} />
+              <CreativeSectionTitle title="About Me" primary={primary} config={config} />
               <RichContent html={personal.summary} style={{ fontSize: '12.5px', lineHeight: 1.8, color: '#374151' }} />
             </div>
           )}
 
           {experience.length > 0 && (
             <div style={{ marginBottom: '28px' }}>
-              <CreativeSectionTitle title="Experience" primary={primary} />
+              <CreativeSectionTitle title="Experience" primary={primary} config={config} />
               <div style={{ position: 'relative', paddingLeft: '20px' }}>
                 <div style={{ position: 'absolute', left: '6px', top: '8px', bottom: '8px', width: '2px', backgroundColor: '#F3F4F6' }} />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
@@ -91,7 +96,7 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
 
           {projects.length > 0 && (
             <div style={{ marginBottom: '28px' }}>
-              <CreativeSectionTitle title="Projects" primary={primary} />
+              <CreativeSectionTitle title="Projects" primary={primary} config={config} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {projects.map(p => (
                   <div key={p.id} style={{ padding: '12px 14px', backgroundColor: '#F9FAFB', borderRadius: '10px', borderLeft: `3px solid ${primary}` }}>
@@ -115,7 +120,7 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
 
           {education.length > 0 && (
             <div>
-              <CreativeSectionTitle title="Education" primary={primary} />
+              <CreativeSectionTitle title="Education" primary={primary} config={config} />
               {education.map(edu => (
                 <div key={edu.id} style={{ marginBottom: '12px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -136,7 +141,7 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
         <div style={{ padding: '11mm 8mm', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {skills.length > 0 && (
             <div>
-              <CreativeSectionTitle title="Skills" primary={primary} />
+              <CreativeSectionTitle title="Skills" primary={primary} config={config} />
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                 {skills.map(s => (
                   <span key={s.id} style={{
@@ -154,7 +159,7 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
 
           {certifications.length > 0 && (
             <div>
-              <CreativeSectionTitle title="Certifications" primary={primary} />
+              <CreativeSectionTitle title="Certifications" primary={primary} config={config} />
               {certifications.map(c => (
                 <div key={c.id} style={{ marginBottom: '10px', padding: '8px 10px', backgroundColor: '#FFFFFF', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
                   <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#111827' }}>{c.name}</div>
@@ -167,7 +172,7 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
 
           {languages.length > 0 && (
             <div>
-              <CreativeSectionTitle title="Languages" primary={primary} />
+              <CreativeSectionTitle title="Languages" primary={primary} config={config} />
               {languages.map(l => (
                 <div key={l.id} style={{ marginBottom: '8px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', marginBottom: '4px' }}>
@@ -190,11 +195,11 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
   );
 };
 
-const CreativeSectionTitle: React.FC<{ title: string; primary: string }> = ({ title, primary }) => (
+const CreativeSectionTitle: React.FC<{ title: string; primary: string; config: TemplateConfig }> = ({ title, primary, config }) => (
   <h2 style={{
     fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em',
     color: primary, marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px',
-    fontFamily: '"Poppins", system-ui, sans-serif',
+    fontFamily: config.fonts.heading,
   }}>
     <span style={{ display: 'inline-block', width: '18px', height: '3px', backgroundColor: primary, borderRadius: '2px', flexShrink: 0 }} />
     {title}

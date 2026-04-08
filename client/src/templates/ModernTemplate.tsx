@@ -4,13 +4,19 @@ import RichContent from './RichContent';
 
 const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
-  const primary = config.colors.primary || '#1B2A4A';
-  const accent = config.colors.accent || '#3B82F6';
+  const primary = config.colors.primary;
+  const accent = config.colors.accent;
+  const padding = config.settings?.padding !== undefined ? `${config.settings.padding}mm` : '15mm 18mm';
 
   return (
     <div
       className="resume-paper"
-      style={{ fontFamily: '"Inter", system-ui, sans-serif', display: 'flex', backgroundColor: '#FFFFFF' }}
+      style={{
+        fontFamily: config.fonts.body,
+        display: 'flex',
+        backgroundColor: config.colors.background || '#FFFFFF',
+        padding,
+      }}
     >
       {/* LEFT SIDEBAR */}
       <aside style={{
@@ -24,7 +30,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
       }}>
         {/* Name & Title */}
         <div>
-          <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#FFFFFF', lineHeight: 1.15, letterSpacing: '-0.02em', marginBottom: '6px' }}>
+          <h1 style={{ fontFamily: config.fonts.heading, fontSize: '22px', fontWeight: 800, color: '#FFFFFF', lineHeight: 1.15, letterSpacing: '-0.02em', marginBottom: '6px' }}>
             {personal.name || 'YOUR NAME'}
           </h1>
           {personal.title && (
@@ -38,7 +44,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
         <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)' }} />
 
         {/* Contact */}
-        <SideSection title="Contact" accent={accent}>
+        <SideSection title="Contact" accent={accent} config={config}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {personal.email && <ContactRow label="Email" value={personal.email} />}
             {personal.phone && <ContactRow label="Phone" value={personal.phone} />}
@@ -50,7 +56,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
 
         {/* Skills */}
         {skills.length > 0 && (
-          <SideSection title="Skills" accent={accent}>
+          <SideSection title="Skills" accent={accent} config={config}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {skills.map(s => (
                 <div key={s.id}>
@@ -68,7 +74,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
 
         {/* Languages */}
         {languages.length > 0 && (
-          <SideSection title="Languages" accent={accent}>
+          <SideSection title="Languages" accent={accent} config={config}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {languages.map(l => (
                 <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -85,7 +91,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
 
         {/* Certifications */}
         {certifications.length > 0 && (
-          <SideSection title="Certifications" accent={accent}>
+          <SideSection title="Certifications" accent={accent} config={config}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {certifications.map(c => (
                 <div key={c.id}>
@@ -103,7 +109,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
         {/* Summary */}
         {personal.summary && (
           <div>
-            <MainSectionTitle title="Professional Summary" accent={accent} />
+            <MainSectionTitle title="Professional Summary" accent={accent} config={config} />
             <RichContent html={personal.summary} style={{ fontSize: '13px', lineHeight: 1.75, color: '#374151' }} />
           </div>
         )}
@@ -111,7 +117,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
         {/* Experience */}
         {experience.length > 0 && (
           <div>
-            <MainSectionTitle title="Work Experience" accent={accent} />
+            <MainSectionTitle title="Work Experience" accent={accent} config={config} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {experience.map((exp) => (
                 <div key={exp.id}>
@@ -146,7 +152,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
         {/* Education */}
         {education.length > 0 && (
           <div>
-            <MainSectionTitle title="Education" accent={accent} />
+            <MainSectionTitle title="Education" accent={accent} config={config} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {education.map((edu) => (
                 <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -169,7 +175,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
         {/* Projects */}
         {projects.length > 0 && (
           <div>
-            <MainSectionTitle title="Projects" accent={accent} />
+            <MainSectionTitle title="Projects" accent={accent} config={config} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {projects.map(p => (
                 <div key={p.id}>
@@ -195,9 +201,9 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
   );
 };
 
-const SideSection: React.FC<{ title: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
+const SideSection: React.FC<{ title: string; accent: string; config: TemplateConfig; children: React.ReactNode }> = ({ title, accent, config, children }) => (
   <div>
-    <h2 style={{ fontSize: '9.5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: accent, marginBottom: '12px' }}>
+    <h2 style={{ fontFamily: config.fonts.heading, fontSize: '9.5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: accent, marginBottom: '12px' }}>
       {title}
     </h2>
     {children}
@@ -211,9 +217,9 @@ const ContactRow: React.FC<{ label: string; value: string }> = ({ label, value }
   </div>
 );
 
-const MainSectionTitle: React.FC<{ title: string; accent: string }> = ({ title, accent }) => (
+const MainSectionTitle: React.FC<{ title: string; accent: string; config: TemplateConfig }> = ({ title, accent, config }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-    <h2 style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: accent, whiteSpace: 'nowrap' }}>
+    <h2 style={{ fontFamily: config.fonts.heading, fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: accent, whiteSpace: 'nowrap' }}>
       {title}
     </h2>
     <div style={{ flex: 1, height: '1.5px', background: `linear-gradient(to right, ${accent}60, transparent)` }} />

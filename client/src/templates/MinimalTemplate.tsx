@@ -4,18 +4,19 @@ import RichContent from './RichContent';
 
 const MinimalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
-  const accent = config.colors.accent || '#111827';
+  const accent = config.colors.accent;
+  const padding = config.settings?.padding !== undefined ? `${config.settings.padding}mm` : '15mm 18mm';
 
   return (
     <div className="resume-paper" style={{
-      fontFamily: '"DM Sans", system-ui, sans-serif',
-      backgroundColor: '#FFFFFF',
+      fontFamily: config.fonts.body,
+      backgroundColor: config.colors.background || '#FFFFFF',
       color: '#1a1a1a',
-      padding: '44px 52px',
+      padding,
     }}>
       {/* HEADER */}
       <header style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '36px', fontWeight: 300, letterSpacing: '-0.03em', color: '#0a0a0a', marginBottom: '8px', lineHeight: 1.1 }}>
+        <h1 style={{ fontFamily: config.fonts.heading, fontSize: '36px', fontWeight: 300, letterSpacing: '-0.03em', color: config.colors.primary, marginBottom: '8px', lineHeight: 1.1 }}>
           {personal.name || 'YOUR NAME'}
         </h1>
         {personal.title && (
@@ -35,14 +36,14 @@ const MinimalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
       <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
         {/* Summary */}
         {personal.summary && (
-          <MinimalSection title="Profile" accent={accent}>
+          <MinimalSection title="Profile" accent={accent} config={config}>
             <RichContent html={personal.summary} style={{ fontSize: '13px', lineHeight: 1.85, color: '#444', fontWeight: 400 }} />
           </MinimalSection>
         )}
 
         {/* Experience */}
         {experience.length > 0 && (
-          <MinimalSection title="Experience" accent={accent}>
+          <MinimalSection title="Experience" accent={accent} config={config}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {experience.map(exp => (
                 <div key={exp.id}>
@@ -73,7 +74,7 @@ const MinimalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
 
         {/* Education */}
         {education.length > 0 && (
-          <MinimalSection title="Education" accent={accent}>
+          <MinimalSection title="Education" accent={accent} config={config}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {education.map(edu => (
                 <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -95,7 +96,7 @@ const MinimalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
 
         {/* Skills */}
         {skills.length > 0 && (
-          <MinimalSection title="Skills" accent={accent}>
+          <MinimalSection title="Skills" accent={accent} config={config}>
             <div style={{ display: 'flex', flexWrap: 'wrap', columnGap: '32px', rowGap: '8px' }}>
               {skills.map(s => (
                 <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -113,7 +114,7 @@ const MinimalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
 
         {/* Projects */}
         {projects.length > 0 && (
-          <MinimalSection title="Projects" accent={accent}>
+          <MinimalSection title="Projects" accent={accent} config={config}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {projects.map(p => (
                 <div key={p.id}>
@@ -135,7 +136,7 @@ const MinimalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
         {(languages.length > 0 || certifications.length > 0) && (
           <div style={{ display: 'grid', gridTemplateColumns: languages.length > 0 && certifications.length > 0 ? '1fr 1fr' : '1fr', gap: '36px' }}>
             {languages.length > 0 && (
-              <MinimalSection title="Languages" accent={accent}>
+              <MinimalSection title="Languages" accent={accent} config={config}>
                 {languages.map(l => (
                   <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', lineHeight: 2 }}>
                     <span style={{ fontWeight: 500 }}>{l.language}</span>
@@ -145,7 +146,7 @@ const MinimalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
               </MinimalSection>
             )}
             {certifications.length > 0 && (
-              <MinimalSection title="Certifications" accent={accent}>
+              <MinimalSection title="Certifications" accent={accent} config={config}>
                 {certifications.map(c => (
                   <div key={c.id} style={{ marginBottom: '8px' }}>
                     <div style={{ fontSize: '13px', fontWeight: 500 }}>{c.name}</div>
@@ -161,12 +162,12 @@ const MinimalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
   );
 };
 
-const MinimalSection: React.FC<{ title: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
+const MinimalSection: React.FC<{ title: string; accent: string; config: TemplateConfig; children: React.ReactNode }> = ({ title, accent, config, children }) => (
   <section style={{ marginBottom: '24px' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
       <h2 style={{
         fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.2em',
-        color: accent, whiteSpace: 'nowrap', fontFamily: '"DM Sans", system-ui, sans-serif',
+        color: accent, whiteSpace: 'nowrap', fontFamily: config.fonts.heading,
       }}>
         {title}
       </h2>
