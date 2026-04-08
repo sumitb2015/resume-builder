@@ -46,8 +46,13 @@ const AI_FEATURES = [
   },
 ];
 
+// Demo panels use a fixed dark theme — they simulate the app's dark UI preview
+const demoPanelBase: React.CSSProperties = {
+  background: '#0D1117', color: 'rgba(255,255,255,0.7)',
+};
+
 const BulletsDemoPanel: React.FC<{ color: string }> = ({ color }) => (
-  <div style={{ padding: '16px', height: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+  <div style={{ ...demoPanelBase, padding: '16px', height: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
     <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>Generated bullets</div>
     {['• Increased revenue by 32% through targeted campaign optimization', '• Led cross-functional team of 8 engineers to ship v3.0 ahead of schedule', '• Reduced churn by 18% by implementing new onboarding flow'].map((b, i) => (
       <div key={i} style={{ fontSize: '10.5px', color: i === 0 ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.5)', lineHeight: 1.5, display: 'flex', alignItems: 'flex-start', gap: '4px' }}>
@@ -58,7 +63,7 @@ const BulletsDemoPanel: React.FC<{ color: string }> = ({ color }) => (
 );
 
 const TailorDemoPanel: React.FC<{ color: string }> = ({ color }) => (
-  <div style={{ padding: '16px', height: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+  <div style={{ ...demoPanelBase, padding: '16px', height: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
     <div>
       <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>Job Keywords</div>
       {['TypeScript', 'React', 'Node.js', 'REST API', 'Agile'].map(k => (
@@ -75,7 +80,7 @@ const TailorDemoPanel: React.FC<{ color: string }> = ({ color }) => (
 );
 
 const AtsDemoPanel: React.FC<{ color: string }> = ({ color }) => (
-  <div style={{ padding: '16px', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px' }}>
+  <div style={{ ...demoPanelBase, padding: '16px', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px' }}>
     <div style={{ position: 'relative', width: '72px', height: '72px' }}>
       <div style={{
         width: '72px', height: '72px', borderRadius: '50%',
@@ -97,7 +102,7 @@ const AtsDemoPanel: React.FC<{ color: string }> = ({ color }) => (
 );
 
 const SummaryDemoPanel: React.FC<{ color: string }> = ({ color }) => (
-  <div style={{ padding: '16px', height: '100%' }}>
+  <div style={{ ...demoPanelBase, padding: '16px', height: '100%' }}>
     <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>AI-generated summary</div>
     <p style={{ fontSize: '10.5px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>
       Results-driven Product Manager with 7+ years leading cross-functional teams at hyper-growth startups.{' '}
@@ -109,14 +114,13 @@ const SummaryDemoPanel: React.FC<{ color: string }> = ({ color }) => (
 );
 
 const SkillsDemoPanel: React.FC<{ color: string }> = ({ color }) => (
-  <div style={{ padding: '14px', height: '100%' }}>
+  <div style={{ ...demoPanelBase, padding: '14px', height: '100%' }}>
     <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>For: Senior Frontend Engineer</div>
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
       {['React', 'TypeScript', 'GraphQL', 'CSS', 'Testing', 'Performance', 'Next.js', 'Git', 'Communication', 'Agile'].map(s => (
         <span key={s} style={{
           fontSize: '10px', padding: '3px 8px', borderRadius: '5px',
-          background: color + '18', color: color, border: `1px solid ${color}30`,
-          fontWeight: 500,
+          background: color + '18', color: color, border: `1px solid ${color}30`, fontWeight: 500,
         }}>
           {s}
         </span>
@@ -126,7 +130,7 @@ const SkillsDemoPanel: React.FC<{ color: string }> = ({ color }) => (
 );
 
 const DiffDemoPanel: React.FC<{ color: string }> = ({ color }) => (
-  <div style={{ padding: '16px', height: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+  <div style={{ ...demoPanelBase, padding: '16px', height: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
     <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Before → After</div>
     <div style={{ padding: '8px 10px', borderRadius: '6px', background: 'rgba(248,81,73,0.1)', border: '1px solid rgba(248,81,73,0.2)' }}>
       <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>Worked on improving user experience for the product team.</span>
@@ -152,7 +156,7 @@ const FeatureCard: React.FC<{ feature: typeof AI_FEATURES[0] }> = ({ feature }) 
     <div
       style={{
         borderRadius: '16px', overflow: 'hidden',
-        background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
+        background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)',
         transition: 'border-color 0.25s, background 0.25s, transform 0.25s',
       }}
       onMouseEnter={e => {
@@ -161,22 +165,22 @@ const FeatureCard: React.FC<{ feature: typeof AI_FEATURES[0] }> = ({ feature }) 
         e.currentTarget.style.transform = 'translateY(-4px)';
       }}
       onMouseLeave={e => {
-        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
-        e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+        e.currentTarget.style.borderColor = 'var(--color-ui-border)';
+        e.currentTarget.style.background = 'var(--color-ui-surface)';
         e.currentTarget.style.transform = 'translateY(0)';
       }}
     >
-      {/* Demo visual panel */}
-      <div style={{ height: '130px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid rgba(255,255,255,0.04)', overflow: 'hidden' }}>
+      {/* Demo visual panel — always dark to simulate the app preview */}
+      <div style={{ height: '130px', borderBottom: '1px solid var(--color-ui-border)', overflow: 'hidden' }}>
         <DemoPanel color={feature.color} />
       </div>
       {/* Text content */}
       <div style={{ padding: '20px 22px 22px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
           <span style={{ fontSize: '22px' }}>{feature.icon}</span>
-          <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'white' }}>{feature.title}</h3>
+          <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-ui-text)' }}>{feature.title}</h3>
         </div>
-        <p style={{ fontSize: '13.5px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.65 }}>{feature.desc}</p>
+        <p style={{ fontSize: '13.5px', color: 'var(--color-ui-text-muted)', lineHeight: 1.65 }}>{feature.desc}</p>
       </div>
     </div>
   );
@@ -185,9 +189,9 @@ const FeatureCard: React.FC<{ feature: typeof AI_FEATURES[0] }> = ({ feature }) 
 const AiFeaturesSection: React.FC = () => (
   <section id="ai-features" style={{
     padding: '100px 48px',
-    background: 'rgba(255,255,255,0.01)',
-    borderTop: '1px solid rgba(255,255,255,0.04)',
-    borderBottom: '1px solid rgba(255,255,255,0.04)',
+    background: 'var(--color-ui-bg)',
+    borderTop: '1px solid var(--color-ui-border)',
+    borderBottom: '1px solid var(--color-ui-border)',
   }}>
     <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
       {/* Header */}
@@ -201,10 +205,10 @@ const AiFeaturesSection: React.FC = () => (
           <Sparkles size={13} color="#C084FC" />
           <span style={{ fontSize: '12px', fontWeight: 600, color: '#C084FC', letterSpacing: '0.04em' }}>AI-POWERED FEATURES</span>
         </div>
-        <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'white', marginBottom: '14px' }}>
+        <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)', marginBottom: '14px' }}>
           Let AI do the heavy lifting
         </h2>
-        <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.4)', maxWidth: '480px', margin: '0 auto' }}>
+        <p style={{ fontSize: '16px', color: 'var(--color-ui-text-muted)', maxWidth: '480px', margin: '0 auto' }}>
           Six purpose-built AI tools powered by Claude — the most capable AI assistant — to make your resume stand out.
         </p>
       </div>

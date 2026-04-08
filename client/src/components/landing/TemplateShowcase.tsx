@@ -126,18 +126,18 @@ const TemplateCard: React.FC<{ t: TemplateConfig; onStart: () => void }> = ({ t,
       onMouseLeave={() => setHovered(false)}
       style={{
         borderRadius: '14px', overflow: 'hidden',
-        border: hovered ? '1px solid rgba(99,102,241,0.35)' : '1px solid rgba(255,255,255,0.06)',
+        border: hovered ? '1px solid rgba(99,102,241,0.35)' : '1px solid var(--color-ui-border)',
         cursor: 'pointer',
-        background: hovered ? 'rgba(99,102,241,0.05)' : 'rgba(255,255,255,0.03)',
+        background: hovered ? 'rgba(99,102,241,0.05)' : 'var(--color-ui-surface)',
         transform: hovered ? 'translateY(-6px)' : 'translateY(0)',
-        boxShadow: hovered ? '0 20px 48px rgba(0,0,0,0.45)' : 'none',
+        boxShadow: hovered ? '0 20px 48px rgba(0,0,0,0.2)' : 'none',
         transition: 'all 0.25s cubic-bezier(0.16,1,0.3,1)',
       }}
     >
       {/* Preview area */}
       <div style={{
         position: 'relative',
-        borderBottom: '1px solid rgba(255,255,255,0.04)',
+        borderBottom: '1px solid var(--color-ui-border)',
         display: 'flex',
         justifyContent: 'center',
         padding: '10px',
@@ -146,7 +146,7 @@ const TemplateCard: React.FC<{ t: TemplateConfig; onStart: () => void }> = ({ t,
         {hovered && (
           <div style={{
             position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(6,6,9,0.65)', backdropFilter: 'blur(2px)',
+            background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)',
             borderRadius: '4px',
           }}>
             <span style={{
@@ -164,7 +164,7 @@ const TemplateCard: React.FC<{ t: TemplateConfig; onStart: () => void }> = ({ t,
       {/* Info */}
       <div style={{ padding: '12px 14px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
-          <span style={{ fontSize: '13.5px', fontWeight: 700, color: 'white' }}>{t.name}</span>
+          <span style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--color-ui-text)' }}>{t.name}</span>
           <span style={{
             fontSize: '11px', fontWeight: 700, color: badgeColor,
             background: badgeBg, padding: '2px 7px', borderRadius: '5px',
@@ -175,14 +175,14 @@ const TemplateCard: React.FC<{ t: TemplateConfig; onStart: () => void }> = ({ t,
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{
             fontSize: '10.5px', fontWeight: 600,
-            color: 'rgba(255,255,255,0.3)',
+            color: 'var(--color-ui-text-dim)',
             textTransform: 'capitalize',
-            background: 'rgba(255,255,255,0.05)',
+            background: 'var(--color-ui-surface-2)',
             padding: '2px 7px', borderRadius: '4px',
           }}>
             {t.category}
           </span>
-          <span style={{ fontSize: '10.5px', color: 'rgba(255,255,255,0.2)' }}>
+          <span style={{ fontSize: '10.5px', color: 'var(--color-ui-text-dim)' }}>
             {t.layout === 'two-column' ? '2-col' : '1-col'}
           </span>
         </div>
@@ -204,7 +204,7 @@ const TemplateShowcase: React.FC<Props> = ({ onStart }) => {
   const filtered = filter === 'all' ? templates : templates.filter(t => t.category === filter);
 
   return (
-    <section id="templates" style={{ padding: '100px 48px', background: 'rgba(0,0,0,0.15)' }}>
+    <section id="templates" style={{ padding: '100px 48px', background: 'var(--color-ui-surface-2)' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '56px' }}>
@@ -216,10 +216,10 @@ const TemplateShowcase: React.FC<Props> = ({ onStart }) => {
           }}>
             <span style={{ fontSize: '12px', fontWeight: 600, color: '#818CF8', letterSpacing: '0.04em' }}>15 TEMPLATES</span>
           </div>
-          <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'white', marginBottom: '14px' }}>
+          <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)', marginBottom: '14px' }}>
             A template for every career
           </h2>
-          <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.4)', maxWidth: '500px', margin: '0 auto' }}>
+          <p style={{ fontSize: '16px', color: 'var(--color-ui-text-muted)', maxWidth: '500px', margin: '0 auto' }}>
             From minimalist to creative — each template is ATS-optimized and fully customizable with 10 color palettes.
           </p>
         </div>
@@ -232,9 +232,9 @@ const TemplateShowcase: React.FC<Props> = ({ onStart }) => {
               onClick={() => setFilter(tab.key)}
               style={{
                 padding: '8px 20px', borderRadius: '100px',
-                border: filter === tab.key ? '1px solid rgba(99,102,241,0.5)' : '1px solid rgba(255,255,255,0.08)',
+                border: filter === tab.key ? '1px solid rgba(99,102,241,0.5)' : '1px solid var(--color-ui-border)',
                 background: filter === tab.key ? 'rgba(99,102,241,0.15)' : 'transparent',
-                color: filter === tab.key ? '#A78BFA' : 'rgba(255,255,255,0.45)',
+                color: filter === tab.key ? '#A78BFA' : 'var(--color-ui-text-muted)',
                 fontSize: '13.5px', fontWeight: 600, cursor: 'pointer',
                 transition: 'all 0.2s',
               }}

@@ -46,10 +46,14 @@
   --font-dm: "DM Sans", system-ui, sans-serif;
   --font-cormorant: "Cormorant Garamond", Georgia, serif;
   --font-lato: "Lato", system-ui, sans-serif;
+
+  /* Navbar scroll backdrop */
+  --color-ui-nav-scroll: rgba(6,6,9,0.92);
 }
 
 /* ── LIGHT MODE OVERRIDES ──────────────────────────────── */
 [data-theme="light"] {
+  --color-ui-nav-scroll: rgba(248,250,252,0.95);
   --color-ui-bg: #F8FAFC;
   --color-ui-surface: #FFFFFF;
   --color-ui-surface-2: #F1F5F9;

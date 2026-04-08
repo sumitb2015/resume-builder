@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Zap, LogOut, Shield, Crown } from 'lucide-react';
+import { Zap, LogOut, Shield, Crown, Sun, Moon } from 'lucide-react';
 import { scrollToSection } from '../../lib/scroll';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePlan } from '../../contexts/PlanContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface Props { onStart: () => void }
 
@@ -16,6 +17,7 @@ const NavBar: React.FC<Props> = ({ onStart }) => {
   const [scrollY, setScrollY] = useState(0);
   const { currentUser, signOut } = useAuth();
   const { plan } = usePlan();
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const el = document.querySelector('.landing-page') as HTMLElement | null;
@@ -33,13 +35,21 @@ const NavBar: React.FC<Props> = ({ onStart }) => {
 
   const badge = plan ? PLAN_BADGE_CONFIG[plan] : null;
 
+  const iconBtnStyle: React.CSSProperties = {
+    padding: '8px', borderRadius: '8px',
+    border: '1px solid var(--color-ui-border)',
+    background: 'transparent', color: 'var(--color-ui-text-muted)',
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'all 0.2s',
+  };
+
   return (
     <nav style={{
       position: 'sticky', top: 0, zIndex: 100,
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       padding: '0 48px', height: '64px',
-      backgroundColor: scrollY > 40 ? 'rgba(6,6,9,0.92)' : 'transparent',
-      borderBottom: scrollY > 40 ? '1px solid rgba(255,255,255,0.06)' : '1px solid transparent',
+      backgroundColor: scrollY > 40 ? 'var(--color-ui-nav-scroll)' : 'transparent',
+      borderBottom: scrollY > 40 ? '1px solid var(--color-ui-border)' : '1px solid transparent',
       backdropFilter: scrollY > 40 ? 'blur(16px)' : 'none',
       transition: 'all 0.3s',
     }}>
@@ -48,7 +58,7 @@ const NavBar: React.FC<Props> = ({ onStart }) => {
         <div style={{ width: '30px', height: '30px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Zap size={16} color="white" fill="white" />
         </div>
-        <span style={{ fontSize: '17px', fontWeight: 800, letterSpacing: '-0.03em', color: 'white' }}>
+        <span style={{ fontSize: '17px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)' }}>
           Bespoke<span style={{ color: '#818CF8' }}>CV</span>
         </span>
       </div>
@@ -61,49 +71,81 @@ const NavBar: React.FC<Props> = ({ onStart }) => {
             onClick={() => scrollToSection(link.id)}
             style={{
               padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'transparent',
-              fontSize: '14px', fontWeight: 500, color: 'rgba(255,255,255,0.5)',
+              fontSize: '14px', fontWeight: 500, color: 'var(--color-ui-text-muted)',
               cursor: 'pointer', transition: 'all 0.2s',
             }}
-            onMouseEnter={e => { e.currentTarget.style.color = 'white'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; e.currentTarget.style.background = 'transparent'; }}
+            onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-ui-text)'; e.currentTarget.style.background = 'var(--color-ui-surface-2)'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-ui-text-muted)'; e.currentTarget.style.background = 'transparent'; }}
           >
             {link.label}
           </button>
         ))}
       </div>
 
-      {/* CTA / User section */}
-      {currentUser ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {currentUser.photoURL ? (
-            <img
-              src={currentUser.photoURL}
-              alt={currentUser.displayName ?? 'User'}
-              style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1.5px solid rgba(255,255,255,0.15)' }}
-            />
-          ) : (
-            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, color: 'white' }}>
-              {(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}
-            </div>
-          )}
+      {/* Right side: theme toggle + CTA / User section */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          style={iconBtnStyle}
+          onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-ui-text)'; e.currentTarget.style.background = 'var(--color-ui-surface-2)'; }}
+          onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-ui-text-muted)'; e.currentTarget.style.background = 'transparent'; }}
+        >
+          {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+        </button>
 
-          {/* Plan badge */}
-          {badge && (
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: '5px',
-              padding: '4px 10px', borderRadius: '100px',
-              background: badge.bg,
-              border: `1px solid ${badge.color}40`,
-            }}>
-              <span style={{ color: badge.color, display: 'flex', alignItems: 'center' }}>
-                {badge.icon(11)}
-              </span>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: badge.color, letterSpacing: '0.03em' }}>
-                {badge.label}
-              </span>
-            </div>
-          )}
+        {currentUser ? (
+          <>
+            {currentUser.photoURL ? (
+              <img
+                src={currentUser.photoURL}
+                alt={currentUser.displayName ?? 'User'}
+                style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1.5px solid var(--color-ui-border)' }}
+              />
+            ) : (
+              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, color: 'white' }}>
+                {(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}
+              </div>
+            )}
 
+            {badge && (
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: '5px',
+                padding: '4px 10px', borderRadius: '100px',
+                background: badge.bg, border: `1px solid ${badge.color}40`,
+              }}>
+                <span style={{ color: badge.color, display: 'flex', alignItems: 'center' }}>{badge.icon(11)}</span>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: badge.color, letterSpacing: '0.03em' }}>{badge.label}</span>
+              </div>
+            )}
+
+            <button
+              onClick={onStart}
+              style={{
+                padding: '9px 22px', borderRadius: '8px',
+                background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+                border: 'none', color: 'white', fontSize: '14px', fontWeight: 600,
+                cursor: 'pointer', letterSpacing: '-0.01em',
+                boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
+                transition: 'opacity 0.2s, transform 0.2s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.opacity = '0.9'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)'; }}
+            >
+              Open Builder →
+            </button>
+            <button
+              onClick={() => signOut()}
+              title="Sign out"
+              style={iconBtnStyle}
+              onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-ui-text)'; e.currentTarget.style.background = 'var(--color-ui-surface-2)'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-ui-text-muted)'; e.currentTarget.style.background = 'transparent'; }}
+            >
+              <LogOut size={15} />
+            </button>
+          </>
+        ) : (
           <button
             onClick={onStart}
             style={{
@@ -117,40 +159,10 @@ const NavBar: React.FC<Props> = ({ onStart }) => {
             onMouseEnter={e => { e.currentTarget.style.opacity = '0.9'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
             onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)'; }}
           >
-            Open Builder →
+            Get Started →
           </button>
-          <button
-            onClick={() => signOut()}
-            title="Sign out"
-            style={{
-              padding: '8px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)',
-              background: 'transparent', color: 'rgba(255,255,255,0.5)', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.color = 'white'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; e.currentTarget.style.background = 'transparent'; }}
-          >
-            <LogOut size={15} />
-          </button>
-        </div>
-      ) : (
-        <button
-          onClick={onStart}
-          style={{
-            padding: '9px 22px', borderRadius: '8px',
-            background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-            border: 'none', color: 'white', fontSize: '14px', fontWeight: 600,
-            cursor: 'pointer', letterSpacing: '-0.01em',
-            boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
-            transition: 'opacity 0.2s, transform 0.2s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.opacity = '0.9'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-          onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)'; }}
-        >
-          Get Started →
-        </button>
-      )}
+        )}
+      </div>
     </nav>
   );
 };

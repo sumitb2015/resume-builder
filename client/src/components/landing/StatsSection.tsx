@@ -10,24 +10,23 @@ const STATS = [
 const StatsSection: React.FC = () => (
   <section style={{
     padding: '0 48px',
-    background: 'rgba(255,255,255,0.02)',
-    borderTop: '1px solid rgba(255,255,255,0.05)',
-    borderBottom: '1px solid rgba(255,255,255,0.05)',
+    background: 'var(--color-ui-surface-2)',
+    borderTop: '1px solid var(--color-ui-border)',
+    borderBottom: '1px solid var(--color-ui-border)',
   }}>
     <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', alignItems: 'stretch' }}>
       {STATS.map((stat, i) => (
         <div key={i} style={{
           flex: 1, padding: '36px 24px', textAlign: 'center',
-          borderRight: i < STATS.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+          borderRight: i < STATS.length - 1 ? '1px solid var(--color-ui-border)' : 'none',
         }}>
           <div style={{
             fontSize: '32px', fontWeight: 800, letterSpacing: '-0.03em', marginBottom: '6px',
-            background: 'linear-gradient(135deg, #E6EDF3, rgba(255,255,255,0.7))',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+            color: 'var(--color-ui-text)',
           }}>
             {stat.value}
           </div>
-          <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', fontWeight: 500, letterSpacing: '0.02em' }}>
+          <div style={{ fontSize: '13px', color: 'var(--color-ui-text-dim)', fontWeight: 500, letterSpacing: '0.02em' }}>
             {stat.label}
           </div>
         </div>

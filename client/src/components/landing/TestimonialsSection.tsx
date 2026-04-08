@@ -30,7 +30,7 @@ const TESTIMONIALS = [
     text: 'The bullet point writer captures your experience better than you write it yourself. Landed a senior role 40% above my previous salary. The skills finder alone is worth it.',
   },
   {
-    name: 'James O\'Brien',
+    name: "James O'Brien",
     role: 'UX Designer',
     company: 'Figma',
     initials: 'JO',
@@ -45,7 +45,7 @@ const TESTIMONIALS = [
     initials: 'ER',
     avatarColor: '#A855F7',
     stars: 5,
-    text: 'The Executive template with the gold accent is exactly what a senior hire\'s resume should look like. The AI summary writer nailed my 15-year career story in 3 sentences.',
+    text: "The Executive template with the gold accent is exactly what a senior hire's resume should look like. The AI summary writer nailed my 15-year career story in 3 sentences.",
   },
   {
     name: 'David Kim',
@@ -62,12 +62,12 @@ const TestimonialCard: React.FC<{ t: typeof TESTIMONIALS[0] }> = ({ t }) => (
   <div
     style={{
       padding: '28px', borderRadius: '16px',
-      background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
+      background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)',
       transition: 'border-color 0.2s, transform 0.2s',
       display: 'flex', flexDirection: 'column', gap: '16px',
     }}
-    onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
-    onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+    onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--color-ui-text-dim)'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
+    onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--color-ui-border)'; e.currentTarget.style.transform = 'translateY(0)'; }}
   >
     {/* Stars */}
     <div style={{ display: 'flex', gap: '3px' }}>
@@ -77,7 +77,7 @@ const TestimonialCard: React.FC<{ t: typeof TESTIMONIALS[0] }> = ({ t }) => (
     </div>
 
     {/* Quote */}
-    <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.75, flex: 1 }}>
+    <p style={{ fontSize: '14px', color: 'var(--color-ui-text-muted)', lineHeight: 1.75, flex: 1 }}>
       "{t.text}"
     </p>
 
@@ -93,9 +93,9 @@ const TestimonialCard: React.FC<{ t: typeof TESTIMONIALS[0] }> = ({ t }) => (
         {t.initials}
       </div>
       <div>
-        <div style={{ fontSize: '14px', fontWeight: 700, color: 'white', marginBottom: '2px' }}>{t.name}</div>
-        <div style={{ fontSize: '12.5px', color: 'rgba(255,255,255,0.35)' }}>
-          {t.role} · <span style={{ color: 'rgba(255,255,255,0.5)' }}>{t.company}</span>
+        <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '2px' }}>{t.name}</div>
+        <div style={{ fontSize: '12.5px', color: 'var(--color-ui-text-dim)' }}>
+          {t.role} · <span style={{ color: 'var(--color-ui-text-muted)' }}>{t.company}</span>
         </div>
       </div>
     </div>
@@ -105,17 +105,17 @@ const TestimonialCard: React.FC<{ t: typeof TESTIMONIALS[0] }> = ({ t }) => (
 const TestimonialsSection: React.FC = () => (
   <section style={{
     padding: '100px 48px',
-    background: 'rgba(0,0,0,0.15)',
-    borderTop: '1px solid rgba(255,255,255,0.04)',
-    borderBottom: '1px solid rgba(255,255,255,0.04)',
+    background: 'var(--color-ui-surface-2)',
+    borderTop: '1px solid var(--color-ui-border)',
+    borderBottom: '1px solid var(--color-ui-border)',
   }}>
     <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-        <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'white', marginBottom: '14px' }}>
+        <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)', marginBottom: '14px' }}>
           Loved by job seekers worldwide
         </h2>
-        <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.4)' }}>
+        <p style={{ fontSize: '16px', color: 'var(--color-ui-text-muted)' }}>
           Join 50,000+ professionals who've landed interviews with BespokeCV
         </p>
       </div>

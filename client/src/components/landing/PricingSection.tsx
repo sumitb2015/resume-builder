@@ -83,10 +83,10 @@ const PricingSection: React.FC<Props> = ({ onStart }) => {
           }}>
             <span style={{ fontSize: '12px', fontWeight: 600, color: '#818CF8', letterSpacing: '0.04em' }}>PRICING</span>
           </div>
-          <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'white', marginBottom: '14px' }}>
+          <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)', marginBottom: '14px' }}>
             Simple, transparent pricing
           </h2>
-          <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.4)' }}>
+          <p style={{ fontSize: '16px', color: 'var(--color-ui-text-muted)' }}>
             Try Basic for 14 days. Upgrade to Pro when you need more power.
           </p>
         </div>
@@ -94,97 +94,97 @@ const PricingSection: React.FC<Props> = ({ onStart }) => {
         {/* Pricing cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', alignItems: 'stretch' }}>
           {TIERS.map((tier) => (
-              <div
-                key={tier.name}
-                style={{
-                  borderRadius: '20px', padding: '32px 28px',
-                  border: tier.popular ? '1px solid rgba(99,102,241,0.45)' : '1px solid rgba(255,255,255,0.07)',
-                  background: tier.popular
-                    ? 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08))'
-                    : 'rgba(255,255,255,0.03)',
-                  position: 'relative',
-                  display: 'flex', flexDirection: 'column',
-                }}
-              >
-                {/* Popular badge */}
-                {tier.popular && (
-                  <div style={{
-                    position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)',
-                    padding: '5px 18px', borderRadius: '100px',
-                    background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-                    fontSize: '11.5px', fontWeight: 700, color: 'white',
-                    boxShadow: '0 4px 16px rgba(99,102,241,0.4)',
-                    whiteSpace: 'nowrap',
-                  }}>
-                    ★ Most Popular
-                  </div>
-                )}
-
-                {/* Tier header */}
-                <div style={{ marginBottom: '28px' }}>
-                  <h3 style={{ fontSize: '20px', fontWeight: 700, color: 'white', marginBottom: '6px' }}>{tier.name}</h3>
-                  <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', marginBottom: '20px' }}>{tier.tagline}</p>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-                    <span style={{ fontSize: '14px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', alignSelf: 'flex-start', marginTop: '10px' }}>₹</span>
-                    <span style={{ fontSize: '42px', fontWeight: 800, color: 'white', letterSpacing: '-0.03em' }}>
-                      {tier.price}
-                    </span>
-                    <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.35)' }}>/{tier.period}</span>
-                  </div>
+            <div
+              key={tier.name}
+              style={{
+                borderRadius: '20px', padding: '32px 28px',
+                border: tier.popular ? '1px solid rgba(99,102,241,0.45)' : '1px solid var(--color-ui-border)',
+                background: tier.popular
+                  ? 'linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.07))'
+                  : 'var(--color-ui-surface)',
+                position: 'relative',
+                display: 'flex', flexDirection: 'column',
+              }}
+            >
+              {/* Popular badge */}
+              {tier.popular && (
+                <div style={{
+                  position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)',
+                  padding: '5px 18px', borderRadius: '100px',
+                  background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+                  fontSize: '11.5px', fontWeight: 700, color: 'white',
+                  boxShadow: '0 4px 16px rgba(99,102,241,0.4)',
+                  whiteSpace: 'nowrap',
+                }}>
+                  ★ Most Popular
                 </div>
+              )}
 
-                {/* CTA button */}
-                <button
-                  onClick={onStart}
-                  style={{
-                    width: '100%', padding: '12px', borderRadius: '10px',
-                    marginBottom: '28px', fontSize: '14.5px', fontWeight: 600,
-                    cursor: 'pointer', transition: 'all 0.2s',
-                    ...(tier.ctaStyle === 'primary'
-                      ? {
-                          background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-                          border: 'none', color: 'white',
-                          boxShadow: '0 6px 24px rgba(99,102,241,0.35)',
-                        }
-                      : {
-                          background: 'transparent',
-                          border: '1px solid rgba(255,255,255,0.15)',
-                          color: 'rgba(255,255,255,0.8)',
-                        }),
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}
-                >
-                  {tier.cta}
-                </button>
-
-                {/* Divider */}
-                <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', marginBottom: '24px' }} />
-
-                {/* Feature list */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
-                  {tier.features.map((feature, fi) => (
-                    <div key={fi} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                      {feature.included
-                        ? <Check size={15} color="#4ADE80" style={{ flexShrink: 0, marginTop: '1px' }} />
-                        : <X size={15} color="rgba(255,255,255,0.18)" style={{ flexShrink: 0, marginTop: '1px' }} />
-                      }
-                      <span style={{
-                        fontSize: '13.5px',
-                        color: feature.included ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.25)',
-                        lineHeight: 1.4,
-                      }}>
-                        {feature.label}
-                      </span>
-                    </div>
-                  ))}
+              {/* Tier header */}
+              <div style={{ marginBottom: '28px' }}>
+                <h3 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '6px' }}>{tier.name}</h3>
+                <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', marginBottom: '20px' }}>{tier.tagline}</p>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                  <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ui-text-muted)', alignSelf: 'flex-start', marginTop: '10px' }}>₹</span>
+                  <span style={{ fontSize: '42px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em' }}>
+                    {tier.price}
+                  </span>
+                  <span style={{ fontSize: '14px', color: 'var(--color-ui-text-dim)' }}>/{tier.period}</span>
                 </div>
               </div>
+
+              {/* CTA button */}
+              <button
+                onClick={onStart}
+                style={{
+                  width: '100%', padding: '12px', borderRadius: '10px',
+                  marginBottom: '28px', fontSize: '14.5px', fontWeight: 600,
+                  cursor: 'pointer', transition: 'all 0.2s',
+                  ...(tier.ctaStyle === 'primary'
+                    ? {
+                        background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+                        border: 'none', color: 'white',
+                        boxShadow: '0 6px 24px rgba(99,102,241,0.35)',
+                      }
+                    : {
+                        background: 'transparent',
+                        border: '1px solid var(--color-ui-border)',
+                        color: 'var(--color-ui-text)',
+                      }),
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}
+              >
+                {tier.cta}
+              </button>
+
+              {/* Divider */}
+              <div style={{ height: '1px', background: 'var(--color-ui-border)', marginBottom: '24px' }} />
+
+              {/* Feature list */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
+                {tier.features.map((feature, fi) => (
+                  <div key={fi} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                    {feature.included
+                      ? <Check size={15} color="#4ADE80" style={{ flexShrink: 0, marginTop: '1px' }} />
+                      : <X size={15} color="var(--color-ui-text-dim)" style={{ flexShrink: 0, marginTop: '1px' }} />
+                    }
+                    <span style={{
+                      fontSize: '13.5px',
+                      color: feature.included ? 'var(--color-ui-text)' : 'var(--color-ui-text-dim)',
+                      lineHeight: 1.4,
+                    }}>
+                      {feature.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
 
         {/* Footer note */}
-        <p style={{ textAlign: 'center', marginTop: '36px', fontSize: '13px', color: 'rgba(255,255,255,0.25)' }}>
+        <p style={{ textAlign: 'center', marginTop: '36px', fontSize: '13px', color: 'var(--color-ui-text-dim)' }}>
           All plans include secure data handling. Cancel anytime. No long-term contracts.
         </p>
       </div>

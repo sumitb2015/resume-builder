@@ -7,7 +7,7 @@ const CtaSection: React.FC<Props> = ({ onStart }) => (
   <section style={{ padding: '80px 48px' }}>
     <div style={{
       maxWidth: '860px', margin: '0 auto', textAlign: 'center',
-      background: 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(168,85,247,0.1))',
+      background: 'linear-gradient(135deg, rgba(99,102,241,0.1), rgba(168,85,247,0.08))',
       border: '1px solid rgba(99,102,241,0.25)', borderRadius: '28px',
       padding: '80px 56px',
       position: 'relative', overflow: 'hidden',
@@ -15,10 +15,10 @@ const CtaSection: React.FC<Props> = ({ onStart }) => (
       {/* Background glow */}
       <div style={{ position: 'absolute', top: '-50px', left: '50%', transform: 'translateX(-50%)', width: '500px', height: '300px', background: 'radial-gradient(ellipse at center, rgba(99,102,241,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
-      <h2 style={{ fontSize: 'clamp(36px, 4vw, 52px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'white', marginBottom: '18px', position: 'relative' }}>
+      <h2 style={{ fontSize: 'clamp(36px, 4vw, 52px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)', marginBottom: '18px', position: 'relative' }}>
         Ready to land your dream job?
       </h2>
-      <p style={{ fontSize: '17px', color: 'rgba(255,255,255,0.5)', marginBottom: '40px', lineHeight: 1.65, maxWidth: '540px', margin: '0 auto 40px', position: 'relative' }}>
+      <p style={{ fontSize: '17px', color: 'var(--color-ui-text-muted)', marginBottom: '40px', lineHeight: 1.65, maxWidth: '540px', margin: '0 auto 40px', position: 'relative' }}>
         Join thousands of professionals who built interview-winning resumes with BespokeCV. No signup required to start.
       </p>
       <button
@@ -43,7 +43,7 @@ const CtaSection: React.FC<Props> = ({ onStart }) => (
         {['No credit card required', 'PDF export included', '15 templates free to try'].map(t => (
           <div key={t} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
             <Check size={14} color="#4ADE80" />
-            <span style={{ fontSize: '13.5px', color: 'rgba(255,255,255,0.45)' }}>{t}</span>
+            <span style={{ fontSize: '13.5px', color: 'var(--color-ui-text-muted)' }}>{t}</span>
           </div>
         ))}
       </div>

@@ -17,17 +17,17 @@ const STEPS = [
     number: '03',
     icon: '📥',
     title: 'Download & apply',
-    desc: 'Export a pixel-perfect PDF in one click and start sending applications. ATS score shows you\'re ready.',
+    desc: "Export a pixel-perfect PDF in one click and start sending applications. ATS score shows you're ready.",
   },
 ];
 
 const HowItWorksSection: React.FC = () => (
   <section style={{ padding: '100px 48px' }}>
     <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
-      <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'white', marginBottom: '14px' }}>
+      <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)', marginBottom: '14px' }}>
         From zero to hired in 3 steps
       </h2>
-      <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.35)', marginBottom: '72px' }}>
+      <p style={{ fontSize: '16px', color: 'var(--color-ui-text-dim)', marginBottom: '72px' }}>
         No fuss, no friction. Most users create a polished resume in under 15 minutes.
       </p>
 
@@ -54,13 +54,13 @@ const HowItWorksSection: React.FC = () => (
             </div>
             {/* Step number */}
             <div style={{
-              fontSize: '11px', fontWeight: 700, color: 'rgba(99,102,241,0.6)',
+              fontSize: '11px', fontWeight: 700, color: 'rgba(99,102,241,0.7)',
               letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '10px',
             }}>
               Step {step.number}
             </div>
-            <h3 style={{ fontSize: '17px', fontWeight: 700, color: 'white', marginBottom: '10px' }}>{step.title}</h3>
-            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.7 }}>{step.desc}</p>
+            <h3 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '10px' }}>{step.title}</h3>
+            <p style={{ fontSize: '14px', color: 'var(--color-ui-text-muted)', lineHeight: 1.7 }}>{step.desc}</p>
           </div>
         ))}
       </div>

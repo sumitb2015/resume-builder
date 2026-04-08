@@ -14,6 +14,7 @@ import { api } from './lib/api';
 import type { Resume, TemplateConfig, ImprovementSuggestions } from './shared/types';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PlanProvider, usePlan } from './contexts/PlanContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import type { Feature } from './contexts/PlanContext';
 import { useSavedResumes } from './hooks/useSavedResumes';
 import './index.css';
@@ -340,16 +341,7 @@ function AppContent() {
   const { plan, canAccess, maxResumes } = usePlan();
   const { savedResumes, canSaveMore, saveResume, deleteResume, renameResume } = useSavedResumes();
 
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    const saved = (localStorage.getItem('theme') as 'dark' | 'light') ?? 'dark';
-    document.documentElement.dataset.theme = saved;
-    return saved;
-  });
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
+  const { theme, toggleTheme } = useTheme();
 
   const [view, setView] = useState<'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder'>('landing');
   const initialResumeRef = useRef<Resume | null>(null);
@@ -1419,11 +1411,13 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <PlanProvider>
-        <AppContent />
-      </PlanProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <PlanProvider>
+          <AppContent />
+        </PlanProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
