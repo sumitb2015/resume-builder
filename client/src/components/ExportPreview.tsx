@@ -96,28 +96,33 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
         setUserPrompt(''); // Clear prompt after success
       } else {
         // Fallback basic heuristic if no special prompt/target
-        let newFontSize = settings.fontSize;
-        let newMargin = settings.margin;
-        let newLineHeight = settings.lineHeight;
-
-        if (pageCount > 1) {
-          newFontSize = Math.max(90, settings.fontSize - 4);
-          newMargin = Math.max(10, settings.margin - 2);
-          newLineHeight = Math.max(1.35, settings.lineHeight - 0.1);
-        } else {
-          newFontSize = Math.min(108, settings.fontSize + 4);
-          newMargin = Math.min(20, settings.margin + 2);
-          newLineHeight = Math.min(1.65, settings.lineHeight + 0.1);
-        }
-
-        updateSettings({ fontSize: newFontSize, margin: newMargin, lineHeight: newLineHeight });
+        applyHeuristicFit();
       }
     } catch (error) {
       console.error('Smart Fit error:', error);
-      alert('AI fitting failed. Please try again or adjust manually.');
+      // Even if AI fails, try the basic heuristic as a fallback
+      applyHeuristicFit();
     } finally {
       setIsOptimizing(false);
     }
+  };
+
+  const applyHeuristicFit = () => {
+    let newFontSize = settings.fontSize;
+    let newMargin = settings.margin;
+    let newLineHeight = settings.lineHeight;
+
+    if (pageCount > 1) {
+      newFontSize = Math.max(90, settings.fontSize - 4);
+      newMargin = Math.max(10, settings.margin - 2);
+      newLineHeight = Math.max(1.35, settings.lineHeight - 0.1);
+    } else {
+      newFontSize = Math.min(108, settings.fontSize + 4);
+      newMargin = Math.min(20, settings.margin + 2);
+      newLineHeight = Math.min(1.65, settings.lineHeight + 0.1);
+    }
+
+    updateSettings({ fontSize: newFontSize, margin: newMargin, lineHeight: newLineHeight });
   };
 
   const updateFont = (key: 'heading' | 'body', value: string) => {
