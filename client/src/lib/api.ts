@@ -61,6 +61,12 @@ export const api = {
   syncLinkedIn: (text: string) =>
     post<{ resume: Resume }>('/api/parse/linkedin', { text }),
 
+  smartFit: (resume: Resume, config: any, targetPages: number, userPrompt: string) =>
+    post<{
+      refactoredResume: Partial<Resume>;
+      suggestedSettings: { fontSize: number; margin: number; lineHeight: number };
+    }>('/api/ai/smart-fit', { resume, config, targetPages, userPrompt }),
+
   fetchJobUrl: (url: string) =>
     post<{ text: string }>('/api/fetch-job-url', { url }),
 };

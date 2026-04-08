@@ -715,6 +715,7 @@ function AppContent() {
           config={activeTemplate}
           onBack={() => setView('builder')}
           onUpdateConfig={setActiveTemplate}
+          onUpdateResume={setResume}
         />
         {createPortal(
           <TemplateRenderer resume={resume} config={activeTemplate} />,

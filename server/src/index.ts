@@ -99,6 +99,16 @@ app.post('/api/ai/find-skills', async (req, res) => {
   }
 });
 
+app.post('/api/ai/smart-fit', async (req, res) => {
+  try {
+    const { resume, config, targetPages, userPrompt } = req.body;
+    const result = await aiService.smartFit(resume, config, targetPages, userPrompt);
+    res.json(result);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post('/api/fetch-job-url', async (req, res) => {
   try {
     const { url } = req.body;

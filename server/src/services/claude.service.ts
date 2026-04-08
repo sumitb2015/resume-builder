@@ -121,3 +121,35 @@ Split into technical and soft skills. Return ONLY valid JSON:
   const text = await ask(prompt);
   return extractJSON(text);
 };
+
+export const smartFit = async (resumeData: any, config: any, targetPages: number, userPrompt: string) => {
+  const prompt = `You are a professional resume designer and copywriter. Your goal is to refactor the resume content and suggest styling parameters to fit the resume into exactly ${targetPages} page(s), while strictly following this user request: "${userPrompt}".
+
+Current Resume Data: ${JSON.stringify(resumeData, null, 2)}
+Current Styling: ${JSON.stringify(config.settings, null, 2)}
+
+Instructions:
+1. Shorten or expand the professional summary.
+2. Reword experience bullet points to be more concise (to save space) or more descriptive (to fill space), depending on the goal.
+3. Suggest optimal values for:
+   - fontSize (80 to 120, where 100 is default)
+   - margin (5 to 30 mm)
+   - lineHeight (1.2 to 2.0)
+
+Return ONLY valid JSON with this exact structure:
+{
+  "refactoredResume": {
+     "personal": { "summary": "..." },
+     "experience": [ { "id": "1", "bullets": ["...", "..."] } ],
+     "projects": [ { "id": "1", "description": "..." } ]
+  },
+  "suggestedSettings": {
+     "fontSize": 95,
+     "margin": 12,
+     "lineHeight": 1.4
+  }
+}`;
+
+  const text = await ask(prompt);
+  return extractJSON(text);
+};

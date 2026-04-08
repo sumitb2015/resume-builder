@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import PagedPreview from './PagedPreview';
+import { api } from '../lib/api';
 import { ChevronLeft, Download, Type, Move, Palette, Sparkles, Loader2 } from 'lucide-react';
 
 interface Props {
@@ -8,13 +9,14 @@ interface Props {
   config: TemplateConfig;
   onBack: () => void;
   onUpdateConfig: (config: TemplateConfig) => void;
+  onUpdateResume: (resume: Resume) => void;
 }
 
 const SAFE_DEFAULTS = { margin: 15, fontSize: 100, lineHeight: 1.5 };
 
 // 14 resume-appropriate fonts, grouped serif → sans
 const FONT_OPTIONS = [
-  // ... (keeping font options same as before)
+  // Serifs (traditional, editorial, executive)
   { label: 'EB Garamond — Classic Serif',        value: '"EB Garamond", Georgia, serif' },
   { label: 'Libre Baskerville — Traditional',     value: '"Libre Baskerville", Georgia, serif' },
   { label: 'Merriweather — Readable Serif',       value: '"Merriweather", Georgia, serif' },
@@ -32,10 +34,12 @@ const FONT_OPTIONS = [
   { label: 'Source Sans 3 — Neutral',             value: '"Source Sans 3", system-ui, sans-serif' },
 ];
 
-const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig }) => {
+const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig, onUpdateResume }) => {
   const [activeTab, setActiveTab] = useState<'layout' | 'fonts' | 'colors'>('layout');
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [pageCount, setPageCount] = useState(1);
+  const [targetPages, setTargetPages] = useState(1);
+  const [userPrompt, setUserPrompt] = useState('');
 
   const settings = { ...SAFE_DEFAULTS, ...(config.settings || {}) };
 
@@ -49,40 +53,71 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
   const handleSmartFit = async () => {
     setIsOptimizing(true);
     
-    // AI Optimization Logic:
-    // We try to find the "sweet spot" where the content fits nicely.
-    // This is a simulated AI optimization that would normally involve measuring heights.
-    // For this version, we'll implement a multi-step adjustment.
-    
-    setTimeout(() => {
-      // 1. Determine target font size based on current page count and "fullness"
-      // 2. Adjust margins to compensate
-      
-      let newFontSize = settings.fontSize;
-      let newMargin = settings.margin;
-      let newLineHeight = settings.lineHeight;
+    try {
+      // If we have a prompt or we want to use AI for better fitting
+      if (userPrompt.trim() || targetPages !== pageCount) {
+        // Sanitize resume for AI (strip HTML for better processing)
+        const sanitizedResume = {
+          ...resume,
+          personal: { ...resume.personal, summary: resume.personal.summary.replace(/<[^>]*>?/gm, '') },
+          experience: resume.experience.map(exp => ({
+            ...exp,
+            bullets: exp.bullets.map(b => b.replace(/<[^>]*>?/gm, ''))
+          })),
+          projects: resume.projects.map(p => ({
+            ...p,
+            description: p.description.replace(/<[^>]*>?/gm, '')
+          }))
+        };
 
-      if (pageCount > 1) {
-        // If it's over 1 page, try to shrink to 1 page if it's close, 
-        // or just optimize the 2-page layout.
-        newFontSize = Math.max(90, settings.fontSize - 4);
-        newMargin = Math.max(10, settings.margin - 2);
-        newLineHeight = Math.max(1.35, settings.lineHeight - 0.1);
+        const result = await api.smartFit(sanitizedResume, config, targetPages, userPrompt);
+        
+        // 1. Update styling
+        updateSettings(result.suggestedSettings);
+        
+        // 2. Update resume content (refactored text)
+        const newResume = { ...resume };
+        if (result.refactoredResume.personal?.summary) {
+          newResume.personal = { ...newResume.personal, summary: result.refactoredResume.personal.summary };
+        }
+        if (result.refactoredResume.experience) {
+          newResume.experience = newResume.experience.map(exp => {
+            const refactored = result.refactoredResume.experience?.find(r => r.id === exp.id);
+            return refactored ? { ...exp, bullets: refactored.bullets } : exp;
+          });
+        }
+        if (result.refactoredResume.projects) {
+          newResume.projects = newResume.projects.map(p => {
+            const refactored = result.refactoredResume.projects?.find(r => r.id === p.id);
+            return refactored ? { ...p, description: refactored.description } : p;
+          });
+        }
+        onUpdateResume(newResume);
+        setUserPrompt(''); // Clear prompt after success
       } else {
-        // If it's comfortably 1 page, maybe make it look more "full"
-        newFontSize = Math.min(108, settings.fontSize + 4);
-        newMargin = Math.min(20, settings.margin + 2);
-        newLineHeight = Math.min(1.65, settings.lineHeight + 0.1);
-      }
+        // Fallback basic heuristic if no special prompt/target
+        let newFontSize = settings.fontSize;
+        let newMargin = settings.margin;
+        let newLineHeight = settings.lineHeight;
 
-      updateSettings({ 
-        fontSize: newFontSize, 
-        margin: newMargin, 
-        lineHeight: newLineHeight 
-      });
-      
+        if (pageCount > 1) {
+          newFontSize = Math.max(90, settings.fontSize - 4);
+          newMargin = Math.max(10, settings.margin - 2);
+          newLineHeight = Math.max(1.35, settings.lineHeight - 0.1);
+        } else {
+          newFontSize = Math.min(108, settings.fontSize + 4);
+          newMargin = Math.min(20, settings.margin + 2);
+          newLineHeight = Math.min(1.65, settings.lineHeight + 0.1);
+        }
+
+        updateSettings({ fontSize: newFontSize, margin: newMargin, lineHeight: newLineHeight });
+      }
+    } catch (error) {
+      console.error('Smart Fit error:', error);
+      alert('AI fitting failed. Please try again or adjust manually.');
+    } finally {
       setIsOptimizing(false);
-    }, 1500);
+    }
   };
 
   const updateFont = (key: 'heading' | 'body', value: string) => {
@@ -200,6 +235,41 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
                   <Sparkles size={14} color="#818CF8" />
                   <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#6366F1' }}>AI Layout Assistant</span>
                 </div>
+
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{ fontSize: '10.5px', fontWeight: 600, color: 'var(--color-ui-text-dim)', display: 'block', marginBottom: '6px' }}>Target Page Count</label>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    {[1, 2, 3].map(p => (
+                      <button
+                        key={p}
+                        onClick={() => setTargetPages(p)}
+                        style={{
+                          flex: 1, padding: '6px', fontSize: '12px', borderRadius: '6px', border: '1px solid var(--color-ui-border)',
+                          background: targetPages === p ? 'var(--color-ui-accent)' : 'var(--color-ui-surface)',
+                          color: targetPages === p ? 'white' : 'var(--color-ui-text)',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {p} {p === 1 ? 'Page' : 'Pages'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{ fontSize: '10.5px', fontWeight: 600, color: 'var(--color-ui-text-dim)', display: 'block', marginBottom: '6px' }}>Refinement Prompt (Optional)</label>
+                  <textarea
+                    value={userPrompt}
+                    onChange={e => setUserPrompt(e.target.value)}
+                    placeholder="e.g. 'Shorten bullets to fit', 'Fill more space'"
+                    style={{
+                      width: '100%', padding: '8px', fontSize: '11.5px', borderRadius: '8px',
+                      background: 'var(--color-ui-bg)', border: '1px solid var(--color-ui-border)',
+                      color: 'var(--color-ui-text)', minHeight: '60px', resize: 'none'
+                    }}
+                  />
+                </div>
+
                 <button
                   className="btn-primary"
                   disabled={isOptimizing}
@@ -214,10 +284,10 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
                   }}
                 >
                   {isOptimizing ? <Loader2 className="animate-spin" size={14} /> : <Sparkles size={14} />}
-                  Smart Fit to Pages
+                  Smart Fit Content
                 </button>
                 <p style={{ fontSize: '10.5px', color: 'var(--color-ui-text-dim)', marginTop: '8px', lineHeight: 1.5 }}>
-                  AI will auto-adjust font size, margins and spacing for the most professional, print-ready layout.
+                  AI will rewrite content and adjust styling to perfectly hit your target page count.
                 </p>
               </div>
 
