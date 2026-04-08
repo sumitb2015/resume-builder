@@ -10,6 +10,8 @@ interface Props {
   onBack: () => void;
   onUpdateConfig: (config: TemplateConfig) => void;
   onUpdateResume: (resume: Resume) => void;
+  pageCount: number;
+  onPageCount: (n: number) => void;
 }
 
 const SAFE_DEFAULTS = { margin: 15, fontSize: 100, lineHeight: 1.5 };
@@ -34,10 +36,9 @@ const FONT_OPTIONS = [
   { label: 'Source Sans 3 — Neutral',             value: '"Source Sans 3", system-ui, sans-serif' },
 ];
 
-const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig, onUpdateResume }) => {
+const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig, onUpdateResume, pageCount, onPageCount }) => {
   const [activeTab, setActiveTab] = useState<'layout' | 'fonts' | 'colors'>('layout');
   const [isOptimizing, setIsOptimizing] = useState(false);
-  const [pageCount, setPageCount] = useState(1);
   const [targetPages, setTargetPages] = useState(1);
   const [userPrompt, setUserPrompt] = useState('');
 
@@ -361,7 +362,7 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
         padding: '32px 20px 64px',
       }}>
         <div style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
-          <PagedPreview resume={resume} config={config} onPageCount={setPageCount} />
+          <PagedPreview resume={resume} config={config} onPageCount={onPageCount} forcePageCount={pageCount} />
         </div>
       </main>
     </div>

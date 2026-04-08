@@ -715,6 +715,8 @@ function AppContent() {
           onBack={() => setView('builder')}
           onUpdateConfig={setActiveTemplate}
           onUpdateResume={setResume}
+          pageCount={pageCount}
+          onPageCount={setPageCount}
         />
       </>
     );

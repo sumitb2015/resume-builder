@@ -54,33 +54,19 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config, isPaged = false }) 
         ${lineHeight !== undefined ? `.resume-paper, .resume-paper * { line-height: ${lineHeight} !important; }` : ''}
         
         .template-container.paged-mode {
-          /* No padding in paged mode, PagedPreview handles it */
           padding: 0;
           box-sizing: border-box;
         }
-        
+
+        /* Essential print safety for the container itself */
         @media print {
-          @page { 
-            size: A4; 
-            margin: 0 !important; 
-          }
-          html, body {
-            margin: 0 !important;
-            padding: 0 !important;
-            height: 100%;
-            background: white !important;
-          }
           .template-container {
             width: 100% !important;
-            padding: ${isPaged ? '0 !important' : `${margin}mm !important`};
-            box-sizing: border-box !important;
+            background: white !important;
           }
           .resume-paper {
-            padding: 0 !important;
-            margin: 0 !important;
             width: 100% !important;
             box-shadow: none !important;
-            background: white !important;
             transform: none !important;
           }
         }
