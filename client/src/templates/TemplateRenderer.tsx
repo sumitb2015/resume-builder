@@ -29,48 +29,33 @@ interface Props {
 const TemplateRenderer: React.FC<Props> = ({ resume, config }) => {
   const templateProps = { resume, config };
 
-  // Standard resume margins are usually 12.7mm (0.5in) to 15.9mm (0.625in)
-  const getPadding = () => {
-    if (config.settings?.margin !== undefined) {
-      return `${config.settings.margin}mm`;
-    }
-    switch (config.id) {
-      case 'creative':
-      case 'magazine':
-      case 'night':
-        return '0 15mm 15mm 15mm';
-      default:
-        return '15mm 18mm';
-    }
-  };
-
-  const pageMargin = getPadding();
+  const margin = config.settings?.margin;
   const fontSizeFactor = (config.settings?.fontSize || 100) / 100;
+  const lineHeight = config.settings?.lineHeight;
+
+  // When margin is set, apply it as visual padding on .resume-paper for both
+  // screen and print — this keeps the preview and the PDF perfectly in sync.
+  const printPadding = margin !== undefined ? `${margin}mm` : '15mm';
 
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        @media print {
-          @page {
-            size: A4;
-            margin: ${pageMargin};
-          }
-          .resume-paper {
-            padding: 0 !important;
-            margin: 0 !important;
-            min-height: 0 !important;
-            width: 100% !important;
-            box-shadow: none !important;
-            background: transparent !important;
-            font-size: ${fontSizeFactor}em !important;
-          }
-          /* Ensure we don't have blank pages */
-          html, body {
-            background: white !important;
-          }
-        }
         .template-container {
           font-size: ${fontSizeFactor}em;
+        }
+        ${margin !== undefined ? `.resume-paper { padding: ${margin}mm !important; }` : ''}
+        ${lineHeight !== undefined ? `.resume-paper, .resume-paper * { line-height: ${lineHeight} !important; }` : ''}
+        @media print {
+          @page { size: A4; margin: 0; }
+          .resume-paper {
+            padding: ${printPadding} !important;
+            margin: 0 !important;
+            min-height: 0 !important;
+            width: 210mm !important;
+            box-shadow: none !important;
+            font-size: ${fontSizeFactor}em !important;
+          }
+          html, body { background: white !important; }
         }
       `}} />
       <div className="template-container">

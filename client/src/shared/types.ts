@@ -103,8 +103,9 @@ export interface TemplateConfig {
   atsScore: number;
   category: 'professional' | 'creative' | 'minimal';
   settings?: {
-    margin: number;     // mm
-    padding: number;    // mm
-    fontSize: number;   // pt or relative
+    margin: number;      // mm - page outer margin (applied as .resume-paper padding)
+    fontSize: number;    // % - global font scale (100 = 100%)
+    lineHeight: number;  // line height ratio (e.g. 1.5)
+    padding?: number;    // mm - kept for backward compatibility
   };
 }

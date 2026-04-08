@@ -826,7 +826,13 @@ function AppContent() {
             {currentResumeId ? 'Save' : 'Save'}
           </button>
 
-          <button className="btn-primary" style={{ gap: '6px', fontSize: '13px' }} onClick={() => setView('preview')}>
+          <button className="btn-primary" style={{ gap: '6px', fontSize: '13px' }} onClick={() => {
+            setActiveTemplate(t => ({
+              ...t,
+              settings: t.settings ?? { margin: 15, fontSize: 100, lineHeight: 1.5 },
+            }));
+            setView('preview');
+          }}>
             <FileText size={14} />
             Preview
           </button>
