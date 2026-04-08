@@ -569,11 +569,15 @@ body {
 
 @media print {
   /* Hide everything except the print portal */
-  body > * {
+  body > :not(#print-portal) {
     display: none !important;
   }
   #print-portal {
     display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
   }
 
   html, body {
