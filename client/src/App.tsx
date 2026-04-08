@@ -21,7 +21,7 @@ import { useSavedResumes } from './hooks/useSavedResumes';
 import { stripHtml, plainTextToHtml, legacyMarkdownToHtml } from './lib/htmlUtils';
 import './index.css';
 import {
-  Download, Zap, X, Sparkles, Palette,
+  Zap, X, Sparkles, Palette,
   Loader2, Check, AlertCircle, ChevronLeft, ChevronRight, FileText, LogOut, Crown, Shield,
   Save, FolderOpen, Link, GitCompare, Plus, Minus, Sun, Moon,
 } from 'lucide-react';
@@ -633,8 +633,6 @@ function AppContent() {
     setActiveModal('ats');
     setAtsResult(null);
   };
-
-  const handleExportPdf = () => window.print();
 
   const handleModeSelect = (
     _mode: 'manual' | 'enhance' | 'linkedin',

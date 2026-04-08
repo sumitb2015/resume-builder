@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import PagedPreview from './PagedPreview';
-import { ChevronLeft, Download, Type, Move, Maximize, Palette, Layout } from 'lucide-react';
+import { ChevronLeft, Download, Type, Move, Palette } from 'lucide-react';
 
 interface Props {
   resume: Resume;
