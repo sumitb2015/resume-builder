@@ -7,6 +7,7 @@ import ModeSelectModal from './components/ModeSelectModal';
 import UpgradeModal from './components/UpgradeModal';
 import SavedResumesPanel from './components/SavedResumesPanel';
 import PagedPreview from './components/PagedPreview';
+import TemplateRenderer from './templates/TemplateRenderer';
 import StylePanel from './components/StylePanel';
 import { templates, colorPalettes } from './templates';
 import { api } from './lib/api';
@@ -185,7 +186,7 @@ const PLAN_OPTIONS = [
     tagline: 'Core AI writing tools',
     color: '#818CF8',
     gradient: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-    features: ['All 20 templates', 'Dynamic ATS + JD matching', 'Unlimited AI bullets', 'AI summary writer', 'Skills finder', 'Color customization'],
+    features: ['All 15 templates', 'Dynamic ATS + JD matching', 'Unlimited AI bullets', 'AI summary writer', 'Skills finder', 'Color customization'],
   },
   {
     id: 'ultimate' as const,
@@ -1431,7 +1432,7 @@ function AppContent() {
 
       {/* Print portal */}
       {createPortal(
-        <PagedPreview resume={resume} config={activeTemplate} />,
+        <TemplateRenderer resume={resume} config={activeTemplate} />,
         document.getElementById('print-portal')!
       )}
     </div>

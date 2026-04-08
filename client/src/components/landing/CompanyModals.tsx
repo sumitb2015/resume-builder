@@ -27,7 +27,7 @@ export const AboutModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '8px' }}>
-        {statCard(<Rocket size={18} />, '20+', 'Resume Templates')}
+        {statCard(<Rocket size={18} />, '15+', 'Resume Templates')}
         {statCard(<Users size={18} />, '10k+', 'Resumes Created')}
         {statCard(<Heart size={18} />, '4.9★', 'User Rating')}
       </div>

@@ -18,7 +18,7 @@ const TIERS = [
       { label: 'PDF export (1 per day)', included: true },
       { label: 'ATS score (template-based)', included: true },
       { label: 'AI bullet point writer (3/day)', included: true },
-      { label: 'All 20 premium templates', included: false },
+      { label: 'All 15 premium templates', included: false },
       { label: 'AI summary writer', included: false },
       { label: 'Skills finder', included: false },
       { label: 'Job tailoring (JD matching)', included: false },
@@ -34,7 +34,7 @@ const TIERS = [
     ctaStyle: 'primary' as const,
     popular: true,
     features: [
-      { label: 'All 20 premium templates', included: true },
+      { label: 'All 15 premium templates', included: true },
       { label: 'Live preview & editor', included: true },
       { label: 'Unlimited PDF exports', included: true },
       { label: 'Dynamic ATS score with JD matching', included: true },
