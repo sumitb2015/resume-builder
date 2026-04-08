@@ -30,7 +30,6 @@ interface Props {
 const TemplateRenderer: React.FC<Props> = ({ resume, config, isPaged = false }) => {
   const templateProps = { resume, config };
 
-  const margin = config.settings?.margin ?? 15;
   const fontSizeFactor = (config.settings?.fontSize || 100) / 100;
   const lineHeight = config.settings?.lineHeight;
 

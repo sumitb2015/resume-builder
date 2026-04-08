@@ -17,53 +17,12 @@ import { PlanProvider, usePlan } from './contexts/PlanContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import type { Feature } from './contexts/PlanContext';
 import { useSavedResumes } from './hooks/useSavedResumes';
-import { stripHtml, plainTextToHtml, legacyMarkdownToHtml } from './lib/htmlUtils';
+import { legacyMarkdownToHtml } from './lib/htmlUtils';
 import './index.css';
 import {
-  Zap, X, Sparkles, Palette,
-  Loader2, Check, AlertCircle, ChevronLeft, ChevronRight, FileText, LogOut, Crown, Shield,
-  Save, FolderOpen, Link, GitCompare, Plus, Minus, Sun, Moon,
+  Zap, Palette, Check, ChevronLeft, ChevronRight, FileText, LogOut, Crown, Shield,
+  Save, FolderOpen, Sun, Moon,
 } from 'lucide-react';
-
-// ── Word-level diff ────────────────────────────────────────────────────────────
-type DiffToken = { text: string; type: 'same' | 'add' | 'del' };
-
-function wordDiff(before: string, after: string): DiffToken[] {
-  if (before === after) return [{ text: before, type: 'same' }];
-  const b = before.split(/\s+/).filter(Boolean);
-  const a = after.split(/\s+/).filter(Boolean);
-  const dp = Array.from({ length: b.length + 1 }, () => new Array(a.length + 1).fill(0));
-  for (let i = 1; i <= b.length; i++)
-    for (let j = 1; j <= a.length; j++)
-      dp[i][j] = b[i-1] === a[j-1] ? dp[i-1][j-1] + 1 : Math.max(dp[i-1][j], dp[i][j-1]);
-  const tokens: DiffToken[] = [];
-  let i = b.length, j = a.length;
-  while (i > 0 || j > 0) {
-    if (i > 0 && j > 0 && b[i-1] === a[j-1]) {
-      tokens.unshift({ text: b[i-1], type: 'same' }); i--; j--;
-    } else if (j > 0 && (i === 0 || dp[i][j-1] >= dp[i-1][j])) {
-      tokens.unshift({ text: a[j-1], type: 'add' }); j--;
-    } else {
-      tokens.unshift({ text: b[i-1], type: 'del' }); i--;
-    }
-  }
-  return tokens;
-}
-
-function DiffText({ before, after }: { before: string; after: string }) {
-  if (!before && !after) return null;
-  if (before === after) return <span style={{ fontSize: '13px', color: 'var(--color-ui-text)', lineHeight: 1.7 }}>{after}</span>;
-  const tokens = wordDiff(before || '', after || '');
-  return (
-    <span style={{ fontSize: '13px', lineHeight: 1.7 }}>
-      {tokens.map((t, idx) =>
-        t.type === 'same' ? <span key={idx}>{t.text} </span>
-        : t.type === 'add' ? <mark key={idx} style={{ background: 'rgba(74,222,128,0.25)', color: 'inherit', borderRadius: '3px', padding: '1px 3px' }}>{t.text} </mark>
-        : <del key={idx} style={{ background: 'rgba(248,113,113,0.15)', color: '#F87171', borderRadius: '3px', padding: '1px 3px' }}>{t.text} </del>
-      )}
-    </span>
-  );
-}
 
 const initialResume: Resume = {
   personal: {
@@ -131,8 +90,6 @@ const initialResume: Resume = {
   ],
   custom: [],
 };
-
-type ModalType = 'tailor' | 'ats' | 'diff' | null;
 
 // Maps a feature to the minimum plan required
 const FEATURE_REQUIRED_PLAN: Record<Feature, 'pro' | 'ultimate'> = {
@@ -363,7 +320,7 @@ const PrintPortal = ({ resume, config, pageCount }: { resume: Resume; config: Te
 };
 
 function AppContent() {
-  const { currentUser, signOut } = useAuth();
+  const { currentUser, loading, signOut } = useAuth();
   const { plan, canAccess, maxResumes } = usePlan();
   const { savedResumes, canSaveMore, saveResume, deleteResume, renameResume } = useSavedResumes();
   const { theme, toggleTheme } = useTheme();
@@ -385,7 +342,6 @@ function AppContent() {
   const [improvements, setImprovements] = useState<ImprovementSuggestions | null>(null);
   const [activeTemplate, setActiveTemplate] = useState<TemplateConfig>({ ...templates[1]! });
   const [zoom, setZoom] = useState(0.75);
-  const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [pageCount, setPageCount] = useState(1);
   const [upgradePrompt, setUpgradePrompt] = useState<{ requiredPlan: 'pro' | 'ultimate'; featureLabel: string } | null>(null);
 
@@ -395,33 +351,6 @@ function AppContent() {
   const [savePrompt, setSavePrompt] = useState(false);
   const [saveNameValue, setSaveNameValue] = useState('');
   const [savedToast, setSavedToast] = useState(false);
-
-  // Tailor modal state
-  const [jd, setJd] = useState('');
-  const [tailorInputMode, setTailorInputMode] = useState<'text' | 'url'>('text');
-  const [jobUrl, setJobUrl] = useState('');
-  const [urlFetchLoading, setUrlFetchLoading] = useState(false);
-  const [urlFetchError, setUrlFetchError] = useState('');
-  const [tailorLoading, setTailorLoading] = useState(false);
-  const [tailorResult, setTailorResult] = useState<{
-    missingKeywords: string[];
-    rewrittenBullets: { original: string; suggested: string }[];
-    suggestedSummary: string;
-  } | null>(null);
-  const [appliedBullets, setAppliedBullets] = useState<Set<number>>(new Set());
-  const [appliedSummary, setAppliedSummary] = useState(false);
-  const [addedKeywords, setAddedKeywords] = useState<Set<string>>(new Set());
-
-  // ATS modal state
-  const [atsJd, setAtsJd] = useState('');
-  const [atsLoading, setAtsLoading] = useState(false);
-  const [atsTailorLoading, setAtsTailorLoading] = useState(false);
-  const [atsResult, setAtsResult] = useState<{
-    score: number;
-    missingKeywords: string[];
-    weakSections: string[];
-    feedback: string;
-  } | null>(null);
 
   const showUpgrade = (feature: Feature) => {
     setUpgradePrompt({
@@ -484,134 +413,11 @@ function AppContent() {
     }));
   };
 
-  const handleTailor = async () => {
-    if (!canAccess('job-tailor')) { showUpgrade('job-tailor'); return; }
-    if (!jd.trim()) return;
-    setTailorLoading(true);
-    setTailorResult(null);
-    try {
-      const result = await api.tailorResume(sanitizeResumeForAI(resume), jd);
-      setTailorResult(result);
-    } catch {
-      alert('AI unavailable.');
-    } finally {
-      setTailorLoading(false);
-    }
-  };
-
-  const openTailorModal = () => {
-    if (!canAccess('job-tailor')) { showUpgrade('job-tailor'); return; }
-    setActiveModal('tailor');
-    setTailorResult(null);
-    setJd('');
-    setJobUrl('');
-    setUrlFetchError('');
-    setTailorInputMode('text');
-    setAppliedBullets(new Set());
-    setAppliedSummary(false);
-    setAddedKeywords(new Set());
-  };
-
-  const handleFetchJobUrl = async () => {
-    if (!jobUrl.trim()) return;
-    setUrlFetchLoading(true);
-    setUrlFetchError('');
-    try {
-      const { text } = await api.fetchJobUrl(jobUrl.trim());
-      setJd(text);
-      setTailorInputMode('text');
-    } catch (e: any) {
-      setUrlFetchError(e.message || 'Failed to fetch URL');
-    } finally {
-      setUrlFetchLoading(false);
-    }
-  };
-
-  const applyTailorSuggestion = (type: 'summary' | 'bullet', value: string, originalBullet?: string, bulletIndex?: number) => {
-    if (type === 'summary') {
-      setResume(prev => ({ ...prev, personal: { ...prev.personal, summary: plainTextToHtml(value) } }));
-      setAppliedSummary(true);
-    } else if (type === 'bullet' && originalBullet) {
-      setResume(prev => ({
-        ...prev,
-        experience: prev.experience.map(exp => ({
-          ...exp,
-          bullets: exp.bullets.map(b => stripHtml(b) === originalBullet ? plainTextToHtml(value) : b),
-        })),
-      }));
-      if (bulletIndex !== undefined) setAppliedBullets(prev => new Set(prev).add(bulletIndex));
-    }
-  };
-
-  const addKeywordAsSkill = (keyword: string) => {
-    const already = resume.skills.some(s => s.name.toLowerCase() === keyword.toLowerCase());
-    if (!already) setResume(prev => ({ ...prev, skills: [...prev.skills, { id: crypto.randomUUID(), name: keyword, level: 75 }] }));
-    setAddedKeywords(prev => new Set(prev).add(keyword));
-  };
-
-  const handleAcceptAll = () => {
-    if (!tailorResult) return;
-    setResume(prev => {
-      let updated = { ...prev };
-      if (tailorResult.suggestedSummary) updated.personal.summary = plainTextToHtml(tailorResult.suggestedSummary);
-      tailorResult.rewrittenBullets.forEach(b => {
-        updated.experience = updated.experience.map(exp => ({
-          ...exp,
-          bullets: exp.bullets.map(bullet => stripHtml(bullet) === b.original ? plainTextToHtml(b.suggested) : bullet),
-        }));
-      });
-      const existingNames = new Set(updated.skills.map(s => s.name.toLowerCase()));
-      const newSkills = tailorResult.missingKeywords
-        .filter(k => !existingNames.has(k.toLowerCase()))
-        .map(k => ({ id: crypto.randomUUID(), name: k, level: 75 }));
-      updated.skills = [...updated.skills, ...newSkills];
-      return updated;
-    });
-    setAppliedSummary(true);
-    setAppliedBullets(new Set(tailorResult.rewrittenBullets.map((_, i) => i)));
-    setAddedKeywords(new Set(tailorResult.missingKeywords));
-  };
-
-  const handleAtsScore = async () => {
-    if (!canAccess('dynamic-ats')) { showUpgrade('dynamic-ats'); return; }
-    if (!atsJd.trim()) return;
-    setAtsLoading(true);
-    setAtsResult(null);
-    try {
-      const result = await api.atsScore(sanitizeResumeForAI(resume), atsJd);
-      setAtsResult(result);
-    } catch {
-      alert('AI unavailable.');
-    } finally {
-      setAtsLoading(false);
-    }
-  };
-
-  const handleAtsTailor = async () => {
-    if (!atsResult || !atsJd.trim()) return;
-    setAtsTailorLoading(true);
-    try {
-      const result = await api.atsTailor(resume, atsJd, atsResult);
-      setJd(atsJd);
-      setTailorResult(result);
-      setAppliedBullets(new Set());
-      setAppliedSummary(false);
-      setAddedKeywords(new Set());
-      setActiveModal('tailor');
-    } catch {
-      alert('AI unavailable.');
-    } finally {
-      setAtsTailorLoading(false);
-    }
-  };
-
-  const openAtsModal = () => {
-    if (!canAccess('dynamic-ats')) { showUpgrade('dynamic-ats'); return; }
-    setActiveModal('ats');
-    setAtsResult(null);
-  };
-
-  const handleModeSelect = (mode: any, prefilledResume?: Resume, suggestions?: ImprovementSuggestions) => {
+  const handleModeSelect = (
+    _mode: 'manual' | 'enhance' | 'linkedin',
+    prefilledResume?: Resume,
+    suggestions?: ImprovementSuggestions
+  ) => {
     if (prefilledResume) setResume(migrateResume(prefilledResume));
     if (suggestions) setImprovements(suggestions);
     setView('builder');
@@ -629,6 +435,14 @@ function AppContent() {
     if (!plan) { setView('plan-select'); return; }
     setView('mode-select');
   };
+
+  if (loading) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '32px', height: '32px', borderRadius: '50%', border: '3px solid var(--color-ui-border)', borderTopColor: '#6366F1', animation: 'spin 0.7s linear infinite' }} />
+      </div>
+    );
+  }
 
   const formWidth = formExpanded ? '48%' : '40%';
 
@@ -686,10 +500,6 @@ function AppContent() {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }} onClick={() => setActiveModal('diff')}>
-              <GitCompare size={13} /> Changes
-              {initialResumeRef.current && JSON.stringify(initialResumeRef.current) !== JSON.stringify(resume) && <span style={{ position: 'absolute', top: '-4px', right: '-4px', width: '8px', height: '8px', borderRadius: '50%', background: '#818CF8' }} />}
-            </button>
             <button className="btn-ghost" style={{ padding: '7px 10px' }} onClick={toggleTheme}>{theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}</button>
             <button className={rightPanelOpen ? 'btn-primary' : 'btn-secondary'} style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }} onClick={() => setRightPanelOpen(v => !v)}><Palette size={13} /> Style</button>
             <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }} onClick={() => setShowSavedPanel(true)}>
@@ -712,7 +522,7 @@ function AppContent() {
 
         <div style={{ display: 'flex', overflow: 'hidden', height: '100%' }}>
           <div style={{ width: formWidth, flexShrink: 0, transition: 'width 0.25s', position: 'relative', height: '100%', overflow: 'hidden' }} className="no-print">
-            <ResumeBuilder resume={resume} onChange={setResume} onTailor={openTailorModal} onAtsScore={openAtsModal} improvements={improvements} onDismissImprovements={() => setImprovements(null)} onUpgradeNeeded={showUpgrade} />
+            <ResumeBuilder resume={resume} onChange={setResume} onTailor={() => {}} onAtsScore={() => {}} improvements={improvements} onDismissImprovements={() => setImprovements(null)} onUpgradeNeeded={showUpgrade} />
             <button onClick={() => setFormExpanded(v => !v)} style={{ position: 'absolute', top: '50%', right: '-11px', transform: 'translateY(-50%)', width: '22px', height: '44px', borderRadius: '0 8px 8px 0', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderLeft: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-ui-text-muted)', zIndex: 10 }}>{formExpanded ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}</button>
           </div>
 
