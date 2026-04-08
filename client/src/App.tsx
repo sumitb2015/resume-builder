@@ -9,8 +9,7 @@ import SavedResumesPanel from './components/SavedResumesPanel';
 import PagedPreview from './components/PagedPreview';
 import StylePanel from './components/StylePanel';
 import ExportPreview from './components/ExportPreview';
-import { templates, colorPalettes } from './templates';
-import { api } from './lib/api';
+import { templates } from './templates';
 import type { Resume, TemplateConfig, ImprovementSuggestions } from './shared/types';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PlanProvider, usePlan } from './contexts/PlanContext';
@@ -286,16 +285,6 @@ function PlanSelectPage({ onSelected }: { onSelected: () => void }) {
   );
 }
 
-/** Strip HTML from rich text fields before sending to AI services */
-function sanitizeResumeForAI(resume: Resume): Resume {
-  return {
-    ...resume,
-    personal: { ...resume.personal, summary: stripHtml(resume.personal.summary) },
-    experience: resume.experience.map(exp => ({ ...exp, bullets: exp.bullets.map(stripHtml) })),
-    projects: resume.projects.map(p => ({ ...p, description: stripHtml(p.description) })),
-  };
-}
-
 /** Migrate legacy plain text / markdown strings to HTML on resume load */
 function migrateResume(resume: Resume): Resume {
   return {
@@ -321,8 +310,8 @@ const PrintPortal = ({ resume, config, pageCount }: { resume: Resume; config: Te
 
 function AppContent() {
   const { currentUser, loading, signOut } = useAuth();
-  const { plan, canAccess, maxResumes } = usePlan();
-  const { savedResumes, canSaveMore, saveResume, deleteResume, renameResume } = useSavedResumes();
+  const { plan, maxResumes } = usePlan();
+  const { savedResumes, canSaveMore, saveResume, renameResume, deleteResume } = useSavedResumes();
   const { theme, toggleTheme } = useTheme();
 
   const [view, setView] = useState<'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder' | 'preview'>('landing');
@@ -413,11 +402,7 @@ function AppContent() {
     }));
   };
 
-  const handleModeSelect = (
-    _mode: 'manual' | 'enhance' | 'linkedin',
-    prefilledResume?: Resume,
-    suggestions?: ImprovementSuggestions
-  ) => {
+  const handleModeSelect = (_mode: any, prefilledResume?: Resume, suggestions?: ImprovementSuggestions) => {
     if (prefilledResume) setResume(migrateResume(prefilledResume));
     if (suggestions) setImprovements(suggestions);
     setView('builder');
