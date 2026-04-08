@@ -1,12 +1,14 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import type { Resume, ExperienceEntry, SkillEntry, EducationEntry, ProjectEntry, CertificationEntry, LanguageEntry, ImprovementSuggestions } from '../shared/types';
 import { api } from '../lib/api';
 import {
   User, Briefcase, GraduationCap, Wrench, FolderOpen,
-  Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Zap, Check, X, GripVertical, Bold, Italic, Lock, FileText
+  Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Zap, Check, X, GripVertical, Lock, FileText
 } from 'lucide-react';
 import { usePlan } from '../contexts/PlanContext';
 import type { Feature } from '../contexts/PlanContext';
+import RichEditor from './RichEditor';
+import { stripHtml, plainTextToHtml, htmlCharCount } from '../lib/htmlUtils';
 
 interface Props {
   resume: Resume;
@@ -44,91 +46,12 @@ function reorder<T extends { id: string }>(arr: T[], fromId: string, toId: strin
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-const CharCount = ({ value, max }: { value: string; max: number }) => {
-  const len = value.length;
+const CharCount = ({ value, max }: { value: string | number; max: number }) => {
+  const len = typeof value === 'number' ? value : htmlCharCount(value);
   const color = len > max ? 'var(--color-danger)' : len > max * 0.85 ? 'var(--color-warning)' : 'var(--color-ui-text-dim)';
   return (
     <div style={{ textAlign: 'right', fontSize: '10.5px', fontWeight: 500, color, marginTop: '4px' }}>
       {len} / {max}
-    </div>
-  );
-};
-
-interface RichTextareaProps {
-  value: string;
-  onChange: (v: string) => void;
-  rows?: number;
-  placeholder?: string;
-  maxLength?: number;
-  style?: React.CSSProperties;
-}
-
-const RichTextarea: React.FC<RichTextareaProps> = ({ value, onChange, rows = 4, placeholder, maxLength, style }) => {
-  const ref = useRef<HTMLTextAreaElement>(null);
-
-  const wrapSelection = (open: string, close: string = open) => {
-    const el = ref.current;
-    if (!el) return;
-    const { selectionStart: s, selectionEnd: e } = el;
-    const selected = value.slice(s, e);
-    const newVal = value.slice(0, s) + open + selected + close + value.slice(e);
-    onChange(newVal);
-    requestAnimationFrame(() => {
-      el.focus();
-      el.setSelectionRange(s + open.length, e + open.length);
-    });
-  };
-
-  const addBulletLine = () => {
-    const el = ref.current;
-    if (!el) return;
-    const { selectionStart: s } = el;
-    const lineStart = value.lastIndexOf('\n', s - 1) + 1;
-    const linePrefix = value.slice(lineStart, s);
-    if (linePrefix.trimStart().startsWith('• ')) return; // already a bullet
-    const prefix = '\n• ';
-    const newVal = value.slice(0, s) + prefix + value.slice(s);
-    onChange(newVal);
-    requestAnimationFrame(() => {
-      el.focus();
-      el.setSelectionRange(s + prefix.length, s + prefix.length);
-    });
-  };
-
-  const toolbarBtn = (label: React.ReactNode, onClick: () => void, title: string) => (
-    <button
-      type="button"
-      title={title}
-      onClick={onClick}
-      style={{
-        padding: '3px 7px', borderRadius: '5px', border: '1px solid var(--color-ui-border)',
-        background: 'transparent', color: 'var(--color-ui-text-muted)', cursor: 'pointer',
-        fontSize: '11px', fontWeight: 700, display: 'flex', alignItems: 'center', transition: 'all 0.12s',
-      }}
-      onMouseEnter={e => { e.currentTarget.style.background = 'var(--color-ui-surface-2)'; e.currentTarget.style.color = 'var(--color-ui-text)'; }}
-      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--color-ui-text-muted)'; }}
-    >
-      {label}
-    </button>
-  );
-
-  return (
-    <div>
-      <div style={{ display: 'flex', gap: '4px', marginBottom: '6px' }}>
-        {toolbarBtn(<Bold size={11} />, () => wrapSelection('**'), 'Bold (**text**)')}
-        {toolbarBtn(<Italic size={11} />, () => wrapSelection('*'), 'Italic (*text*)')}
-        {toolbarBtn(<span>• List</span>, addBulletLine, 'Add bullet line')}
-      </div>
-      <textarea
-        ref={ref}
-        className="field-textarea"
-        rows={rows}
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder={placeholder}
-        style={{ fontSize: '13px', ...style }}
-      />
-      {maxLength !== undefined && <CharCount value={value} max={maxLength} />}
     </div>
   );
 };
@@ -274,7 +197,8 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
   const applyBullet = (expId: string, bullet: string) => {
     const exp = resume.experience.find(e => e.id === expId);
     if (!exp) return;
-    const bullets = exp.bullets[0] === '' ? [bullet] : [...exp.bullets, bullet];
+    const htmlBullet = plainTextToHtml(bullet);
+    const bullets = exp.bullets[0] === '' ? [htmlBullet] : [...exp.bullets, htmlBullet];
     updateExp(expId, 'bullets', bullets);
     setBulletSuggestions(null);
   };
@@ -298,19 +222,19 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
       const skills = resume.skills.map(s => s.name).filter(Boolean);
       const yoe = resume.experience.length > 0 ? `${resume.experience.length * 2}+` : '1';
       const data = await api.generateSummary(resume.personal.name, resume.personal.title, yoe, skills);
-      up('summary', data.summary);
+      up('summary', plainTextToHtml(data.summary));
     } catch {
       alert('AI unavailable. Check server is running with OPENAI_API_KEY set.');
     } finally { setLoadingSummary(false); }
   };
 
   const applyImprovement = (original: string, suggested: string, index: number) => {
-    if (resume.personal.summary === original) {
-      onChange({ ...resume, personal: { ...resume.personal, summary: suggested } });
+    if (stripHtml(resume.personal.summary) === original) {
+      onChange({ ...resume, personal: { ...resume.personal, summary: plainTextToHtml(suggested) } });
     } else {
       const updatedExperience = resume.experience.map(exp => ({
         ...exp,
-        bullets: exp.bullets.map(b => b === original ? suggested : b),
+        bullets: exp.bullets.map(b => stripHtml(b) === original ? plainTextToHtml(suggested) : b),
       }));
       onChange({ ...resume, experience: updatedExperience });
     }
@@ -498,12 +422,12 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
 
             <Field label="Professional Summary">
               <div style={{ position: 'relative' }}>
-                <RichTextarea
+                <RichEditor
                   value={resume.personal.summary}
                   onChange={v => up('summary', v)}
-                  rows={5}
                   placeholder="Briefly describe your professional background..."
                   maxLength={600}
+                  minHeight={120}
                 />
                 <button
                   className="btn-ai"
@@ -591,20 +515,19 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
                         </div>
                         {exp.bullets.map((bullet, bi) => (
                           <div key={bi} style={{ marginBottom: '6px' }}>
-                            <div style={{ display: 'flex', gap: '6px' }}>
-                              <textarea
-                                className="field-textarea"
-                                rows={2}
+                            <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
+                              <RichEditor
                                 value={bullet}
-                                onChange={e => { const next = [...exp.bullets]; next[bi] = e.target.value; updateExp(exp.id, 'bullets', next); }}
+                                onChange={v => { const next = [...exp.bullets]; next[bi] = v; updateExp(exp.id, 'bullets', next); }}
                                 placeholder="Achieved X by doing Y, resulting in Z% improvement..."
-                                style={{ fontSize: '12.5px', flex: 1 }}
+                                minHeight={56}
+                                style={{ flex: 1 }}
                               />
-                              <button className="btn-danger" onClick={() => updateExp(exp.id, 'bullets', exp.bullets.filter((_, i) => i !== bi))} style={{ alignSelf: 'center' }}>
+                              <button className="btn-danger" onClick={() => updateExp(exp.id, 'bullets', exp.bullets.filter((_, i) => i !== bi))} style={{ alignSelf: 'flex-start', marginTop: '28px' }}>
                                 <Trash2 size={12} />
                               </button>
                             </div>
-                            <CharCount value={bullet} max={200} />
+                            <CharCount value={htmlCharCount(bullet)} max={200} />
                           </div>
                         ))}
                         <button
@@ -780,7 +703,7 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
                         <input className="field-input" value={p.title} onChange={e => updateProject(p.id, 'title', e.target.value)} placeholder="My Awesome Project" />
                       </Field>
                       <Field label="Description">
-                        <RichTextarea value={p.description} onChange={v => updateProject(p.id, 'description', v)} rows={3} placeholder="What does it do and what impact did it have?" maxLength={400} />
+                        <RichEditor value={p.description} onChange={v => updateProject(p.id, 'description', v)} placeholder="What does it do and what impact did it have?" maxLength={400} minHeight={80} />
                       </Field>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                         <Field label="URL / Link"><input className="field-input" value={p.url} onChange={e => updateProject(p.id, 'url', e.target.value)} placeholder="github.com/..." /></Field>

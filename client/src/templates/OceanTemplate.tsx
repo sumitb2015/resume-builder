@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
+import RichContent from './RichContent';
 
 const OceanTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
@@ -32,9 +33,7 @@ const OceanTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
               </p>
             )}
             {personal.summary && (
-              <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, margin: '12px 0 0', maxWidth: '380px' }}>
-                {personal.summary}
-              </p>
+              <RichContent html={personal.summary} style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, margin: '12px 0 0', maxWidth: '380px' }} />
             )}
           </div>
           {contactItems.length > 0 && (
@@ -75,7 +74,7 @@ const OceanTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
                         {exp.bullets.filter(b => b).map((bullet, i) => (
                           <li key={i} style={{ display: 'flex', gap: '10px', fontSize: '12.5px', color: text, lineHeight: 1.65, listStyle: 'none' }}>
                             <span style={{ color: accent, fontWeight: 700, flexShrink: 0 }}>▸</span>
-                            <span>{bullet}</span>
+                            <RichContent html={bullet} />
                           </li>
                         ))}
                       </ul>
@@ -120,7 +119,7 @@ const OceanTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
                       <span style={{ fontSize: '13px', fontWeight: 700, color: primary }}>{p.title}</span>
                       {p.url && <span style={{ fontSize: '11px', color: accent }}>{p.url}</span>}
                     </div>
-                    {p.description && <p style={{ fontSize: '12px', color: text, margin: '0 0 4px', lineHeight: 1.6 }}>{p.description}</p>}
+                    {p.description && <RichContent html={p.description} style={{ fontSize: '12px', color: text, margin: '0 0 4px', lineHeight: 1.6 }} />}
                     {p.tech.length > 0 && (
                       <p style={{ fontSize: '11px', color: accent, margin: 0 }}>{p.tech.join(' · ')}</p>
                     )}

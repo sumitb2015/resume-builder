@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
+import RichContent from './RichContent';
 
 const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
@@ -43,7 +44,7 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
           {personal.summary && (
             <div style={{ marginBottom: '28px' }}>
               <CreativeSectionTitle title="About Me" primary={primary} />
-              <p style={{ fontSize: '12.5px', lineHeight: 1.8, color: '#374151' }}>{personal.summary}</p>
+              <RichContent html={personal.summary} style={{ fontSize: '12.5px', lineHeight: 1.8, color: '#374151' }} />
             </div>
           )}
 
@@ -76,7 +77,7 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
                           {exp.bullets.filter(b => b).map((bullet, i) => (
                             <li key={i} style={{ display: 'flex', gap: '8px', fontSize: '12px', color: '#4B5563', lineHeight: 1.65, listStyle: 'none' }}>
                               <span style={{ color: accent, flexShrink: 0 }}>▸</span>
-                              <span>{bullet}</span>
+                              <RichContent html={bullet} />
                             </li>
                           ))}
                         </ul>
@@ -98,7 +99,7 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
                       <span style={{ fontSize: '13px', fontWeight: 700, color: '#111827' }}>{p.title}</span>
                       {p.url && <span style={{ fontSize: '11px', color: primary }}>{p.url}</span>}
                     </div>
-                    {p.description && <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px', lineHeight: 1.6 }}>{p.description}</p>}
+                    {p.description && <RichContent html={p.description} style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px', lineHeight: 1.6 }} />}
                     {p.tech.length > 0 && (
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '8px' }}>
                         {p.tech.map((t, i) => (

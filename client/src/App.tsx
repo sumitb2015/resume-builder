@@ -17,6 +17,7 @@ import { PlanProvider, usePlan } from './contexts/PlanContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import type { Feature } from './contexts/PlanContext';
 import { useSavedResumes } from './hooks/useSavedResumes';
+import { stripHtml, plainTextToHtml, legacyMarkdownToHtml } from './lib/htmlUtils';
 import './index.css';
 import {
   Download, Zap, X, Sparkles, Palette,
@@ -336,6 +337,26 @@ function PlanSelectPage({ onSelected }: { onSelected: () => void }) {
   );
 }
 
+/** Strip HTML from rich text fields before sending to AI services */
+function sanitizeResumeForAI(resume: Resume): Resume {
+  return {
+    ...resume,
+    personal: { ...resume.personal, summary: stripHtml(resume.personal.summary) },
+    experience: resume.experience.map(exp => ({ ...exp, bullets: exp.bullets.map(stripHtml) })),
+    projects: resume.projects.map(p => ({ ...p, description: stripHtml(p.description) })),
+  };
+}
+
+/** Migrate legacy plain text / markdown strings to HTML on resume load */
+function migrateResume(resume: Resume): Resume {
+  return {
+    ...resume,
+    personal: { ...resume.personal, summary: legacyMarkdownToHtml(resume.personal.summary) },
+    experience: resume.experience.map(exp => ({ ...exp, bullets: exp.bullets.map(legacyMarkdownToHtml) })),
+    projects: resume.projects.map(p => ({ ...p, description: legacyMarkdownToHtml(p.description) })),
+  };
+}
+
 function AppContent() {
   const { currentUser, loading, signOut } = useAuth();
   const { plan, canAccess, maxResumes } = usePlan();
@@ -446,7 +467,7 @@ function AppContent() {
   };
 
   const handleLoadResume = (saved: import('./hooks/useSavedResumes').SavedResume) => {
-    setResume(saved.resumeData);
+    setResume(migrateResume(saved.resumeData));
     const tpl = templates.find(t => t.id === saved.templateId);
     if (tpl) setActiveTemplate({ ...tpl });
     setCurrentResumeId(saved.id);
@@ -475,7 +496,7 @@ function AppContent() {
     setTailorLoading(true);
     setTailorResult(null);
     try {
-      const result = await api.tailorResume(resume, jd);
+      const result = await api.tailorResume(sanitizeResumeForAI(resume), jd);
       setTailorResult(result);
     } catch {
       alert('AI unavailable. Make sure the server is running with OPENAI_API_KEY set.');
@@ -514,14 +535,14 @@ function AppContent() {
 
   const applyTailorSuggestion = (type: 'summary' | 'bullet', value: string, originalBullet?: string, bulletIndex?: number) => {
     if (type === 'summary') {
-      setResume(prev => ({ ...prev, personal: { ...prev.personal, summary: value } }));
+      setResume(prev => ({ ...prev, personal: { ...prev.personal, summary: plainTextToHtml(value) } }));
       setAppliedSummary(true);
     } else if (type === 'bullet' && originalBullet) {
       setResume(prev => ({
         ...prev,
         experience: prev.experience.map(exp => ({
           ...exp,
-          bullets: exp.bullets.map(b => b === originalBullet ? value : b),
+          bullets: exp.bullets.map(b => stripHtml(b) === originalBullet ? plainTextToHtml(value) : b),
         })),
       }));
       if (bulletIndex !== undefined) {
@@ -544,7 +565,7 @@ function AppContent() {
       let updated = { ...prev };
       // Apply summary
       if (tailorResult.suggestedSummary) {
-        updated = { ...updated, personal: { ...updated.personal, summary: tailorResult.suggestedSummary } };
+        updated = { ...updated, personal: { ...updated.personal, summary: plainTextToHtml(tailorResult.suggestedSummary) } };
       }
       // Apply all bullet rewrites
       tailorResult.rewrittenBullets.forEach(b => {
@@ -552,7 +573,7 @@ function AppContent() {
           ...updated,
           experience: updated.experience.map(exp => ({
             ...exp,
-            bullets: exp.bullets.map(bullet => bullet === b.original ? b.suggested : bullet),
+            bullets: exp.bullets.map(bullet => stripHtml(bullet) === b.original ? plainTextToHtml(b.suggested) : bullet),
           })),
         };
       });
@@ -578,7 +599,7 @@ function AppContent() {
     setAtsLoading(true);
     setAtsResult(null);
     try {
-      const result = await api.atsScore(resume, atsJd);
+      const result = await api.atsScore(sanitizeResumeForAI(resume), atsJd);
       setAtsResult(result);
     } catch {
       alert('AI unavailable. Make sure the server is running with OPENAI_API_KEY set.');
@@ -619,7 +640,7 @@ function AppContent() {
     prefilledResume?: Resume,
     suggestions?: ImprovementSuggestions
   ) => {
-    if (prefilledResume) setResume(prefilledResume);
+    if (prefilledResume) setResume(migrateResume(prefilledResume));
     if (suggestions) setImprovements(suggestions);
     setView('builder');
   };

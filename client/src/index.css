@@ -855,3 +855,56 @@ body {
     min-height: 600px;
   }
 }
+
+/* ── RICH TEXT EDITOR (Tiptap) ─────────────────────────── */
+.rich-editor-content .ProseMirror {
+  width: 100%;
+  padding: 10px 13px;
+  background: var(--color-ui-input-bg);
+  border: 1px solid var(--color-ui-input-border);
+  border-radius: 8px;
+  color: var(--color-ui-input-text);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  line-height: 1.6;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  cursor: text;
+}
+
+.rich-editor-content .ProseMirror:focus {
+  border-color: var(--color-ui-accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+  background: var(--color-ui-input-focus-bg);
+}
+
+/* Placeholder text (set by @tiptap/extension-placeholder) */
+.rich-editor-content .ProseMirror .is-editor-empty::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--color-ui-input-placeholder);
+  pointer-events: none;
+  height: 0;
+}
+
+/* Inline formatting inside editor */
+.rich-editor-content strong { font-weight: 700; }
+.rich-editor-content em { font-style: italic; }
+.rich-editor-content u { text-decoration: underline; }
+.rich-editor-content s { text-decoration: line-through; }
+.rich-editor-content ul,
+.rich-editor-content ol { padding-left: 20px; margin: 4px 0; }
+.rich-editor-content li { margin: 2px 0; }
+.rich-editor-content p { margin: 0; }
+.rich-editor-content p + p { margin-top: 4px; }
+
+/* ── RICH CONTENT (template rendering) ─────────────────── */
+/* Strip default paragraph margins inside resume paper */
+.resume-paper .rich-content p { margin: 0; }
+.resume-paper .rich-content p + p { margin-top: 2px; }
+.resume-paper .rich-content ul,
+.resume-paper .rich-content ol { margin: 0; padding-left: 16px; }
+.resume-paper .rich-content li { margin: 0; }
+/* Ensure rich-content block fills its parent */
+.resume-paper .rich-content { display: block; }

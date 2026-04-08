@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
+import RichContent from './RichContent';
 
 const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
@@ -25,7 +26,7 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
         <div style={{ padding: '32px 32px' }}>
           {personal.summary && (
             <div style={{ marginBottom: '24px', padding: '16px 20px', backgroundColor: accent + '15', borderRadius: '12px', borderLeft: `4px solid ${accent}` }}>
-              <p style={{ fontSize: '13px', color: '#78350F', lineHeight: 1.75 }}>{personal.summary}</p>
+              <RichContent html={personal.summary} style={{ fontSize: '13px', color: '#78350F', lineHeight: 1.75 }} />
             </div>
           )}
           {experience.length > 0 && (
@@ -44,7 +45,7 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
                   <ul style={{ paddingLeft: 0, margin: '8px 0 0' }}>
                     {exp.bullets.filter(b=>b).map((b,i) => (
                       <li key={i} style={{ display: 'flex', gap: '8px', fontSize: '12.5px', color: '#5B2C00', lineHeight: 1.65, marginBottom: '4px', listStyle: 'none' }}>
-                        <span style={{ color: accent, flexShrink: 0, fontWeight: 700 }}>›</span>{b}
+                        <span style={{ color: accent, flexShrink: 0, fontWeight: 700 }}>›</span><RichContent html={b} />
                       </li>
                     ))}
                   </ul>
@@ -60,7 +61,7 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
                     <span style={{ fontSize: '13.5px', fontWeight: 700, color: primary }}>{p.title}</span>
                     {p.url && <span style={{ fontSize: '11px', color: accent }}>{p.url}</span>}
                   </div>
-                  {p.description && <p style={{ fontSize: '12.5px', color: '#6B3A00', marginTop: '4px', lineHeight: 1.6 }}>{p.description}</p>}
+                  {p.description && <RichContent html={p.description} style={{ fontSize: '12.5px', color: '#6B3A00', marginTop: '4px', lineHeight: 1.6 }} />}
                   {p.tech.length > 0 && (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px' }}>
                       {p.tech.map((t,i) => <span key={i} style={{ fontSize: '10.5px', backgroundColor: primary+'15', color: primary, padding: '2px 8px', borderRadius: '20px', fontWeight: 600 }}>{t}</span>)}

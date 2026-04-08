@@ -1,5 +1,7 @@
 import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
+import RichContent from './RichContent';
+import { stripHtml } from '../lib/htmlUtils';
 
 const DeveloperTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
@@ -28,7 +30,7 @@ const DeveloperTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
         </div>
         {personal.summary && (
           <div style={{ marginTop: '18px', padding: '12px 16px', backgroundColor: 'rgba(255,255,255,0.04)', borderLeft: `3px solid ${accent}`, borderRadius: '0 6px 6px 0', fontFamily: 'monospace', fontSize: '12px', color: '#8B949E', lineHeight: 1.7 }}>
-            /* {personal.summary} */
+            /* {stripHtml(personal.summary)} */
           </div>
         )}
       </header>
@@ -53,7 +55,7 @@ const DeveloperTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
                   <ul style={{ paddingLeft: 0, margin: '8px 0 0' }}>
                     {exp.bullets.filter(b=>b).map((b,i) => (
                       <li key={i} style={{ display: 'flex', gap: '8px', fontSize: '12.5px', color: '#475569', lineHeight: 1.65, marginBottom: '4px', listStyle: 'none' }}>
-                        <span style={{ color: accent, fontFamily: 'monospace', flexShrink: 0 }}>→</span>{b}
+                        <span style={{ color: accent, fontFamily: 'monospace', flexShrink: 0 }}>→</span><RichContent html={b} />
                       </li>
                     ))}
                   </ul>

@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
+import RichContent from './RichContent';
 
 const RiverTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
@@ -45,7 +46,7 @@ const RiverTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
         {/* Summary */}
         {personal.summary && (
           <RiverSection title="Profile">
-            <p style={{ fontSize: '12.5px', textAlign: 'justify', lineHeight: 1.8, color: text }}>{personal.summary}</p>
+            <RichContent html={personal.summary} style={{ fontSize: '12.5px', textAlign: 'justify', lineHeight: 1.8, color: text }} />
           </RiverSection>
         )}
 
@@ -66,7 +67,7 @@ const RiverTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
                   {exp.bullets.filter(b => b).length > 0 && (
                     <ul style={{ paddingLeft: '22px', marginTop: '6px', marginBottom: 0 }}>
                       {exp.bullets.filter(b => b).map((bullet, i) => (
-                        <li key={i} style={{ fontSize: '12.5px', lineHeight: 1.7, color: text, marginBottom: '2px' }}>{bullet}</li>
+                        <li key={i} style={{ fontSize: '12.5px', lineHeight: 1.7, color: text, marginBottom: '2px' }}><RichContent html={bullet} /></li>
                       ))}
                     </ul>
                   )}
@@ -123,7 +124,7 @@ const RiverTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
                 <div key={p.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <span style={{ fontSize: '13px', fontWeight: 700, fontStyle: 'italic', color: primary }}>{p.title}</span>
                   {p.url && <span style={{ fontSize: '11.5px', color: '#666', marginLeft: '10px' }}>{p.url}</span>}
-                  {p.description && <p style={{ fontSize: '12.5px', color: text, marginTop: '3px', lineHeight: 1.7 }}>{p.description}</p>}
+                  {p.description && <RichContent html={p.description} style={{ fontSize: '12.5px', color: text, marginTop: '3px', lineHeight: 1.7 }} />}
                   {p.tech.length > 0 && (
                     <p style={{ fontSize: '11.5px', color: '#555', marginTop: '2px', fontStyle: 'italic' }}>
                       Technologies: {p.tech.join(', ')}

@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
+import RichContent from './RichContent';
 
 const MinimalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
@@ -35,7 +36,7 @@ const MinimalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
         {/* Summary */}
         {personal.summary && (
           <MinimalSection title="Profile" accent={accent}>
-            <p style={{ fontSize: '13px', lineHeight: 1.85, color: '#444', fontWeight: 400 }}>{personal.summary}</p>
+            <RichContent html={personal.summary} style={{ fontSize: '13px', lineHeight: 1.85, color: '#444', fontWeight: 400 }} />
           </MinimalSection>
         )}
 
@@ -59,7 +60,7 @@ const MinimalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
                       {exp.bullets.filter(b => b).map((bullet, i) => (
                         <li key={i} style={{ display: 'flex', gap: '12px', fontSize: '12.5px', color: '#555', lineHeight: 1.7, listStyle: 'none' }}>
                           <span style={{ color: '#ccc', flexShrink: 0 }}>–</span>
-                          <span>{bullet}</span>
+                          <RichContent html={bullet} />
                         </li>
                       ))}
                     </ul>
@@ -120,7 +121,7 @@ const MinimalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
                     <span style={{ fontSize: '13.5px', fontWeight: 600, color: '#0a0a0a' }}>{p.title}</span>
                     {p.url && <span style={{ fontSize: '11.5px', color: '#aaa' }}>{p.url}</span>}
                   </div>
-                  {p.description && <p style={{ fontSize: '12.5px', color: '#555', marginTop: '4px', lineHeight: 1.7 }}>{p.description}</p>}
+                  {p.description && <RichContent html={p.description} style={{ fontSize: '12.5px', color: '#555', marginTop: '4px', lineHeight: 1.7 }} />}
                   {p.tech.length > 0 && (
                     <p style={{ fontSize: '11.5px', color: '#999', marginTop: '3px' }}>{p.tech.join(' · ')}</p>
                   )}

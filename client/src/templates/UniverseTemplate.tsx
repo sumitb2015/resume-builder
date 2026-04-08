@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
+import RichContent from './RichContent';
 
 const UniverseTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
@@ -41,7 +42,7 @@ const UniverseTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
         {/* Summary */}
         {personal.summary && (
           <UniverseSection title="Summary" accent={accent} primary={primary}>
-            <p style={{ fontSize: '13px', lineHeight: 1.8, color: text, margin: 0 }}>{personal.summary}</p>
+            <RichContent html={personal.summary} style={{ fontSize: '13px', lineHeight: 1.8, color: text, margin: 0 }} />
           </UniverseSection>
         )}
 
@@ -61,7 +62,7 @@ const UniverseTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
                   {exp.bullets.filter(b => b).length > 0 && (
                     <ul style={{ paddingLeft: '20px', margin: 0 }}>
                       {exp.bullets.filter(b => b).map((bullet, i) => (
-                        <li key={i} style={{ fontSize: '12.5px', color: text, lineHeight: 1.65, marginBottom: '3px' }}>{bullet}</li>
+                        <li key={i} style={{ fontSize: '12.5px', color: text, lineHeight: 1.65, marginBottom: '3px' }}><RichContent html={bullet} /></li>
                       ))}
                     </ul>
                   )}
@@ -117,7 +118,7 @@ const UniverseTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
                     <span style={{ fontSize: '13.5px', fontWeight: 700, color: primary }}>{p.title}</span>
                     {p.url && <span style={{ fontSize: '11px', color: accent }}>{p.url}</span>}
                   </div>
-                  {p.description && <p style={{ fontSize: '12.5px', color: text, margin: '0 0 4px', lineHeight: 1.65 }}>{p.description}</p>}
+                  {p.description && <RichContent html={p.description} style={{ fontSize: '12.5px', color: text, margin: '0 0 4px', lineHeight: 1.65 }} />}
                   {p.tech.length > 0 && (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
                       {p.tech.map((t, i) => (

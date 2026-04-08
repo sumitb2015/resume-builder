@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
+import RichContent from './RichContent';
 
 const NightTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
@@ -45,7 +46,7 @@ const NightTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
         {/* Summary */}
         {personal.summary && (
           <NightSection title="Summary" primary={primary}>
-            <p style={{ fontSize: '12.5px', lineHeight: 1.8, color: text, margin: 0 }}>{personal.summary}</p>
+            <RichContent html={personal.summary} style={{ fontSize: '12.5px', lineHeight: 1.8, color: text, margin: 0 }} />
           </NightSection>
         )}
 
@@ -67,7 +68,7 @@ const NightTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
                   {exp.bullets.filter(b => b).length > 0 && (
                     <ul style={{ paddingLeft: '18px', marginTop: '6px', marginBottom: 0 }}>
                       {exp.bullets.filter(b => b).map((bullet, i) => (
-                        <li key={i} style={{ fontSize: '12.5px', color: text, lineHeight: 1.65, marginBottom: '3px' }}>{bullet}</li>
+                        <li key={i} style={{ fontSize: '12.5px', color: text, lineHeight: 1.65, marginBottom: '3px' }}><RichContent html={bullet} /></li>
                       ))}
                     </ul>
                   )}
@@ -129,7 +130,7 @@ const NightTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
                     <span style={{ fontSize: '13.5px', fontWeight: 700, color: primary }}>{p.title}</span>
                     {p.url && <span style={{ fontSize: '11px', color: '#666' }}>{p.url}</span>}
                   </div>
-                  {p.description && <p style={{ fontSize: '12.5px', color: text, margin: '0 0 3px', lineHeight: 1.65 }}>{p.description}</p>}
+                  {p.description && <RichContent html={p.description} style={{ fontSize: '12.5px', color: text, margin: '0 0 3px', lineHeight: 1.65 }} />}
                   {p.tech.length > 0 && (
                     <p style={{ fontSize: '11px', color: '#555555', margin: 0, fontStyle: 'italic' }}>
                       ({p.tech.join(', ')})
