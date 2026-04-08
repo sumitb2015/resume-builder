@@ -102,7 +102,7 @@ const FooterSection: React.FC<Props> = ({ onOpenTos, onOpenPrivacy, onOpenAbout,
         {/* Bottom bar */}
         <div style={{ borderTop: '1px solid var(--color-ui-border)', paddingTop: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <p style={{ fontSize: '13px', color: 'var(--color-ui-text-dim)' }}>
-            © 2026 BespokeCV · Built with Claude AI by Anthropic
+            © 2026 BespokeCV · AI-powered resume builder
           </p>
           <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
             <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#4ADE80' }} />

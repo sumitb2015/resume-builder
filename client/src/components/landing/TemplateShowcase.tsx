@@ -270,7 +270,7 @@ const TemplateShowcase: React.FC<Props> = ({ onStart }) => {
             onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
             onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
           >
-            Start Building Free — No Signup Required
+            Start Building — No Signup Required
           </button>
         </div>
       </div>

@@ -36,11 +36,11 @@ const CtaSection: React.FC<Props> = ({ onStart }) => (
         onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 16px 48px rgba(99,102,241,0.5)'; }}
         onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(99,102,241,0.4)'; }}
       >
-        Start Building — It's Free
+        Start Building Now
         <ArrowRight size={18} />
       </button>
       <div style={{ display: 'flex', justifyContent: 'center', gap: '28px', marginTop: '28px', flexWrap: 'wrap', position: 'relative' }}>
-        {['No credit card required', 'PDF export included', '15 templates free to try'].map(t => (
+        {['No credit card required', 'PDF export included', '15 professional templates'].map(t => (
           <div key={t} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
             <Check size={14} color="#4ADE80" />
             <span style={{ fontSize: '13.5px', color: 'var(--color-ui-text-muted)' }}>{t}</span>

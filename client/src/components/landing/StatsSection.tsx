@@ -4,7 +4,7 @@ const STATS = [
   { value: '15', label: 'Professional Templates' },
   { value: '50K+', label: 'Resumes Created' },
   { value: '98%', label: 'ATS Pass Rate' },
-  { value: 'Claude AI', label: 'Powered By Anthropic' },
+  { value: 'AI', label: 'Powered Resume Builder' },
 ];
 
 const StatsSection: React.FC = () => (

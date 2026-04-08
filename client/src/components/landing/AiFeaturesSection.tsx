@@ -12,7 +12,7 @@ const AI_FEATURES = [
   {
     icon: '🎯',
     title: 'Job Tailor',
-    desc: 'Paste any job description and Claude rewrites your bullets and summary to match the exact language.',
+    desc: 'Paste any job description and AI rewrites your bullets and summary to match the exact language.',
     color: '#8B5CF6',
     demo: 'tailor',
   },
@@ -209,7 +209,7 @@ const AiFeaturesSection: React.FC = () => (
           Let AI do the heavy lifting
         </h2>
         <p style={{ fontSize: '16px', color: 'var(--color-ui-text-muted)', maxWidth: '480px', margin: '0 auto' }}>
-          Six purpose-built AI tools powered by Claude — the most capable AI assistant — to make your resume stand out.
+          Six purpose-built AI tools to craft compelling, ATS-optimized resumes that make you stand out.
         </p>
       </div>
 
