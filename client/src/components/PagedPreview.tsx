@@ -20,23 +20,22 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount }) => {
   const marginMm = config.settings?.margin ?? 15;
   const marginPx = marginMm * MM_TO_PX;
   
-  // THE FIX: We add a small 5mm "buffer" to the usable height.
-  // This ensures that if a line of text is right on the edge, 
-  // it gets pushed to the next page in the preview rather than being cut.
-  const SAFE_THRESHOLD = 5 * MM_TO_PX; 
-  const USABLE_PAGE_H = PAGE_H - (marginPx * 2) - SAFE_THRESHOLD;
+  // We use exactly the same "Usable Height" as the PDF.
+  // PAGE_H is the full 297mm. The content inside .resume-paper is already padded by marginPx.
+  // So the slicing should happen exactly at PAGE_H.
+  const USABLE_PAGE_H = PAGE_H; 
 
   useEffect(() => {
     if (!measureRef.current) return;
     const obs = new ResizeObserver(entries => {
-      const h = entries[0]?.contentRect.height ?? 0;
+      const h = entries[0]?.target.scrollHeight ?? 0;
       const n = Math.max(1, Math.ceil(h / USABLE_PAGE_H));
       setPageCount(n);
       onPageCount?.(n);
     });
     obs.observe(measureRef.current);
     return () => obs.disconnect();
-  }, [onPageCount, USABLE_PAGE_H]);
+  }, [onPageCount, USABLE_PAGE_H, resume, config]); // Re-run on config change
 
   return (
     <div className="paged-preview-root" style={{ display: 'flex', flexDirection: 'column', gap: `${PAGE_GAP}px`, alignItems: 'center' }}>
@@ -67,53 +66,39 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount }) => {
             position: 'relative',
             background: 'white',
             boxShadow: '0 12px 40px rgba(0,0,0,0.12), 0 0 1px rgba(0,0,0,0.2)',
-            display: 'flex',
-            flexDirection: 'column'
           }}
         >
-          {/* TOP MARGIN AREA */}
-          <div style={{ height: `${marginPx}px`, width: '100%', flexShrink: 0, background: 'rgba(99,102,241,0.02)', position: 'relative' }}>
-             <div className="no-print" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, borderBottom: '1px solid rgba(99,102,241,0.05)' }} />
-          </div>
-          
-          {/* CONTENT AREA */}
+          {/* Shift the full template up so this page's slice is visible */}
           <div style={{ 
-            flex: 1, 
-            position: 'relative', 
-            overflow: 'hidden',
-            width: '100%'
+            position: 'absolute', 
+            top: `${-i * USABLE_PAGE_H}px`, 
+            left: 0,
+            right: 0
           }}>
-             <div style={{ 
-                position: 'absolute', 
-                top: `${-i * USABLE_PAGE_H}px`, 
-                left: 0,
-                right: 0
-              }}>
-                <TemplateRenderer resume={resume} config={config} />
-              </div>
+            <TemplateRenderer resume={resume} config={config} />
           </div>
 
-          {/* BOTTOM MARGIN AREA */}
-          <div style={{ height: `${marginPx + SAFE_THRESHOLD}px`, width: '100%', flexShrink: 0, position: 'relative', background: 'rgba(99,102,241,0.02)' }}>
-             <div className="no-print" style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: '100%',
-                borderTop: '1px dashed rgba(99,102,241,0.1)',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
-             }}>
-                <span style={{ 
-                    fontSize: '7px', 
-                    color: 'rgba(99,102,241,0.3)', 
-                    textTransform: 'uppercase',
-                    fontWeight: 800,
-                    letterSpacing: '0.15em'
-                }}>Page {i + 1} End Margin</span>
-             </div>
+          {/* Visual threshold line in preview only */}
+          <div className="no-print" style={{
+            position: 'absolute',
+            bottom: `${marginPx}px`,
+            left: 0,
+            right: 0,
+            borderTop: '1px dashed rgba(99,102,241,0.15)',
+            display: 'flex',
+            justifyContent: 'center',
+            pointerEvents: 'none'
+          }}>
+            <span style={{ 
+                fontSize: '7px', 
+                color: 'rgba(99,102,241,0.3)', 
+                background: 'white',
+                padding: '0 8px',
+                marginTop: '-5px',
+                textTransform: 'uppercase',
+                fontWeight: 800,
+                letterSpacing: '0.15em'
+            }}>Page {i + 1} Bottom Margin</span>
           </div>
         </div>
       ))}

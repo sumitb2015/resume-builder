@@ -29,13 +29,14 @@ interface Props {
 const TemplateRenderer: React.FC<Props> = ({ resume, config }) => {
   const templateProps = { resume, config };
 
-  const margin = config.settings?.margin;
+  const margin = config.settings?.margin ?? 15;
   const fontSizeFactor = (config.settings?.fontSize || 100) / 100;
   const lineHeight = config.settings?.lineHeight;
 
-  // When margin is set, apply it as visual padding on .resume-paper for both
-  // screen and print — this keeps the preview and the PDF perfectly in sync.
-  const printPadding = margin !== undefined ? `${margin}mm` : '15mm';
+  // We use the margin setting as internal padding for the .resume-paper
+  // This ensures that the slicing logic in PagedPreview (which measures the height)
+  // and the actual print output (which renders the whole thing) see the exact same layout.
+  const visualPadding = `${margin}mm`;
 
   return (
     <>
@@ -43,22 +44,40 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config }) => {
         .template-container {
           font-size: ${fontSizeFactor}em;
           width: 100%;
+          background: white;
         }
         .resume-paper {
-            padding: ${printPadding} !important;
+            padding: ${visualPadding} !important;
             box-sizing: border-box !important;
             overflow: visible !important;
+            width: 210mm !important;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: white;
         }
         ${lineHeight !== undefined ? `.resume-paper, .resume-paper * { line-height: ${lineHeight} !important; }` : ''}
+        
         @media print {
-          @page { size: A4; margin: 0; }
-          .resume-paper {
-            padding: ${printPadding} !important;
+          @page { 
+            size: A4; 
+            margin: 0 !important; 
+          }
+          body {
             margin: 0 !important;
-            min-height: 0 !important;
+            padding: 0 !important;
+          }
+          .template-container {
             width: 210mm !important;
+          }
+          .resume-paper {
+            padding: ${visualPadding} !important;
+            margin: 0 !important;
+            width: 210mm !important;
+            min-height: 297mm !important;
             box-shadow: none !important;
             background: white !important;
+            /* Force exact scale to 1 to prevent browser margin-fit logic from shrinking it */
+            transform: none !important;
           }
           html, body { background: white !important; }
         }
