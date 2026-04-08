@@ -23,7 +23,7 @@ const PLAN_DETAILS: Record<'pro' | 'ultimate', {
     gradient: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
     shadow: 'rgba(99,102,241,0.4)',
     features: [
-      'All 15 premium templates',
+      'All 20 premium templates',
       'Dynamic ATS score with JD matching',
       'AI bullet point writer (unlimited)',
       'AI summary writer',

@@ -1,7 +1,7 @@
 import React from 'react';
 
 const STATS = [
-  { value: '15', label: 'Professional Templates' },
+  { value: '20', label: 'Professional Templates' },
   { value: '50K+', label: 'Resumes Created' },
   { value: '98%', label: 'ATS Pass Rate' },
   { value: 'AI', label: 'Powered Resume Builder' },

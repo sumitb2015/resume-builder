@@ -111,11 +111,11 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
 
         {/* Experience */}
         {experience.length > 0 && (
-          <div>
+          <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
             <MainSectionTitle title="Work Experience" accent={accent} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {experience.map((exp) => (
-                <div key={exp.id}>
+                <div key={exp.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '3px' }}>
                     <div>
                       <div style={{ fontSize: '14px', fontWeight: 700, color: '#111827', letterSpacing: '-0.01em' }}>{exp.role}</div>

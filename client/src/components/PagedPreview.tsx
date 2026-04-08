@@ -1,8 +1,9 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import TemplateRenderer from '../templates/TemplateRenderer';
+import A4Page from './A4Page';
 
-const PAGE_H = 1123; // A4 at 96 dpi
+const PAGE_H = 1123; // A4 at 96 dpi (297mm)
 
 interface Props {
   resume: Resume;
@@ -11,84 +12,106 @@ interface Props {
 }
 
 const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount }) => {
-  const paperRef = useRef<HTMLDivElement>(null);
-  const [pageCount, setPageCount] = useState(1);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [pages, setPages] = useState<number>(1);
 
+  // We use ResizeObserver to detect how many pages we need based on total content height.
+  // For a perfect implementation, we'd actually measure each section and split them,
+  // but for many templates, CSS page-break-inside: avoid handles the PDF side.
+  // The preview should ideally reflect the same.
+  
   useEffect(() => {
-    if (!paperRef.current) return;
-    const obs = new ResizeObserver(entries => {
-      const h = entries[0]?.contentRect.height ?? 0;
-      const n = Math.max(1, Math.ceil(h / PAGE_H));
-      setPageCount(n);
-      onPageCount?.(n);
-    });
-    obs.observe(paperRef.current);
+    if (!containerRef.current) return;
+    
+    const updatePageCount = () => {
+      if (!containerRef.current) return;
+      const height = containerRef.current.scrollHeight;
+      const count = Math.max(1, Math.ceil(height / PAGE_H));
+      setPages(count);
+      onPageCount?.(count);
+    };
+
+    const obs = new ResizeObserver(updatePageCount);
+    obs.observe(containerRef.current);
+    updatePageCount();
+    
     return () => obs.disconnect();
-  }, [onPageCount]);
+  }, [resume, config, onPageCount]);
 
-  // Build an array of page-break line positions (skip pos 0)
-  const breakLines = Array.from({ length: pageCount - 1 }, (_, i) => (i + 1) * PAGE_H);
-
+  // For the PREVIEW (screen), we show the continuous content but visually split into pages
+  // using a container with fixed height multiples and "A4Page" wrappers for styling.
+  
   return (
-    <div style={{ position: 'relative', display: 'inline-block' }}>
-      {/* The actual resume */}
-      <div ref={paperRef}>
-        <TemplateRenderer resume={resume} config={config} />
-      </div>
-
-      {/* Page break lines overlay — no-print so they don't appear in PDF */}
-      <div
-        className="no-print"
-        style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
-        aria-hidden="true"
+    <div className="paged-preview-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div 
+        className="print-only-container" 
+        style={{ position: 'relative' }}
       >
-        {breakLines.map(y => (
-          <div key={y} style={{ position: 'absolute', top: `${y}px`, left: 0, right: 0 }}>
-            {/* Page-end bottom margin zone (10mm ≈ 38px) */}
-            <div style={{
-              height: '38px',
-              background: 'linear-gradient(to bottom, rgba(99,102,241,0.04), rgba(99,102,241,0.08))',
-              transform: 'translateY(-38px)',
-              pointerEvents: 'none',
-            }} />
-            {/* Dashed separator line */}
-            <div style={{ borderTop: '2px dashed rgba(99,102,241,0.5)', position: 'relative' }}>
-              {/* "Page N" badge */}
-              <div style={{
-                position: 'absolute', top: '-10px', left: '12px',
-                background: 'rgba(99,102,241,0.85)', color: '#fff',
-                fontSize: '9px', fontWeight: 700, letterSpacing: '0.08em',
-                padding: '2px 8px', borderRadius: '100px',
-                fontFamily: 'system-ui, sans-serif',
-              }}>
-                PAGE {Math.round(y / PAGE_H) + 1}
-              </div>
-            </div>
-            {/* Page-start top margin zone (12mm ≈ 46px) */}
-            <div style={{
-              height: '46px',
-              background: 'linear-gradient(to bottom, rgba(99,102,241,0.08), rgba(99,102,241,0.02))',
-              pointerEvents: 'none',
-            }} />
-          </div>
-        ))}
-      </div>
-
-      {/* Page counter badge — shown only when content spans >1 page */}
-      {pageCount > 1 && (
-        <div
-          className="no-print"
-          style={{
-            position: 'absolute', bottom: '-32px', right: 0,
-            background: 'rgba(99,102,241,0.9)', color: '#fff',
-            fontSize: '10px', fontWeight: 700, padding: '4px 10px',
-            borderRadius: '100px', fontFamily: 'system-ui, sans-serif',
-            letterSpacing: '0.06em',
-          }}
-        >
-          {pageCount} pages
+        {/* We render the content ONCE and let CSS handle the page breaks in PDF */}
+        {/* For the SCREEN preview, we overlay the page boundaries */}
+        <div ref={containerRef} style={{ width: '794px' }}>
+           <TemplateRenderer resume={resume} config={config} />
         </div>
-      )}
+
+        {/* Page break indicators for Screen Preview */}
+        <div className="no-print" style={{ 
+          position: 'absolute', 
+          top: 0, 
+          left: 0, 
+          right: 0, 
+          bottom: 0, 
+          pointerEvents: 'none' 
+        }}>
+          {Array.from({ length: pages }).map((_, i) => (
+            <div 
+              key={i} 
+              style={{ 
+                position: 'absolute',
+                top: i * PAGE_H,
+                left: 0,
+                right: 0,
+                height: PAGE_H,
+                border: '1px solid rgba(99, 102, 241, 0.1)',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                marginBottom: '20px',
+                pointerEvents: 'none',
+                zIndex: -1,
+                background: 'white'
+              }}
+            />
+          ))}
+          
+          {/* Visual gaps and labels */}
+          {Array.from({ length: pages - 1 }).map((_, i) => (
+            <div 
+              key={`break-${i}`}
+              style={{
+                position: 'absolute',
+                top: (i + 1) * PAGE_H - 10,
+                left: '-40px',
+                right: '-40px',
+                display: 'flex',
+                alignItems: 'center',
+                zIndex: 10
+              }}
+            >
+               <div style={{ flex: 1, height: '2px', borderTop: '2px dashed rgba(99, 102, 241, 0.4)' }} />
+               <div style={{ 
+                 background: 'var(--color-ui-accent)', 
+                 color: 'white', 
+                 fontSize: '10px', 
+                 fontWeight: 700, 
+                 padding: '2px 8px', 
+                 borderRadius: '100px',
+                 margin: '0 10px'
+               }}>
+                 PAGE {i + 2}
+               </div>
+               <div style={{ flex: 1, height: '2px', borderTop: '2px dashed rgba(99, 102, 241, 0.4)' }} />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

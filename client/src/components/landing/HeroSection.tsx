@@ -21,7 +21,7 @@ const HeroSection: React.FC<Props> = ({ onStart }) => (
 
     {/* Subheading */}
     <p style={{ fontSize: '19px', fontWeight: 400, color: 'var(--color-ui-text-muted)', lineHeight: 1.65, maxWidth: '580px', margin: '0 auto 44px' }}>
-      Build ATS-optimized resumes with AI-powered writing, 15 professional templates, and real-time live preview. Land more interviews.
+      Build ATS-optimized resumes with AI-powered writing, 20 professional templates, and real-time live preview. Land more interviews.
     </p>
 
     {/* CTAs */}
