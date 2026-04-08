@@ -302,7 +302,7 @@ function ModeCard({ icon, iconColor, iconBg, title, description, badgeText, badg
         </div>
       )}
 
-      <div style={{ width: '52px', height: '52px', borderRadius: '12px', background: locked ? 'rgba(255,255,255,0.05)' : iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: locked ? 'rgba(255,255,255,0.3)' : iconColor, marginBottom: '18px' }}>
+      <div style={{ width: '52px', height: '52px', borderRadius: '12px', background: locked ? 'var(--color-ui-surface-2)' : iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: locked ? 'var(--color-ui-text-dim)' : iconColor, marginBottom: '18px' }}>
         {locked ? <Lock size={24} /> : icon}
       </div>
 

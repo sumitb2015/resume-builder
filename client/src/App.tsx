@@ -253,16 +253,16 @@ function PlanSelectPage({ onSelected }: { onSelected: () => void }) {
         <div style={{ width: '32px', height: '32px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Zap size={16} color="white" fill="white" />
         </div>
-        <span style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.03em', color: 'white' }}>
+        <span style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)' }}>
           Bespoke<span style={{ color: '#818CF8' }}>CV</span>
         </span>
       </div>
 
       <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'white', letterSpacing: '-0.03em', marginBottom: '10px' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em', marginBottom: '10px' }}>
           Choose your plan
         </h1>
-        <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.4)' }}>
+        <p style={{ fontSize: '15px', color: 'var(--color-ui-text-muted)' }}>
           Select a plan to get started. You can upgrade anytime.
         </p>
       </div>
@@ -273,8 +273,8 @@ function PlanSelectPage({ onSelected }: { onSelected: () => void }) {
             key={plan.id}
             style={{
               borderRadius: '16px', padding: '28px 24px',
-              border: i === 1 ? `1px solid ${plan.color}50` : '1px solid rgba(255,255,255,0.07)',
-              background: i === 1 ? `linear-gradient(135deg, ${plan.color}12, ${plan.color}06)` : 'rgba(255,255,255,0.03)',
+              border: i === 1 ? `1px solid ${plan.color}50` : '1px solid var(--color-ui-border)',
+              background: i === 1 ? `linear-gradient(135deg, ${plan.color}12, ${plan.color}06)` : 'var(--color-ui-surface)',
               display: 'flex', flexDirection: 'column',
               position: 'relative',
             }}
@@ -290,14 +290,14 @@ function PlanSelectPage({ onSelected }: { onSelected: () => void }) {
               </div>
             )}
             <div style={{ marginBottom: '20px' }}>
-              <div style={{ fontSize: '16px', fontWeight: 700, color: 'white', marginBottom: '4px' }}>{plan.name}</div>
-              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginBottom: '16px' }}>{plan.tagline}</div>
+              <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '4px' }}>{plan.name}</div>
+              <div style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)', marginBottom: '16px' }}>{plan.tagline}</div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>₹</span>
-                <span style={{ fontSize: '32px', fontWeight: 800, color: 'white', letterSpacing: '-0.03em' }}>
+                <span style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)' }}>₹</span>
+                <span style={{ fontSize: '32px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em' }}>
                   {plan.price.replace('₹', '')}
                 </span>
-                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>/{plan.period}</span>
+                <span style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)' }}>/{plan.period}</span>
               </div>
             </div>
 
@@ -305,7 +305,7 @@ function PlanSelectPage({ onSelected }: { onSelected: () => void }) {
               {plan.features.map((f, fi) => (
                 <div key={fi} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                   <Check size={13} color={plan.color} style={{ flexShrink: 0, marginTop: '1px' }} />
-                  <span style={{ fontSize: '12.5px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.4 }}>{f}</span>
+                  <span style={{ fontSize: '12.5px', color: 'var(--color-ui-text-muted)', lineHeight: 1.4 }}>{f}</span>
                 </div>
               ))}
             </div>
@@ -329,7 +329,7 @@ function PlanSelectPage({ onSelected }: { onSelected: () => void }) {
         ))}
       </div>
 
-      <p style={{ marginTop: '24px', fontSize: '12px', color: 'rgba(255,255,255,0.2)' }}>
+      <p style={{ marginTop: '24px', fontSize: '12px', color: 'var(--color-ui-text-dim)' }}>
         Demo mode — payment integration coming soon. All plans activate instantly.
       </p>
     </div>

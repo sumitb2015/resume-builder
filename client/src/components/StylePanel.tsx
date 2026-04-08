@@ -148,7 +148,7 @@ export default function StylePanel({ templates, activeTemplate, onTemplateChange
                     <div style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       padding: '7px 10px 6px',
-                      borderBottom: '1px solid rgba(255,255,255,0.05)',
+                      borderBottom: '1px solid var(--color-ui-border)',
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
                         <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: t.colors.primary, flexShrink: 0 }} />
