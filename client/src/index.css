@@ -574,10 +574,13 @@ body {
   }
   #print-portal {
     display: block !important;
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
+    position: static !important;
+    width: 100% !important;
+  }
+
+  /* Hide the measurement div from PagedPreview during print */
+  #print-portal div[style*="left: -9999px"] {
+    display: none !important;
   }
 
   html, body {

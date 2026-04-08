@@ -45,10 +45,10 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount }) => {
       <div
         ref={measureRef}
         style={{
-          position: 'fixed',
+          position: 'absolute',
           top: 0,
           left: '-9999px',
-          visibility: 'hidden',
+          opacity: 0,
           pointerEvents: 'none',
           width: `calc(210mm - ${marginPx * 2}px)`, // Measure at the actual content width
         }}
