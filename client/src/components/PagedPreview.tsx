@@ -60,7 +60,7 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount }) => {
       {Array.from({ length: pageCount }, (_, i) => (
         <div
           key={i}
-          className="preview-page"
+          className=\"preview-page\"
           style={{
             width: '210mm',
             height: '297mm',
@@ -68,7 +68,7 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount }) => {
             position: 'relative',
             background: 'white',
             boxShadow: '0 12px 40px rgba(0,0,0,0.12), 0 0 1px rgba(0,0,0,0.2)',
-            padding: `${marginMm}mm`, // Apply the actual margin as padding
+            // padding removed, TemplateRenderer handles it via .paged-mode
             display: 'flex',
             flexDirection: 'column'
           }}
@@ -82,7 +82,7 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount }) => {
           }}>
              <div style={{ 
                 position: 'absolute', 
-                top: `${-i * USABLE_PAGE_H}px`, 
+                top: `${-i * PAGE_H}px`, // Use full page height for clipping
                 left: 0,
                 right: 0
               }}>
