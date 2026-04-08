@@ -1,7 +1,6 @@
-import React, { useRef, useEffect, useState, useMemo } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import TemplateRenderer from '../templates/TemplateRenderer';
-import A4Page from './A4Page';
 
 const PAGE_H = 1123; // A4 at 96 dpi (297mm)
 

@@ -7,7 +7,6 @@ import ModeSelectModal from './components/ModeSelectModal';
 import UpgradeModal from './components/UpgradeModal';
 import SavedResumesPanel from './components/SavedResumesPanel';
 import PagedPreview from './components/PagedPreview';
-import TemplateRenderer from './templates/TemplateRenderer';
 import StylePanel from './components/StylePanel';
 import { templates, colorPalettes } from './templates';
 import { api } from './lib/api';
