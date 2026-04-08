@@ -60,7 +60,7 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount }) => {
       {Array.from({ length: pageCount }, (_, i) => (
         <div
           key={i}
-          className=\"preview-page\"
+          className="preview-page"
           style={{
             width: '210mm',
             height: '297mm',
