@@ -53,7 +53,7 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount }) => {
           width: `calc(210mm - ${marginPx * 2}px)`, // Measure at the actual content width
         }}
       >
-        <TemplateRenderer resume={resume} config={config} />
+        <TemplateRenderer resume={resume} config={config} isPaged={true} />
       </div>
 
       {/* Individual A4 page clips */}
@@ -86,7 +86,7 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount }) => {
                 left: 0,
                 right: 0
               }}>
-                <TemplateRenderer resume={resume} config={config} />
+                <TemplateRenderer resume={resume} config={config} isPaged={true} />
               </div>
           </div>
 

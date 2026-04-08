@@ -24,9 +24,10 @@ import UniverseTemplate from './UniverseTemplate';
 interface Props {
   resume: Resume;
   config: TemplateConfig;
+  isPaged?: boolean;
 }
 
-const TemplateRenderer: React.FC<Props> = ({ resume, config }) => {
+const TemplateRenderer: React.FC<Props> = ({ resume, config, isPaged = false }) => {
   const templateProps = { resume, config };
 
   const margin = config.settings?.margin ?? 15;
@@ -65,7 +66,7 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config }) => {
           }
           .template-container {
             width: 100% !important;
-            padding: ${margin}mm !important;
+            padding: ${isPaged ? '0 !important' : `${margin}mm !important`};
             box-sizing: border-box !important;
           }
           .resume-paper {
@@ -78,7 +79,7 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config }) => {
           }
         }
       `}} />
-      <div className="template-container">
+      <div className={`template-container ${isPaged ? 'paged-mode' : ''}`}>
         {(() => {
           switch (config.id) {
             case 'classic': return <ClassicTemplate {...templateProps} />;
