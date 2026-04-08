@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import PagedPreview from './PagedPreview';
 import { ChevronLeft, Download, Type, Move, Palette, Sparkles, Loader2 } from 'lucide-react';
