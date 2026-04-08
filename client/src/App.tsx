@@ -709,12 +709,18 @@ function AppContent() {
 
   if (view === 'preview') {
     return (
-      <ExportPreview 
-        resume={resume} 
-        config={activeTemplate} 
-        onBack={() => setView('builder')}
-        onUpdateConfig={setActiveTemplate}
-      />
+      <>
+        <ExportPreview
+          resume={resume}
+          config={activeTemplate}
+          onBack={() => setView('builder')}
+          onUpdateConfig={setActiveTemplate}
+        />
+        {createPortal(
+          <TemplateRenderer resume={resume} config={activeTemplate} />,
+          document.getElementById('print-portal')!
+        )}
+      </>
     );
   }
 

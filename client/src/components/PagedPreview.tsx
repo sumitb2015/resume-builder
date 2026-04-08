@@ -37,40 +37,40 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount }) => {
         <TemplateRenderer resume={resume} config={config} />
       </div>
 
-      {/* Page break lines overlay — no-print so they don't appear in PDF */}
+      {/* Page break bands — solid gap simulating separate A4 sheets, no-print */}
       <div
         className="no-print"
         style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
         aria-hidden="true"
       >
         {breakLines.map(y => (
-          <div key={y} style={{ position: 'absolute', top: `${y}px`, left: 0, right: 0 }}>
-            {/* Page-end bottom margin zone (10mm ≈ 38px) */}
+          <div
+            key={y}
+            style={{
+              position: 'absolute',
+              top: `${y - 12}px`,
+              left: 0,
+              right: 0,
+              height: '24px',
+              background: 'var(--color-ui-preview-bg)',
+              display: 'flex',
+              alignItems: 'center',
+              paddingLeft: '12px',
+              boxShadow: 'inset 0 3px 5px rgba(0,0,0,0.25), inset 0 -3px 5px rgba(0,0,0,0.25)',
+            }}
+          >
             <div style={{
-              height: '38px',
-              background: 'linear-gradient(to bottom, rgba(99,102,241,0.04), rgba(99,102,241,0.08))',
-              transform: 'translateY(-38px)',
-              pointerEvents: 'none',
-            }} />
-            {/* Dashed separator line */}
-            <div style={{ borderTop: '2px dashed rgba(99,102,241,0.5)', position: 'relative' }}>
-              {/* "Page N" badge */}
-              <div style={{
-                position: 'absolute', top: '-10px', left: '12px',
-                background: 'rgba(99,102,241,0.85)', color: '#fff',
-                fontSize: '9px', fontWeight: 700, letterSpacing: '0.08em',
-                padding: '2px 8px', borderRadius: '100px',
-                fontFamily: 'system-ui, sans-serif',
-              }}>
-                PAGE {Math.round(y / PAGE_H) + 1}
-              </div>
+              background: 'rgba(99,102,241,0.8)',
+              color: '#fff',
+              fontSize: '9px',
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              padding: '2px 8px',
+              borderRadius: '100px',
+              fontFamily: 'system-ui, sans-serif',
+            }}>
+              PAGE {Math.round(y / PAGE_H) + 1}
             </div>
-            {/* Page-start top margin zone (12mm ≈ 46px) */}
-            <div style={{
-              height: '46px',
-              background: 'linear-gradient(to bottom, rgba(99,102,241,0.08), rgba(99,102,241,0.02))',
-              pointerEvents: 'none',
-            }} />
           </div>
         ))}
       </div>
