@@ -7,7 +7,7 @@ const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
   const accent = config.colors.accent || '#4F46E5';
 
   return (
-    <div className="resume-paper" style={{ fontFamily: '"DM Sans", system-ui, sans-serif', backgroundColor: '#fff', padding: '44px 52px' }}>
+    <div className="resume-paper" style={{ fontFamily: '"DM Sans", system-ui, sans-serif', backgroundColor: '#fff', padding: '15mm 18mm' }}>
       {/* HEADER */}
       <header style={{ marginBottom: '36px' }}>
         <div style={{ borderBottom: '3px solid #111', paddingBottom: '20px', marginBottom: '16px' }}>

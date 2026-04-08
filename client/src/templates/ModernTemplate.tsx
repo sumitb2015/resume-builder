@@ -10,18 +10,17 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
   return (
     <div
       className="resume-paper"
-      style={{ fontFamily: '"Inter", system-ui, sans-serif', display: 'flex', backgroundColor: '#FFFFFF', minHeight: '1123px' }}
+      style={{ fontFamily: '"Inter", system-ui, sans-serif', display: 'flex', backgroundColor: '#FFFFFF' }}
     >
       {/* LEFT SIDEBAR */}
       <aside style={{
-        width: '260px',
-        minWidth: '260px',
+        width: '240px',
+        minWidth: '240px',
         backgroundColor: primary,
-        padding: '40px 24px',
+        padding: '15mm 18px',
         display: 'flex',
         flexDirection: 'column',
         gap: '28px',
-        minHeight: '1123px',
       }}>
         {/* Name & Title */}
         <div>
@@ -100,7 +99,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
       </aside>
 
       {/* MAIN CONTENT */}
-      <main style={{ flex: 1, padding: '40px 32px', display: 'flex', flexDirection: 'column', gap: '24px', overflow: 'hidden' }}>
+      <main style={{ flex: 1, padding: '15mm 12mm', display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {/* Summary */}
         {personal.summary && (
           <div>

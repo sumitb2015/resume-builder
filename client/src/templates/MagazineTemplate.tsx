@@ -10,8 +10,8 @@ const MagazineTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
   return (
     <div className="resume-paper" style={{ fontFamily: '"Poppins", system-ui, sans-serif', backgroundColor: '#fff' }}>
       {/* DRAMATIC HEADER */}
-      <header style={{ padding: '0', overflow: 'hidden' }}>
-        <div style={{ background: primary, padding: '40px 48px 32px', position: 'relative' }}>
+      <header style={{ padding: '0' }}>
+        <div style={{ background: primary, padding: '13mm 16mm 11mm', position: 'relative' }}>
           {/* Big accent letter */}
           <div style={{ position: 'absolute', right: '32px', top: '-10px', fontSize: '160px', fontWeight: 900, color: 'rgba(255,255,255,0.04)', lineHeight: 1, userSelect: 'none', letterSpacing: '-0.05em' }}>
             {(personal.name || 'Y')[0]}
@@ -28,7 +28,7 @@ const MagazineTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
           </div>
         </div>
         {/* Contact strip */}
-        <div style={{ backgroundColor: accent, padding: '10px 48px', display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+        <div style={{ backgroundColor: accent, padding: '3mm 16mm', display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
           {[personal.email, personal.phone, personal.location, personal.linkedin, personal.website].filter(Boolean).map((v, i) => (
             <span key={i} style={{ fontSize: '11px', fontWeight: 600, color: '#fff', letterSpacing: '0.03em' }}>{v}</span>
           ))}
@@ -36,8 +36,8 @@ const MagazineTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
       </header>
 
       {/* BODY */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 220px', minHeight: '750px' }}>
-        <div style={{ padding: '36px 32px', borderRight: `3px solid ${primary}` }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 220px' }}>
+        <div style={{ padding: '12mm 11mm', borderRight: `3px solid ${primary}` }}>
           {personal.summary && (
             <div style={{ marginBottom: '28px' }}>
               <RichContent html={personal.summary} style={{ fontSize: '14px', lineHeight: 1.8, color: '#27272A', borderLeft: `4px solid ${accent}`, paddingLeft: '16px', fontStyle: 'italic' }} />
@@ -101,7 +101,7 @@ const MagazineTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
         </div>
 
         {/* SIDEBAR */}
-        <div style={{ padding: '36px 24px', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div style={{ padding: '12mm 8mm', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {skills.length > 0 && (
             <div>
               <MagSideTitle title="Skills" primary={primary} accent={accent} />

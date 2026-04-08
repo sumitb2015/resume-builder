@@ -7,7 +7,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
   const accent = config.colors.accent || '#9D7B4F';
 
   return (
-    <div className="resume-paper" style={{ fontFamily: '"EB Garamond", Georgia, serif', backgroundColor: '#FFFEF9', color: '#2C2C2C', padding: '44px 52px' }}>
+    <div className="resume-paper" style={{ fontFamily: '"EB Garamond", Georgia, serif', backgroundColor: '#FFFEF9', color: '#2C2C2C', padding: '15mm 18mm' }}>
       {/* DECORATIVE TOP BORDER */}
       <div style={{ height: '3px', background: `linear-gradient(to right, transparent, ${accent}, transparent)`, marginBottom: '32px' }} />
 
@@ -44,7 +44,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
           {experience.length > 0 && (
             <ESection title="Professional Experience" accent={accent}>
               {experience.map(exp => (
-                <div key={exp.id} style={{ marginBottom: '18px' }}>
+                <div key={exp.id} style={{ marginBottom: '18px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '2px' }}>
                     <span style={{ fontSize: '14px', fontWeight: 700, color: '#1A1A1A' }}>{exp.role}</span>
                     <span style={{ fontSize: '11px', color: '#888', fontStyle: 'italic' }}>{exp.startDate}{exp.startDate||exp.endDate?' – ':''}{exp.isCurrent?'Present':exp.endDate}</span>
@@ -60,7 +60,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
           {projects.length > 0 && (
             <ESection title="Notable Projects" accent={accent}>
               {projects.map(p => (
-                <div key={p.id} style={{ marginBottom: '12px' }}>
+                <div key={p.id} style={{ marginBottom: '12px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ fontSize: '13px', fontWeight: 700 }}>{p.title}</span>
                     {p.url && <span style={{ fontSize: '11px', color: accent, fontStyle: 'italic' }}>{p.url}</span>}
@@ -78,7 +78,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
           {education.length > 0 && (
             <ESection title="Education" accent={accent}>
               {education.map(edu => (
-                <div key={edu.id} style={{ marginBottom: '14px' }}>
+                <div key={edu.id} style={{ marginBottom: '14px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#1A1A1A' }}>{edu.school}</div>
                   <div style={{ fontSize: '11.5px', color: '#666', fontStyle: 'italic', marginTop: '2px' }}>{[edu.degree, edu.field].filter(Boolean).join(' in ')}</div>
                   <div style={{ fontSize: '11px', color: '#888', marginTop: '2px' }}>{edu.endDate}{edu.gpa ? ` · GPA ${edu.gpa}` : ''}</div>
@@ -89,7 +89,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
           {skills.length > 0 && (
             <ESection title="Expertise" accent={accent}>
               {skills.map(s => (
-                <div key={s.id} style={{ fontSize: '12px', color: '#444', lineHeight: 1.9, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div key={s.id} style={{ fontSize: '12px', color: '#444', lineHeight: 1.9, display: 'flex', alignItems: 'center', gap: '6px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <span style={{ color: accent, fontSize: '10px' }}>✦</span>{s.name}
                 </div>
               ))}
@@ -98,7 +98,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
           {languages.length > 0 && (
             <ESection title="Languages" accent={accent}>
               {languages.map(l => (
-                <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', lineHeight: 1.9 }}>
+                <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', lineHeight: 1.9, breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <span>{l.language}</span><span style={{ color: '#888', fontStyle: 'italic', fontSize: '11px' }}>{l.proficiency}</span>
                 </div>
               ))}
@@ -107,7 +107,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
           {certifications.length > 0 && (
             <ESection title="Certifications" accent={accent}>
               {certifications.map(c => (
-                <div key={c.id} style={{ marginBottom: '8px' }}>
+                <div key={c.id} style={{ marginBottom: '8px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ fontSize: '12px', fontWeight: 700 }}>{c.name}</div>
                   {c.issuer && <div style={{ fontSize: '11px', color: '#888', fontStyle: 'italic' }}>{c.issuer}</div>}
                 </div>
@@ -124,7 +124,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
 };
 
 const ESection: React.FC<{ title: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
-  <div style={{ marginBottom: '22px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+  <div style={{ marginBottom: '22px' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
       <h2 style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.24em', color: accent, whiteSpace: 'nowrap' }}>{title}</h2>
       <div style={{ flex: 1, height: '1px', background: `linear-gradient(to right, ${accent}60, transparent)` }} />

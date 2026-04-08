@@ -180,7 +180,7 @@ const UniverseTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
 };
 
 const UniverseSection: React.FC<{ title: string; accent: string; primary: string; children: React.ReactNode }> = ({ title, accent, primary, children }) => (
-  <section style={{ breakInside: 'avoid', pageBreakInside: 'avoid', paddingLeft: '12px', borderLeft: `3px solid ${accent}` }}>
+  <section style={{ paddingLeft: '12px', borderLeft: `3px solid ${accent}` }}>
     <h2 style={{
       fontSize: '10.5px', fontWeight: 700, textTransform: 'uppercase',
       letterSpacing: '0.18em', color: primary, margin: '0 0 12px',

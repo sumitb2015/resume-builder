@@ -31,7 +31,7 @@ const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
       {experience.length > 0 && (
         <CSection title="Experience" accent={accent}>
           {experience.map(exp => (
-            <div key={exp.id} style={{ marginBottom: '12px' }}>
+            <div key={exp.id} style={{ marginBottom: '12px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                 <span style={{ fontWeight: 700, fontSize: '12px', color: '#0F172A' }}>{exp.role}</span>
                 <span style={{ fontSize: '10px', color: '#94A3B8', flexShrink: 0, marginLeft: '8px' }}>{exp.startDate}{exp.startDate||exp.endDate?' – ':''}{exp.isCurrent?'Present':exp.endDate}</span>
@@ -50,7 +50,7 @@ const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
           {education.length > 0 && (
             <CSection title="Education" accent={accent}>
               {education.map(edu => (
-                <div key={edu.id} style={{ marginBottom: '8px' }}>
+                <div key={edu.id} style={{ marginBottom: '8px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ fontWeight: 700, fontSize: '11.5px', color: '#0F172A' }}>{edu.school}</div>
                   <div style={{ fontSize: '10.5px', color: '#64748B' }}>{[edu.degree, edu.field].filter(Boolean).join(' in ')}</div>
                   <div style={{ fontSize: '10px', color: '#94A3B8' }}>{edu.endDate}{edu.gpa ? ` · GPA ${edu.gpa}` : ''}</div>
@@ -61,7 +61,7 @@ const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
           {projects.length > 0 && (
             <CSection title="Projects" accent={accent}>
               {projects.map(p => (
-                <div key={p.id} style={{ marginBottom: '8px' }}>
+                <div key={p.id} style={{ marginBottom: '8px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ fontWeight: 700, fontSize: '11.5px' }}>{p.title}</span>
                     {p.url && <span style={{ fontSize: '10px', color: accent }}>{p.url}</span>}
@@ -76,7 +76,7 @@ const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
         <div>
           {skills.length > 0 && (
             <CSection title="Skills" accent={accent}>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                 {skills.map(s => (
                   <span key={s.id} style={{ fontSize: '10.5px', fontWeight: 600, padding: '2px 8px', borderRadius: '12px', backgroundColor: accent + '15', color: accent }}>{s.name}</span>
                 ))}
@@ -86,7 +86,7 @@ const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
           {languages.length > 0 && (
             <CSection title="Languages" accent={accent}>
               {languages.map(l => (
-                <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', lineHeight: 1.9 }}>
+                <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', lineHeight: 1.9, breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <span style={{ fontWeight: 600 }}>{l.language}</span><span style={{ color: '#94A3B8' }}>{l.proficiency}</span>
                 </div>
               ))}
@@ -95,7 +95,7 @@ const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
           {certifications.length > 0 && (
             <CSection title="Certifications" accent={accent}>
               {certifications.map(c => (
-                <div key={c.id} style={{ marginBottom: '6px' }}>
+                <div key={c.id} style={{ marginBottom: '6px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ fontWeight: 700, fontSize: '11px' }}>{c.name}</div>
                   {c.issuer && <div style={{ fontSize: '10px', color: '#64748B' }}>{c.issuer}{c.date ? ` · ${c.date}` : ''}</div>}
                 </div>
@@ -109,7 +109,7 @@ const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
 };
 
 const CSection: React.FC<{ title: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
-  <div style={{ marginBottom: '14px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+  <div style={{ marginBottom: '14px' }}>
     <h2 style={{ fontSize: '9.5px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.18em', color: accent, marginBottom: '8px', paddingBottom: '3px', borderBottom: `1px solid ${accent}40` }}>{title}</h2>
     {children}
   </div>

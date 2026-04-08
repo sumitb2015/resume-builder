@@ -12,7 +12,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
         fontFamily: '"EB Garamond", Georgia, serif',
         color: '#1a1a1a',
         backgroundColor: '#FFFFFF',
-        padding: '44px 52px',
+        padding: '15mm 18mm',
         lineHeight: 1.5,
       }}
     >
@@ -100,7 +100,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
         <Section title="Education">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {education.map((edu) => (
-              <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                 <div>
                   <div style={{ fontSize: '14px', fontWeight: 700 }}>{edu.school}</div>
                   <div style={{ fontSize: '12.5px', color: '#555', marginTop: '2px', fontStyle: 'italic' }}>
@@ -121,7 +121,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
       {(skills.length > 0 || certifications.length > 0 || languages.length > 0) && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginTop: '20px' }}>
           {skills.length > 0 && (
-            <div>
+            <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
               <SectionTitle title="Core Competencies" />
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 16px' }}>
                 {skills.map(s => (
@@ -132,7 +132,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {certifications.length > 0 && (
-              <div>
+              <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                 <SectionTitle title="Certifications" />
                 {certifications.map(c => (
                   <div key={c.id} style={{ fontSize: '12px', marginBottom: '4px', lineHeight: 1.7 }}>
@@ -144,7 +144,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
               </div>
             )}
             {languages.length > 0 && (
-              <div>
+              <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                 <SectionTitle title="Languages" />
                 {languages.map(l => (
                   <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', lineHeight: 1.9 }}>
@@ -163,7 +163,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
         <Section title="Selected Projects">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {projects.map(p => (
-              <div key={p.id}>
+              <div key={p.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                   <span style={{ fontSize: '13.5px', fontWeight: 700 }}>{p.title}</span>
                   {p.url && <span style={{ fontSize: '11px', color: '#777' }}>{p.url}</span>}
@@ -200,7 +200,7 @@ const SectionTitle: React.FC<{ title: string }> = ({ title }) => (
 );
 
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-  <section style={{ marginBottom: '20px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+  <section style={{ marginBottom: '20px' }}>
     <SectionTitle title={title} />
     {children}
   </section>

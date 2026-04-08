@@ -6,7 +6,7 @@ const AcademicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
 
   return (
-    <div className="resume-paper" style={{ fontFamily: '"EB Garamond", Georgia, serif', backgroundColor: '#fff', color: '#1A1A1A', padding: '44px 52px', lineHeight: 1.6 }}>
+    <div className="resume-paper" style={{ fontFamily: '"EB Garamond", Georgia, serif', backgroundColor: '#fff', color: '#1A1A1A', padding: '15mm 18mm', lineHeight: 1.6 }}>
       {/* HEADER */}
       <header style={{ textAlign: 'center', marginBottom: '24px' }}>
         <h1 style={{ fontSize: '26px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '4px' }}>{personal.name || 'YOUR NAME'}</h1>
@@ -31,7 +31,7 @@ const AcademicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
       {education.length > 0 && (
         <AcadSec title="Education">
           {education.map(edu => (
-            <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+            <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
               <div>
                 <div style={{ fontWeight: 700, fontSize: '13px' }}>{edu.degree}{edu.field ? ` in ${edu.field}` : ''}</div>
                 <div style={{ fontSize: '12.5px', fontStyle: 'italic', color: '#333' }}>{edu.school}</div>
@@ -46,7 +46,7 @@ const AcademicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
       {experience.length > 0 && (
         <AcadSec title="Academic / Professional Experience">
           {experience.map(exp => (
-            <div key={exp.id} style={{ marginBottom: '16px' }}>
+            <div key={exp.id} style={{ marginBottom: '16px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <div>
                   <span style={{ fontWeight: 700, fontSize: '13px' }}>{exp.role}</span>
@@ -65,7 +65,7 @@ const AcademicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
       {projects.length > 0 && (
         <AcadSec title="Research Projects / Publications">
           {projects.map(p => (
-            <div key={p.id} style={{ marginBottom: '10px', paddingLeft: '16px', borderLeft: '2px solid #CCC' }}>
+            <div key={p.id} style={{ marginBottom: '10px', paddingLeft: '16px', borderLeft: '2px solid #CCC', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ fontWeight: 700, fontSize: '13px', fontStyle: 'italic' }}>{p.title}</span>
                 {p.url && <span style={{ fontSize: '11px', color: '#444' }}>{p.url}</span>}
@@ -80,13 +80,13 @@ const AcademicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px' }}>
         {skills.length > 0 && (
           <AcadSec title="Skills & Methods">
-            {skills.map(s => <div key={s.id} style={{ fontSize: '12.5px', lineHeight: 1.9 }}>• {s.name}</div>)}
+            {skills.map(s => <div key={s.id} style={{ fontSize: '12.5px', lineHeight: 1.9, breakInside: 'avoid', pageBreakInside: 'avoid' }}>• {s.name}</div>)}
           </AcadSec>
         )}
         {languages.length > 0 && (
           <AcadSec title="Languages">
             {languages.map(l => (
-              <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', lineHeight: 1.9 }}>
+              <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', lineHeight: 1.9, breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                 <span>{l.language}</span><span style={{ color: '#666', fontStyle: 'italic' }}>{l.proficiency}</span>
               </div>
             ))}
@@ -95,7 +95,7 @@ const AcademicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
         {certifications.length > 0 && (
           <AcadSec title="Certifications & Awards">
             {certifications.map(c => (
-              <div key={c.id} style={{ marginBottom: '6px', fontSize: '12.5px' }}>
+              <div key={c.id} style={{ marginBottom: '6px', fontSize: '12.5px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                 <div style={{ fontWeight: 600 }}>{c.name}</div>
                 {c.issuer && <div style={{ color: '#555', fontSize: '12px' }}>{c.issuer}{c.date ? `, ${c.date}` : ''}</div>}
               </div>
@@ -108,7 +108,7 @@ const AcademicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
 };
 
 const AcadSec: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-  <div style={{ marginBottom: '18px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+  <div style={{ marginBottom: '18px' }}>
     <h2 style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.18em', color: '#111', borderBottom: '1px solid #333', paddingBottom: '3px', marginBottom: '10px' }}>{title}</h2>
     {children}
   </div>

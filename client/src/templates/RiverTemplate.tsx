@@ -14,7 +14,7 @@ const RiverTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
       fontFamily: 'Georgia, "Times New Roman", serif',
       backgroundColor: config.colors.background || '#FFFFFF',
       color: text,
-      padding: '40px 56px',
+      padding: '15mm 18mm',
       lineHeight: 1.5,
     }}>
       {/* HEADER */}
@@ -181,7 +181,7 @@ const RiverTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
 };
 
 const RiverSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-  <section style={{ breakInside: 'avoid', pageBreakInside: 'avoid', marginBottom: '16px' }}>
+  <section style={{ marginBottom: '16px' }}>
     <div style={{ borderTop: '1px solid #000', paddingTop: '3px', marginBottom: '2px' }} />
     <h2 style={{
       fontSize: '12px', fontWeight: 700, textTransform: 'uppercase',

@@ -368,8 +368,8 @@ body {
 
 .resume-paper {
   background: white;
-  width: 794px; /* A4 at 96dpi */
-  min-height: 1123px;
+  width: 210mm;
+  min-height: 297mm;
   box-shadow:
     0 4px 6px -1px rgba(0,0,0,0.3),
     0 20px 40px -5px rgba(0,0,0,0.4),
@@ -388,10 +388,10 @@ body {
   page-break-after: avoid;
 }
 
-/* Prevent sections from breaking across pages */
+/* Allow sections to break across pages, but individual items inside should not */
 .resume-paper section {
-  break-inside: avoid;
-  page-break-inside: avoid;
+  break-inside: auto;
+  page-break-inside: auto;
 }
 
 /* Utility class for any entry that shouldn't be split */

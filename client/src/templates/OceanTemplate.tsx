@@ -18,10 +18,9 @@ const OceanTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
       color: text,
       display: 'flex',
       flexDirection: 'column',
-      minHeight: '1123px',
     }}>
       {/* FULL-WIDTH HEADER */}
-      <header style={{ backgroundColor: primary, padding: '32px 44px' }}>
+      <header style={{ backgroundColor: primary, padding: '11mm 15mm' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div style={{ flex: 1, marginRight: '32px' }}>
             <h1 style={{ fontSize: '30px', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.03em', lineHeight: 1.1, margin: 0 }}>
@@ -52,7 +51,7 @@ const OceanTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
       {/* BODY: main + sidebar */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px', flex: 1 }}>
         {/* MAIN CONTENT */}
-        <main style={{ padding: '32px 36px 32px 44px', display: 'flex', flexDirection: 'column', gap: '22px' }}>
+        <main style={{ padding: '11mm 12mm 11mm 15mm', display: 'flex', flexDirection: 'column', gap: '22px' }}>
           {/* Experience */}
           {experience.length > 0 && (
             <div>
@@ -146,7 +145,7 @@ const OceanTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
         </main>
 
         {/* RIGHT SIDEBAR */}
-        <aside style={{ backgroundColor: sidebarBg, padding: '32px 20px', display: 'flex', flexDirection: 'column', gap: '22px' }}>
+        <aside style={{ backgroundColor: sidebarBg, padding: '11mm 7mm', display: 'flex', flexDirection: 'column', gap: '22px' }}>
           {/* Skills */}
           {skills.length > 0 && (
             <OceanSideSection title="Skills" primary={primary} accent={accent}>

@@ -188,7 +188,7 @@ const NightTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
 };
 
 const NightSection: React.FC<{ title: string; primary: string; children: React.ReactNode }> = ({ title, primary, children }) => (
-  <section style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+  <section style={{ marginBottom: '20px' }}>
     <div style={{ marginBottom: '12px' }}>
       <h2 style={{
         fontSize: '9px', fontWeight: 900, textTransform: 'uppercase',

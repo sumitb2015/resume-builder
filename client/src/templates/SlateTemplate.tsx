@@ -36,8 +36,8 @@ const SlateTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
       )}
 
       {/* BODY */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 210px', minHeight: '750px', padding: '0' }}>
-        <div style={{ padding: '32px 32px', backgroundColor: '#fff', borderRight: '1px solid #E2E8F0' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 210px', padding: '0' }}>
+        <div style={{ padding: '10mm 15mm 15mm 15mm', backgroundColor: '#fff', borderRight: '1px solid #E2E8F0' }}>
           {experience.length > 0 && (
             <SlateSec title="Work Experience" accent={accent}>
               {experience.map(exp => (
@@ -141,7 +141,7 @@ const SlateTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
 };
 
 const SlateSec: React.FC<{ title: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
-  <div style={{ marginBottom: '24px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+  <div style={{ marginBottom: '24px' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
       <h2 style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.14em', color: accent }}>{title}</h2>
       <div style={{ flex: 1, height: '1px', backgroundColor: '#E2E8F0' }} />

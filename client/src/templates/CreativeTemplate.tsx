@@ -8,10 +8,10 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
   const accent = config.colors.accent || '#F59E0B';
 
   return (
-    <div className="resume-paper" style={{ fontFamily: '"Poppins", system-ui, sans-serif', backgroundColor: '#FFFFFF', overflow: 'hidden' }}>
+    <div className="resume-paper" style={{ fontFamily: '"Poppins", system-ui, sans-serif', backgroundColor: '#FFFFFF' }}>
 
       {/* BOLD HEADER BAND */}
-      <header style={{ backgroundColor: primary, padding: '36px 48px 32px', position: 'relative', overflow: 'hidden' }}>
+      <header style={{ backgroundColor: primary, padding: '12mm 15mm 11mm', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '180px', height: '180px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.06)' }} />
         <div style={{ position: 'absolute', bottom: '-60px', right: '80px', width: '120px', height: '120px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.04)' }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
@@ -37,10 +37,10 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
       <div style={{ height: '4px', background: `linear-gradient(to right, ${accent}, ${primary})` }} />
 
       {/* BODY */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 220px', minHeight: '900px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 220px' }}>
 
         {/* LEFT MAIN */}
-        <div style={{ padding: '32px 32px', borderRight: '1px solid #F3F4F6' }}>
+        <div style={{ padding: '11mm 11mm', borderRight: '1px solid #F3F4F6' }}>
           {personal.summary && (
             <div style={{ marginBottom: '28px' }}>
               <CreativeSectionTitle title="About Me" primary={primary} />
@@ -133,7 +133,7 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
         </div>
 
         {/* RIGHT SIDEBAR */}
-        <div style={{ padding: '32px 22px', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div style={{ padding: '11mm 8mm', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {skills.length > 0 && (
             <div>
               <CreativeSectionTitle title="Skills" primary={primary} />

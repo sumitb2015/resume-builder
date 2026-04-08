@@ -13,18 +13,16 @@ const ForestTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
       fontFamily: '"DM Sans", system-ui, sans-serif',
       display: 'flex',
       backgroundColor: config.colors.background || '#FFFFFF',
-      minHeight: '1123px',
     }}>
       {/* LEFT SIDEBAR */}
       <aside style={{
         width: '220px',
         minWidth: '220px',
         backgroundColor: primary,
-        padding: '36px 20px',
+        padding: '12mm 7mm',
         display: 'flex',
         flexDirection: 'column',
         gap: '24px',
-        minHeight: '1123px',
       }}>
         {/* Name & Title */}
         <div>
@@ -111,7 +109,7 @@ const ForestTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
       </aside>
 
       {/* MAIN CONTENT */}
-      <main style={{ flex: 1, padding: '36px 28px', display: 'flex', flexDirection: 'column', gap: '22px', overflow: 'hidden' }}>
+      <main style={{ flex: 1, padding: '12mm 10mm', display: 'flex', flexDirection: 'column', gap: '22px' }}>
         {/* Summary */}
         {personal.summary && (
           <div>

@@ -2,7 +2,9 @@ import React, { useRef, useEffect, useState } from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import TemplateRenderer from '../templates/TemplateRenderer';
 
-const PAGE_H = 1123; // A4 at 96 dpi
+const MM_TO_PX = 96 / 25.4;
+const PAGE_H = 297 * MM_TO_PX; // 1122.519... px
+const PAGE_W = 210 * MM_TO_PX; // 793.7 px
 
 interface Props {
   resume: Resume;

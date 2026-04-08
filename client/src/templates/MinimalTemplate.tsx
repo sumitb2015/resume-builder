@@ -162,7 +162,7 @@ const MinimalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
 };
 
 const MinimalSection: React.FC<{ title: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
-  <section style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+  <section style={{ marginBottom: '24px' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
       <h2 style={{
         fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.2em',

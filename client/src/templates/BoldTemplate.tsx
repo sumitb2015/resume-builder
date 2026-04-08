@@ -10,7 +10,7 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
   return (
     <div className="resume-paper" style={{ fontFamily: '"Poppins", system-ui, sans-serif', backgroundColor: '#fff', display: 'flex', flexDirection: 'column' }}>
       {/* DRAMATIC HERO */}
-      <div style={{ backgroundColor: primary, padding: '44px 48px 36px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ backgroundColor: primary, padding: '15mm 17mm 12mm', position: 'relative' }}>
         <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '240px', height: '240px', borderRadius: '50%', border: `2px solid ${accent}30`, opacity: 0.6 }} />
         <div style={{ position: 'absolute', top: '20px', right: '20px', width: '140px', height: '140px', borderRadius: '50%', border: `2px solid ${accent}20`, opacity: 0.4 }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
@@ -29,19 +29,19 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
       </div>
 
       {/* ACCENT BAR with contact */}
-      <div style={{ backgroundColor: accent, padding: '12px 48px', display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
+      <div style={{ backgroundColor: accent, padding: '4mm 17mm', display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
         {[personal.email, personal.phone, personal.location, personal.linkedin, personal.website].filter(Boolean).map((v, i) => (
           <span key={i} style={{ fontSize: '11px', fontWeight: 600, color: '#fff', letterSpacing: '0.02em' }}>{v}</span>
         ))}
       </div>
 
       {/* MAIN CONTENT */}
-      <div style={{ flex: 1, padding: '36px 48px', display: 'grid', gridTemplateColumns: '1fr 200px', gap: '40px' }}>
+      <div style={{ flex: 1, padding: '12mm 17mm', display: 'grid', gridTemplateColumns: '1fr 200px', gap: '40px' }}>
         <div>
           {experience.length > 0 && (
             <BoldSec title="Experience" accent={accent} primary={primary}>
               {experience.map(exp => (
-                <div key={exp.id} style={{ marginBottom: '22px' }}>
+                <div key={exp.id} style={{ marginBottom: '22px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
                     <div>
                       <div style={{ fontSize: '15px', fontWeight: 800, color: primary, letterSpacing: '-0.02em' }}>{exp.role}</div>
@@ -65,7 +65,7 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
           {projects.length > 0 && (
             <BoldSec title="Projects" accent={accent} primary={primary}>
               {projects.map(p => (
-                <div key={p.id} style={{ marginBottom: '14px', borderLeft: `3px solid ${accent}`, paddingLeft: '14px' }}>
+                <div key={p.id} style={{ marginBottom: '14px', borderLeft: `3px solid ${accent}`, paddingLeft: '14px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                     <span style={{ fontSize: '13.5px', fontWeight: 800, color: primary }}>{p.title}</span>
                     {p.url && <span style={{ fontSize: '11px', color: accent }}>{p.url}</span>}
@@ -83,7 +83,7 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
           {education.length > 0 && (
             <BoldSec title="Education" accent={accent} primary={primary}>
               {education.map(edu => (
-                <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div>
                     <div style={{ fontSize: '14px', fontWeight: 800, color: primary }}>{edu.school}</div>
                     <div style={{ fontSize: '12px', color: '#71717A', marginTop: '2px' }}>{[edu.degree, edu.field].filter(Boolean).join(' in ')}</div>
@@ -98,7 +98,7 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
         {/* SIDEBAR */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
           {skills.length > 0 && (
-            <div>
+            <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
               <BoldSideTitle title="Skills" accent={accent} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {skills.map(s => (
@@ -113,7 +113,7 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
             </div>
           )}
           {languages.length > 0 && (
-            <div>
+            <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
               <BoldSideTitle title="Languages" accent={accent} />
               {languages.map(l => (
                 <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', lineHeight: 2, color: primary }}>
@@ -124,7 +124,7 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
             </div>
           )}
           {certifications.length > 0 && (
-            <div>
+            <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
               <BoldSideTitle title="Certifications" accent={accent} />
               {certifications.map(c => (
                 <div key={c.id} style={{ marginBottom: '10px' }}>
@@ -142,7 +142,7 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
 };
 
 const BoldSec: React.FC<{ title: string; accent: string; primary: string; children: React.ReactNode }> = ({ title, accent, primary, children }) => (
-  <div style={{ marginBottom: '26px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+  <div style={{ marginBottom: '26px' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
       <h2 style={{ fontSize: '11px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.18em', color: primary }}>{title}</h2>
       <div style={{ flex: 1, height: '2px', background: `linear-gradient(to right, ${accent}, transparent)` }} />

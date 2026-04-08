@@ -133,7 +133,7 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
 };
 
 const WSection: React.FC<{ title: string; primary: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
-  <div style={{ marginBottom: '24px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+  <div style={{ marginBottom: '24px' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
       <div style={{ width: '28px', height: '3px', background: accent, borderRadius: '2px' }} />
       <h2 style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.14em', color: accent }}>{title}</h2>
