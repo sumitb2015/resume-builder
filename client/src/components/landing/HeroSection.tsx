@@ -12,10 +12,10 @@ const HeroSection: React.FC<Props> = ({ onStart }) => (
 
     {/* Headline */}
     <h1 style={{ fontSize: 'clamp(48px, 7vw, 80px)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1.0, color: 'var(--color-ui-text)', marginBottom: '24px' }}>
-      Resumes that
+      The AI Resume Builder
       <br />
       <span style={{ background: 'linear-gradient(135deg, #6366F1 0%, #A855F7 50%, #EC4899 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-        get you hired
+        that gets you hired
       </span>
     </h1>
 

@@ -2,10 +2,187 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="AI-powered resume builder. Create stunning, ATS-optimized resumes in minutes with Claude AI." />
-    <title>BespokeCV — AI Resume Builder</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href="https://bespokecv.com/" />
+
+    <!-- Primary Meta -->
+    <title>BespokeCV — Free AI Resume Builder</title>
+    <meta name="description" content="Build ATS-optimized resumes in minutes with AI. Choose from 15 professional templates, get AI-powered writing suggestions, and export to PDF. Free to start." />
+    <meta name="keywords" content="AI resume builder, ATS resume builder, free resume builder online, resume maker, CV builder, professional resume templates, ATS optimized resume, job application resume, AI powered resume builder free, best ATS resume builder, resume builder with AI suggestions, resume writing tool, online CV maker, resume generator, resume checker, career tools, resume builder 2025, job search resume, resume optimizer" />
+    <meta name="author" content="BespokeCV" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="theme-color" content="#6366F1" />
+    <meta name="application-name" content="BespokeCV" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Open Graph -->
+    <meta property="og:type"         content="website" />
+    <meta property="og:site_name"    content="BespokeCV" />
+    <meta property="og:url"          content="https://bespokecv.com/" />
+    <meta property="og:title"        content="BespokeCV — Free AI Resume Builder" />
+    <meta property="og:description"  content="Build ATS-optimized resumes in minutes with AI. 15 professional templates, AI writing, PDF export. Free to start." />
+    <meta property="og:image"        content="https://bespokecv.com/og-image.png" />
+    <meta property="og:image:width"  content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt"    content="BespokeCV AI Resume Builder — professional resume templates" />
+    <meta property="og:locale"       content="en_US" />
+    <meta property="og:image:type"   content="image/png" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content="BespokeCV — Free AI Resume Builder" />
+    <meta name="twitter:description" content="Build ATS-optimized resumes in minutes with AI. 15 professional templates, AI writing, PDF export. Free to start." />
+    <meta name="twitter:image"       content="https://bespokecv.com/og-image.png" />
+    <meta name="twitter:image:alt"   content="BespokeCV AI Resume Builder" />
+
+    <!-- Structured Data: SoftwareApplication + WebSite -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://bespokecv.com/#app",
+          "name": "BespokeCV",
+          "url": "https://bespokecv.com/",
+          "description": "AI-powered resume builder that creates ATS-optimized resumes with professional templates, real-time preview, and PDF export.",
+          "applicationCategory": "BusinessApplication",
+          "applicationSubCategory": "ResumeBuilder",
+          "operatingSystem": "Web",
+          "featureList": [
+            "AI-powered resume writing suggestions",
+            "15 professional resume templates",
+            "ATS optimization scoring",
+            "Real-time live preview",
+            "PDF export",
+            "Job description tailoring",
+            "LinkedIn profile import",
+            "PDF and DOCX resume import",
+            "Skills finder",
+            "Before/after diff review"
+          ],
+          "screenshot": "https://bespokecv.com/og-image.png",
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "reviewCount": "50000",
+            "bestRating": "5",
+            "worstRating": "1"
+          },
+          "offers": [
+            {
+              "@type": "Offer",
+              "name": "Basic",
+              "price": "199",
+              "priceCurrency": "INR",
+              "description": "14-day trial with 3 templates, live preview, PDF export, and AI bullet writer",
+              "eligibleDuration": { "@type": "QuantitativeValue", "value": 14, "unitCode": "DAY" }
+            },
+            {
+              "@type": "Offer",
+              "name": "Pro",
+              "price": "499",
+              "priceCurrency": "INR",
+              "description": "All 15 templates, unlimited PDF export, AI bullet writer, summary writer, skills finder, ATS score"
+            },
+            {
+              "@type": "Offer",
+              "name": "Ultimate",
+              "price": "699",
+              "priceCurrency": "INR",
+              "description": "Everything in Pro plus job tailoring, PDF/DOCX import, LinkedIn import, and priority PDF generation"
+            }
+          ],
+          "publisher": {
+            "@type": "Organization",
+            "name": "BespokeCV",
+            "url": "https://bespokecv.com/",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://bespokecv.com/favicon.svg"
+            }
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://bespokecv.com/#website",
+          "url": "https://bespokecv.com/",
+          "name": "BespokeCV",
+          "description": "AI Resume Builder — ATS-optimized resumes in minutes",
+          "publisher": { "@id": "https://bespokecv.com/#app" }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Structured Data: FAQ (enables People Also Ask rich results) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How does the AI resume builder work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "BespokeCV uses AI to generate powerful, metrics-driven bullet points, write professional summaries, and rewrite your resume to match specific job descriptions. Enter your experience, choose from 15 professional templates, let AI enhance your content, then download a pixel-perfect PDF in one click."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is an ATS-optimized resume?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "An ATS (Applicant Tracking System) optimized resume passes the automated screening software that 98% of large companies use. BespokeCV scores your resume 0-100 for ATS compatibility and tells you exactly which keywords you're missing so recruiters actually see your application."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How many resume templates does BespokeCV offer?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "BespokeCV offers 15 professional resume templates spanning modern, executive, creative, and technical styles. All templates are ATS-friendly, fully customizable with color and style options, and export as pixel-perfect A4 PDFs."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I import my LinkedIn profile to create a resume?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. With the Ultimate plan, paste your LinkedIn profile text into BespokeCV and AI automatically parses and structures it into a complete resume ready for editing, template selection, and PDF export."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I upload an existing PDF or Word resume?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, the Ultimate plan supports PDF and DOCX resume import. BespokeCV's AI parses your existing resume, suggests specific improvements, and lets you enhance it with professional templates and AI writing tools."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the job tailoring feature?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Job tailoring lets you paste any job description and AI rewrites your resume bullets and summary to match the exact language and keywords the employer is looking for. Before/after diff review shows you every change made."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How much does BespokeCV cost?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "BespokeCV offers three plans: Basic at ₹199 for a 14-day trial, Pro at ₹499/month with full AI writing tools, and Ultimate at ₹699/month with job tailoring and resume import. No long-term contracts — cancel anytime."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,400&display=swap" rel="stylesheet" />
@@ -14,5 +191,36 @@
     <div id="root"></div>
     <div id="print-portal"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <!-- Fallback content for non-JS crawlers (Bing, etc.) -->
+    <noscript>
+      <div style="max-width:900px;margin:0 auto;padding:40px 20px;font-family:sans-serif;line-height:1.6">
+        <h1>BespokeCV — AI Resume Builder</h1>
+        <p>Build ATS-optimized resumes in minutes with AI-powered writing, 15 professional templates, and real-time live preview. Loved by 50,000+ job seekers.</p>
+        <h2>AI-Powered Resume Writing Tools</h2>
+        <ul>
+          <li><strong>AI Bullet Point Writer</strong> — Generate metrics-driven bullet points for any role</li>
+          <li><strong>Job Tailor</strong> — AI rewrites your resume to match any job description</li>
+          <li><strong>ATS Score</strong> — Instant 0-100 ATS compatibility score with keyword feedback</li>
+          <li><strong>AI Summary Writer</strong> — Professional 3-sentence summary in seconds</li>
+          <li><strong>Skills Finder</strong> — 20 relevant skills for your job title instantly</li>
+          <li><strong>Diff Review</strong> — Before/after comparison of every AI change</li>
+        </ul>
+        <h2>15 Professional Resume Templates</h2>
+        <p>Modern, executive, creative, and technical designs — all ATS-friendly and exportable as pixel-perfect A4 PDFs.</p>
+        <h2>How It Works</h2>
+        <ol>
+          <li>Fill in your details — add experience, education, and skills, or import from LinkedIn</li>
+          <li>Let AI enhance it — generate bullets, write your summary, and optimize for ATS</li>
+          <li>Download and apply — export a PDF and start sending applications</li>
+        </ol>
+        <h2>Pricing</h2>
+        <ul>
+          <li><strong>Basic</strong> — ₹199 for 14 days: 3 templates, live preview, PDF export, AI bullet writer</li>
+          <li><strong>Pro</strong> — ₹499/month: All 15 templates, unlimited exports, full AI writing suite</li>
+          <li><strong>Ultimate</strong> — ₹699/month: Everything in Pro plus job tailoring, PDF/DOCX import, LinkedIn import</li>
+        </ul>
+        <p>98% ATS pass rate. No long-term contracts. Cancel anytime. <a href="https://bespokecv.com/">Start building your resume now.</a></p>
+      </div>
+    </noscript>
   </body>
 </html>
