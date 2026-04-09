@@ -5,7 +5,7 @@ import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
-  List, ListOrdered, RemoveFormatting,
+  List, ListOrdered, RemoveFormatting, Sparkles, Loader2, Lock
 } from 'lucide-react';
 import { htmlCharCount } from '../lib/htmlUtils';
 
@@ -16,6 +16,10 @@ interface RichEditorProps {
   maxLength?: number;
   minHeight?: number;
   style?: React.CSSProperties;
+  onAiClick?: () => void;
+  loadingAi?: boolean;
+  canAccessAi?: boolean;
+  aiTitle?: string;
 }
 
 const RichEditor: React.FC<RichEditorProps> = ({
@@ -25,6 +29,10 @@ const RichEditor: React.FC<RichEditorProps> = ({
   maxLength,
   minHeight = 80,
   style,
+  onAiClick,
+  loadingAi,
+  canAccessAi = true,
+  aiTitle = 'AI Writer',
 }) => {
   const editor = useEditor({
     extensions: [
@@ -122,6 +130,46 @@ const RichEditor: React.FC<RichEditorProps> = ({
         {toolbarBtn(<ListOrdered size={11} />, () => editor?.chain().focus().toggleOrderedList().run(), 'Numbered List', editor?.isActive('orderedList'))}
         {divider}
         {toolbarBtn(<RemoveFormatting size={11} />, () => editor?.chain().focus().clearNodes().unsetAllMarks().run(), 'Clear Formatting')}
+        
+        {onAiClick && (
+          <>
+            {divider}
+            <button
+              type="button"
+              className="btn-ai"
+              onClick={onAiClick}
+              disabled={loadingAi}
+              title={!canAccessAi ? 'Upgrade to access AI Writer' : aiTitle}
+              style={{
+                marginLeft: 'auto',
+                padding: '3px 8px',
+                height: '24px',
+                fontSize: '11px',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                background: 'var(--color-ui-surface-2)',
+                border: '1px solid var(--color-ui-accent)',
+                color: 'var(--color-ui-accent)',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.12s'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'var(--color-ui-accent)';
+                e.currentTarget.style.color = '#fff';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'var(--color-ui-surface-2)';
+                e.currentTarget.style.color = 'var(--color-ui-accent)';
+              }}
+            >
+              {!canAccessAi ? <Lock size={10} /> : loadingAi ? <Loader2 size={10} className="spin" /> : <Sparkles size={10} />}
+              {loadingAi ? 'Writing…' : aiTitle}
+            </button>
+          </>
+        )}
       </div>
 
       {/* Editor area */}

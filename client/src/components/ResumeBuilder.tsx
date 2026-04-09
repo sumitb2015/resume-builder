@@ -3,7 +3,7 @@ import type { Resume, ExperienceEntry, SkillEntry, EducationEntry, ProjectEntry,
 import { api } from '../lib/api';
 import {
   User, Briefcase, GraduationCap, Wrench, FolderOpen,
-  Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Check, X, GripVertical, Lock, FileText
+  Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Check, X, GripVertical, Lock, FileText, PenLine
 } from 'lucide-react';
 import { usePlan } from '../contexts/PlanContext';
 import type { Feature } from '../contexts/PlanContext';
@@ -93,6 +93,9 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
   const [loadingBullets, setLoadingBullets] = useState<string | null>(null);
   const [bulletSuggestions, setBulletSuggestions] = useState<{ expId: string; bullets: string[] } | null>(null);
   const [loadingSummary, setLoadingSummary] = useState(false);
+  const [summaryMenuOpen, setSummaryMenuOpen] = useState(false);
+  const [summaryPromptOpen, setSummaryPromptOpen] = useState(false);
+  const [summaryCustomPrompt, setSummaryCustomPrompt] = useState('');
   const [loadingSkills, setLoadingSkills] = useState(false);
   const [skillSuggestions, setSkillSuggestions] = useState<{ technical: string[]; soft: string[] } | null>(null);
   const [skillJobTitle, setSkillJobTitle] = useState('');
@@ -218,14 +221,42 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
     } finally { setLoadingSkills(false); }
   };
 
-  const handleGenerateSummary = async () => {
+  const handleGenerateSummary = async (customInstruction?: string) => {
     if (!canAccess('ai-summary')) { onUpgradeNeeded('ai-summary'); return; }
     setLoadingSummary(true);
+    setSummaryMenuOpen(false);
+    setSummaryPromptOpen(false);
     try {
       const skills = resume.skills.map(s => s.name).filter(Boolean);
       const yoe = resume.experience.length > 0 ? `${resume.experience.length * 2}+` : '1';
-      const data = await api.generateSummary(resume.personal.name, resume.personal.title, yoe, skills);
-      up('summary', plainTextToHtml(data.summary));
+      
+      let summaryText = '';
+      if (customInstruction) {
+        const { text } = await api.rephrase(resume.personal.summary, customInstruction);
+        summaryText = text;
+      } else {
+        const data = await api.generateSummary(resume.personal.name, resume.personal.title, yoe, skills);
+        summaryText = data.summary;
+      }
+      
+      up('summary', plainTextToHtml(summaryText));
+      setSummaryCustomPrompt('');
+    } catch {
+      alert('AI unavailable. Check server is running with OPENAI_API_KEY set.');
+    } finally { setLoadingSummary(false); }
+  };
+
+  const handleRephraseSummary = async () => {
+    if (!canAccess('ai-summary')) { onUpgradeNeeded('ai-summary'); return; }
+    if (!resume.personal.summary || stripHtml(resume.personal.summary).trim().length < 10) {
+      handleGenerateSummary();
+      return;
+    }
+    setLoadingSummary(true);
+    setSummaryMenuOpen(false);
+    try {
+      const { text } = await api.rephrase(resume.personal.summary);
+      up('summary', plainTextToHtml(text));
     } catch {
       alert('AI unavailable. Check server is running with OPENAI_API_KEY set.');
     } finally { setLoadingSummary(false); }
@@ -431,17 +462,90 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
                   placeholder="Briefly describe your professional background..."
                   maxLength={600}
                   minHeight={120}
+                  onAiClick={() => setSummaryMenuOpen(!summaryMenuOpen)}
+                  loadingAi={loadingSummary}
+                  canAccessAi={canAccess('ai-summary')}
+                  aiTitle="AI Writer"
                 />
-                <button
-                  className="btn-ai"
-                  style={{ position: 'absolute', bottom: '30px', right: '10px' }}
-                  onClick={handleGenerateSummary}
-                  disabled={loadingSummary}
-                  title={!canAccess('ai-summary') ? 'Pro plan required' : 'Generate AI summary'}
-                >
-                  {!canAccess('ai-summary') ? <Lock size={11} /> : loadingSummary ? <Loader2 size={11} className="spin" /> : <Sparkles size={11} />}
-                  {loadingSummary ? 'Writing…' : 'AI Write'}
-                </button>
+                
+                <div style={{ position: 'absolute', top: '35px', right: '0px', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', zIndex: 100 }}>
+                  {summaryMenuOpen && (
+                    <div style={{ 
+                      background: 'var(--color-ui-surface)', 
+                      border: '1px solid var(--color-ui-border)', 
+                      borderRadius: '8px', 
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)', 
+                      padding: '4px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '2px',
+                      minWidth: '160px',
+                    }}>
+                      <button 
+                        className="btn-ghost" 
+                        style={{ justifyContent: 'flex-start', padding: '6px 10px', fontSize: '12px' }}
+                        onClick={() => handleGenerateSummary()}
+                      >
+                        <Sparkles size={12} style={{ color: 'var(--color-ui-accent)' }} /> Generate New
+                      </button>
+                      <button 
+                        className="btn-ghost" 
+                        style={{ justifyContent: 'flex-start', padding: '6px 10px', fontSize: '12px' }}
+                        onClick={handleRephraseSummary}
+                      >
+                        <Wrench size={12} style={{ color: 'var(--color-ui-accent)' }} /> Rephrase Current
+                      </button>
+                      <button 
+                        className="btn-ghost" 
+                        style={{ justifyContent: 'flex-start', padding: '6px 10px', fontSize: '12px' }}
+                        onClick={() => { setSummaryPromptOpen(true); setSummaryMenuOpen(false); }}
+                      >
+                        <PenLine size={12} style={{ color: 'var(--color-ui-accent)' }} /> Provide Prompt
+                      </button>
+                    </div>
+                  )}
+
+                  {summaryPromptOpen && (
+                    <div style={{ 
+                      background: 'var(--color-ui-surface)', 
+                      border: '1px solid var(--color-ui-border)', 
+                      borderRadius: '8px', 
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)', 
+                      padding: '10px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
+                      width: '240px',
+                    }}>
+                      <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-ui-text-muted)' }}>Instructions for AI</div>
+                      <textarea 
+                        className="field-input"
+                        value={summaryCustomPrompt}
+                        onChange={e => setSummaryCustomPrompt(e.target.value)}
+                        placeholder="e.g. Make it more creative / focus on my leadership skills..."
+                        style={{ minHeight: '60px', fontSize: '12px', resize: 'none' }}
+                        autoFocus
+                      />
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <button 
+                          className="btn-primary" 
+                          style={{ flex: 1, fontSize: '11px', padding: '4px' }}
+                          onClick={() => handleGenerateSummary(summaryCustomPrompt)}
+                          disabled={!summaryCustomPrompt.trim() || loadingSummary}
+                        >
+                          {loadingSummary ? <Loader2 size={11} className="spin" /> : 'Generate'}
+                        </button>
+                        <button 
+                          className="btn-ghost" 
+                          style={{ fontSize: '11px', padding: '4px' }}
+                          onClick={() => { setSummaryPromptOpen(false); setSummaryCustomPrompt(''); }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </Field>
           </div>
@@ -525,6 +629,10 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
                                 placeholder="Achieved X by doing Y, resulting in Z% improvement..."
                                 minHeight={56}
                                 style={{ flex: 1 }}
+                                onAiClick={() => handleAIBullets(exp)}
+                                loadingAi={loadingBullets === exp.id}
+                                canAccessAi={remainingBullets > 0}
+                                aiTitle="Refine"
                               />
                               <button className="btn-danger" onClick={() => updateExp(exp.id, 'bullets', exp.bullets.filter((_, i) => i !== bi))} style={{ alignSelf: 'flex-start', marginTop: '28px' }}>
                                 <Trash2 size={12} />

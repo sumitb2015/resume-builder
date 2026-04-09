@@ -70,6 +70,9 @@ export const api = {
   generateFullResume: (params: { currentRole?: string; targetRole: string; industry: string; experience: string; context?: string }) =>
     post<Resume>('/api/ai/generate-full-resume', params),
 
+  rephrase: (text: string, instruction?: string) =>
+    post<{ text: string }>('/api/ai/rephrase', { text, instruction }),
+
   fetchJobUrl: (url: string) =>
     post<{ text: string }>('/api/fetch-job-url', { url }),
 

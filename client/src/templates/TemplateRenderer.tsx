@@ -24,6 +24,14 @@ import ProfessionalTemplate from './ProfessionalTemplate';
 import StartupTemplate from './StartupTemplate';
 import LeadershipTemplate from './LeadershipTemplate';
 import AtsTemplate from './AtsTemplate';
+import TimelineTemplate from './TimelineTemplate';
+import GridTemplate from './GridTemplate';
+import ContrastTemplate from './ContrastTemplate';
+import MatrixTemplate from './MatrixTemplate';
+import SwissTemplate from './SwissTemplate';
+import BoldSidebarTemplate from './BoldSidebarTemplate';
+import CentricTemplate from './CentricTemplate';
+import LinearTemplate from './LinearTemplate';
 
 interface Props {
   resume: Resume;
@@ -101,6 +109,14 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config, isPaged = false }) 
             case 'startup': return <StartupTemplate {...templateProps} />;
             case 'leadership': return <LeadershipTemplate {...templateProps} />;
             case 'ats-opt': return <AtsTemplate {...templateProps} />;
+            case 'timeline': return <TimelineTemplate {...templateProps} />;
+            case 'grid-bento': return <GridTemplate {...templateProps} />;
+            case 'contrast': return <ContrastTemplate {...templateProps} />;
+            case 'matrix': return <MatrixTemplate {...templateProps} />;
+            case 'swiss': return <SwissTemplate {...templateProps} />;
+            case 'bold-sidebar': return <BoldSidebarTemplate {...templateProps} />;
+            case 'centric': return <CentricTemplate {...templateProps} />;
+            case 'linear': return <LinearTemplate {...templateProps} />;
             default: return <ClassicTemplate {...templateProps} />;
           }
         })()}

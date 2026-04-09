@@ -189,6 +189,20 @@ You must return ONLY a valid JSON object that strictly matches this TypeScript i
 
 Ensure the output is well-formatted, corporate, and ATS-friendly. Return ONLY the JSON object.`;
 
-  const text = await ask(prompt);
-  return extractJSON(text);
+const text = await ask(prompt);
+return extractJSON(text);
+};
+
+export const rephrase = async (text: string, instruction?: string): Promise<string> => {
+let fullPrompt = `Rephrase the following resume content to be more professional, impactful, and concise:
+"${text}"
+Return ONLY the rephrased text.`;
+
+if (instruction) {
+  fullPrompt = `Modify the following resume content based on this instruction: "${instruction}"
+Current content: "${text}"
+Ensure the result is professional, achievement-oriented, and suitable for a high-end resume. Return ONLY the modified text.`;
+}
+
+return (await ask(fullPrompt)).trim();
 };

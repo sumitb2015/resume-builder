@@ -125,6 +125,16 @@ app.post('/api/ai/generate-full-resume', async (req, res) => {
   }
 });
 
+app.post('/api/ai/rephrase', async (req, res) => {
+  try {
+    const { text, instruction } = req.body;
+    const rephrased = await aiService.rephrase(text, instruction);
+    res.json({ text: rephrased });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post('/api/fetch-job-url', async (req, res) => {
   try {
     const { url } = req.body;

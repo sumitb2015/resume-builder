@@ -1,9 +1,35 @@
-/** Strip all HTML tags, returning plain text for AI consumption */
+/** Strip all HTML tags, returning plain text for AI consumption.
+ * Accounts for block-level elements by adding newlines to ensure accurate character counting.
+ */
 export function stripHtml(html: string): string {
   if (!html) return '';
   if (!html.includes('<')) return html;
+  
   const doc = new DOMParser().parseFromString(html, 'text/html');
-  return doc.body.textContent ?? '';
+  const body = doc.body;
+
+  // Add spaces/newlines for block elements to prevent text merging (e.g., <p>A</p><p>B</p> -> "A\nB")
+  const blocks = new Set(['P', 'LI', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'BR']);
+  const walk = (node: Node): string => {
+    let text = '';
+    if (node.nodeType === Node.TEXT_NODE) {
+      text += node.textContent || '';
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as Element;
+      const isBlock = blocks.has(el.tagName);
+      
+      for (const child of Array.from(el.childNodes)) {
+        text += walk(child);
+      }
+      
+      if (isBlock && !text.endsWith('\n')) {
+        text += '\n';
+      }
+    }
+    return text;
+  };
+
+  return walk(body).trim();
 }
 
 /** Count visible characters (strip tags first) for CharCount */
