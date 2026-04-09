@@ -1,8 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const _pdfParseModule = require('pdf-parse');
-const pdfParse: (buf: Buffer) => Promise<{ text: string }> = _pdfParseModule.default ?? _pdfParseModule;
+import { PDFParse } from 'pdf-parse';
 import mammoth from 'mammoth';
 import * as parseService from '../services/parse.service';
 
@@ -21,7 +19,8 @@ router.post('/upload', upload.single('file'), async (req: any, res: any) => {
     let rawText = '';
 
     if (ext.endsWith('.pdf') || mime === 'application/pdf') {
-      const result = await pdfParse(file.buffer);
+      const parser = new PDFParse({ data: file.buffer });
+      const result = await parser.getText();
       rawText = result.text;
     } else if (ext.endsWith('.docx') || mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       const result = await mammoth.extractRawText({ buffer: file.buffer });

@@ -5,166 +5,66 @@ dotenv.config();
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+const RESUME_SCHEMA = `{"resume":{"personal":{"name":"","title":"","email":"","phone":"","location":"","linkedin":"","website":"","summary":""},"experience":[{"id":"1","company":"","role":"","startDate":"","endDate":"","isCurrent":false,"bullets":[]}],"education":[{"id":"1","school":"","degree":"","field":"","startDate":"","endDate":"","gpa":""}],"skills":[{"id":"1","name":"","level":75}],"projects":[{"id":"1","title":"","description":"","url":"","tech":[]}],"certifications":[{"id":"1","name":"","issuer":"","date":"","url":""}],"languages":[{"id":"1","language":"","proficiency":""}],"custom":[]}}`;
+
+const MAX_TEXT_LENGTH = 8000;
+
 export async function extractResumeFromText(rawText: string): Promise<{ resume: any; improvements: any }> {
-  const prompt = `You are a professional resume parser. Extract all information from the resume text below and return structured JSON.
+  const text = rawText.slice(0, MAX_TEXT_LENGTH);
 
-Resume Text:
-${rawText}
+  const parsePrompt = `Extract resume data from the text below. Return JSON matching this schema exactly: ${RESUME_SCHEMA}
 
-Return ONLY valid JSON with this exact structure:
-{
-  "resume": {
-    "personal": {
-      "name": "",
-      "title": "",
-      "email": "",
-      "phone": "",
-      "location": "",
-      "linkedin": "",
-      "website": "",
-      "summary": ""
-    },
-    "experience": [
-      {
-        "id": "1",
-        "company": "",
-        "role": "",
-        "startDate": "",
-        "endDate": "",
-        "isCurrent": false,
-        "bullets": []
-      }
-    ],
-    "education": [
-      {
-        "id": "1",
-        "school": "",
-        "degree": "",
-        "field": "",
-        "startDate": "",
-        "endDate": "",
-        "gpa": ""
-      }
-    ],
-    "skills": [
-      { "id": "1", "name": "", "level": 75 }
-    ],
-    "projects": [
-      { "id": "1", "title": "", "description": "", "url": "", "tech": [] }
-    ],
-    "certifications": [
-      { "id": "1", "name": "", "issuer": "", "date": "", "url": "" }
-    ],
-    "languages": [
-      { "id": "1", "language": "", "proficiency": "" }
-    ],
-    "custom": []
-  },
-  "improvements": {
-    "overallFeedback": "2-3 sentences summarizing the resume quality and top areas to improve",
-    "suggestions": [
-      {
-        "section": "e.g. Experience – Company Name",
-        "original": "exact text from the resume",
-        "suggested": "improved version of the text",
-        "reason": "brief explanation of why this is better"
-      }
-    ]
-  }
-}
+Rules: sequential IDs ("1","2"…); skill levels expert=90 intermediate=75 beginner=50; isCurrent=true only if no end date or says "present"; bullets as individual strings; reverse-chron experience; empty string for missing fields.
 
-Rules:
-- Use sequential IDs: "1", "2", "3"
-- Skill levels: expert/advanced=90, intermediate=75, beginner=50
-- For isCurrent: true only if no end date or explicitly says "present"
-- Extract all bullet points from experience as individual strings in the bullets array
-- Provide up to 5 improvement suggestions for the most impactful changes (weak bullets, generic summary, missing metrics)
-- Leave fields as empty strings if not found — do not omit them
-- Keep experience entries in reverse chronological order`;
+Resume:
+${text}`;
 
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [{ role: 'user', content: prompt }],
-    response_format: { type: 'json_object' },
-    max_tokens: 4096,
-  });
+  const improvementsPrompt = `You are a resume coach. Read this resume and return JSON with improvement suggestions.
 
-  const content = response.choices[0]?.message?.content ?? '{}';
-  return JSON.parse(content);
+Return: {"improvements":{"overallFeedback":"2-3 sentence summary of quality and top areas to improve","suggestions":[{"section":"e.g. Experience – Company Name","original":"exact text from resume","suggested":"improved version","reason":"why this is better"}]}}
+
+Up to 5 suggestions for the most impactful changes (weak bullets, generic summary, missing metrics).
+
+Resume:
+${text}`;
+
+  const [parseRes, improvementsRes] = await Promise.all([
+    openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: parsePrompt }],
+      response_format: { type: 'json_object' },
+      max_tokens: 2000,
+    }),
+    openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: improvementsPrompt }],
+      response_format: { type: 'json_object' },
+      max_tokens: 1000,
+    }),
+  ]);
+
+  const parsed = JSON.parse(parseRes.choices[0]?.message?.content ?? '{}');
+  const improved = JSON.parse(improvementsRes.choices[0]?.message?.content ?? '{}');
+
+  return { resume: parsed.resume, improvements: improved.improvements };
 }
 
 export async function extractResumeFromLinkedIn(markdown: string): Promise<{ resume: any }> {
-  const prompt = `You are a professional resume builder. Extract career information from this LinkedIn profile page content and structure it as a resume.
+  const text = markdown.slice(0, MAX_TEXT_LENGTH);
 
-LinkedIn Profile Content:
-${markdown}
+  const prompt = `Extract career information from this LinkedIn profile and return JSON matching this schema: ${RESUME_SCHEMA}
 
-The content may include navigation elements, ads, and other noise — focus only on the profile sections: About, Experience, Education, Skills, Projects, Certifications, Languages.
+Focus only on: About, Experience, Education, Skills, Projects, Certifications, Languages sections. Ignore nav/ads/noise.
+Rules: sequential IDs; skill levels default 75; use About section as summary or write one from experience; convert experience descriptions to resume-style bullets; empty string for missing fields; reverse-chron experience.
 
-Return ONLY valid JSON with this exact structure:
-{
-  "resume": {
-    "personal": {
-      "name": "",
-      "title": "",
-      "email": "",
-      "phone": "",
-      "location": "",
-      "linkedin": "",
-      "website": "",
-      "summary": ""
-    },
-    "experience": [
-      {
-        "id": "1",
-        "company": "",
-        "role": "",
-        "startDate": "",
-        "endDate": "",
-        "isCurrent": false,
-        "bullets": []
-      }
-    ],
-    "education": [
-      {
-        "id": "1",
-        "school": "",
-        "degree": "",
-        "field": "",
-        "startDate": "",
-        "endDate": "",
-        "gpa": ""
-      }
-    ],
-    "skills": [
-      { "id": "1", "name": "", "level": 75 }
-    ],
-    "projects": [
-      { "id": "1", "title": "", "description": "", "url": "", "tech": [] }
-    ],
-    "certifications": [
-      { "id": "1", "name": "", "issuer": "", "date": "", "url": "" }
-    ],
-    "languages": [
-      { "id": "1", "language": "", "proficiency": "" }
-    ],
-    "custom": []
-  }
-}
-
-Rules:
-- Use sequential IDs: "1", "2", "3"
-- Skill levels: estimate based on endorsements or context — default to 75
-- For the summary, use the LinkedIn "About" section if available; otherwise write a brief professional summary from the experience
-- Convert LinkedIn experience descriptions into resume-style bullet points
-- Leave fields as empty strings if not found
-- Keep experience in reverse chronological order`;
+LinkedIn Profile:
+${text}`;
 
   const response = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [{ role: 'user', content: prompt }],
     response_format: { type: 'json_object' },
-    max_tokens: 4096,
+    max_tokens: 2000,
   });
 
   const content = response.choices[0]?.message?.content ?? '{}';

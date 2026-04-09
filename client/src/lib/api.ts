@@ -69,4 +69,17 @@ export const api = {
 
   fetchJobUrl: (url: string) =>
     post<{ text: string }>('/api/fetch-job-url', { url }),
+
+  exportPdf: async (html: string, filename: string): Promise<Blob> => {
+    const res = await fetch(`${BASE}/api/export/pdf`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ html, filename }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Export failed' }));
+      throw new Error((err as any).error || `HTTP ${res.status}`);
+    }
+    return res.blob();
+  },
 };

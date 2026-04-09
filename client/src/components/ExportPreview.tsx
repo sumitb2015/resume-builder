@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import PagedPreview from './PagedPreview';
+import TemplateRenderer from '../templates/TemplateRenderer';
 import { api } from '../lib/api';
+import { buildPdfHtml } from '../lib/buildPdfHtml';
 import { ChevronLeft, Download, Type, Move, Palette, Sparkles, Loader2, Undo2, Redo2 } from 'lucide-react';
 
 interface Props {
@@ -39,8 +41,10 @@ const FONT_OPTIONS = [
 ];
 
 const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig, onUpdateResume, pageCount, onPageCount }) => {
+  const printRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<'layout' | 'fonts' | 'colors'>('layout');
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [targetPages, setTargetPages] = useState(1);
   const [userPrompt, setUserPrompt] = useState('');
 
@@ -176,10 +180,34 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
     pushToHistory(resume, newConfig);
   };
 
-  const handlePrint = () => {
-    setTimeout(() => {
+  const handlePrint = async () => {
+    if (!printRef.current) {
       window.print();
-    }, 150);
+      return;
+    }
+
+    setIsDownloading(true);
+    try {
+      const templateHtml = printRef.current.innerHTML;
+      const html = buildPdfHtml(templateHtml, settings.margin);
+      const rawName = resume.personal.name || 'Resume';
+      const filename = rawName.replace(/[^\w\s\-]/g, '').trim() + '_Resume';
+
+      const blob = await api.exportPdf(html, filename);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${filename}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('PDF export failed, falling back to window.print():', err);
+      setTimeout(() => window.print(), 150);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   return (
@@ -422,8 +450,12 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
             className="btn-primary"
             style={{ width: '100%', padding: '12px', fontSize: '13.5px', gap: '8px' }}
             onClick={handlePrint}
+            disabled={isDownloading}
           >
-            <Download size={16} /> Download PDF
+            {isDownloading
+              ? <><Loader2 size={16} className="animate-spin" /> Generating PDF…</>
+              : <><Download size={16} /> Download PDF</>
+            }
           </button>
         </div>
       </aside>
@@ -441,6 +473,25 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
           <PagedPreview resume={resume} config={config} onPageCount={onPageCount} forcePageCount={pageCount} />
         </div>
       </main>
+
+      {/* Hidden off-screen render used to capture HTML for Puppeteer PDF export.
+          Rendered at full A4 width with no clipping so Puppeteer gets the complete
+          continuous document and can apply its own CSS-aware page breaks. */}
+      <div
+        ref={printRef}
+        aria-hidden="true"
+        style={{
+          position: 'fixed',
+          left: '-9999px',
+          top: 0,
+          width: '210mm',
+          pointerEvents: 'none',
+          opacity: 0,
+          overflow: 'hidden',
+        }}
+      >
+        <TemplateRenderer resume={resume} config={config} />
+      </div>
     </div>
   );
 };
