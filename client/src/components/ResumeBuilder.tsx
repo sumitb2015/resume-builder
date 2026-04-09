@@ -3,7 +3,7 @@ import type { Resume, ExperienceEntry, SkillEntry, EducationEntry, ProjectEntry,
 import { api } from '../lib/api';
 import {
   User, Briefcase, GraduationCap, Wrench, FolderOpen,
-  Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Zap, Check, X, GripVertical, Lock, FileText
+  Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Check, X, GripVertical, Lock, FileText
 } from 'lucide-react';
 import { usePlan } from '../contexts/PlanContext';
 import type { Feature } from '../contexts/PlanContext';
@@ -13,8 +13,6 @@ import { stripHtml, plainTextToHtml, htmlCharCount } from '../lib/htmlUtils';
 interface Props {
   resume: Resume;
   onChange: (resume: Resume) => void;
-  onTailor: () => void;
-  onAtsScore: () => void;
   improvements?: ImprovementSuggestions | null;
   onDismissImprovements?: () => void;
   onUpgradeNeeded: (feature: Feature) => void;
@@ -80,7 +78,7 @@ const EmptyState: React.FC<{ icon: React.ReactNode; text: string }> = ({ icon, t
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore, improvements, onDismissImprovements, onUpgradeNeeded }) => {
+const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDismissImprovements, onUpgradeNeeded }) => {
   const { canAccess, remainingBullets, incrementBulletUsage } = usePlan();
   const [activeTab, setActiveTab] = useState<TabId>('personal');
   const [editorTab, setEditorTab] = useState<'builder' | 'suggestions'>('suggestions');
@@ -779,15 +777,6 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, onTailor, onAtsScore
         )}
       </div>
 
-      {/* ── BOTTOM ACTIONS ────────────────────────────── */}
-      <div style={{ padding: '14px 20px', borderTop: '1px solid var(--color-ui-editor-border)', backgroundColor: 'var(--color-ui-editor-nav)', display: 'flex', gap: '10px', flexShrink: 0 }}>
-        <button className="btn-secondary" style={{ flex: 1, justifyContent: 'center', gap: '6px', fontSize: '13px', padding: '10px' }} onClick={onAtsScore}>
-          <Award size={15} /> ATS Score
-        </button>
-        <button className="btn-primary" style={{ flex: 1, justifyContent: 'center', gap: '6px', fontSize: '13px', padding: '10px', background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', boxShadow: '0 4px 16px rgba(99,102,241,0.35)' }} onClick={onTailor}>
-          <Zap size={15} /> Job Tailor
-        </button>
-      </div>
     </div>
   );
 };

@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import LandingPage from './components/LandingPage';
 import LoginPage from './components/LoginPage';
 import ResumeBuilder from './components/ResumeBuilder';
+import AtsCheckerPage from './components/AtsCheckerPage';
+import JobTailorPage from './components/JobTailorPage';
 import ModeSelectModal from './components/ModeSelectModal';
 import UpgradeModal from './components/UpgradeModal';
 import SavedResumesPanel from './components/SavedResumesPanel';
@@ -20,7 +22,7 @@ import { legacyMarkdownToHtml } from './lib/htmlUtils';
 import './index.css';
 import {
   Zap, Palette, Check, ChevronLeft, ChevronRight, FileText, LogOut, Crown, Shield,
-  Save, FolderOpen, Sun, Moon,
+  Save, FolderOpen, Sun, Moon, Award, Lock,
 } from 'lucide-react';
 
 const initialResume: Resume = {
@@ -310,11 +312,11 @@ const PrintPortal = ({ resume, config, pageCount }: { resume: Resume; config: Te
 
 function AppContent() {
   const { currentUser, loading, signOut } = useAuth();
-  const { plan, maxResumes } = usePlan();
+  const { plan, maxResumes, canAccess } = usePlan();
   const { savedResumes, canSaveMore, saveResume, renameResume, deleteResume } = useSavedResumes();
   const { theme, toggleTheme } = useTheme();
 
-  const [view, setView] = useState<'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder' | 'preview'>('landing');
+  const [view, setView] = useState<'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder' | 'preview' | 'ats-checker' | 'job-tailor'>('landing');
   const initialResumeRef = useRef<Resume | null>(null);
   
   useEffect(() => {
@@ -346,6 +348,16 @@ function AppContent() {
       requiredPlan: FEATURE_REQUIRED_PLAN[feature],
       featureLabel: FEATURE_LABELS[feature],
     });
+  };
+
+  const handleGoAtsChecker = () => {
+    if (!canAccess('dynamic-ats')) { showUpgrade('dynamic-ats'); return; }
+    setView('ats-checker');
+  };
+
+  const handleGoJobTailor = () => {
+    if (!canAccess('job-tailor')) { showUpgrade('job-tailor'); return; }
+    setView('job-tailor');
   };
 
   const showSavedToast = () => {
@@ -461,53 +473,136 @@ function AppContent() {
       return <ExportPreview resume={resume} config={activeTemplate} onBack={() => setView('builder')} onUpdateConfig={setActiveTemplate} onUpdateResume={setResume} pageCount={pageCount} onPageCount={setPageCount} />;
     }
 
+    const isToolView = view === 'builder' || view === 'ats-checker' || view === 'job-tailor';
+    const atsLocked = !canAccess('dynamic-ats');
+    const tailorLocked = !canAccess('job-tailor');
+
+    const topBar = isToolView ? (
+      <header className="top-bar no-print" style={{ position: 'relative' }}>
+        {/* Left: logo + plan badge + (builder only) template button */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer' }} onClick={() => setView('landing')}>
+            <div style={{ width: '26px', height: '26px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Zap size={13} color="white" fill="white" />
+            </div>
+            <span style={{ fontSize: '15px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)' }}>Bespoke<span style={{ color: '#818CF8' }}>CV</span></span>
+          </div>
+          <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)' }} />
+          <PlanBadge size="sm" />
+          {view === 'builder' && (
+            <>
+              <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)' }} />
+              <button className="btn-ghost" style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '5px 10px', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }} onClick={() => setRightPanelOpen(true)}>
+                <div style={{ display: 'flex', gap: '3px' }}>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: activeTemplate.colors.primary }} />
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: activeTemplate.colors.accent }} />
+                </div>
+                <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-ui-text)' }}>{activeTemplate.name}</span>
+                <ChevronRight size={11} style={{ opacity: 0.5 }} />
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Center: navigation tabs */}
+        <div style={{
+          position: 'absolute', left: '50%', transform: 'translateX(-50%)',
+          display: 'flex', alignItems: 'center', gap: '2px',
+          background: 'var(--color-ui-surface)',
+          borderRadius: '10px', padding: '3px',
+          border: '1px solid var(--color-ui-border)',
+        }}>
+          {([
+            { id: 'builder' as const, label: 'Builder', Icon: FileText, locked: false },
+            { id: 'ats-checker' as const, label: 'ATS Check', Icon: Award, locked: atsLocked, plan: 'Pro' },
+            { id: 'job-tailor' as const, label: 'Job Tailor', Icon: Zap, locked: tailorLocked, plan: 'Ultimate' },
+          ] as const).map(tab => {
+            const isActive = view === tab.id;
+            return (
+              <button
+                key={tab.id}
+                title={tab.locked ? `Requires ${(tab as any).plan} plan` : undefined}
+                onClick={() => {
+                  if (tab.id === 'builder') setView('builder');
+                  else if (tab.id === 'ats-checker') handleGoAtsChecker();
+                  else handleGoJobTailor();
+                }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '5px',
+                  padding: '5px 13px', borderRadius: '7px',
+                  background: isActive ? 'var(--color-ui-accent)' : 'transparent',
+                  color: isActive ? '#fff' : tab.locked ? 'var(--color-ui-text-muted)' : 'var(--color-ui-text-muted)',
+                  border: 'none', cursor: 'pointer',
+                  fontSize: '12px', fontWeight: isActive ? 700 : 500,
+                  transition: 'all 0.15s',
+                  opacity: tab.locked && !isActive ? 0.7 : 1,
+                }}
+              >
+                <tab.Icon size={12} />
+                {tab.label}
+                {tab.locked && <Lock size={9} style={{ marginLeft: '1px', opacity: 0.6 }} />}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Right: action buttons */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button className="btn-ghost" style={{ padding: '7px 10px' }} onClick={toggleTheme}>{theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}</button>
+          {view === 'builder' && (
+            <>
+              <button className={rightPanelOpen ? 'btn-primary' : 'btn-secondary'} style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }} onClick={() => setRightPanelOpen(v => !v)}><Palette size={13} /> Style</button>
+              <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }} onClick={() => setShowSavedPanel(true)}>
+                <FolderOpen size={13} /> My Resumes
+                {savedResumes.length > 0 && <span style={{ position: 'absolute', top: '-5px', right: '-5px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-ui-accent)', fontSize: '9px', fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{savedResumes.length}</span>}
+              </button>
+              <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }} onClick={handleSave}><Save size={13} /> Save</button>
+              <button className="btn-primary" style={{ gap: '6px', fontSize: '13px' }} onClick={() => {
+                setActiveTemplate(t => ({ ...t, settings: t.settings ?? { margin: 15, fontSize: 100, lineHeight: 1.5 } }));
+                setView('preview');
+              }}><FileText size={14} /> Preview</button>
+            </>
+          )}
+          {currentUser && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: view === 'builder' ? '0' : '8px' }}>
+              <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: 'white' }}>{(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}</div>
+              <button className="btn-ghost" style={{ padding: '4px' }} onClick={handleLogout}><LogOut size={14} /></button>
+            </div>
+          )}
+        </div>
+      </header>
+    ) : null;
+
+    if (view === 'ats-checker') {
+      return (
+        <div className="app-grid" style={{ background: 'var(--color-ui-bg)' }}>
+          {topBar}
+          <AtsCheckerPage resume={resume} onBack={() => setView('builder')} onUpgradeNeeded={showUpgrade} />
+        </div>
+      );
+    }
+
+    if (view === 'job-tailor') {
+      return (
+        <div className="app-grid" style={{ background: 'var(--color-ui-bg)' }}>
+          {topBar}
+          <JobTailorPage
+            resume={resume}
+            onApplyChanges={(updated) => { setResume(updated); setView('builder'); }}
+            onBack={() => setView('builder')}
+            onUpgradeNeeded={showUpgrade}
+          />
+        </div>
+      );
+    }
+
     return (
       <div className="app-grid" style={{ background: 'var(--color-ui-bg)' }}>
-        <header className="top-bar no-print">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer' }} onClick={() => setView('landing')}>
-              <div style={{ width: '26px', height: '26px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Zap size={13} color="white" fill="white" />
-              </div>
-              <span style={{ fontSize: '15px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)' }}>Bespoke<span style={{ color: '#818CF8' }}>CV</span></span>
-            </div>
-            <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)' }} />
-            <PlanBadge size="sm" />
-            <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)' }} />
-            <button className="btn-ghost" style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '5px 10px', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }} onClick={() => setRightPanelOpen(true)}>
-              <div style={{ display: 'flex', gap: '3px' }}>
-                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: activeTemplate.colors.primary }} />
-                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: activeTemplate.colors.accent }} />
-              </div>
-              <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-ui-text)' }}>{activeTemplate.name}</span>
-              <ChevronRight size={11} style={{ opacity: 0.5 }} />
-            </button>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <button className="btn-ghost" style={{ padding: '7px 10px' }} onClick={toggleTheme}>{theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}</button>
-            <button className={rightPanelOpen ? 'btn-primary' : 'btn-secondary'} style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }} onClick={() => setRightPanelOpen(v => !v)}><Palette size={13} /> Style</button>
-            <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }} onClick={() => setShowSavedPanel(true)}>
-              <FolderOpen size={13} /> My Resumes
-              {savedResumes.length > 0 && <span style={{ position: 'absolute', top: '-5px', right: '-5px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-ui-accent)', fontSize: '9px', fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{savedResumes.length}</span>}
-            </button>
-            <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }} onClick={handleSave}><Save size={13} /> Save</button>
-            <button className="btn-primary" style={{ gap: '6px', fontSize: '13px' }} onClick={() => {
-              setActiveTemplate(t => ({ ...t, settings: t.settings ?? { margin: 15, fontSize: 100, lineHeight: 1.5 } }));
-              setView('preview');
-            }}><FileText size={14} /> Preview</button>
-            {currentUser && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '8px' }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: 'white' }}>{(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}</div>
-                <button className="btn-ghost" style={{ padding: '4px' }} onClick={handleLogout}><LogOut size={14} /></button>
-              </div>
-            )}
-          </div>
-        </header>
+        {topBar}
 
         <div style={{ display: 'flex', overflow: 'hidden', height: '100%' }}>
           <div style={{ width: formWidth, flexShrink: 0, transition: 'width 0.25s', position: 'relative', height: '100%', overflow: 'hidden' }} className="no-print">
-            <ResumeBuilder resume={resume} onChange={setResume} onTailor={() => {}} onAtsScore={() => {}} improvements={improvements} onDismissImprovements={() => setImprovements(null)} onUpgradeNeeded={showUpgrade} />
+            <ResumeBuilder resume={resume} onChange={setResume} improvements={improvements} onDismissImprovements={() => setImprovements(null)} onUpgradeNeeded={showUpgrade} />
             <button onClick={() => setFormExpanded(v => !v)} style={{ position: 'absolute', top: '50%', right: '-11px', transform: 'translateY(-50%)', width: '22px', height: '44px', borderRadius: '0 8px 8px 0', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderLeft: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-ui-text-muted)', zIndex: 10 }}>{formExpanded ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}</button>
           </div>
 
