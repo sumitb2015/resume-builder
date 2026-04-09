@@ -1,80 +1,82 @@
-import React from 'react';
-import { Check, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { Check, X, FileText, Zap, Palette, Award, Upload, Link2, Download } from 'lucide-react';
 
 interface Props { onStart: () => void }
 
 const TIERS = [
   {
     name: 'Basic',
-    price: 199,
+    price: { monthly: 199, annual: 159 },
     period: '14 days',
     tagline: 'Try the essentials, no commitment',
     cta: 'Start 14-Day Trial',
     ctaStyle: 'secondary' as const,
     popular: false,
     features: [
-      { label: '3 professional templates', included: true },
-      { label: 'Live preview & editor', included: true },
-      { label: 'PDF export (1 per day)', included: true },
-      { label: 'ATS score (template-based)', included: true },
-      { label: 'AI bullet point writer (3/day)', included: true },
-      { label: 'All 15 premium templates', included: false },
-      { label: 'AI summary writer', included: false },
-      { label: 'Skills finder', included: false },
-      { label: 'Job tailoring (JD matching)', included: false },
-      { label: 'Resume import & LinkedIn sync', included: false },
+      { label: '3 professional templates', included: true, Icon: Palette },
+      { label: 'Live preview & editor', included: true, Icon: FileText },
+      { label: 'PDF export (1 per day)', included: true, Icon: Download },
+      { label: 'ATS score (template-based)', included: true, Icon: Award },
+      { label: 'AI bullet point writer (3/day)', included: true, Icon: Zap },
+      { label: 'All 15 premium templates', included: false, Icon: Palette },
+      { label: 'AI summary writer', included: false, Icon: Zap },
+      { label: 'Skills finder', included: false, Icon: Award },
+      { label: 'Job tailoring (JD matching)', included: false, Icon: FileText },
+      { label: 'Resume import & LinkedIn sync', included: false, Icon: Upload },
     ],
   },
   {
     name: 'Pro',
-    price: 499,
+    price: { monthly: 499, annual: 399 },
     period: 'mo',
     tagline: 'Core AI writing tools for active job seekers',
     cta: 'Start Pro',
     ctaStyle: 'primary' as const,
     popular: true,
     features: [
-      { label: 'All 15 premium templates', included: true },
-      { label: 'Live preview & editor', included: true },
-      { label: 'Unlimited PDF exports', included: true },
-      { label: 'Dynamic ATS score with JD matching', included: true },
-      { label: 'AI bullet point writer (unlimited)', included: true },
-      { label: 'AI summary writer', included: true },
-      { label: 'Skills finder', included: true },
-      { label: 'Color & style customization', included: true },
-      { label: 'Resume import from PDF / DOCX', included: true },
-      { label: 'Job tailoring (full resume rewrite)', included: false },
+      { label: 'All 15 premium templates', included: true, Icon: Palette },
+      { label: 'Live preview & editor', included: true, Icon: FileText },
+      { label: 'Unlimited PDF exports', included: true, Icon: Download },
+      { label: 'Dynamic ATS score with JD matching', included: true, Icon: Award },
+      { label: 'AI bullet point writer (unlimited)', included: true, Icon: Zap },
+      { label: 'AI summary writer', included: true, Icon: Zap },
+      { label: 'Skills finder', included: true, Icon: Award },
+      { label: 'Color & style customization', included: true, Icon: Palette },
+      { label: 'Resume import from PDF / DOCX', included: true, Icon: Upload },
+      { label: 'Job tailoring (full resume rewrite)', included: false, Icon: FileText },
     ],
   },
   {
     name: 'Ultimate',
-    price: 699,
+    price: { monthly: 699, annual: 559 },
     period: 'mo',
     tagline: 'Pro + advanced AI workflows & import tools',
     cta: 'Go Ultimate',
     ctaStyle: 'secondary' as const,
     popular: false,
     features: [
-      { label: 'Everything in Pro', included: true },
-      { label: 'Job tailoring — AI rewrites resume to match JD', included: true },
-      { label: 'Diff review (before/after on every change)', included: true },
-      { label: 'Resume import from PDF / DOCX', included: true },
-      { label: 'LinkedIn profile import', included: true },
-      { label: 'AI improvement suggestions on import', included: true },
-      { label: 'Priority PDF generation', included: true },
-      { label: 'Email support', included: true },
-      { label: 'Drag & drop section reordering', included: true },
-      { label: 'Early access to new templates', included: true },
+      { label: 'Everything in Pro', included: true, Icon: Award },
+      { label: 'Job tailoring — AI rewrites resume to match JD', included: true, Icon: FileText },
+      { label: 'Diff review (before/after on every change)', included: true, Icon: Zap },
+      { label: 'Resume import from PDF / DOCX', included: true, Icon: Upload },
+      { label: 'LinkedIn profile import', included: true, Icon: Link2 },
+      { label: 'AI improvement suggestions on import', included: true, Icon: Zap },
+      { label: 'Priority PDF generation', included: true, Icon: Download },
+      { label: 'Email support', included: true, Icon: Award },
+      { label: 'Drag & drop section reordering', included: true, Icon: Palette },
+      { label: 'Early access to new templates', included: true, Icon: Palette },
     ],
   },
 ];
 
 const PricingSection: React.FC<Props> = ({ onStart }) => {
+  const [annual, setAnnual] = useState(false);
+
   return (
     <section id="pricing" style={{ padding: '100px 48px' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '56px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
             padding: '6px 16px', borderRadius: '100px',
@@ -86,24 +88,61 @@ const PricingSection: React.FC<Props> = ({ onStart }) => {
           <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)', marginBottom: '14px' }}>
             Simple, transparent pricing
           </h2>
-          <p style={{ fontSize: '16px', color: 'var(--color-ui-text-muted)' }}>
+          <p style={{ fontSize: '16px', color: 'var(--color-ui-text-muted)', marginBottom: '32px' }}>
             Try Basic for 14 days. Upgrade to Pro when you need more power.
           </p>
+
+          {/* Billing toggle */}
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '12px',
+            padding: '6px 16px 6px 16px', borderRadius: '100px',
+            background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)',
+          }}>
+            <span style={{ fontSize: '13px', fontWeight: 500, color: annual ? 'var(--color-ui-text-muted)' : 'var(--color-ui-text)' }}>Monthly</span>
+            <button
+              onClick={() => setAnnual(v => !v)}
+              aria-label="Toggle annual billing"
+              style={{
+                width: '44px', height: '24px', borderRadius: '12px', border: 'none', cursor: 'pointer',
+                background: annual ? 'var(--color-ui-accent)' : 'var(--color-ui-border)',
+                position: 'relative', transition: 'background 0.25s', flexShrink: 0,
+              }}
+            >
+              <span style={{
+                position: 'absolute', top: '3px', left: annual ? '23px' : '3px',
+                width: '18px', height: '18px', borderRadius: '50%', background: 'white',
+                transition: 'left 0.25s', display: 'block',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+              }} />
+            </button>
+            <span style={{ fontSize: '13px', fontWeight: 500, color: annual ? 'var(--color-ui-text)' : 'var(--color-ui-text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              Annual
+              <span style={{
+                fontSize: '10.5px', fontWeight: 700, padding: '2px 8px', borderRadius: '100px',
+                background: 'rgba(74,222,128,0.15)', color: '#4ADE80',
+                border: '1px solid rgba(74,222,128,0.25)',
+              }}>Save 20%</span>
+            </span>
+          </div>
         </div>
 
         {/* Pricing cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', alignItems: 'stretch' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', alignItems: 'center' }}>
           {TIERS.map((tier) => (
             <div
               key={tier.name}
+              className="pricing-card"
               style={{
-                borderRadius: '20px', padding: '32px 28px',
-                border: tier.popular ? '1px solid rgba(99,102,241,0.45)' : '1px solid var(--color-ui-border)',
+                borderRadius: '20px', padding: tier.popular ? '36px 28px' : '32px 28px',
+                border: tier.popular ? '1px solid rgba(99,102,241,0.5)' : '1px solid var(--color-ui-border)',
                 background: tier.popular
-                  ? 'linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.07))'
+                  ? 'linear-gradient(145deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08))'
                   : 'var(--color-ui-surface)',
-                position: 'relative',
-                display: 'flex', flexDirection: 'column',
+                position: 'relative', display: 'flex', flexDirection: 'column',
+                transform: tier.popular ? 'scale(1.04)' : 'scale(1)',
+                boxShadow: tier.popular
+                  ? '0 0 0 1px rgba(99,102,241,0.3), 0 0 40px rgba(99,102,241,0.18)'
+                  : 'none',
               }}
             >
               {/* Popular badge */}
@@ -113,24 +152,28 @@ const PricingSection: React.FC<Props> = ({ onStart }) => {
                   padding: '5px 18px', borderRadius: '100px',
                   background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
                   fontSize: '11.5px', fontWeight: 700, color: 'white',
-                  boxShadow: '0 4px 16px rgba(99,102,241,0.4)',
-                  whiteSpace: 'nowrap',
+                  boxShadow: '0 4px 16px rgba(99,102,241,0.45)', whiteSpace: 'nowrap',
                 }}>
                   ★ Most Popular
                 </div>
               )}
 
               {/* Tier header */}
-              <div style={{ marginBottom: '28px' }}>
-                <h3 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '6px' }}>{tier.name}</h3>
-                <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', marginBottom: '20px' }}>{tier.tagline}</p>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+              <div style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '4px' }}>{tier.name}</h3>
+                <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', marginBottom: '18px' }}>{tier.tagline}</p>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
                   <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ui-text-muted)', alignSelf: 'flex-start', marginTop: '10px' }}>₹</span>
                   <span style={{ fontSize: '42px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em' }}>
-                    {tier.price}
+                    {annual && tier.period !== '14 days' ? tier.price.annual : tier.price.monthly}
                   </span>
                   <span style={{ fontSize: '14px', color: 'var(--color-ui-text-dim)' }}>/{tier.period}</span>
                 </div>
+                {annual && tier.period !== '14 days' && (
+                  <p style={{ fontSize: '11.5px', color: '#4ADE80', marginTop: '4px', fontWeight: 600 }}>
+                    Save ₹{(tier.price.monthly - tier.price.annual) * 12}/yr vs monthly
+                  </p>
+                )}
               </div>
 
               {/* CTA button */}
@@ -138,39 +181,44 @@ const PricingSection: React.FC<Props> = ({ onStart }) => {
                 onClick={onStart}
                 style={{
                   width: '100%', padding: '12px', borderRadius: '10px',
-                  marginBottom: '28px', fontSize: '14.5px', fontWeight: 600,
+                  marginBottom: '24px', fontSize: '14.5px', fontWeight: 600,
                   cursor: 'pointer', transition: 'all 0.2s',
                   ...(tier.ctaStyle === 'primary'
-                    ? {
-                        background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-                        border: 'none', color: 'white',
-                        boxShadow: '0 6px 24px rgba(99,102,241,0.35)',
-                      }
-                    : {
-                        background: 'transparent',
-                        border: '1px solid var(--color-ui-border)',
-                        color: 'var(--color-ui-text)',
-                      }),
+                    ? { background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', border: 'none', color: 'white', boxShadow: '0 6px 24px rgba(99,102,241,0.4)' }
+                    : { background: 'transparent', border: '1px solid var(--color-ui-border)', color: 'var(--color-ui-text)' }),
                 }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  if (tier.ctaStyle === 'primary') e.currentTarget.style.boxShadow = '0 10px 32px rgba(99,102,241,0.5)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  if (tier.ctaStyle === 'primary') e.currentTarget.style.boxShadow = '0 6px 24px rgba(99,102,241,0.4)';
+                }}
               >
                 {tier.cta}
               </button>
 
               {/* Divider */}
-              <div style={{ height: '1px', background: 'var(--color-ui-border)', marginBottom: '24px' }} />
+              <div style={{ height: '1px', background: 'var(--color-ui-border)', marginBottom: '20px' }} />
 
               {/* Feature list */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1 }}>
                 {tier.features.map((feature, fi) => (
-                  <div key={fi} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                  <div
+                    key={fi}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '10px',
+                      padding: '7px 8px', borderRadius: '6px',
+                      background: fi % 2 === 0 ? 'rgba(255,255,255,0.025)' : 'transparent',
+                    }}
+                  >
                     {feature.included
-                      ? <Check size={15} color="#4ADE80" style={{ flexShrink: 0, marginTop: '1px' }} />
-                      : <X size={15} color="var(--color-ui-text-dim)" style={{ flexShrink: 0, marginTop: '1px' }} />
+                      ? <Check size={14} color="#4ADE80" style={{ flexShrink: 0 }} />
+                      : <X size={14} color="var(--color-ui-text-dim)" style={{ flexShrink: 0 }} />
                     }
                     <span style={{
-                      fontSize: '13.5px',
+                      fontSize: '13px',
                       color: feature.included ? 'var(--color-ui-text)' : 'var(--color-ui-text-dim)',
                       lineHeight: 1.4,
                     }}>
@@ -184,7 +232,7 @@ const PricingSection: React.FC<Props> = ({ onStart }) => {
         </div>
 
         {/* Footer note */}
-        <p style={{ textAlign: 'center', marginTop: '36px', fontSize: '13px', color: 'var(--color-ui-text-dim)' }}>
+        <p style={{ textAlign: 'center', marginTop: '48px', fontSize: '13px', color: 'var(--color-ui-text-dim)' }}>
           All plans include secure data handling. Cancel anytime. No long-term contracts.
         </p>
       </div>

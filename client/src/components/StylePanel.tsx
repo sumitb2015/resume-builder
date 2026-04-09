@@ -202,26 +202,35 @@ export default function StylePanel({ templates, activeTemplate, onTemplateChange
               </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', opacity: colorsLocked ? 0.45 : 1, pointerEvents: colorsLocked ? 'none' : 'auto' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px', opacity: colorsLocked ? 0.45 : 1, pointerEvents: colorsLocked ? 'none' : 'auto' }}>
               {colorPalettes.map(p => {
                 const isActive = activeTemplate.colors.primary === p.primary && activeTemplate.colors.accent === p.accent;
                 return (
                   <button
                     key={p.name}
                     onClick={() => onColorChange(p)}
+                    title={p.name}
                     style={{
-                      display: 'flex', alignItems: 'center', gap: '8px',
-                      padding: '8px 10px', borderRadius: '8px',
-                      border: `1px solid ${isActive ? 'var(--color-ui-accent)' : 'var(--color-ui-border)'}`,
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px',
+                      padding: '6px 4px', borderRadius: '8px',
+                      border: `1px solid ${isActive ? 'var(--color-ui-accent)' : 'transparent'}`,
                       background: isActive ? 'rgba(99,102,241,0.1)' : 'transparent',
                       cursor: 'pointer', transition: 'all 0.15s',
                     }}
+                    onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'var(--color-ui-surface-2)'; }}
+                    onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
                   >
-                    <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
-                      <div style={{ width: '14px', height: '14px', borderRadius: '4px', background: p.primary }} />
-                      <div style={{ width: '14px', height: '14px', borderRadius: '4px', background: p.accent }} />
+                    {/* Two-tone circle swatch */}
+                    <div style={{ position: 'relative', width: '34px', height: '34px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, boxShadow: isActive ? `0 0 0 2px var(--color-ui-accent), 0 0 0 4px rgba(99,102,241,0.2)` : '0 1px 3px rgba(0,0,0,0.3)' }}>
+                      <div style={{ position: 'absolute', inset: 0, left: 0, width: '50%', background: p.primary }} />
+                      <div style={{ position: 'absolute', inset: 0, left: '50%', width: '50%', background: p.accent }} />
+                      {isActive && (
+                        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.25)' }}>
+                          <span style={{ color: 'white', fontSize: '14px', fontWeight: 700, lineHeight: 1 }}>✓</span>
+                        </div>
+                      )}
                     </div>
-                    <span style={{ fontSize: '11.5px', color: 'var(--color-ui-text)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
+                    <span style={{ fontSize: '9px', color: isActive ? 'var(--color-ui-accent)' : 'var(--color-ui-text-muted)', fontWeight: isActive ? 700 : 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>{p.name}</span>
                   </button>
                 );
               })}

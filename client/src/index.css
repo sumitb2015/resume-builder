@@ -836,6 +836,78 @@ body {
   50% { opacity: 0; }
 }
 
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-slide-in { animation: fadeSlideIn 0.25s cubic-bezier(0.16,1,0.3,1) both; }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.spin { animation: spin 0.8s linear infinite; }
+
+@keyframes aiPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+.ai-loading { animation: aiPulse 1.2s ease-in-out infinite; }
+
+/* ── SHIMMER (AI buttons, skeleton loaders) ──────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.btn-ai:hover {
+  background-size: 200% auto !important;
+  background-image: linear-gradient(
+    105deg,
+    rgba(99,102,241,0.22) 0%,
+    rgba(168,85,247,0.32) 30%,
+    rgba(236,72,153,0.22) 60%,
+    rgba(99,102,241,0.22) 100%
+  ) !important;
+  animation: shimmer 1.6s linear infinite;
+  border-color: rgba(99,102,241,0.5);
+  color: #C4B5FD;
+}
+
+/* ── FLOAT (hero decorative blobs) ──────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  33%       { transform: translateX(-50%) translateY(-16px); }
+  66%       { transform: translateX(-50%) translateY(10px); }
+}
+@keyframes floatSlow {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(-22px); }
+}
+
+/* ── COUNT-UP PULSE (stats section) ─────────────────────── */
+@keyframes countPulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+.count-pulse { animation: countPulse 0.4s cubic-bezier(0.16,1,0.3,1); }
+
+/* ── BADGE PULSE (nav count badges) ─────────────────────── */
+@keyframes scalePulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+.badge-pulse { animation: scalePulse 0.3s cubic-bezier(0.16,1,0.3,1); }
+
+/* ── FOCUS RING (accessibility) ─────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-ui-accent);
+  outline-offset: 2px;
+}
+button:focus:not(:focus-visible) { outline: none; }
+
 /* ── DRAG AND DROP ─────────────────────────────────────── */
 .entry-card[draggable="true"] {
   cursor: default;

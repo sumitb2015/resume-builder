@@ -15,6 +15,7 @@ const PLAN_BADGE_CONFIG = {
 
 const NavBar: React.FC<Props> = ({ onStart }) => {
   const [scrollY, setScrollY] = useState(0);
+  const [scrollPct, setScrollPct] = useState(0);
   const { currentUser, signOut } = useAuth();
   const { plan } = usePlan();
   const { theme, toggleTheme } = useTheme();
@@ -22,7 +23,11 @@ const NavBar: React.FC<Props> = ({ onStart }) => {
   useEffect(() => {
     const el = document.querySelector('.landing-page') as HTMLElement | null;
     if (!el) return;
-    const handler = () => setScrollY(el.scrollTop);
+    const handler = () => {
+      setScrollY(el.scrollTop);
+      const max = el.scrollHeight - el.clientHeight;
+      setScrollPct(max > 0 ? (el.scrollTop / max) * 100 : 0);
+    };
     el.addEventListener('scroll', handler, { passive: true });
     return () => el.removeEventListener('scroll', handler);
   }, []);
@@ -53,6 +58,19 @@ const NavBar: React.FC<Props> = ({ onStart }) => {
       backdropFilter: scrollY > 40 ? 'blur(16px)' : 'none',
       transition: 'all 0.3s',
     }}>
+      {/* Scroll progress bar */}
+      {scrollPct > 0 && (
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: '2px',
+          background: 'var(--color-ui-border)', zIndex: 1,
+        }}>
+          <div style={{
+            height: '100%', width: `${scrollPct}%`,
+            background: 'linear-gradient(90deg, #6366F1, #A855F7)',
+            transition: 'width 0.1s linear',
+          }} />
+        </div>
+      )}
       {/* Logo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => scrollToSection('hero')}>
         <div style={{ width: '30px', height: '30px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

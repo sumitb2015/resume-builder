@@ -224,24 +224,39 @@ const TemplateShowcase: React.FC<Props> = ({ onStart }) => {
           </p>
         </div>
 
-        {/* Filter tabs */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '48px' }}>
-          {FILTER_TABS.map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => setFilter(tab.key)}
-              style={{
-                padding: '8px 20px', borderRadius: '100px',
-                border: filter === tab.key ? '1px solid rgba(99,102,241,0.5)' : '1px solid var(--color-ui-border)',
-                background: filter === tab.key ? 'rgba(99,102,241,0.15)' : 'transparent',
-                color: filter === tab.key ? '#A78BFA' : 'var(--color-ui-text-muted)',
-                fontSize: '13.5px', fontWeight: 600, cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-            >
-              {tab.label} <span style={{ marginLeft: '4px', opacity: 0.6, fontSize: '12px' }}>({counts[tab.key]})</span>
-            </button>
-          ))}
+        {/* Filter tabs — segmented control */}
+        <div style={{
+          display: 'flex', justifyContent: 'center', marginBottom: '48px',
+        }}>
+          <div style={{
+            display: 'inline-flex', gap: '2px', padding: '4px',
+            background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)',
+            borderRadius: '100px',
+          }}>
+            {FILTER_TABS.map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setFilter(tab.key)}
+                style={{
+                  padding: '7px 20px', borderRadius: '100px',
+                  border: 'none',
+                  background: filter === tab.key ? 'linear-gradient(135deg, rgba(99,102,241,0.9), rgba(139,92,246,0.9))' : 'transparent',
+                  color: filter === tab.key ? 'white' : 'var(--color-ui-text-muted)',
+                  fontSize: '13px', fontWeight: filter === tab.key ? 700 : 500,
+                  cursor: 'pointer', transition: 'all 0.2s cubic-bezier(0.16,1,0.3,1)',
+                  whiteSpace: 'nowrap',
+                  boxShadow: filter === tab.key ? '0 2px 12px rgba(99,102,241,0.4)' : 'none',
+                }}
+                onMouseEnter={e => { if (filter !== tab.key) e.currentTarget.style.color = 'var(--color-ui-text)'; }}
+                onMouseLeave={e => { if (filter !== tab.key) e.currentTarget.style.color = 'var(--color-ui-text-muted)'; }}
+              >
+                {tab.label}
+                <span style={{ marginLeft: '6px', fontSize: '11px', opacity: filter === tab.key ? 0.8 : 0.5, fontWeight: 500 }}>
+                  {counts[tab.key]}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Grid */}

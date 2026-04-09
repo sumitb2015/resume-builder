@@ -342,6 +342,90 @@ function AppContent() {
   const [savePrompt, setSavePrompt] = useState(false);
   const [saveNameValue, setSaveNameValue] = useState('');
   const [savedToast, setSavedToast] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+
+  // ── UNDO/REDO ─────────────────────────────────────────────
+  const historyRef = useRef<Resume[]>([]);
+  const historyIndexRef = useRef(-1);
+  const isUndoingRef = useRef(false);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+
+  const pushHistory = (r: Resume) => {
+    if (isUndoingRef.current) return;
+    // Truncate redo branch
+    historyRef.current = historyRef.current.slice(0, historyIndexRef.current + 1);
+    historyRef.current.push(JSON.parse(JSON.stringify(r)));
+    if (historyRef.current.length > 40) historyRef.current.shift();
+    historyIndexRef.current = historyRef.current.length - 1;
+    setCanUndo(historyIndexRef.current > 0);
+    setCanRedo(false);
+  };
+
+  const undo = () => {
+    if (historyIndexRef.current <= 0) return;
+    historyIndexRef.current--;
+    isUndoingRef.current = true;
+    setResume(JSON.parse(JSON.stringify(historyRef.current[historyIndexRef.current]!)));
+    isUndoingRef.current = false;
+    setCanUndo(historyIndexRef.current > 0);
+    setCanRedo(true);
+  };
+
+  const redo = () => {
+    if (historyIndexRef.current >= historyRef.current.length - 1) return;
+    historyIndexRef.current++;
+    isUndoingRef.current = true;
+    setResume(JSON.parse(JSON.stringify(historyRef.current[historyIndexRef.current]!)));
+    isUndoingRef.current = false;
+    setCanUndo(true);
+    setCanRedo(historyIndexRef.current < historyRef.current.length - 1);
+  };
+
+  // Keyboard shortcut handler
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault(); undo();
+      }
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        e.preventDefault(); redo();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Wrap setResume to also push to undo history
+  const setResumeWithHistory = (r: Resume | ((prev: Resume) => Resume)) => {
+    setResume(prev => {
+      const next = typeof r === 'function' ? r(prev) : r;
+      pushHistory(next);
+      return next;
+    });
+  };
+
+  // ── AUTO-SAVE ──────────────────────────────────────────────
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (view !== 'builder') return;
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    setAutoSaveStatus('saving');
+    autoSaveTimerRef.current = setTimeout(() => {
+      try {
+        localStorage.setItem('bespokecv_autosave', JSON.stringify({ resume, templateId: activeTemplate.id, savedAt: new Date().toISOString() }));
+        setAutoSaveStatus('saved');
+        setTimeout(() => setAutoSaveStatus('idle'), 3000);
+      } catch {
+        setAutoSaveStatus('idle');
+      }
+    }, 1500);
+    return () => { if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resume, view]);
 
   const showUpgrade = (feature: Feature) => {
     setUpgradePrompt({
@@ -362,6 +446,7 @@ function AppContent() {
 
   const showSavedToast = () => {
     setSavedToast(true);
+    setLastSavedAt(new Date());
     setTimeout(() => setSavedToast(false), 2500);
   };
 
@@ -551,11 +636,48 @@ function AppContent() {
           <button className="btn-ghost" style={{ padding: '7px 10px' }} onClick={toggleTheme}>{theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}</button>
           {view === 'builder' && (
             <>
+              {/* Undo / Redo */}
+              <button
+                className="btn-ghost"
+                style={{ padding: '7px 9px', opacity: canUndo ? 1 : 0.35 }}
+                onClick={undo}
+                disabled={!canUndo}
+                title="Undo (Ctrl+Z)"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6"/><path d="M3 13C4.5 7.5 10 4 16 5.5A9 9 0 0 1 21 13"/></svg>
+              </button>
+              <button
+                className="btn-ghost"
+                style={{ padding: '7px 9px', opacity: canRedo ? 1 : 0.35 }}
+                onClick={redo}
+                disabled={!canRedo}
+                title="Redo (Ctrl+Y)"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 7v6h-6"/><path d="M21 13C19.5 7.5 14 4 8 5.5A9 9 0 0 0 3 13"/></svg>
+              </button>
+              <div style={{ width: '1px', height: '18px', background: 'var(--color-ui-border)' }} />
               <button className={rightPanelOpen ? 'btn-primary' : 'btn-secondary'} style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }} onClick={() => setRightPanelOpen(v => !v)}><Palette size={13} /> Style</button>
               <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }} onClick={() => setShowSavedPanel(true)}>
                 <FolderOpen size={13} /> My Resumes
                 {savedResumes.length > 0 && <span style={{ position: 'absolute', top: '-5px', right: '-5px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-ui-accent)', fontSize: '9px', fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{savedResumes.length}</span>}
               </button>
+              {/* Auto-save indicator */}
+              {autoSaveStatus === 'saving' && (
+                <span style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', fontWeight: 500, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span className="spin" style={{ display: 'inline-block', width: '10px', height: '10px', border: '1.5px solid var(--color-ui-border)', borderTopColor: 'var(--color-ui-accent)', borderRadius: '50%' }} />
+                  Saving…
+                </span>
+              )}
+              {autoSaveStatus === 'saved' && (
+                <span style={{ fontSize: '11px', color: 'var(--color-success)', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                  ✓ Auto-saved
+                </span>
+              )}
+              {lastSavedAt && autoSaveStatus === 'idle' && (
+                <span style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', fontWeight: 500, whiteSpace: 'nowrap' }}>
+                  Saved · {lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              )}
               <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }} onClick={handleSave}><Save size={13} /> Save</button>
               <button className="btn-primary" style={{ gap: '6px', fontSize: '13px' }} onClick={() => {
                 setActiveTemplate(t => ({ ...t, settings: t.settings ?? { margin: 15, fontSize: 100, lineHeight: 1.5 } }));
@@ -602,7 +724,7 @@ function AppContent() {
 
         <div style={{ display: 'flex', overflow: 'hidden', height: '100%' }}>
           <div style={{ width: formWidth, flexShrink: 0, transition: 'width 0.25s', position: 'relative', height: '100%', overflow: 'hidden' }} className="no-print">
-            <ResumeBuilder resume={resume} onChange={setResume} improvements={improvements} onDismissImprovements={() => setImprovements(null)} onUpgradeNeeded={showUpgrade} />
+            <ResumeBuilder resume={resume} onChange={setResumeWithHistory} improvements={improvements} onDismissImprovements={() => setImprovements(null)} onUpgradeNeeded={showUpgrade} />
             <button onClick={() => setFormExpanded(v => !v)} style={{ position: 'absolute', top: '50%', right: '-11px', transform: 'translateY(-50%)', width: '22px', height: '44px', borderRadius: '0 8px 8px 0', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderLeft: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-ui-text-muted)', zIndex: 10 }}>{formExpanded ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}</button>
           </div>
 
@@ -615,8 +737,16 @@ function AppContent() {
                   {activeTemplate.name}
                 </span>
                 <div style={{ width: '1px', height: '12px', background: 'var(--color-ui-border)' }} />
-                <span style={{ fontSize: '11px', color: activeTemplate.atsScore >= 90 ? 'var(--color-success)' : 'var(--color-warning)', fontWeight: 600 }}>
-                  {activeTemplate.atsScore >= 90 ? '✓' : '⚠'} ATS {activeTemplate.atsScore}%
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '5px',
+                  fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '100px',
+                  ...(activeTemplate.atsScore >= 85
+                    ? { background: 'rgba(63,185,80,0.15)', color: 'var(--color-success)', border: '1px solid rgba(63,185,80,0.3)' }
+                    : activeTemplate.atsScore >= 70
+                    ? { background: 'rgba(210,153,34,0.15)', color: 'var(--color-warning)', border: '1px solid rgba(210,153,34,0.3)' }
+                    : { background: 'rgba(248,81,73,0.15)', color: 'var(--color-danger)', border: '1px solid rgba(248,81,73,0.3)' }),
+                }}>
+                  {activeTemplate.atsScore >= 85 ? '✓' : activeTemplate.atsScore >= 70 ? '⚠' : '✗'} ATS {activeTemplate.atsScore}%
                 </span>
                 <div style={{ width: '1px', height: '12px', background: 'var(--color-ui-border)' }} />
                 <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: pageCount > 1 ? 'var(--color-ui-accent)' : 'var(--color-ui-text-muted)', fontWeight: pageCount > 1 ? 700 : 500 }}>

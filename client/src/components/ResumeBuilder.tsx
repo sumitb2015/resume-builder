@@ -70,9 +70,14 @@ const SectionHeader: React.FC<{ title: string; children?: React.ReactNode }> = (
 );
 
 const EmptyState: React.FC<{ icon: React.ReactNode; text: string }> = ({ icon, text }) => (
-  <div style={{ textAlign: 'center', padding: '36px 16px', color: 'var(--color-ui-input-placeholder)', border: '1px dashed var(--color-ui-entry-card-border)', borderRadius: '12px' }}>
-    <div style={{ marginBottom: '10px', opacity: 0.5 }}>{icon}</div>
-    <p style={{ fontSize: '13px' }}>{text}</p>
+  <div style={{
+    textAlign: 'center', padding: '40px 16px',
+    border: '1px dashed var(--color-ui-entry-card-border)', borderRadius: '12px',
+    background: 'rgba(99,102,241,0.02)',
+  }}>
+    <div style={{ marginBottom: '10px', opacity: 0.35, color: 'var(--color-ui-accent)' }}>{icon}</div>
+    <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', fontWeight: 500 }}>{text}</p>
+    <p style={{ fontSize: '11.5px', color: 'var(--color-ui-text-dim)', marginTop: '6px' }}>Click "+ Add" above to get started</p>
   </div>
 );
 
