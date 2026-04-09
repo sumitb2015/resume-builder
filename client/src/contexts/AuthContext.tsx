@@ -9,6 +9,7 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import { auth, googleProvider } from '../lib/firebase';
+import { api } from '../lib/api';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -26,9 +27,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // onAuthStateChanged persists login across page refreshes via Firebase's
-    // IndexedDB session storage. loading stays true until the first event fires.
-    const unsubscribe = onAuthStateChanged(auth, user => {
+    const unsubscribe = onAuthStateChanged(auth, async user => {
+      if (user) {
+        try {
+          await api.syncUser(user.uid, user.email || undefined, user.displayName || undefined);
+        } catch (err) {
+          console.error('Failed to sync user:', err);
+        }
+      }
       setCurrentUser(user);
       setLoading(false);
     });

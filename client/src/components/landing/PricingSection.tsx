@@ -1,12 +1,35 @@
 import React, { useState } from 'react';
 import { Check, X, FileText, Zap, Palette, Award, Upload, Link2, Download } from 'lucide-react';
+import { api } from '../../lib/api';
+import { openRazorpay } from '../../lib/razorpay';
+import { useAuth } from '../../contexts/AuthContext';
+import { usePlan } from '../../contexts/PlanContext';
 
 interface Props { onStart: () => void }
 
 const TIERS = [
   {
+    name: 'Free',
+    price: { monthly: 0, annual: 0 },
+    period: 'forever',
+    tagline: 'Perfect for getting started',
+    cta: 'Get Started',
+    ctaStyle: 'secondary' as const,
+    popular: false,
+    features: [
+      { label: '1 professional template', included: true, Icon: Palette },
+      { label: 'Downloads in TXT format only', included: true, Icon: Download },
+      { label: 'Save 1 resume', included: true, Icon: FileText },
+      { label: 'Limited resume sharing', included: true, Icon: Link2 },
+      { label: 'Basic analytics', included: true, Icon: Award },
+      { label: 'PDF export', included: false, Icon: Download },
+      { label: 'AI writing tools', included: false, Icon: Zap },
+      { label: 'Advanced templates', included: false, Icon: Palette },
+    ],
+  },
+  {
     name: 'Basic',
-    price: { monthly: 199, annual: 159 },
+    price: { monthly: 399, annual: 319 },
     period: '14 days',
     tagline: 'Try the essentials, no commitment',
     cta: 'Start 14-Day Trial',
@@ -27,7 +50,7 @@ const TIERS = [
   },
   {
     name: 'Pro',
-    price: { monthly: 499, annual: 399 },
+    price: { monthly: 599, annual: 479 },
     period: 'mo',
     tagline: 'Core AI writing tools for active job seekers',
     cta: 'Start Pro',
@@ -48,7 +71,7 @@ const TIERS = [
   },
   {
     name: 'Ultimate',
-    price: { monthly: 699, annual: 559 },
+    price: { monthly: 999, annual: 799 },
     period: 'mo',
     tagline: 'Pro + advanced AI workflows & import tools',
     cta: 'Go Ultimate',
@@ -71,10 +94,77 @@ const TIERS = [
 
 const PricingSection: React.FC<Props> = ({ onStart }) => {
   const [annual, setAnnual] = useState(false);
+  const [loading, setLoading] = useState<string | null>(null);
+  const { currentUser } = useAuth();
+  const { setPlan } = usePlan();
+
+  const handleSelectPlan = async (tier: typeof TIERS[0]) => {
+    if (!currentUser) {
+      onStart(); // Redirect to login
+      return;
+    }
+
+    if (tier.name === 'Free') {
+      onStart(); // Just go to dashboard
+      return;
+    }
+
+    const price = annual && tier.period !== '14 days' ? tier.price.annual : tier.price.monthly;
+    
+    try {
+      setLoading(tier.name);
+      const isAnnualPlan = annual && tier.period !== '14 days';
+      const order = await api.createOrder(price, 'INR', currentUser.uid, tier.name.toLowerCase(), isAnnualPlan);
+      
+      await openRazorpay({
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || '',
+        amount: order.amount,
+        currency: order.currency,
+        name: 'BespokeCV',
+        description: `${tier.name} Plan - ${isAnnualPlan ? 'Annual' : 'Monthly'}`,
+        order_id: order.id,
+        handler: async (response: any) => {
+          try {
+            const verifyRes = await api.verifyPayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              planTier: tier.name.toLowerCase(),
+              userId: currentUser.uid,
+              isAnnual: isAnnualPlan
+            });
+
+            if (verifyRes.success) {
+              setPlan(tier.name.toLowerCase() as any);
+              alert(`Success! You are now on the ${tier.name} plan.`);
+              window.location.reload(); 
+            } else {
+              alert('Payment verification failed. Please contact support.');
+            }
+          } catch (err) {
+            console.error('Verification error:', err);
+            alert('An error occurred during verification. If money was deducted, please contact support.');
+          }
+        },
+        prefill: {
+          name: currentUser.displayName || '',
+          email: currentUser.email || '',
+        },
+        theme: {
+          color: '#6366F1',
+        },
+      });
+    } catch (error: any) {
+      console.error('Payment initiation failed:', error);
+      alert('Failed to initiate payment. Please try again.');
+    } finally {
+      setLoading(null);
+    }
+  };
 
   return (
-    <section id="pricing" style={{ padding: '100px 48px' }}>
-      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+    <section id="pricing" style={{ padding: '100px 24px' }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <div style={{
@@ -127,19 +217,23 @@ const PricingSection: React.FC<Props> = ({ onStart }) => {
         </div>
 
         {/* Pricing cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', alignItems: 'center' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+          gap: '20px', 
+          alignItems: 'stretch' 
+        }}>
           {TIERS.map((tier) => (
             <div
               key={tier.name}
               className="pricing-card"
               style={{
-                borderRadius: '20px', padding: tier.popular ? '36px 28px' : '32px 28px',
+                borderRadius: '20px', padding: '32px 24px',
                 border: tier.popular ? '1px solid rgba(99,102,241,0.5)' : '1px solid var(--color-ui-border)',
                 background: tier.popular
                   ? 'linear-gradient(145deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08))'
                   : 'var(--color-ui-surface)',
                 position: 'relative', display: 'flex', flexDirection: 'column',
-                transform: tier.popular ? 'scale(1.04)' : 'scale(1)',
                 boxShadow: tier.popular
                   ? '0 0 0 1px rgba(99,102,241,0.3), 0 0 40px rgba(99,102,241,0.18)'
                   : 'none',
@@ -159,7 +253,7 @@ const PricingSection: React.FC<Props> = ({ onStart }) => {
               )}
 
               {/* Tier header */}
-              <div style={{ marginBottom: '24px' }}>
+              <div style={{ marginBottom: '24px', minHeight: '124px' }}>
                 <h3 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '4px' }}>{tier.name}</h3>
                 <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', marginBottom: '18px' }}>{tier.tagline}</p>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
@@ -169,34 +263,40 @@ const PricingSection: React.FC<Props> = ({ onStart }) => {
                   </span>
                   <span style={{ fontSize: '14px', color: 'var(--color-ui-text-dim)' }}>/{tier.period}</span>
                 </div>
-                {annual && tier.period !== '14 days' && (
-                  <p style={{ fontSize: '11.5px', color: '#4ADE80', marginTop: '4px', fontWeight: 600 }}>
-                    Save ₹{(tier.price.monthly - tier.price.annual) * 12}/yr vs monthly
-                  </p>
-                )}
+                <div style={{ height: '20px' }}>
+                  {annual && tier.period !== '14 days' && tier.price.monthly > 0 && (
+                    <p style={{ fontSize: '11.5px', color: '#4ADE80', marginTop: '4px', fontWeight: 600 }}>
+                      Save ₹{(tier.price.monthly - tier.price.annual) * 12}/yr vs monthly
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* CTA button */}
               <button
-                onClick={onStart}
+                onClick={() => handleSelectPlan(tier)}
+                disabled={loading !== null}
                 style={{
                   width: '100%', padding: '12px', borderRadius: '10px',
                   marginBottom: '24px', fontSize: '14.5px', fontWeight: 600,
                   cursor: 'pointer', transition: 'all 0.2s',
+                  opacity: loading ? 0.7 : 1,
                   ...(tier.ctaStyle === 'primary'
                     ? { background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', border: 'none', color: 'white', boxShadow: '0 6px 24px rgba(99,102,241,0.4)' }
                     : { background: 'transparent', border: '1px solid var(--color-ui-border)', color: 'var(--color-ui-text)' }),
                 }}
                 onMouseEnter={e => {
+                  if (loading) return;
                   e.currentTarget.style.transform = 'translateY(-2px)';
                   if (tier.ctaStyle === 'primary') e.currentTarget.style.boxShadow = '0 10px 32px rgba(99,102,241,0.5)';
                 }}
                 onMouseLeave={e => {
+                  if (loading) return;
                   e.currentTarget.style.transform = 'translateY(0)';
                   if (tier.ctaStyle === 'primary') e.currentTarget.style.boxShadow = '0 6px 24px rgba(99,102,241,0.4)';
                 }}
               >
-                {tier.cta}
+                {loading === tier.name ? 'Processing...' : tier.cta}
               </button>
 
               {/* Divider */}

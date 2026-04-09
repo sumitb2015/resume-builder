@@ -73,6 +73,33 @@ export const api = {
   fetchJobUrl: (url: string) =>
     post<{ text: string }>('/api/fetch-job-url', { url }),
 
+  createOrder: (amount: number, currency?: string, userId?: string, planTier?: string, isAnnual?: boolean) =>
+    post<{ id: string; amount: number; currency: string }>('/api/payment/create-order', { amount, currency, userId, planTier, isAnnual }),
+
+  verifyPayment: (data: {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+    planTier: string;
+    userId: string;
+    isAnnual: boolean;
+  }) => post<{ success: boolean; message: string }>('/api/payment/verify', data),
+
+  syncUser: (uid: string, email?: string, displayName?: string) =>
+    post<{ plan: string }>('/api/user/sync', { uid, email, displayName }),
+
+  getUserProfile: async (uid: string) => {
+    const res = await fetch(`${BASE}/api/user/me/${uid}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Request failed' }));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    return res.json();
+  },
+
   exportPdf: async (html: string, filename: string): Promise<Blob> => {
     const res = await fetch(`${BASE}/api/export/pdf`, {
       method: 'POST',

@@ -10,7 +10,13 @@ const RESUME_SCHEMA = `{"resume":{"personal":{"name":"","title":"","email":"","p
 const MAX_TEXT_LENGTH = 8000;
 
 export async function extractResumeFromText(rawText: string): Promise<{ resume: any; improvements: any }> {
-  const text = rawText.slice(0, MAX_TEXT_LENGTH);
+  // Clean text to reduce token usage and improve AI performance
+  const cleanedText = rawText
+    .replace(/\n{3,}/g, '\n\n') // Replace 3+ newlines with 2
+    .replace(/[ \t]{2,}/g, ' ') // Replace multiple spaces/tabs with 1
+    .trim();
+
+  const text = cleanedText.slice(0, MAX_TEXT_LENGTH);
 
   const parsePrompt = `Extract resume data from the text below. Return JSON matching this schema exactly: ${RESUME_SCHEMA}
 
@@ -33,18 +39,33 @@ ${text}`;
       model: 'gpt-4o-mini',
       messages: [{ role: 'user', content: parsePrompt }],
       response_format: { type: 'json_object' },
-      max_tokens: 2000,
+      max_tokens: 4000,
     }),
     openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [{ role: 'user', content: improvementsPrompt }],
       response_format: { type: 'json_object' },
-      max_tokens: 1000,
+      max_tokens: 1500,
     }),
   ]);
 
-  const parsed = JSON.parse(parseRes.choices[0]?.message?.content ?? '{}');
-  const improved = JSON.parse(improvementsRes.choices[0]?.message?.content ?? '{}');
+  const parseContent = parseRes.choices[0]?.message?.content ?? '{}';
+  const improveContent = improvementsRes.choices[0]?.message?.content ?? '{}';
+
+  let parsed, improved;
+  try {
+    parsed = JSON.parse(parseContent);
+  } catch (e) {
+    console.error('Failed to parse resume JSON. Raw content:', parseContent);
+    throw new Error('AI returned invalid resume data format');
+  }
+
+  try {
+    improved = JSON.parse(improveContent);
+  } catch (e) {
+    console.error('Failed to parse improvements JSON. Raw content:', improveContent);
+    improved = { improvements: { overallFeedback: '', suggestions: [] } };
+  }
 
   return { resume: parsed.resume, improvements: improved.improvements };
 }
@@ -64,9 +85,14 @@ ${text}`;
     model: 'gpt-4o-mini',
     messages: [{ role: 'user', content: prompt }],
     response_format: { type: 'json_object' },
-    max_tokens: 2000,
+    max_tokens: 4000,
   });
 
   const content = response.choices[0]?.message?.content ?? '{}';
-  return JSON.parse(content);
+  try {
+    return JSON.parse(content);
+  } catch (e) {
+    console.error('Failed to parse LinkedIn JSON. Raw content:', content);
+    throw new Error('AI returned invalid LinkedIn data format');
+  }
 }

@@ -9,6 +9,7 @@ import ModeSelectModal from './components/ModeSelectModal';
 import AiWriterFlow from './components/AiWriterFlow';
 import BlogPage from './components/landing/BlogPage';
 import UpgradeModal from './components/UpgradeModal';
+import ProfileModal from './components/ProfileModal';
 import SavedResumesPanel from './components/SavedResumesPanel';
 import PagedPreview from './components/PagedPreview';
 import StylePanel from './components/StylePanel';
@@ -121,6 +122,7 @@ const FEATURE_LABELS: Record<Feature, string> = {
 
 // Plan badge config
 const PLAN_BADGE: Record<string, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
+  free: { label: 'Free', color: '#94A3B8', bg: 'rgba(148,163,184,0.15)', icon: <Shield size={11} /> },
   basic: { label: 'Basic', color: '#FCD34D', bg: 'rgba(245,158,11,0.15)', icon: <Shield size={11} /> },
   pro: { label: 'Pro', color: '#818CF8', bg: 'rgba(99,102,241,0.15)', icon: <Zap size={11} /> },
   ultimate: { label: 'Ultimate', color: '#C084FC', bg: 'rgba(168,85,247,0.15)', icon: <Crown size={11} /> },
@@ -161,28 +163,21 @@ const PLAN_OPTIONS = [
 ];
 
 function PlanBadge({ size = 'md' }: { size?: 'sm' | 'md' }) {
-  const { plan, setPlan } = usePlan();
+  const { plan } = usePlan();
   if (!plan) return null;
   const badge = PLAN_BADGE[plan];
+  if (!badge) return null;
   const isSmall = size === 'sm';
   return (
     <div style={{ position: 'relative', display: 'inline-flex' }}>
       <div
-        title="Click to change plan"
-        onClick={() => {
-          const order: ('basic' | 'pro' | 'ultimate')[] = ['basic', 'pro', 'ultimate'];
-          const next = order[(order.indexOf(plan) + 1) % order.length];
-          setPlan(next);
-        }}
         style={{
           display: 'inline-flex', alignItems: 'center', gap: '5px',
           padding: isSmall ? '3px 8px' : '4px 10px',
           borderRadius: '100px',
           background: badge.bg,
           border: `1px solid ${badge.color}40`,
-          cursor: 'pointer',
           userSelect: 'none',
-          transition: 'opacity 0.15s',
         }}
       >
         <span style={{ color: badge.color, display: 'flex', alignItems: 'center' }}>{badge.icon}</span>
@@ -337,6 +332,7 @@ function AppContent() {
   const [zoom, setZoom] = useState(0.75);
   const [pageCount, setPageCount] = useState(1);
   const [upgradePrompt, setUpgradePrompt] = useState<{ requiredPlan: 'pro' | 'ultimate'; featureLabel: string } | null>(null);
+  const [showProfile, setShowProfile] = useState(false);
 
   // Saved resume state
   const [currentResumeId, setCurrentResumeId] = useState<string | null>(null);
@@ -512,6 +508,7 @@ function AppContent() {
   };
 
   const handleLogout = async () => {
+    setShowProfile(false);
     await signOut();
     setView('landing');
     setResume(initialResume);
@@ -520,7 +517,6 @@ function AppContent() {
 
   const handleStart = () => {
     if (!currentUser) { setView('login'); return; }
-    if (!plan) { setView('plan-select'); return; }
     setView('mode-select');
   };
 
@@ -542,9 +538,7 @@ function AppContent() {
       return (
         <LoginPage onLoginSuccess={() => {
           setTimeout(() => {
-            const uid = currentUser?.uid;
-            const storedPlan = uid ? localStorage.getItem(`bespokecv_plan_${uid}`) : null;
-            setView(storedPlan ? 'mode-select' : 'plan-select');
+            setView('mode-select');
           }, 100);
         }} />
       );
@@ -707,7 +701,12 @@ function AppContent() {
           )}
           {currentUser && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: view === 'builder' ? '0' : '8px' }}>
-              <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: 'white' }}>{(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}</div>
+              <div 
+                onClick={() => setShowProfile(true)}
+                style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: 'white', cursor: 'pointer' }}
+              >
+                {(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}
+              </div>
               <button className="btn-ghost" style={{ padding: '4px' }} onClick={handleLogout}><LogOut size={14} /></button>
             </div>
           )}
@@ -831,6 +830,7 @@ function AppContent() {
       )}
       {savedToast && <div style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: 'var(--color-success)', color: 'white', padding: '8px 16px', borderRadius: '8px' }}>Resume saved</div>}
       {upgradePrompt && <UpgradeModal requiredPlan={upgradePrompt.requiredPlan} featureLabel={upgradePrompt.featureLabel} onClose={() => setUpgradePrompt(null)} />}
+      {showProfile && <ProfileModal user={currentUser} onClose={() => setShowProfile(false)} onLogout={handleLogout} />}
       <PrintPortal resume={resume} config={activeTemplate} pageCount={pageCount} />
     </>
   );

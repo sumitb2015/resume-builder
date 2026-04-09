@@ -4,7 +4,8 @@ import PagedPreview from './PagedPreview';
 import TemplateRenderer from '../templates/TemplateRenderer';
 import { api } from '../lib/api';
 import { buildPdfHtml } from '../lib/buildPdfHtml';
-import { ChevronLeft, Download, Type, Move, Palette, Sparkles, Loader2, Undo2, Redo2 } from 'lucide-react';
+import { ChevronLeft, Download, Type, Move, Palette, Sparkles, Loader2, Undo2, Redo2, FileText as FileTextIcon } from 'lucide-react';
+import { usePlan } from '../contexts/PlanContext';
 
 interface Props {
   resume: Resume;
@@ -41,6 +42,7 @@ const FONT_OPTIONS = [
 ];
 
 const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig, onUpdateResume, pageCount, onPageCount }) => {
+  const { plan, canAccess } = usePlan();
   const printRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<'layout' | 'fonts' | 'colors'>('layout');
   const [isOptimizing, setIsOptimizing] = useState(false);
@@ -53,6 +55,41 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
   const [future, setFuture] = useState<HistoryItem[]>([]);
 
   const settings = { ...SAFE_DEFAULTS, ...(config.settings || {}) };
+
+  const handleDownloadTxt = () => {
+    const personal = resume.personal;
+    let txt = `${personal.name}\n${personal.title}\n${personal.email} | ${personal.phone}\n${personal.location}\n`;
+    if (personal.linkedin) txt += `LinkedIn: ${personal.linkedin}\n`;
+    if (personal.website) txt += `Website: ${personal.website}\n`;
+    txt += `\nSUMMARY\n${personal.summary.replace(/<[^>]*>?/gm, '')}\n`;
+
+    txt += `\nEXPERIENCE\n`;
+    resume.experience.forEach(exp => {
+      txt += `\n${exp.company} - ${exp.role}\n${exp.startDate} - ${exp.endDate || (exp.isCurrent ? 'Present' : '')}\n`;
+      exp.bullets.forEach(b => {
+        txt += `- ${b.replace(/<[^>]*>?/gm, '')}\n`;
+      });
+    });
+
+    txt += `\nEDUCATION\n`;
+    resume.education.forEach(edu => {
+      txt += `\n${edu.school}\n${edu.degree} in ${edu.field}\n${edu.startDate} - ${edu.endDate}\n`;
+    });
+
+    txt += `\nSKILLS\n`;
+    txt += resume.skills.map(s => s.name).join(', ') + '\n';
+
+    const blob = new Blob([txt], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const filename = (personal.name || 'Resume').replace(/\s+/g, '_') + '.txt';
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   const pushToHistory = (newResume: Resume, newConfig: TemplateConfig) => {
     setPast(prev => [...prev, { resume, config }]);
@@ -445,18 +482,37 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
         </div>
 
         {/* Download button */}
-        <div style={{ padding: '16px 20px', borderTop: '1px solid var(--color-ui-border)', flexShrink: 0 }}>
-          <button
-            className="btn-primary"
-            style={{ width: '100%', padding: '12px', fontSize: '13.5px', gap: '8px' }}
-            onClick={handlePrint}
-            disabled={isDownloading}
-          >
-            {isDownloading
-              ? <><Loader2 size={16} className="animate-spin" /> Generating PDF…</>
-              : <><Download size={16} /> Download PDF</>
-            }
-          </button>
+        <div style={{ padding: '16px 20px', borderTop: '1px solid var(--color-ui-border)', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {canAccess('download-pdf') ? (
+            <button
+              className="btn-primary"
+              style={{ width: '100%', padding: '12px', fontSize: '13.5px', gap: '8px' }}
+              onClick={handlePrint}
+              disabled={isDownloading}
+            >
+              {isDownloading
+                ? <><Loader2 size={16} className="animate-spin" /> Generating PDF…</>
+                : <><Download size={16} /> Download PDF</>
+              }
+            </button>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button
+                className="btn-primary"
+                style={{ width: '100%', padding: '12px', fontSize: '13.5px', gap: '8px', background: 'var(--color-ui-accent)' }}
+                onClick={handleDownloadTxt}
+              >
+                <FileTextIcon size={16} /> Download TXT
+              </button>
+              <button
+                className="btn-secondary"
+                style={{ width: '100%', padding: '12px', fontSize: '13.5px', gap: '8px', opacity: 0.7 }}
+                onClick={() => alert('PDF Export requires a Basic, Pro, or Ultimate plan. Please upgrade to download as PDF.')}
+              >
+                <Download size={16} /> Download PDF (Upgrade)
+              </button>
+            </div>
+          )}
         </div>
       </aside>
 

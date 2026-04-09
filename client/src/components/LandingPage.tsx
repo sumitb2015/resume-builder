@@ -27,7 +27,7 @@ const LandingPage: React.FC<Props> = ({ onStart, onOpenBlog }) => {
 
   return (
     <div className="landing-page">
-      <NavBar onStart={onStart} />
+      <NavBar onStart={onStart} onOpenBlog={onOpenBlog} />
       <HeroSection onStart={onStart} />
       <StatsSection />
       <TemplateShowcase onStart={onStart} />

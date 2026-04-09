@@ -52,6 +52,7 @@ export default function SavedResumesPanel({
 
   // Plan limit info for upgrade nudge
   const planLimits: Record<string, { next: string; nextMax: number }> = {
+    free: { next: 'Basic', nextMax: MAX_RESUMES.basic },
     basic: { next: 'Pro', nextMax: MAX_RESUMES.pro },
     pro: { next: 'Ultimate', nextMax: MAX_RESUMES.ultimate },
     ultimate: { next: '', nextMax: MAX_RESUMES.ultimate },
@@ -95,11 +96,14 @@ export default function SavedResumesPanel({
         {/* New resume button */}
         <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--color-ui-border)', flexShrink: 0 }}>
           <button
-            onClick={onNewResume}
+            onClick={() => {
+              if (atLimit) onUpgradeNeeded();
+              else onNewResume();
+            }}
             className="btn-secondary"
-            style={{ width: '100%', justifyContent: 'center', gap: '8px', fontSize: '13px' }}
+            style={{ width: '100%', justifyContent: 'center', gap: '8px', fontSize: '13px', opacity: atLimit ? 0.7 : 1 }}
           >
-            <Plus size={14} /> New Resume
+            {atLimit ? <Lock size={14} /> : <Plus size={14} />} New Resume
           </button>
         </div>
 
