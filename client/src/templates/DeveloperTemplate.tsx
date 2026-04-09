@@ -11,7 +11,7 @@ const DeveloperTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
   return (
     <div className="resume-paper" style={{ fontFamily: '"Inter", system-ui, sans-serif', backgroundColor: '#fff', padding: 0 }}>
       {/* DARK HEADER */}
-      <header style={{ backgroundColor: primary, padding: '36px 48px 28px', color: '#fff' }}>
+      <header data-section="personal" style={{ backgroundColor: primary, padding: '36px 48px 28px', color: '#fff' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <div style={{ fontSize: '0.6875em', color: accent, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '8px', fontFamily: 'monospace' }}>
@@ -39,7 +39,7 @@ const DeveloperTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 210px' }}>
         <div style={{ padding: '32px 32px' }}>
           {experience.length > 0 && (
-            <DevSection title="experience" accent={accent}>
+            <DevSection title="experience" accent={accent} sectionId="experience">
               {experience.map(exp => (
                 <div key={exp.id} style={{ marginBottom: '20px', padding: '14px', backgroundColor: '#F8FAFC', borderRadius: '8px', borderLeft: `3px solid ${accent}`, breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
@@ -64,7 +64,7 @@ const DeveloperTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
             </DevSection>
           )}
           {projects.length > 0 && (
-            <DevSection title="projects" accent={accent}>
+            <DevSection title="projects" accent={accent} sectionId="projects">
               {projects.map(p => (
                 <div key={p.id} style={{ marginBottom: '14px', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '8px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -82,7 +82,7 @@ const DeveloperTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
             </DevSection>
           )}
           {education.length > 0 && (
-            <DevSection title="education" accent={accent}>
+            <DevSection title="education" accent={accent} sectionId="education">
               {education.map(edu => (
                 <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div>
@@ -99,7 +99,7 @@ const DeveloperTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
         {/* SIDEBAR */}
         <div style={{ borderLeft: '1px solid #E2E8F0', padding: '32px 22px', backgroundColor: '#FAFBFC', display: 'flex', flexDirection: 'column', gap: '22px' }}>
           {skills.length > 0 && (
-            <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+            <div data-section="skills" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
               <DevSideTitle title="tech_stack" accent={accent} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {skills.map(s => (
@@ -112,7 +112,7 @@ const DeveloperTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
             </div>
           )}
           {certifications.length > 0 && (
-            <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+            <div data-section="certifications" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
               <DevSideTitle title="certs" accent={accent} />
               {certifications.map(c => (
                 <div key={c.id} style={{ marginBottom: '8px', fontSize: '0.7188em' }}>
@@ -124,7 +124,7 @@ const DeveloperTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
             </div>
           )}
           {languages.length > 0 && (
-            <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+            <div data-section="languages" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
               <DevSideTitle title="languages" accent={accent} />
               {languages.map(l => (
                 <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7188em', lineHeight: 2 }}>
@@ -140,8 +140,8 @@ const DeveloperTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
   );
 };
 
-const DevSection: React.FC<{ title: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
-  <div style={{ marginBottom: '24px' }}>
+const DevSection: React.FC<{ title: string; accent: string; children: React.ReactNode; sectionId?: string }> = ({ title, accent, children, sectionId }) => (
+  <div data-section={sectionId} style={{ marginBottom: '24px' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
       <h2 style={{ fontFamily: 'monospace', fontSize: '0.75em', fontWeight: 700, color: accent }}>
         <span style={{ color: '#94A3B8' }}>fn.</span>{title}()

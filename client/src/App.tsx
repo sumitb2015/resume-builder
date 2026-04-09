@@ -6,6 +6,7 @@ import ResumeBuilder from './components/ResumeBuilder';
 import AtsCheckerPage from './components/AtsCheckerPage';
 import JobTailorPage from './components/JobTailorPage';
 import ModeSelectModal from './components/ModeSelectModal';
+import AiWriterFlow from './components/AiWriterFlow';
 import UpgradeModal from './components/UpgradeModal';
 import SavedResumesPanel from './components/SavedResumesPanel';
 import PagedPreview from './components/PagedPreview';
@@ -13,6 +14,7 @@ import StylePanel from './components/StylePanel';
 import ExportPreview from './components/ExportPreview';
 import { templates } from './templates';
 import type { Resume, TemplateConfig, ImprovementSuggestions } from './shared/types';
+import type { TabId } from './components/ResumeBuilder';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PlanProvider, usePlan } from './contexts/PlanContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
@@ -316,7 +318,7 @@ function AppContent() {
   const { savedResumes, canSaveMore, saveResume, renameResume, deleteResume } = useSavedResumes();
   const { theme, toggleTheme } = useTheme();
 
-  const [view, setView] = useState<'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder' | 'preview' | 'ats-checker' | 'job-tailor'>('landing');
+  const [view, setView] = useState<'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder' | 'preview' | 'ats-checker' | 'job-tailor' | 'ai-writer'>('landing');
   const initialResumeRef = useRef<Resume | null>(null);
   
   useEffect(() => {
@@ -327,6 +329,7 @@ function AppContent() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view]);
 
+  const [activeTab, setActiveTab] = useState<TabId>('personal');
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
   const [formExpanded, setFormExpanded] = useState(false);
   const [resume, setResume] = useState<Resume>(initialResume);
@@ -499,7 +502,11 @@ function AppContent() {
     }));
   };
 
-  const handleModeSelect = (_mode: any, prefilledResume?: Resume, suggestions?: ImprovementSuggestions) => {
+  const handleModeSelect = (mode: any, prefilledResume?: Resume, suggestions?: ImprovementSuggestions) => {
+    if (mode === 'ai-writer') {
+      setView('ai-writer');
+      return;
+    }
     if (prefilledResume) setResume(migrateResume(prefilledResume));
     if (suggestions) setImprovements(suggestions);
     setView('builder');
@@ -551,6 +558,19 @@ function AppContent() {
           <ModeSelectModal onSelect={handleModeSelect} onBack={() => setView('landing')} onUpgradeNeeded={showUpgrade} />
           {upgradePrompt && <UpgradeModal requiredPlan={upgradePrompt.requiredPlan} featureLabel={upgradePrompt.featureLabel} onClose={() => setUpgradePrompt(null)} />}
         </>
+      );
+    }
+
+    if (view === 'ai-writer') {
+      return (
+        <AiWriterFlow 
+          onComplete={(generatedResume, selectedTemplate) => {
+            setResume(generatedResume);
+            setActiveTemplate(selectedTemplate);
+            setView('builder');
+          }}
+          onBack={() => setView('mode-select')} 
+        />
       );
     }
 
@@ -724,7 +744,7 @@ function AppContent() {
 
         <div style={{ display: 'flex', overflow: 'hidden', height: '100%' }}>
           <div style={{ width: formWidth, flexShrink: 0, transition: 'width 0.25s', position: 'relative', height: '100%', overflow: 'hidden' }} className="no-print">
-            <ResumeBuilder resume={resume} onChange={setResumeWithHistory} improvements={improvements} onDismissImprovements={() => setImprovements(null)} onUpgradeNeeded={showUpgrade} />
+            <ResumeBuilder resume={resume} onChange={setResumeWithHistory} improvements={improvements} onDismissImprovements={() => setImprovements(null)} onUpgradeNeeded={showUpgrade} activeTab={activeTab} onTabChange={setActiveTab} />
             <button onClick={() => setFormExpanded(v => !v)} style={{ position: 'absolute', top: '50%', right: '-11px', transform: 'translateY(-50%)', width: '22px', height: '44px', borderRadius: '0 8px 8px 0', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderLeft: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-ui-text-muted)', zIndex: 10 }}>{formExpanded ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}</button>
           </div>
 
@@ -781,7 +801,7 @@ function AppContent() {
             </div>
 
             <div className="preview-scaler" style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
-              <PagedPreview resume={resume} config={activeTemplate} onPageCount={setPageCount} />
+              <PagedPreview resume={resume} config={activeTemplate} onPageCount={setPageCount} onSectionClick={(id) => setActiveTab(id as TabId)} />
             </div>
           </main>
 

@@ -10,7 +10,7 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
   return (
     <div className="resume-paper" style={{ fontFamily: '"Poppins", system-ui, sans-serif', backgroundColor: '#fff', display: 'flex', flexDirection: 'column', padding: 0 }}>
       {/* DRAMATIC HERO */}
-      <div style={{ backgroundColor: primary, padding: '12mm 15mm 10mm', position: 'relative' }}>
+      <div data-section="personal" style={{ backgroundColor: primary, padding: '12mm 15mm 10mm', position: 'relative' }}>
         <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '240px', height: '240px', borderRadius: '50%', border: `2px solid ${accent}30`, opacity: 0.6 }} />
         <div style={{ position: 'absolute', top: '20px', right: '20px', width: '140px', height: '140px', borderRadius: '50%', border: `2px solid ${accent}20`, opacity: 0.4 }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
@@ -39,7 +39,7 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
       <div style={{ flex: 1, padding: '12mm 15mm', display: 'grid', gridTemplateColumns: '1fr 200px', gap: '40px' }}>
         <div>
           {experience.length > 0 && (
-            <BoldSec title="Experience" accent={accent} primary={primary}>
+            <BoldSec title="Experience" accent={accent} primary={primary} sectionId="experience">
               {experience.map(exp => (
                 <div key={exp.id} style={{ marginBottom: '22px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
@@ -63,7 +63,7 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
             </BoldSec>
           )}
           {projects.length > 0 && (
-            <BoldSec title="Projects" accent={accent} primary={primary}>
+            <BoldSec title="Projects" accent={accent} primary={primary} sectionId="projects">
               {projects.map(p => (
                 <div key={p.id} style={{ marginBottom: '14px', borderLeft: `3px solid ${accent}`, paddingLeft: '14px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -81,7 +81,7 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
             </BoldSec>
           )}
           {education.length > 0 && (
-            <BoldSec title="Education" accent={accent} primary={primary}>
+            <BoldSec title="Education" accent={accent} primary={primary} sectionId="education">
               {education.map(edu => (
                 <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div>
@@ -98,7 +98,7 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
         {/* SIDEBAR */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
           {skills.length > 0 && (
-            <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+            <div data-section="skills" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
               <BoldSideTitle title="Skills" accent={accent} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {skills.map(s => (
@@ -113,7 +113,7 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
             </div>
           )}
           {languages.length > 0 && (
-            <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+            <div data-section="languages" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
               <BoldSideTitle title="Languages" accent={accent} />
               {languages.map(l => (
                 <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75em', lineHeight: 2, color: primary }}>
@@ -124,7 +124,7 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
             </div>
           )}
           {certifications.length > 0 && (
-            <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+            <div data-section="certifications" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
               <BoldSideTitle title="Certifications" accent={accent} />
               {certifications.map(c => (
                 <div key={c.id} style={{ marginBottom: '10px' }}>
@@ -141,8 +141,8 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
   );
 };
 
-const BoldSec: React.FC<{ title: string; accent: string; primary: string; children: React.ReactNode }> = ({ title, accent, primary, children }) => (
-  <div style={{ marginBottom: '26px' }}>
+const BoldSec: React.FC<{ title: string; accent: string; primary: string; children: React.ReactNode; sectionId?: string }> = ({ title, accent, primary, children, sectionId }) => (
+  <div data-section={sectionId} style={{ marginBottom: '26px' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
       <h2 style={{ fontSize: '0.6875em', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.18em', color: primary }}>{title}</h2>
       <div style={{ flex: 1, height: '2px', background: `linear-gradient(to right, ${accent}, transparent)` }} />

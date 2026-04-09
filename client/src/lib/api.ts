@@ -67,6 +67,9 @@ export const api = {
       suggestedSettings: { fontSize: number; margin: number; lineHeight: number };
     }>('/api/ai/smart-fit', { resume, config, targetPages, userPrompt }),
 
+  generateFullResume: (params: { currentRole?: string; targetRole: string; industry: string; experience: string; context?: string }) =>
+    post<Resume>('/api/ai/generate-full-resume', params),
+
   fetchJobUrl: (url: string) =>
     post<{ text: string }>('/api/fetch-job-url', { url }),
 

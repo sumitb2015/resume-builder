@@ -14,7 +14,7 @@ const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
       padding: 0,
     }}>
       {/* GRADIENT HEADER */}
-      <header style={{ background: `linear-gradient(135deg, ${primary} 0%, ${accent} 100%)`, padding: '40px 48px 36px', position: 'relative', overflow: 'hidden', margin: 0 }}>
+      <header data-section="personal" style={{ background: `linear-gradient(135deg, ${primary} 0%, ${accent} 100%)`, padding: '40px 48px 36px', position: 'relative', overflow: 'hidden', margin: 0 }}>
         <div style={{ position: 'absolute', top: 0, right: 0, width: '300px', height: '300px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', transform: 'translate(100px,-100px)' }} />
         <div style={{ position: 'absolute', bottom: 0, left: '40%', width: '200px', height: '200px', background: 'rgba(0,0,0,0.06)', borderRadius: '50%', transform: 'translateY(80px)' }} />
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -43,7 +43,7 @@ const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
         {/* MAIN */}
         <div style={{ padding: '10mm 15mm 15mm 15mm', borderRight: `3px solid ${accent}20` }}>
           {experience.length > 0 && (
-            <HSection title="Experience" accent={accent} config={config}>
+            <HSection title="Experience" accent={accent} config={config} sectionId="experience">
               {experience.map(exp => (
                 <div key={exp.id} style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #F1F5F9' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
@@ -67,7 +67,7 @@ const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             </HSection>
           )}
           {projects.length > 0 && (
-            <HSection title="Projects" accent={accent} config={config}>
+            <HSection title="Projects" accent={accent} config={config} sectionId="projects">
               {projects.map(p => (
                 <div key={p.id} style={{ marginBottom: '14px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -85,7 +85,7 @@ const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             </HSection>
           )}
           {education.length > 0 && (
-            <HSection title="Education" accent={accent} config={config}>
+            <HSection title="Education" accent={accent} config={config} sectionId="education">
               {education.map(edu => (
                 <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
                   <div>
@@ -102,7 +102,7 @@ const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
         {/* SIDEBAR */}
         <div style={{ padding: '36px 24px', background: '#FAFBFF', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {skills.length > 0 && (
-            <div>
+            <div data-section="skills">
               <HSideTitle title="Skills" accent={accent} config={config} />
               {skills.map(s => (
                 <div key={s.id} style={{ marginBottom: '10px' }}>
@@ -117,7 +117,7 @@ const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             </div>
           )}
           {certifications.length > 0 && (
-            <div>
+            <div data-section="certifications">
               <HSideTitle title="Certifications" accent={accent} config={config} />
               {certifications.map(c => (
                 <div key={c.id} style={{ marginBottom: '10px', padding: '8px', background: '#fff', borderRadius: '6px', border: '1px solid #E2E8F0' }}>
@@ -129,7 +129,7 @@ const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             </div>
           )}
           {languages.length > 0 && (
-            <div>
+            <div data-section="languages">
               <HSideTitle title="Languages" accent={accent} config={config} />
               {languages.map(l => (
                 <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75em', lineHeight: 2, color: '#334155' }}>
@@ -145,8 +145,8 @@ const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
   );
 };
 
-const HSection: React.FC<{ title: string; accent: string; config: TemplateConfig; children: React.ReactNode }> = ({ title, accent, config, children }) => (
-  <div style={{ marginBottom: '28px' }}>
+const HSection: React.FC<{ title: string; accent: string; config: TemplateConfig; children: React.ReactNode; sectionId?: string }> = ({ title, accent, config, children, sectionId }) => (
+  <div data-section={sectionId} style={{ marginBottom: '28px' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
       <div style={{ width: '20px', height: '3px', background: accent, borderRadius: '2px' }} />
       <h2 style={{ fontFamily: config.fonts.heading, fontSize: '0.6875em', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.14em', color: accent }}>{title}</h2>

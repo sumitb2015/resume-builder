@@ -18,7 +18,7 @@ const UniverseTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
       padding: 0,
     }}>
       {/* HEADER */}
-      <header style={{ marginBottom: '24px' }}>
+      <header data-section="personal" style={{ marginBottom: '24px' }}>
         <h1 style={{ fontSize: '2.125em', fontWeight: 700, color: primary, letterSpacing: '-0.03em', lineHeight: 1.1, margin: 0 }}>
           {personal.name || 'YOUR NAME'}
         </h1>
@@ -41,14 +41,14 @@ const UniverseTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         {/* Summary */}
         {personal.summary && (
-          <UniverseSection title="Summary" accent={accent} primary={primary}>
+          <UniverseSection title="Summary" accent={accent} primary={primary} sectionId="personal">
             <RichContent html={personal.summary} style={{ fontSize: '0.8125em', lineHeight: 1.8, color: text, margin: 0 }} />
           </UniverseSection>
         )}
 
         {/* Experience */}
         {experience.length > 0 && (
-          <UniverseSection title="Experience" accent={accent} primary={primary}>
+          <UniverseSection title="Experience" accent={accent} primary={primary} sectionId="experience">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {experience.map(exp => (
                 <div key={exp.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
@@ -74,7 +74,7 @@ const UniverseTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
 
         {/* Education */}
         {education.length > 0 && (
-          <UniverseSection title="Education" accent={accent} primary={primary}>
+          <UniverseSection title="Education" accent={accent} primary={primary} sectionId="education">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {education.map(edu => (
                 <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -96,7 +96,7 @@ const UniverseTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
 
         {/* Skills */}
         {skills.length > 0 && (
-          <UniverseSection title="Skills" accent={accent} primary={primary}>
+          <UniverseSection title="Skills" accent={accent} primary={primary} sectionId="skills">
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 0' }}>
               {skills.map((s, i) => (
                 <React.Fragment key={s.id}>
@@ -110,7 +110,7 @@ const UniverseTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
 
         {/* Projects */}
         {projects.length > 0 && (
-          <UniverseSection title="Projects" accent={accent} primary={primary}>
+          <UniverseSection title="Projects" accent={accent} primary={primary} sectionId="projects">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {projects.map(p => (
                 <div key={p.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
@@ -134,7 +134,7 @@ const UniverseTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
 
         {/* Certifications */}
         {certifications.length > 0 && (
-          <UniverseSection title="Certifications" accent={accent} primary={primary}>
+          <UniverseSection title="Certifications" accent={accent} primary={primary} sectionId="certifications">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {certifications.map(c => (
                 <div key={c.id}>
@@ -152,7 +152,7 @@ const UniverseTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
 
         {/* Languages */}
         {languages.length > 0 && (
-          <UniverseSection title="Languages" accent={accent} primary={primary}>
+          <UniverseSection title="Languages" accent={accent} primary={primary} sectionId="languages">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 20px' }}>
               {languages.map(l => (
                 <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7813em' }}>
@@ -179,8 +179,8 @@ const UniverseTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
   );
 };
 
-const UniverseSection: React.FC<{ title: string; accent: string; primary: string; children: React.ReactNode }> = ({ title, accent, primary, children }) => (
-  <section style={{ paddingLeft: '12px', borderLeft: `3px solid ${accent}` }}>
+const UniverseSection: React.FC<{ title: string; accent: string; primary: string; children: React.ReactNode; sectionId?: string }> = ({ title, accent, primary, children, sectionId }) => (
+  <section data-section={sectionId} style={{ paddingLeft: '12px', borderLeft: `3px solid ${accent}` }}>
     <h2 style={{
       fontSize: '0.6563em', fontWeight: 700, textTransform: 'uppercase',
       letterSpacing: '0.18em', color: primary, margin: '0 0 12px',

@@ -153,3 +153,42 @@ Return ONLY valid JSON with this exact structure:
   const text = await ask(prompt);
   return extractJSON(text);
 };
+
+export const generateFullResume = async (params: { currentRole?: string; targetRole: string; industry: string; experience: string; context?: string }) => {
+  const prompt = `You are an expert AI resume writer. Your task is to generate a complete, highly professional, and realistic resume in JSON format.
+The user provided the following details:
+- Target Role: ${params.targetRole}
+- Current/Previous Role: ${params.currentRole || 'Not specified'}
+- Industry: ${params.industry}
+- Years of Experience: ${params.experience}
+- Additional Context / Skills / Achievements: ${params.context || 'Not specified'}
+
+Based on this, generate a FULL resume. Extrapolate realistic, quantified achievements, plausible companies, dates, and educational background to make the resume look complete and impressive. Use strong action verbs and industry-standard keywords. 
+
+You must return ONLY a valid JSON object that strictly matches this TypeScript interface:
+{
+  "personal": {
+    "name": "First Last", "title": "...", "email": "...", "phone": "...", "location": "...", "linkedin": "...", "website": "...", "summary": "..."
+  },
+  "experience": [
+    { "id": "1", "company": "...", "role": "...", "startDate": "...", "endDate": "...", "isCurrent": true/false, "bullets": ["...", "..."] }
+  ],
+  "education": [
+    { "id": "1", "school": "...", "degree": "...", "field": "...", "startDate": "...", "endDate": "...", "gpa": "..." }
+  ],
+  "skills": [
+    { "id": "1", "name": "...", "level": 90 }
+  ],
+  "projects": [],
+  "certifications": [],
+  "languages": [
+    { "id": "1", "language": "English", "proficiency": "Native" }
+  ],
+  "custom": []
+}
+
+Ensure the output is well-formatted, corporate, and ATS-friendly. Return ONLY the JSON object.`;
+
+  const text = await ask(prompt);
+  return extractJSON(text);
+};

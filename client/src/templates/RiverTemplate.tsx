@@ -18,7 +18,7 @@ const RiverTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
       lineHeight: 1.5,
     }}>
       {/* HEADER */}
-      <header style={{ textAlign: 'center', marginBottom: '16px' }}>
+      <header data-section="personal" style={{ textAlign: 'center', marginBottom: '16px' }}>
         <h1 style={{ fontSize: '1.5em', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: primary, margin: 0 }}>
           {personal.name || 'YOUR NAME'}
         </h1>
@@ -45,14 +45,14 @@ const RiverTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
         {/* Summary */}
         {personal.summary && (
-          <RiverSection title="Profile">
+          <RiverSection title="Profile" sectionId="personal">
             <RichContent html={personal.summary} style={{ fontSize: '0.7813em', textAlign: 'justify', lineHeight: 1.8, color: text }} />
           </RiverSection>
         )}
 
         {/* Experience */}
         {experience.length > 0 && (
-          <RiverSection title="Experience">
+          <RiverSection title="Experience" sectionId="experience">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {experience.map(exp => (
                 <div key={exp.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
@@ -79,7 +79,7 @@ const RiverTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
 
         {/* Education */}
         {education.length > 0 && (
-          <RiverSection title="Education">
+          <RiverSection title="Education" sectionId="education">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {education.map(edu => (
                 <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -104,7 +104,7 @@ const RiverTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
 
         {/* Skills */}
         {skills.length > 0 && (
-          <RiverSection title="Skills">
+          <RiverSection title="Skills" sectionId="skills">
             <p style={{ fontSize: '0.7813em', lineHeight: 1.8, color: text }}>
               {skills.map((s, i) => (
                 <React.Fragment key={s.id}>
@@ -118,7 +118,7 @@ const RiverTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
 
         {/* Projects */}
         {projects.length > 0 && (
-          <RiverSection title="Projects">
+          <RiverSection title="Projects" sectionId="projects">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {projects.map(p => (
                 <div key={p.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
@@ -138,7 +138,7 @@ const RiverTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
 
         {/* Certifications */}
         {certifications.length > 0 && (
-          <RiverSection title="Certifications">
+          <RiverSection title="Certifications" sectionId="certifications">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {certifications.map(c => (
                 <p key={c.id} style={{ fontSize: '0.75em', color: text, margin: 0 }}>
@@ -153,7 +153,7 @@ const RiverTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
 
         {/* Languages */}
         {languages.length > 0 && (
-          <RiverSection title="Languages">
+          <RiverSection title="Languages" sectionId="languages">
             <p style={{ fontSize: '0.7813em', color: text, lineHeight: 1.8 }}>
               {languages.map((l, i) => (
                 <React.Fragment key={l.id}>
@@ -180,8 +180,8 @@ const RiverTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
   );
 };
 
-const RiverSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-  <section style={{ marginBottom: '16px' }}>
+const RiverSection: React.FC<{ title: string; children: React.ReactNode; sectionId?: string }> = ({ title, children, sectionId }) => (
+  <section data-section={sectionId} style={{ marginBottom: '16px' }}>
     <div style={{ borderTop: '1px solid #000', paddingTop: '3px', marginBottom: '2px' }} />
     <h2 style={{
       fontSize: '0.75em', fontWeight: 700, textTransform: 'uppercase',

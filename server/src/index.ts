@@ -111,6 +111,16 @@ app.post('/api/ai/smart-fit', async (req, res) => {
   }
 });
 
+app.post('/api/ai/generate-full-resume', async (req, res) => {
+  try {
+    const { currentRole, targetRole, industry, experience, context } = req.body;
+    const result = await aiService.generateFullResume({ currentRole, targetRole, industry, experience, context });
+    res.json(result);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post('/api/fetch-job-url', async (req, res) => {
   try {
     const { url } = req.body;

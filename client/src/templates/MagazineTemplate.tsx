@@ -10,7 +10,7 @@ const MagazineTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
   return (
     <div className="resume-paper" style={{ fontFamily: '"Poppins", system-ui, sans-serif', backgroundColor: '#fff', padding: 0 }}>
       {/* DRAMATIC HEADER */}
-      <header style={{ padding: '0' }}>
+      <header data-section="personal" style={{ padding: '0' }}>
         <div style={{ background: primary, padding: '13mm 16mm 11mm', position: 'relative' }}>
           {/* Big accent letter */}
           <div style={{ position: 'absolute', right: '32px', top: '-10px', fontSize: '10em', fontWeight: 900, color: 'rgba(255,255,255,0.04)', lineHeight: 1, userSelect: 'none', letterSpacing: '-0.05em' }}>
@@ -44,7 +44,7 @@ const MagazineTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
             </div>
           )}
           {experience.length > 0 && (
-            <MagSection title="Experience" primary={primary} accent={accent}>
+            <MagSection title="Experience" primary={primary} accent={accent} sectionId="experience">
               {experience.map(exp => (
                 <div key={exp.id} style={{ marginBottom: '22px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
@@ -68,7 +68,7 @@ const MagazineTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
             </MagSection>
           )}
           {projects.length > 0 && (
-            <MagSection title="Projects" primary={primary} accent={accent}>
+            <MagSection title="Projects" primary={primary} accent={accent} sectionId="projects">
               {projects.map(p => (
                 <div key={p.id} style={{ marginBottom: '14px', padding: '12px', border: `2px solid ${primary}10`, borderRadius: '6px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -86,7 +86,7 @@ const MagazineTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
             </MagSection>
           )}
           {education.length > 0 && (
-            <MagSection title="Education" primary={primary} accent={accent}>
+            <MagSection title="Education" primary={primary} accent={accent} sectionId="education">
               {education.map(edu => (
                 <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
                   <div>
@@ -103,7 +103,7 @@ const MagazineTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
         {/* SIDEBAR */}
         <div style={{ padding: '12mm 8mm', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {skills.length > 0 && (
-            <div>
+            <div data-section="skills">
               <MagSideTitle title="Skills" primary={primary} accent={accent} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {skills.map(s => (
@@ -120,7 +120,7 @@ const MagazineTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
             </div>
           )}
           {certifications.length > 0 && (
-            <div>
+            <div data-section="certifications">
               <MagSideTitle title="Certifications" primary={primary} accent={accent} />
               {certifications.map(c => (
                 <div key={c.id} style={{ marginBottom: '10px' }}>
@@ -132,7 +132,7 @@ const MagazineTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
             </div>
           )}
           {languages.length > 0 && (
-            <div>
+            <div data-section="languages">
               <MagSideTitle title="Languages" primary={primary} accent={accent} />
               {languages.map(l => (
                 <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75em', lineHeight: 2 }}>
@@ -148,8 +148,8 @@ const MagazineTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
   );
 };
 
-const MagSection: React.FC<{ title: string; primary: string; accent: string; children: React.ReactNode }> = ({ title, primary, accent, children }) => (
-  <div style={{ marginBottom: '24px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+const MagSection: React.FC<{ title: string; primary: string; accent: string; children: React.ReactNode; sectionId?: string }> = ({ title, primary, accent, children, sectionId }) => (
+  <div data-section={sectionId} style={{ marginBottom: '24px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
       <div style={{ width: '6px', height: '22px', backgroundColor: accent, borderRadius: '2px', flexShrink: 0 }} />
       <h2 style={{ fontSize: '0.8125em', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em', color: primary }}>{title}</h2>

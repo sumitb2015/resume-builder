@@ -1,12 +1,12 @@
 import { useState, useRef } from 'react';
-import { Zap, PenLine, Upload, Link2, ArrowLeft, Loader2, AlertCircle, Lock } from 'lucide-react';
+import { Zap, PenLine, Upload, Link2, ArrowLeft, Loader2, AlertCircle, Lock, Wand2 } from 'lucide-react';
 import { api } from '../lib/api';
 import type { Resume, ImprovementSuggestions } from '../shared/types';
 import { usePlan } from '../contexts/PlanContext';
 import type { Feature } from '../contexts/PlanContext';
 
 interface Props {
-  onSelect: (mode: 'manual' | 'enhance' | 'linkedin', resume?: Resume, improvements?: ImprovementSuggestions) => void;
+  onSelect: (mode: 'manual' | 'enhance' | 'linkedin' | 'ai-writer', resume?: Resume, improvements?: ImprovementSuggestions) => void;
   onBack: () => void;
   onUpgradeNeeded: (feature: Feature) => void;
 }
@@ -142,6 +142,24 @@ export default function ModeSelectModal({ onSelect, onBack, onUpgradeNeeded }: P
                 onClick={() => {
                   if (!canAccess('enhance-mode')) { onUpgradeNeeded('enhance-mode'); return; }
                   setError(''); setFile(null); setStep('enhance');
+                }}
+              />
+
+              {/* AI Writer */}
+              <ModeCard
+                icon={<Wand2 size={28} />}
+                iconColor="#10B981"
+                iconBg="rgba(16,185,129,0.1)"
+                title="AI Resume Writer"
+                description="Tell us your goals and AI will generate a complete, professional resume for you."
+                badgeText="AI-powered"
+                badgeColor="#10B981"
+                badgeBg="rgba(16,185,129,0.12)"
+                locked={!canAccess('enhance-mode')}
+                requiredPlan="Pro"
+                onClick={() => {
+                  if (!canAccess('enhance-mode')) { onUpgradeNeeded('enhance-mode'); return; }
+                  onSelect('ai-writer');
                 }}
               />
 
