@@ -94,8 +94,6 @@ const FooterSection: React.FC<Props> = ({ onOpenTos, onOpenPrivacy, onOpenAbout,
             <h4 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '20px' }}>Legal</h4>
             <button style={linkStyle} onClick={onOpenTos} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Terms of Service</button>
             <button style={linkStyle} onClick={onOpenPrivacy} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Privacy Policy</button>
-            <a href="#" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Cookie Policy</a>
-            <a href="#" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Security</a>
           </div>
         </div>
 

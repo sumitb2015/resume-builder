@@ -60,9 +60,12 @@ export function buildPdfHtml(templateHtml: string, marginMm: number): string {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="${GOOGLE_FONTS_URL}" rel="stylesheet">
-  <style>${TEMPLATE_CSS}</style>
+  <style>
+    @page { margin: ${marginMm}mm; }
+    ${TEMPLATE_CSS}
+  </style>
 </head>
-<body style="margin:0;padding:${marginMm}mm;">
+<body style="margin:0;padding:0;">
   ${templateHtml}
 </body>
 </html>`;
