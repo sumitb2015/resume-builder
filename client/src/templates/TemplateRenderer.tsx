@@ -20,6 +20,10 @@ import OceanTemplate from './OceanTemplate';
 import NightTemplate from './NightTemplate';
 import RiverTemplate from './RiverTemplate';
 import UniverseTemplate from './UniverseTemplate';
+import ProfessionalTemplate from './ProfessionalTemplate';
+import StartupTemplate from './StartupTemplate';
+import LeadershipTemplate from './LeadershipTemplate';
+import AtsTemplate from './AtsTemplate';
 
 interface Props {
   resume: Resume;
@@ -93,6 +97,10 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config, isPaged = false }) 
             case 'night': return <NightTemplate {...templateProps} />;
             case 'river': return <RiverTemplate {...templateProps} />;
             case 'universe': return <UniverseTemplate {...templateProps} />;
+            case 'professional': return <ProfessionalTemplate {...templateProps} />;
+            case 'startup': return <StartupTemplate {...templateProps} />;
+            case 'leadership': return <LeadershipTemplate {...templateProps} />;
+            case 'ats-opt': return <AtsTemplate {...templateProps} />;
             default: return <ClassicTemplate {...templateProps} />;
           }
         })()}
