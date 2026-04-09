@@ -7,6 +7,7 @@ import AiFeaturesSection from './landing/AiFeaturesSection';
 import HowItWorksSection from './landing/HowItWorksSection';
 import PricingSection from './landing/PricingSection';
 import TestimonialsSection from './landing/TestimonialsSection';
+import FaqSection from './landing/FaqSection';
 import CtaSection from './landing/CtaSection';
 import FooterSection from './landing/FooterSection';
 import { TosModal, PrivacyModal } from './landing/TosModal';
@@ -32,6 +33,7 @@ const LandingPage: React.FC<Props> = ({ onStart }) => {
       <HowItWorksSection />
       <PricingSection onStart={onStart} />
       <TestimonialsSection />
+      <FaqSection />
       <CtaSection onStart={onStart} />
       <FooterSection
         onOpenTos={() => setTosOpen(true)}
