@@ -166,7 +166,7 @@ const tagColors: Record<string, string> = {
   'Interview Prep': '#8B5CF6',
 };
 
-const BlogPage: React.FC<Props> = ({ onStart }) => {
+const BlogPage: React.FC<Props> = ({ onStart, onBack }) => {
   const [activeArticle, setActiveArticle] = useState<typeof ARTICLES[0] | null>(null);
 
   // Modals state for footer
@@ -196,7 +196,8 @@ const BlogPage: React.FC<Props> = ({ onStart }) => {
             key={post.id}
             onClick={() => {
               setActiveArticle(post);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              const container = document.querySelector('.landing-page');
+              if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             style={{
               display: 'flex', flexDirection: 'column', textAlign: 'left',
@@ -322,8 +323,8 @@ const BlogPage: React.FC<Props> = ({ onStart }) => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column' }}>
-      <NavBar onStart={onStart} />
+    <div className="landing-page" style={{ background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column' }}>
+      <NavBar onStart={onStart} isBlogPage={true} onBackToHome={onBack} />
       
       <main style={{ flex: 1, paddingTop: '80px' }}>
         {activeArticle ? renderFullArticle() : renderArticleList()}

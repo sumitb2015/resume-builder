@@ -5,7 +5,11 @@ import { useAuth } from '../../contexts/AuthContext';
 import { usePlan } from '../../contexts/PlanContext';
 import { useTheme } from '../../contexts/ThemeContext';
 
-interface Props { onStart: () => void }
+interface Props { 
+  onStart: () => void;
+  isBlogPage?: boolean;
+  onBackToHome?: () => void;
+}
 
 const PLAN_BADGE_CONFIG = {
   basic:   { label: 'Basic',    color: '#FCD34D', bg: 'rgba(245,158,11,0.15)', icon: (size: number) => <Shield size={size} /> },
@@ -13,7 +17,7 @@ const PLAN_BADGE_CONFIG = {
   ultimate:{ label: 'Ultimate', color: '#C084FC', bg: 'rgba(168,85,247,0.15)', icon: (size: number) => <Crown size={size} /> },
 } as const;
 
-const NavBar: React.FC<Props> = ({ onStart }) => {
+const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome }) => {
   const [scrollY, setScrollY] = useState(0);
   const [scrollPct, setScrollPct] = useState(0);
   const { currentUser, signOut } = useAuth();
@@ -48,6 +52,14 @@ const NavBar: React.FC<Props> = ({ onStart }) => {
     transition: 'all 0.2s',
   };
 
+  const handleLogoClick = () => {
+    if (isBlogPage && onBackToHome) {
+      onBackToHome();
+    } else {
+      scrollToSection('hero');
+    }
+  };
+
   return (
     <nav style={{
       position: 'sticky', top: 0, zIndex: 100,
@@ -72,7 +84,7 @@ const NavBar: React.FC<Props> = ({ onStart }) => {
         </div>
       )}
       {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => scrollToSection('hero')}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={handleLogoClick}>
         <div style={{ width: '30px', height: '30px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Zap size={16} color="white" fill="white" />
         </div>
@@ -83,21 +95,36 @@ const NavBar: React.FC<Props> = ({ onStart }) => {
 
       {/* Nav links */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-        {navLinks.map(link => (
+        {isBlogPage ? (
           <button
-            key={link.id}
-            onClick={() => scrollToSection(link.id)}
+            onClick={onBackToHome}
             style={{
               padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'transparent',
-              fontSize: '14px', fontWeight: 500, color: 'var(--color-ui-text-muted)',
-              cursor: 'pointer', transition: 'all 0.2s',
+              fontSize: '14px', fontWeight: 600, color: 'var(--color-ui-text-muted)',
+              cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '6px'
             }}
             onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-ui-text)'; e.currentTarget.style.background = 'var(--color-ui-surface-2)'; }}
             onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-ui-text-muted)'; e.currentTarget.style.background = 'transparent'; }}
           >
-            {link.label}
+            ← Back to Home
           </button>
-        ))}
+        ) : (
+          navLinks.map(link => (
+            <button
+              key={link.id}
+              onClick={() => scrollToSection(link.id)}
+              style={{
+                padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'transparent',
+                fontSize: '14px', fontWeight: 500, color: 'var(--color-ui-text-muted)',
+                cursor: 'pointer', transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-ui-text)'; e.currentTarget.style.background = 'var(--color-ui-surface-2)'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-ui-text-muted)'; e.currentTarget.style.background = 'transparent'; }}
+            >
+              {link.label}
+            </button>
+          ))
+        )}
       </div>
 
       {/* Right side: theme toggle + CTA / User section */}
