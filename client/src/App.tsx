@@ -7,6 +7,7 @@ import AtsCheckerPage from './components/AtsCheckerPage';
 import JobTailorPage from './components/JobTailorPage';
 import ModeSelectModal from './components/ModeSelectModal';
 import AiWriterFlow from './components/AiWriterFlow';
+import BlogPage from './components/landing/BlogPage';
 import UpgradeModal from './components/UpgradeModal';
 import SavedResumesPanel from './components/SavedResumesPanel';
 import PagedPreview from './components/PagedPreview';
@@ -317,7 +318,7 @@ function AppContent() {
   const { savedResumes, canSaveMore, saveResume, renameResume, deleteResume } = useSavedResumes();
   const { theme, toggleTheme } = useTheme();
 
-  const [view, setView] = useState<'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder' | 'preview' | 'ats-checker' | 'job-tailor' | 'ai-writer'>('landing');
+  const [view, setView] = useState<'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder' | 'preview' | 'ats-checker' | 'job-tailor' | 'ai-writer' | 'blog'>('landing');
   const initialResumeRef = useRef<Resume | null>(null);
   
   useEffect(() => {
@@ -534,7 +535,8 @@ function AppContent() {
   const formWidth = formExpanded ? '48%' : '40%';
 
   const mainContent = (() => {
-    if (view === 'landing') return <LandingPage onStart={handleStart} />;
+    if (view === 'landing') return <LandingPage onStart={handleStart} onOpenBlog={() => setView('blog')} />;
+    if (view === 'blog') return <BlogPage onBack={() => setView('landing')} onStart={handleStart} />;
     
     if (view === 'login') {
       return (

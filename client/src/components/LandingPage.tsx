@@ -11,15 +11,17 @@ import FaqSection from './landing/FaqSection';
 import CtaSection from './landing/CtaSection';
 import FooterSection from './landing/FooterSection';
 import { TosModal, PrivacyModal } from './landing/TosModal';
-import { AboutModal, BlogModal, CareersModal, ContactModal } from './landing/CompanyModals';
+import { AboutModal, CareersModal, ContactModal } from './landing/CompanyModals';
 
-interface Props { onStart: () => void }
+interface Props { 
+  onStart: () => void;
+  onOpenBlog: () => void;
+}
 
-const LandingPage: React.FC<Props> = ({ onStart }) => {
+const LandingPage: React.FC<Props> = ({ onStart, onOpenBlog }) => {
   const [tosOpen, setTosOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
-  const [blogOpen, setBlogOpen] = useState(false);
   const [careersOpen, setCareersOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
 
@@ -39,7 +41,7 @@ const LandingPage: React.FC<Props> = ({ onStart }) => {
         onOpenTos={() => setTosOpen(true)}
         onOpenPrivacy={() => setPrivacyOpen(true)}
         onOpenAbout={() => setAboutOpen(true)}
-        onOpenBlog={() => setBlogOpen(true)}
+        onOpenBlog={onOpenBlog}
         onOpenCareers={() => setCareersOpen(true)}
         onOpenContact={() => setContactOpen(true)}
       />
@@ -47,7 +49,6 @@ const LandingPage: React.FC<Props> = ({ onStart }) => {
       {tosOpen && <TosModal onClose={() => setTosOpen(false)} />}
       {privacyOpen && <PrivacyModal onClose={() => setPrivacyOpen(false)} />}
       {aboutOpen && <AboutModal onClose={() => setAboutOpen(false)} />}
-      {blogOpen && <BlogModal onClose={() => setBlogOpen(false)} />}
       {careersOpen && <CareersModal onClose={() => setCareersOpen(false)} />}
       {contactOpen && <ContactModal onClose={() => setContactOpen(false)} />}
     </div>

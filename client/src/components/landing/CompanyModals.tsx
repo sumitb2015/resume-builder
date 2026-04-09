@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Mail, Clock, Tag, Briefcase, Rocket, Heart, Users } from 'lucide-react';
+import { MapPin, Mail, Briefcase, Rocket, Heart, Users } from 'lucide-react';
 import { LegalModal } from './TosModal';
 
 // Shared styles that respect CSS variables (light/dark mode)
@@ -66,102 +66,6 @@ export const AboutModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     </LegalModal>
   );
 };
-
-// ─── Blog Modal ───────────────────────────────────────────────────────────────
-
-const blogPosts = [
-  {
-    tag: 'ATS Tips',
-    title: 'How to Write ATS-Friendly Resume Bullets',
-    date: 'March 28, 2026',
-    readTime: '5 min read',
-    excerpt: 'Applicant Tracking Systems scan your resume before a human ever sees it. Learn the exact formula for writing bullet points that sail through ATS filters — strong action verbs, quantified results, and keyword placement that feels natural, not stuffed.',
-  },
-  {
-    tag: 'Common Mistakes',
-    title: 'Top 5 Resume Mistakes That Cost You Interviews',
-    date: 'March 15, 2026',
-    readTime: '4 min read',
-    excerpt: 'From using the wrong file format to burying your most impressive achievements on page two, we break down the five most common resume blunders and show you exactly how to fix them. Small changes, big impact.',
-  },
-  {
-    tag: 'Job Search Strategy',
-    title: 'Tailoring Your Resume for Each Job Application',
-    date: 'February 22, 2026',
-    readTime: '6 min read',
-    excerpt: "Sending the same resume to every job? That's leaving interviews on the table. Discover how to quickly customize your resume for each role — focusing on the right keywords, reordering sections, and tweaking your summary to mirror the job description.",
-  },
-  {
-    tag: 'Resume Writing',
-    title: 'The Perfect Resume Summary: A Step-by-Step Guide',
-    date: 'February 8, 2026',
-    readTime: '5 min read',
-    excerpt: "Your resume summary is prime real estate — it's the first thing a recruiter reads. We'll walk you through crafting a 3–4 line summary that packs your years of experience, top skills, and career goal into a punchy opening that demands attention.",
-  },
-];
-
-const tagColors: Record<string, string> = {
-  'ATS Tips': '#6366F1',
-  'Common Mistakes': '#EC4899',
-  'Job Search Strategy': '#10B981',
-  'Resume Writing': '#F59E0B',
-};
-
-export const BlogModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
-  <LegalModal onClose={onClose} title="Blog — Resume Tips & Insights">
-    <p style={pStyle}>
-      Practical advice from our team to help you craft a resume that gets results.
-    </p>
-
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '8px' }}>
-      {blogPosts.map((post) => (
-        <div
-          key={post.title}
-          style={{
-            background: 'var(--color-ui-surface-2)',
-            border: '1px solid var(--color-ui-border)',
-            borderRadius: '12px',
-            padding: '20px 22px',
-            transition: 'border-color 0.2s',
-          }}
-          onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--color-ui-text-dim)')}
-          onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--color-ui-border)')}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: '4px',
-              fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
-              color: tagColors[post.tag] ?? '#818CF8',
-              background: `${tagColors[post.tag] ?? '#818CF8'}18`,
-              border: `1px solid ${tagColors[post.tag] ?? '#818CF8'}33`,
-              borderRadius: '6px', padding: '3px 8px',
-            }}>
-              <Tag size={9} />
-              {post.tag}
-            </span>
-            <span style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>
-              <Clock size={11} style={{ display: 'inline', marginRight: '3px', verticalAlign: '-1px' }} />
-              {post.readTime}
-            </span>
-          </div>
-
-          <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '8px', lineHeight: 1.4 }}>
-            {post.title}
-          </h3>
-          <p style={{ fontSize: '13.5px', color: 'var(--color-ui-text-muted)', lineHeight: 1.7, marginBottom: '12px' }}>
-            {post.excerpt}
-          </p>
-
-          <div style={{ fontSize: '12px', color: 'var(--color-ui-text-dim)' }}>{post.date}</div>
-        </div>
-      ))}
-    </div>
-
-    <p style={{ ...pStyle, marginTop: '24px', textAlign: 'center' as const, fontSize: '13px' }}>
-      More articles coming soon. Follow us or check back regularly for new resume tips.
-    </p>
-  </LegalModal>
-);
 
 // ─── Careers Modal ────────────────────────────────────────────────────────────
 
