@@ -607,6 +607,49 @@ function AppContent() {
           </div>
 
           <main className="preview-viewport" style={{ flex: 1, minWidth: 0 }}>
+            {/* Preview toolbar */}
+            <div className="no-print" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+              {/* Left: template info + ATS score */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '11.5px', color: 'var(--color-ui-text-muted)', fontWeight: 500 }}>
+                  {activeTemplate.name}
+                </span>
+                <div style={{ width: '1px', height: '12px', background: 'var(--color-ui-border)' }} />
+                <span style={{ fontSize: '11px', color: activeTemplate.atsScore >= 90 ? 'var(--color-success)' : 'var(--color-warning)', fontWeight: 600 }}>
+                  {activeTemplate.atsScore >= 90 ? '✓' : '⚠'} ATS {activeTemplate.atsScore}%
+                </span>
+                <div style={{ width: '1px', height: '12px', background: 'var(--color-ui-border)' }} />
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: pageCount > 1 ? 'var(--color-ui-accent)' : 'var(--color-ui-text-muted)', fontWeight: pageCount > 1 ? 700 : 500 }}>
+                  <FileText size={11} /> A4 · {pageCount} {pageCount === 1 ? 'page' : 'pages'}
+                </span>
+              </div>
+
+              {/* Right: zoom controls */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '3px 6px', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderRadius: '8px' }}>
+                <button className="btn-ghost" style={{ padding: '3px 6px', borderRadius: '5px', fontSize: '13px', lineHeight: 1 }} onClick={() => setZoom(z => Math.max(0.3, +(z - 0.1).toFixed(1)))} title="Zoom out">−</button>
+                <button onClick={() => setZoom(0.75)} style={{ minWidth: '46px', textAlign: 'center', fontSize: '11.5px', fontWeight: 700, color: 'var(--color-ui-accent)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '2px 4px', borderRadius: '4px' }} title="Reset to 75%">
+                  {Math.round(zoom * 100)}%
+                </button>
+                <button className="btn-ghost" style={{ padding: '3px 6px', borderRadius: '5px', fontSize: '13px', lineHeight: 1 }} onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(1)))} title="Zoom in">+</button>
+                <div style={{ width: '1px', height: '14px', background: 'var(--color-ui-border)', margin: '0 2px' }} />
+                {[50, 75, 100].map(v => (
+                  <button
+                    key={v}
+                    onClick={() => setZoom(v / 100)}
+                    style={{
+                      padding: '2px 6px', borderRadius: '4px', fontSize: '10.5px', fontWeight: 600,
+                      border: 'none', cursor: 'pointer',
+                      background: Math.round(zoom * 100) === v ? 'rgba(99,102,241,0.2)' : 'transparent',
+                      color: Math.round(zoom * 100) === v ? 'var(--color-ui-accent)' : 'var(--color-ui-text-dim)',
+                      transition: 'all 0.12s',
+                    }}
+                  >
+                    {v}%
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="preview-scaler" style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
               <PagedPreview resume={resume} config={activeTemplate} onPageCount={setPageCount} />
             </div>
