@@ -17,7 +17,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
       <div style={{ height: '3px', background: `linear-gradient(to right, transparent, ${accent}, transparent)`, marginBottom: '32px' }} />
 
       {/* HEADER */}
-      <header data-section="personal" style={{ textAlign: 'center', marginBottom: '32px' }}>
+      <header style={{ textAlign: 'center', marginBottom: '32px' }}>
         <h1 style={{ fontFamily: config.fonts.heading, fontSize: '2.375em', fontWeight: 400, letterSpacing: '0.12em', textTransform: 'uppercase', color: config.colors.primary, marginBottom: '6px', lineHeight: 1.1 }}>
           {personal.name || 'YOUR NAME'}
         </h1>
@@ -47,7 +47,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
         {/* LEFT COLUMN */}
         <div style={{ flex: 1 }}>
           {experience.length > 0 && (
-            <ESection title="Professional Experience" accent={accent} config={config} sectionId="experience">
+            <ESection title="Professional Experience" accent={accent} config={config}>
               {experience.map(exp => (
                 <div key={exp.id} style={{ marginBottom: '18px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '2px' }}>
@@ -63,7 +63,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             </ESection>
           )}
           {projects.length > 0 && (
-            <ESection title="Notable Projects" accent={accent} config={config} sectionId="projects">
+            <ESection title="Notable Projects" accent={accent} config={config}>
               {projects.map(p => (
                 <div key={p.id} style={{ marginBottom: '12px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -81,7 +81,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
         {/* RIGHT COLUMN */}
         <div style={{ width: '180px', flexShrink: 0 }}>
           {education.length > 0 && (
-            <ESection title="Education" accent={accent} config={config} sectionId="education">
+            <ESection title="Education" accent={accent} config={config}>
               {education.map(edu => (
                 <div key={edu.id} style={{ marginBottom: '14px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ fontSize: '0.7813em', fontWeight: 700, color: '#1A1A1A' }}>{edu.school}</div>
@@ -92,7 +92,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             </ESection>
           )}
           {skills.length > 0 && (
-            <ESection title="Expertise" accent={accent} config={config} sectionId="skills">
+            <ESection title="Expertise" accent={accent} config={config}>
               {skills.map(s => (
                 <div key={s.id} style={{ fontSize: '0.75em', color: '#444', lineHeight: 1.9, display: 'flex', alignItems: 'center', gap: '6px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <span style={{ color: accent, fontSize: '0.625em' }}>✦</span>{s.name}
@@ -101,7 +101,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             </ESection>
           )}
           {languages.length > 0 && (
-            <ESection title="Languages" accent={accent} config={config} sectionId="languages">
+            <ESection title="Languages" accent={accent} config={config}>
               {languages.map(l => (
                 <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75em', lineHeight: 1.9, breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <span>{l.language}</span><span style={{ color: '#888', fontStyle: 'italic', fontSize: '0.6875em' }}>{l.proficiency}</span>
@@ -110,7 +110,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             </ESection>
           )}
           {certifications.length > 0 && (
-            <ESection title="Certifications" accent={accent} config={config} sectionId="certifications">
+            <ESection title="Certifications" accent={accent} config={config}>
               {certifications.map(c => (
                 <div key={c.id} style={{ marginBottom: '8px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <div style={{ fontSize: '0.75em', fontWeight: 700 }}>{c.name}</div>
@@ -128,8 +128,8 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
   );
 };
 
-const ESection: React.FC<{ title: string; accent: string; config: TemplateConfig; children: React.ReactNode; sectionId?: string }> = ({ title, accent, config, children, sectionId }) => (
-  <div data-section={sectionId} style={{ marginBottom: '22px' }}>
+const ESection: React.FC<{ title: string; accent: string; config: TemplateConfig; children: React.ReactNode }> = ({ title, accent, config, children }) => (
+  <div style={{ marginBottom: '22px' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
       <h2 style={{ fontFamily: config.fonts.heading, fontSize: '0.625em', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.24em', color: accent, whiteSpace: 'nowrap' }}>{title}</h2>
       <div style={{ flex: 1, height: '1px', background: `linear-gradient(to right, ${accent}60, transparent)` }} />

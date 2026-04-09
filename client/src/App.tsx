@@ -14,7 +14,6 @@ import StylePanel from './components/StylePanel';
 import ExportPreview from './components/ExportPreview';
 import { templates } from './templates';
 import type { Resume, TemplateConfig, ImprovementSuggestions } from './shared/types';
-import type { TabId } from './components/ResumeBuilder';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PlanProvider, usePlan } from './contexts/PlanContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
@@ -329,7 +328,6 @@ function AppContent() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view]);
 
-  const [activeTab, setActiveTab] = useState<TabId>('personal');
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
   const [formExpanded, setFormExpanded] = useState(false);
   const [resume, setResume] = useState<Resume>(initialResume);
@@ -744,7 +742,7 @@ function AppContent() {
 
         <div style={{ display: 'flex', overflow: 'hidden', height: '100%' }}>
           <div style={{ width: formWidth, flexShrink: 0, transition: 'width 0.25s', position: 'relative', height: '100%', overflow: 'hidden' }} className="no-print">
-            <ResumeBuilder resume={resume} onChange={setResumeWithHistory} improvements={improvements} onDismissImprovements={() => setImprovements(null)} onUpgradeNeeded={showUpgrade} activeTab={activeTab} onTabChange={setActiveTab} />
+            <ResumeBuilder resume={resume} onChange={setResumeWithHistory} improvements={improvements} onDismissImprovements={() => setImprovements(null)} onUpgradeNeeded={showUpgrade} />
             <button onClick={() => setFormExpanded(v => !v)} style={{ position: 'absolute', top: '50%', right: '-11px', transform: 'translateY(-50%)', width: '22px', height: '44px', borderRadius: '0 8px 8px 0', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderLeft: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-ui-text-muted)', zIndex: 10 }}>{formExpanded ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}</button>
           </div>
 
@@ -801,7 +799,7 @@ function AppContent() {
             </div>
 
             <div className="preview-scaler" style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
-              <PagedPreview resume={resume} config={activeTemplate} onPageCount={setPageCount} onSectionClick={(id) => setActiveTab(id as TabId)} />
+              <PagedPreview resume={resume} config={activeTemplate} onPageCount={setPageCount} />
             </div>
           </main>
 

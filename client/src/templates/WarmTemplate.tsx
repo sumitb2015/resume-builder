@@ -10,7 +10,7 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
   return (
     <div className="resume-paper" style={{ fontFamily: '"Poppins", system-ui, sans-serif', backgroundColor: '#FFFBF5', padding: 0 }}>
       {/* HEADER */}
-      <header data-section="personal" style={{ backgroundColor: primary, padding: '40px 48px 30px', borderBottom: `6px solid ${accent}` }}>
+      <header style={{ backgroundColor: primary, padding: '40px 48px 30px', borderBottom: `6px solid ${accent}` }}>
         <h1 style={{ fontSize: '2em', fontWeight: 700, color: '#FFFBF5', letterSpacing: '-0.02em', lineHeight: 1.1, marginBottom: '6px' }}>{personal.name || 'YOUR NAME'}</h1>
         {personal.title && <p style={{ fontSize: '0.8125em', color: accent, fontWeight: 500, marginBottom: '18px', letterSpacing: '0.04em' }}>{personal.title}</p>}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 18px' }}>
@@ -30,7 +30,7 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
             </div>
           )}
           {experience.length > 0 && (
-            <WSection title="Experience" primary={primary} accent={accent} sectionId="experience">
+            <WSection title="Experience" primary={primary} accent={accent}>
               {experience.map(exp => (
                 <div key={exp.id} style={{ marginBottom: '20px', padding: '14px 16px', backgroundColor: '#fff', borderRadius: '10px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', border: `1px solid ${accent}20` }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
@@ -54,7 +54,7 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
             </WSection>
           )}
           {projects.length > 0 && (
-            <WSection title="Projects" primary={primary} accent={accent} sectionId="projects">
+            <WSection title="Projects" primary={primary} accent={accent}>
               {projects.map(p => (
                 <div key={p.id} style={{ marginBottom: '12px', padding: '12px 14px', backgroundColor: '#fff', borderRadius: '8px', border: `1px solid ${accent}25` }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -72,7 +72,7 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
             </WSection>
           )}
           {education.length > 0 && (
-            <WSection title="Education" primary={primary} accent={accent} sectionId="education">
+            <WSection title="Education" primary={primary} accent={accent}>
               {education.map(edu => (
                 <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
                   <div>
@@ -89,7 +89,7 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
         {/* SIDEBAR */}
         <div style={{ padding: '32px 22px', backgroundColor: '#FFF8ED', borderLeft: `3px solid ${accent}30`, display: 'flex', flexDirection: 'column', gap: '22px' }}>
           {skills.length > 0 && (
-            <div data-section="skills">
+            <div>
               <WSideTitle title="Skills" accent={accent} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {skills.map(s => (
@@ -104,7 +104,7 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
             </div>
           )}
           {languages.length > 0 && (
-            <div data-section="languages">
+            <div>
               <WSideTitle title="Languages" accent={accent} />
               {languages.map(l => (
                 <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75em', lineHeight: 2, color: primary }}>
@@ -115,7 +115,7 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
             </div>
           )}
           {certifications.length > 0 && (
-            <div data-section="certifications">
+            <div>
               <WSideTitle title="Certifications" accent={accent} />
               {certifications.map(c => (
                 <div key={c.id} style={{ marginBottom: '10px', padding: '8px 10px', backgroundColor: '#fff', borderRadius: '8px', border: `1px solid ${accent}30` }}>
@@ -132,8 +132,8 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
   );
 };
 
-const WSection: React.FC<{ title: string; primary: string; accent: string; children: React.ReactNode; sectionId?: string }> = ({ title, accent, children, sectionId }) => (
-  <div data-section={sectionId} style={{ marginBottom: '24px' }}>
+const WSection: React.FC<{ title: string; primary: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
+  <div style={{ marginBottom: '24px' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
       <div style={{ width: '28px', height: '3px', background: accent, borderRadius: '2px' }} />
       <h2 style={{ fontSize: '0.6875em', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.14em', color: accent }}>{title}</h2>

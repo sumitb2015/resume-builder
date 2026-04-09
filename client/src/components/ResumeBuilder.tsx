@@ -16,11 +16,9 @@ interface Props {
   improvements?: ImprovementSuggestions | null;
   onDismissImprovements?: () => void;
   onUpgradeNeeded: (feature: Feature) => void;
-  activeTab?: TabId;
-  onTabChange?: (tab: TabId) => void;
 }
 
-export type TabId = 'personal' | 'experience' | 'education' | 'skills' | 'projects' | 'certifications' | 'languages';
+type TabId = 'personal' | 'experience' | 'education' | 'skills' | 'projects' | 'certifications' | 'languages';
 
 const TABS: { id: TabId; label: string; icon: React.ElementType; countKey?: keyof Resume }[] = [
   { id: 'personal',       label: 'Personal Info',    icon: User },
@@ -84,13 +82,11 @@ const EmptyState: React.FC<{ icon: React.ReactNode; text: string }> = ({ icon, t
 );
 
 // ── Main component ────────────────────────────────────────────────────────────
-
-const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDismissImprovements, onUpgradeNeeded, activeTab: activeTabProp, onTabChange }) => {
+const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDismissImprovements, onUpgradeNeeded }) => {
   const { canAccess, remainingBullets, incrementBulletUsage } = usePlan();
-  const [_activeTab, _setActiveTab] = useState<TabId>('personal');
-  const activeTab = activeTabProp ?? _activeTab;
-  const setActiveTab = (tab: TabId) => { _setActiveTab(tab); onTabChange?.(tab); };
+  const [activeTab, setActiveTab] = useState<TabId>('personal');
   const [editorTab, setEditorTab] = useState<'builder' | 'suggestions'>('suggestions');
+
   const [appliedSuggestions, setAppliedSuggestions] = useState<Set<number>>(new Set());
 
   // AI state

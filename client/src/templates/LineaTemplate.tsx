@@ -9,7 +9,7 @@ const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
   return (
     <div className="resume-paper" style={{ fontFamily: '"DM Sans", system-ui, sans-serif', backgroundColor: '#fff', padding: 0 }}>
       {/* HEADER */}
-      <header data-section="personal" style={{ marginBottom: '36px' }}>
+      <header style={{ marginBottom: '36px' }}>
         <div style={{ borderBottom: '3px solid #111', paddingBottom: '20px', marginBottom: '16px' }}>
           <h1 style={{ fontSize: '2.625em', fontWeight: 300, letterSpacing: '-0.04em', color: '#111', lineHeight: 1.05 }}>{personal.name || 'YOUR NAME'}</h1>
           {personal.title && <p style={{ fontSize: '0.875em', fontWeight: 500, color: accent, letterSpacing: '0.06em', marginTop: '6px' }}>{personal.title}</p>}
@@ -27,13 +27,13 @@ const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
         {/* MAIN */}
         <div>
           {personal.summary && (
-            <div data-section="personal" style={{ marginBottom: '28px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+            <div style={{ marginBottom: '28px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
               <LineaSec title="Profile" accent={accent} />
               <RichContent html={personal.summary} style={{ fontSize: '0.8125em', color: '#444', lineHeight: 1.85 }} />
             </div>
           )}
           {experience.length > 0 && (
-            <div data-section="experience" style={{ marginBottom: '28px' }}>
+            <div style={{ marginBottom: '28px' }}>
               <LineaSec title="Experience" accent={accent} />
               {experience.map(exp => (
                 <div key={exp.id} style={{ display: 'grid', gridTemplateColumns: '100px 1fr', gap: '16px', marginBottom: '20px' }}>
@@ -59,7 +59,7 @@ const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
             </div>
           )}
           {projects.length > 0 && (
-            <div data-section="projects" style={{ marginBottom: '28px' }}>
+            <div style={{ marginBottom: '28px' }}>
               <LineaSec title="Projects" accent={accent} />
               {projects.map(p => (
                 <div key={p.id} style={{ marginBottom: '14px', paddingBottom: '14px', borderBottom: '1px solid #F3F4F6' }}>
@@ -74,7 +74,7 @@ const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
             </div>
           )}
           {education.length > 0 && (
-            <div data-section="education">
+            <div>
               <LineaSec title="Education" accent={accent} />
               {education.map(edu => (
                 <div key={edu.id} style={{ display: 'grid', gridTemplateColumns: '100px 1fr', gap: '16px', marginBottom: '12px' }}>
@@ -94,7 +94,7 @@ const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
         {/* SIDEBAR */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', borderLeft: '1px solid #E5E7EB', paddingLeft: '24px' }}>
           {skills.length > 0 && (
-            <div data-section="skills">
+            <div>
               <h3 style={{ fontSize: '0.625em', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.2em', color: accent, marginBottom: '14px', borderBottom: `2px solid ${accent}`, paddingBottom: '5px' }}>Skills</h3>
               {skills.map(s => (
                 <div key={s.id} style={{ marginBottom: '10px' }}>
@@ -109,7 +109,7 @@ const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
             </div>
           )}
           {languages.length > 0 && (
-            <div data-section="languages">
+            <div>
               <h3 style={{ fontSize: '0.625em', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.2em', color: accent, marginBottom: '12px', borderBottom: `2px solid ${accent}`, paddingBottom: '5px' }}>Languages</h3>
               {languages.map(l => (
                 <div key={l.id} style={{ marginBottom: '8px' }}>
@@ -120,7 +120,7 @@ const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
             </div>
           )}
           {certifications.length > 0 && (
-            <div data-section="certifications">
+            <div>
               <h3 style={{ fontSize: '0.625em', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.2em', color: accent, marginBottom: '12px', borderBottom: `2px solid ${accent}`, paddingBottom: '5px' }}>Certifications</h3>
               {certifications.map(c => (
                 <div key={c.id} style={{ marginBottom: '10px' }}>

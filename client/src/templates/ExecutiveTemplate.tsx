@@ -19,7 +19,7 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
 
       <div>
         {/* HEADER */}
-        <header data-section="personal" style={{ marginBottom: '32px', paddingBottom: '28px', borderBottom: `1px solid ${accent}40` }}>
+        <header style={{ marginBottom: '32px', paddingBottom: '28px', borderBottom: `1px solid ${accent}40` }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <h1 style={{
@@ -69,7 +69,7 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
           <div>
             {/* Experience */}
             {experience.length > 0 && (
-              <div data-section="experience" style={{ marginBottom: '28px' }}>
+              <div style={{ marginBottom: '28px' }}>
                 <ExecSectionTitle title="Professional Experience" primary={primary} accent={accent} config={config} />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
                   {experience.map(exp => (
@@ -104,7 +104,7 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
 
             {/* Projects */}
             {projects.length > 0 && (
-              <div data-section="projects" style={{ marginBottom: '28px' }}>
+              <div style={{ marginBottom: '28px' }}>
                 <ExecSectionTitle title="Key Projects" primary={primary} accent={accent} config={config} />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   {projects.map(p => (
@@ -131,7 +131,7 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {/* Education */}
             {education.length > 0 && (
-              <div data-section="education">
+              <div>
                 <ExecSectionTitle title="Education" primary={primary} accent={accent} config={config} />
                 {education.map(edu => (
                   <div key={edu.id} style={{ marginBottom: '14px' }}>
@@ -153,7 +153,7 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
 
             {/* Skills */}
             {skills.length > 0 && (
-              <div data-section="skills">
+              <div>
                 <ExecSectionTitle title="Core Expertise" primary={primary} accent={accent} config={config} />
                 {skills.map(s => (
                   <div key={s.id} style={{ marginBottom: '10px' }}>
@@ -170,7 +170,7 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
 
             {/* Languages */}
             {languages.length > 0 && (
-              <div data-section="languages">
+              <div>
                 <ExecSectionTitle title="Languages" primary={primary} accent={accent} config={config} />
                 {languages.map(l => (
                   <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7813em', lineHeight: 2 }}>
@@ -183,7 +183,7 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
 
             {/* Certifications */}
             {certifications.length > 0 && (
-              <div data-section="certifications">
+              <div>
                 <ExecSectionTitle title="Certifications" primary={primary} accent={accent} config={config} />
                 {certifications.map(c => (
                   <div key={c.id} style={{ marginBottom: '10px', paddingBottom: '10px', borderBottom: '1px solid #EDE8DE' }}>

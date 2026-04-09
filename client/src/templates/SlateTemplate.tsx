@@ -10,7 +10,7 @@ const SlateTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
   return (
     <div className="resume-paper" style={{ fontFamily: '"DM Sans", system-ui, sans-serif', backgroundColor: '#F8FAFC', padding: 0 }}>
       {/* HEADER */}
-      <header data-section="personal" style={{ backgroundColor: '#fff', padding: '24px 32px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <header style={{ backgroundColor: '#fff', padding: '24px 32px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h1 style={{ fontSize: '1.875em', fontWeight: 700, color: primary, letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '6px' }}>{personal.name || 'YOUR NAME'}</h1>
           {personal.title && (
@@ -39,7 +39,7 @@ const SlateTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 210px', padding: '0' }}>
         <div style={{ padding: '8mm 12mm 12mm 12mm', backgroundColor: '#fff', borderRight: '1px solid #E2E8F0' }}>
           {experience.length > 0 && (
-            <SlateSec title="Work Experience" accent={accent} sectionId="experience">
+            <SlateSec title="Work Experience" accent={accent}>
               {experience.map(exp => (
                 <div key={exp.id} style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #F1F5F9' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'start', marginBottom: '4px' }}>
@@ -63,7 +63,7 @@ const SlateTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
             </SlateSec>
           )}
           {projects.length > 0 && (
-            <SlateSec title="Projects" accent={accent} sectionId="projects">
+            <SlateSec title="Projects" accent={accent}>
               {projects.map(p => (
                 <div key={p.id} style={{ marginBottom: '14px', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '8px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -81,7 +81,7 @@ const SlateTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
             </SlateSec>
           )}
           {education.length > 0 && (
-            <SlateSec title="Education" accent={accent} sectionId="education">
+            <SlateSec title="Education" accent={accent}>
               {education.map(edu => (
                 <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
                   <div>
@@ -97,7 +97,7 @@ const SlateTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
 
         <div style={{ padding: '32px 22px', backgroundColor: '#F8FAFC', display: 'flex', flexDirection: 'column', gap: '22px' }}>
           {skills.length > 0 && (
-            <div data-section="skills">
+            <div>
               <SlateSideTitle title="Skills" accent={accent} />
               {skills.map(s => (
                 <div key={s.id} style={{ marginBottom: '9px' }}>
@@ -112,7 +112,7 @@ const SlateTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
             </div>
           )}
           {certifications.length > 0 && (
-            <div data-section="certifications">
+            <div>
               <SlateSideTitle title="Certifications" accent={accent} />
               {certifications.map(c => (
                 <div key={c.id} style={{ marginBottom: '10px', padding: '8px 10px', backgroundColor: '#fff', borderRadius: '6px', border: '1px solid #E2E8F0' }}>
@@ -124,7 +124,7 @@ const SlateTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
             </div>
           )}
           {languages.length > 0 && (
-            <div data-section="languages">
+            <div>
               <SlateSideTitle title="Languages" accent={accent} />
               {languages.map(l => (
                 <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75em', lineHeight: 2, color: primary }}>
@@ -140,8 +140,8 @@ const SlateTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
   );
 };
 
-const SlateSec: React.FC<{ title: string; accent: string; children: React.ReactNode; sectionId?: string }> = ({ title, accent, children, sectionId }) => (
-  <div data-section={sectionId} style={{ marginBottom: '24px' }}>
+const SlateSec: React.FC<{ title: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
+  <div style={{ marginBottom: '24px' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
       <h2 style={{ fontSize: '0.6875em', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.14em', color: accent }}>{title}</h2>
       <div style={{ flex: 1, height: '1px', backgroundColor: '#E2E8F0' }} />

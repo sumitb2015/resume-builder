@@ -28,7 +28,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
         gap: '28px',
       }}>
         {/* Name & Title */}
-        <div data-section="personal">
+        <div>
           <h1 style={{ fontFamily: config.fonts.heading, fontSize: '1.375em', fontWeight: 800, color: '#FFFFFF', lineHeight: 1.15, letterSpacing: '-0.02em', marginBottom: '6px' }}>
             {personal.name || 'YOUR NAME'}
           </h1>
@@ -55,7 +55,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
 
         {/* Skills */}
         {skills.length > 0 && (
-          <SideSection title="Skills" accent={accent} config={config} sectionId="skills">
+          <SideSection title="Skills" accent={accent} config={config}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {skills.map(s => (
                 <div key={s.id}>
@@ -73,7 +73,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
 
         {/* Languages */}
         {languages.length > 0 && (
-          <SideSection title="Languages" accent={accent} config={config} sectionId="languages">
+          <SideSection title="Languages" accent={accent} config={config}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {languages.map(l => (
                 <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -90,7 +90,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
 
         {/* Certifications */}
         {certifications.length > 0 && (
-          <SideSection title="Certifications" accent={accent} config={config} sectionId="certifications">
+          <SideSection title="Certifications" accent={accent} config={config}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {certifications.map(c => (
                 <div key={c.id}>
@@ -107,7 +107,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
       <main style={{ flex: 1, padding: '0 12mm', display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {/* Summary */}
         {personal.summary && (
-          <div data-section="personal">
+          <div>
             <MainSectionTitle title="Professional Summary" accent={accent} config={config} />
             <RichContent html={personal.summary} style={{ fontSize: '0.8125em', lineHeight: 1.75, color: '#374151' }} />
           </div>
@@ -115,7 +115,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
 
         {/* Experience */}
         {experience.length > 0 && (
-          <div data-section="experience">
+          <div>
             <MainSectionTitle title="Work Experience" accent={accent} config={config} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {experience.map((exp) => (
@@ -150,7 +150,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
 
         {/* Education */}
         {education.length > 0 && (
-          <div data-section="education">
+          <div>
             <MainSectionTitle title="Education" accent={accent} config={config} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {education.map((edu) => (
@@ -173,7 +173,7 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
 
         {/* Projects */}
         {projects.length > 0 && (
-          <div data-section="projects">
+          <div>
             <MainSectionTitle title="Projects" accent={accent} config={config} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {projects.map(p => (
@@ -200,8 +200,8 @@ const ModernTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
   );
 };
 
-const SideSection: React.FC<{ title: string; accent: string; config: TemplateConfig; children: React.ReactNode; sectionId?: string }> = ({ title, accent, config, children, sectionId }) => (
-  <div data-section={sectionId}>
+const SideSection: React.FC<{ title: string; accent: string; config: TemplateConfig; children: React.ReactNode }> = ({ title, accent, config, children }) => (
+  <div>
     <h2 style={{ fontFamily: config.fonts.heading, fontSize: '0.5938em', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: accent, marginBottom: '12px' }}>
       {title}
     </h2>

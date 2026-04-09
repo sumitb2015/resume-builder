@@ -15,10 +15,9 @@ interface Props {
   config: TemplateConfig;
   onPageCount?: (n: number) => void;
   forcePageCount?: number;
-  onSectionClick?: (sectionId: string) => void;
 }
 
-const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount, forcePageCount, onSectionClick }) => {
+const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount, forcePageCount }) => {
   const measureRef = useRef<HTMLDivElement>(null);
   const [internalPageCount, setInternalPageCount] = useState(1);
   // pageBreaks[i] = y-offset (px) within the full content where page i starts
@@ -192,7 +191,7 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount, forcePageC
                 left: 0,
                 right: 0,
               }}>
-                <TemplateRenderer resume={resume} config={config} isPaged={true} onSectionClick={onSectionClick} />
+                <TemplateRenderer resume={resume} config={config} isPaged={true} />
               </div>
             </div>
 

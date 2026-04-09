@@ -26,7 +26,7 @@ const ForestTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
         gap: '24px',
       }}>
         {/* Name & Title */}
-        <div data-section="personal">
+        <div>
           <h1 style={{ fontSize: '1.25em', fontWeight: 800, color: '#FFFFFF', lineHeight: 1.2, letterSpacing: '-0.02em', margin: 0 }}>
             {personal.name || 'YOUR NAME'}
           </h1>
@@ -41,7 +41,7 @@ const ForestTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
         <div style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.15)' }} />
 
         {/* Contact */}
-        <ForestSideSection title="Contact" accent={accent} sectionId="personal">
+        <ForestSideSection title="Contact" accent={accent}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {personal.email && <ForestContactRow label="Email" value={personal.email} />}
             {personal.phone && <ForestContactRow label="Phone" value={personal.phone} />}
@@ -53,7 +53,7 @@ const ForestTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
 
         {/* Skills */}
         {skills.length > 0 && (
-          <ForestSideSection title="Skills" accent={accent} sectionId="skills">
+          <ForestSideSection title="Skills" accent={accent}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {skills.map(s => (
                 <div key={s.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
@@ -74,7 +74,7 @@ const ForestTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
 
         {/* Languages */}
         {languages.length > 0 && (
-          <ForestSideSection title="Languages" accent={accent} sectionId="languages">
+          <ForestSideSection title="Languages" accent={accent}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {languages.map(l => (
                 <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px' }}>
@@ -95,7 +95,7 @@ const ForestTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
 
         {/* Certifications */}
         {certifications.length > 0 && (
-          <ForestSideSection title="Certifications" accent={accent} sectionId="certifications">
+          <ForestSideSection title="Certifications" accent={accent}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {certifications.map(c => (
                 <div key={c.id}>
@@ -113,7 +113,7 @@ const ForestTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
       <main style={{ flex: 1, padding: '12mm 10mm', display: 'flex', flexDirection: 'column', gap: '22px' }}>
         {/* Summary */}
         {personal.summary && (
-          <div data-section="personal">
+          <div>
             <ForestMainHeader title="Profile" primary={primary} accent={accent} />
             <RichContent html={personal.summary} style={{ fontSize: '0.7813em', lineHeight: 1.8, color: text, margin: 0 }} />
           </div>
@@ -121,7 +121,7 @@ const ForestTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
 
         {/* Experience */}
         {experience.length > 0 && (
-          <div data-section="experience">
+          <div>
             <ForestMainHeader title="Experience" primary={primary} accent={accent} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
               {experience.map(exp => (
@@ -156,7 +156,7 @@ const ForestTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
 
         {/* Education */}
         {education.length > 0 && (
-          <div data-section="education">
+          <div>
             <ForestMainHeader title="Education" primary={primary} accent={accent} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {education.map(edu => (
@@ -179,7 +179,7 @@ const ForestTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
 
         {/* Projects */}
         {projects.length > 0 && (
-          <div data-section="projects">
+          <div>
             <ForestMainHeader title="Projects" primary={primary} accent={accent} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {projects.map(p => (
@@ -221,8 +221,8 @@ const ForestTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
   );
 };
 
-const ForestSideSection: React.FC<{ title: string; accent: string; children: React.ReactNode; sectionId?: string }> = ({ title, accent, children, sectionId }) => (
-  <div data-section={sectionId}>
+const ForestSideSection: React.FC<{ title: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
+  <div>
     <h2 style={{ fontSize: '0.5625em', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.18em', color: accent, marginBottom: '10px', margin: '0 0 10px' }}>
       {title}
     </h2>

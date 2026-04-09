@@ -17,7 +17,7 @@ const NightTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
       padding: 0,
     }}>
       {/* FULL-BLEED BLACK HEADER */}
-      <header data-section="personal" style={{ backgroundColor: primary, padding: '36px 52px' }}>
+      <header style={{ backgroundColor: primary, padding: '36px 52px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
           <div>
             <h1 style={{ fontSize: '2em', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.02em', lineHeight: 1.1, fontFamily: '"Poppins", system-ui, sans-serif', margin: 0 }}>
@@ -46,14 +46,14 @@ const NightTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
       <div style={{ padding: '36px 52px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {/* Summary */}
         {personal.summary && (
-          <NightSection title="Summary" primary={primary} sectionId="personal">
+          <NightSection title="Summary" primary={primary}>
             <RichContent html={personal.summary} style={{ fontSize: '0.7813em', lineHeight: 1.8, color: text, margin: 0 }} />
           </NightSection>
         )}
 
         {/* Experience */}
         {experience.length > 0 && (
-          <NightSection title="Experience" primary={primary} sectionId="experience">
+          <NightSection title="Experience" primary={primary}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
               {experience.map(exp => (
                 <div key={exp.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
@@ -81,7 +81,7 @@ const NightTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
 
         {/* Education */}
         {education.length > 0 && (
-          <NightSection title="Education" primary={primary} sectionId="education">
+          <NightSection title="Education" primary={primary}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {education.map(edu => (
                 <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -103,7 +103,7 @@ const NightTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
 
         {/* Skills */}
         {skills.length > 0 && (
-          <NightSection title="Skills" primary={primary} sectionId="skills">
+          <NightSection title="Skills" primary={primary}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
               {skills.map(s => (
                 <span key={s.id} style={{
@@ -123,7 +123,7 @@ const NightTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
 
         {/* Projects */}
         {projects.length > 0 && (
-          <NightSection title="Projects" primary={primary} sectionId="projects">
+          <NightSection title="Projects" primary={primary}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {projects.map(p => (
                 <div key={p.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
@@ -147,7 +147,7 @@ const NightTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
         {(languages.length > 0 || certifications.length > 0) && (
           <div style={{ display: 'grid', gridTemplateColumns: languages.length > 0 && certifications.length > 0 ? '1fr 1fr' : '1fr', gap: '36px' }}>
             {languages.length > 0 && (
-              <NightSection title="Languages" primary={primary} sectionId="languages">
+              <NightSection title="Languages" primary={primary}>
                 {languages.map(l => (
                   <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7813em', lineHeight: 2 }}>
                     <span style={{ fontWeight: 500, color: text }}>{l.language}</span>
@@ -157,7 +157,7 @@ const NightTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
               </NightSection>
             )}
             {certifications.length > 0 && (
-              <NightSection title="Certifications" primary={primary} sectionId="certifications">
+              <NightSection title="Certifications" primary={primary}>
                 {certifications.map(c => (
                   <div key={c.id} style={{ marginBottom: '8px' }}>
                     <div style={{ fontSize: '0.7813em', fontWeight: 700, color: primary }}>{c.name}</div>
@@ -188,8 +188,8 @@ const NightTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
   );
 };
 
-const NightSection: React.FC<{ title: string; primary: string; children: React.ReactNode; sectionId?: string }> = ({ title, primary, children, sectionId }) => (
-  <section data-section={sectionId} style={{ marginBottom: '20px' }}>
+const NightSection: React.FC<{ title: string; primary: string; children: React.ReactNode }> = ({ title, primary, children }) => (
+  <section style={{ marginBottom: '20px' }}>
     <div style={{ marginBottom: '12px' }}>
       <h2 style={{
         fontSize: '0.5625em', fontWeight: 900, textTransform: 'uppercase',

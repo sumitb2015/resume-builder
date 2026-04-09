@@ -21,7 +21,7 @@ const OceanTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
       padding: 0,
     }}>
       {/* FULL-WIDTH HEADER */}
-      <header data-section="personal" style={{ backgroundColor: primary, padding: '11mm 15mm' }}>
+      <header style={{ backgroundColor: primary, padding: '11mm 15mm' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div style={{ flex: 1, marginRight: '32px' }}>
             <h1 style={{ fontSize: '1.875em', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.03em', lineHeight: 1.1, margin: 0 }}>
@@ -55,7 +55,7 @@ const OceanTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
         <main style={{ padding: '11mm 12mm 11mm 15mm', display: 'flex', flexDirection: 'column', gap: '22px' }}>
           {/* Experience */}
           {experience.length > 0 && (
-            <div data-section="experience">
+            <div>
               <OceanMainHeader title="Experience" accent={accent} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
                 {experience.map(exp => (
@@ -87,7 +87,7 @@ const OceanTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
 
           {/* Education */}
           {education.length > 0 && (
-            <div data-section="education">
+            <div>
               <OceanMainHeader title="Education" accent={accent} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {education.map(edu => (
@@ -110,7 +110,7 @@ const OceanTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
 
           {/* Projects */}
           {projects.length > 0 && (
-            <div data-section="projects">
+            <div>
               <OceanMainHeader title="Projects" accent={accent} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {projects.map(p => (
@@ -149,7 +149,7 @@ const OceanTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
         <aside style={{ backgroundColor: sidebarBg, padding: '11mm 7mm', display: 'flex', flexDirection: 'column', gap: '22px' }}>
           {/* Skills */}
           {skills.length > 0 && (
-            <OceanSideSection title="Skills" primary={primary} accent={accent} sectionId="skills">
+            <OceanSideSection title="Skills" primary={primary} accent={accent}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {skills.map(s => (
                   <div key={s.id}>
@@ -165,7 +165,7 @@ const OceanTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
 
           {/* Languages */}
           {languages.length > 0 && (
-            <OceanSideSection title="Languages" primary={primary} accent={accent} sectionId="languages">
+            <OceanSideSection title="Languages" primary={primary} accent={accent}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
                 {languages.map(l => (
                   <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -179,7 +179,7 @@ const OceanTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
 
           {/* Certifications */}
           {certifications.length > 0 && (
-            <OceanSideSection title="Certifications" primary={primary} accent={accent} sectionId="certifications">
+            <OceanSideSection title="Certifications" primary={primary} accent={accent}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {certifications.map(c => (
                   <div key={c.id}>
@@ -209,8 +209,8 @@ const OceanMainHeader: React.FC<{ title: string; accent: string }> = ({ title, a
   </div>
 );
 
-const OceanSideSection: React.FC<{ title: string; primary: string; accent: string; children: React.ReactNode; sectionId?: string }> = ({ title, primary, accent, children, sectionId }) => (
-  <div data-section={sectionId}>
+const OceanSideSection: React.FC<{ title: string; primary: string; accent: string; children: React.ReactNode }> = ({ title, primary, accent, children }) => (
+  <div>
     <h2 style={{
       fontSize: '0.5625em', fontWeight: 800, textTransform: 'uppercase',
       letterSpacing: '0.18em', color: primary,
