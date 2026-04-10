@@ -4,9 +4,8 @@ import PagedPreview from './PagedPreview';
 import TemplateRenderer from '../templates/TemplateRenderer';
 import { api } from '../lib/api';
 import { buildPdfHtml } from '../lib/buildPdfHtml';
-import { ChevronLeft, Download, Type, Move, Palette, Sparkles, Loader2, Undo2, Redo2, FileText as FileTextIcon } from 'lucide-react';
+import { Download, Type, Move, Palette, Sparkles, Loader2, Undo2, Redo2, FileText as FileTextIcon } from 'lucide-react';
 import { usePlan } from '../contexts/PlanContext';
-import BreadcrumbNav from './BreadcrumbNav';
 
 interface Props {
   resume: Resume;
@@ -162,13 +161,13 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
         }
         if (result.refactoredResume.experience) {
           newResume.experience = newResume.experience.map(exp => {
-            const refactored = result.refactoredResume.experience?.find(r => r.id === exp.id);
+            const refactored = result.refactoredResume.experience?.find((r: any) => r.id === exp.id);
             return refactored ? { ...exp, bullets: refactored.bullets } : exp;
           });
         }
         if (result.refactoredResume.projects) {
           newResume.projects = newResume.projects.map(p => {
-            const refactored = result.refactoredResume.projects?.find(r => r.id === p.id);
+            const refactored = result.refactoredResume.projects?.find((r: any) => r.id === p.id);
             return refactored ? { ...p, description: refactored.description } : p;
           });
         }
@@ -251,12 +250,13 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
   return (
     <div style={{
       display: 'grid',
-      gridTemplateColumns: '300px 1fr',
-      height: '100vh',
+      gridTemplateColumns: '320px 1fr',
+      height: '100%',
       backgroundColor: 'var(--color-ui-bg)',
       color: 'var(--color-ui-text)',
+      overflow: 'hidden'
     }}>
-      {/* ── LEFT SIDEBAR ─────────────────────────────── */}
+      {/* ── LEFT CONFIG PANEL ─────────────────────────── */}
       <aside style={{
         backgroundColor: 'var(--color-ui-surface)',
         borderRight: '1px solid var(--color-ui-border)',
@@ -264,30 +264,12 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
         flexDirection: 'column',
         overflow: 'hidden',
       }}>
-        {/* Header */}
-        <div style={{
-          padding: '16px 20px',
-          borderBottom: '1px solid var(--color-ui-border)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '12px',
-          flexShrink: 0,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <button onClick={onBack} className="btn-ghost" style={{ padding: '6px' }}>
-              <ChevronLeft size={18} />
-            </button>
-            <div style={{ fontSize: '15px', fontWeight: 700 }}>Preview & Export</div>
-          </div>
-          <BreadcrumbNav view="preview" onNavigate={(v) => { if (v === 'builder') onBack(); }} />
-        </div>
-
         {/* Tab bar */}
-        <div style={{ display: 'flex', padding: '10px 12px', gap: '4px', flexShrink: 0 }}>
+        <div style={{ display: 'flex', padding: '12px', gap: '4px', flexShrink: 0, borderBottom: '1px solid var(--color-ui-border)' }}>
           {([
-            { id: 'layout', icon: <Move size={13} />, label: 'Layout' },
-            { id: 'fonts',  icon: <Type size={13} />, label: 'Type' },
-            { id: 'colors', icon: <Palette size={13} />, label: 'Color' },
+            { id: 'layout', icon: <Move size={14} />, label: 'Layout' },
+            { id: 'fonts',  icon: <Type size={14} />, label: 'Type' },
+            { id: 'colors', icon: <Palette size={14} />, label: 'Color' },
           ] as const).map(tab => (
             <button
               key={tab.id}
@@ -297,12 +279,12 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '5px',
-                padding: '8px 4px',
-                fontSize: '11.5px',
-                fontWeight: 600,
+                gap: '6px',
+                padding: '10px 4px',
+                fontSize: '12px',
+                fontWeight: 700,
                 border: 'none',
-                borderRadius: '7px',
+                borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.15s',
                 background: activeTab === tab.id ? 'var(--color-ui-accent)' : 'transparent',
@@ -315,11 +297,11 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
         </div>
 
         {/* Tab content */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
 
           {/* ── LAYOUT TAB ── */}
           {activeTab === 'layout' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
               <SliderControl
                 label="Page Margins"
@@ -346,11 +328,11 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
               />
 
               {/* ── AI SMART FIT ── */}
-              <div style={{ marginTop: '8px', padding: '16px', borderRadius: '12px', background: 'rgba(99,102,241,0.04)', border: '1px solid rgba(99,102,241,0.1)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+              <div style={{ marginTop: '8px', padding: '18px', borderRadius: '14px', background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Sparkles size={14} color="#818CF8" />
-                    <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#6366F1' }}>AI Layout Assistant</span>
+                    <Sparkles size={15} color="#818CF8" />
+                    <span style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#6366F1' }}>AI Smart Fit</span>
                   </div>
                   
                   {/* UNDO / REDO BUTTONS */}
@@ -360,40 +342,40 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
                       disabled={past.length === 0}
                       title="Undo change"
                       style={{ 
-                        padding: '4px', background: 'transparent', border: 'none', cursor: past.length === 0 ? 'default' : 'pointer',
+                        padding: '6px', background: 'transparent', border: 'none', cursor: past.length === 0 ? 'default' : 'pointer',
                         color: past.length === 0 ? 'var(--color-ui-text-dim)' : 'var(--color-ui-text-muted)',
                         display: 'flex', alignItems: 'center'
                       }}
                     >
-                      <Undo2 size={14} />
+                      <Undo2 size={15} />
                     </button>
                     <button
                       onClick={handleRedo}
                       disabled={future.length === 0}
                       title="Redo change"
                       style={{ 
-                        padding: '4px', background: 'transparent', border: 'none', cursor: future.length === 0 ? 'default' : 'pointer',
+                        padding: '6px', background: 'transparent', border: 'none', cursor: future.length === 0 ? 'default' : 'pointer',
                         color: future.length === 0 ? 'var(--color-ui-text-dim)' : 'var(--color-ui-text-muted)',
                         display: 'flex', alignItems: 'center'
                       }}
                     >
-                      <Redo2 size={14} />
+                      <Redo2 size={15} />
                     </button>
                   </div>
                 </div>
 
-                <div style={{ marginBottom: '12px' }}>
-                  <label style={{ fontSize: '10.5px', fontWeight: 600, color: 'var(--color-ui-text-dim)', display: 'block', marginBottom: '6px' }}>Target Page Count</label>
+                <div style={{ marginBottom: '14px' }}>
+                  <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-ui-text-dim)', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Target Pages</label>
                   <div style={{ display: 'flex', gap: '6px' }}>
-                    {[1, 2, 3].map(p => (
+                    {[1, 2].map(p => (
                       <button
                         key={p}
                         onClick={() => setTargetPages(p)}
                         style={{
-                          flex: 1, padding: '6px', fontSize: '12px', borderRadius: '6px', border: '1px solid var(--color-ui-border)',
+                          flex: 1, padding: '8px', fontSize: '12.5px', fontWeight: 700, borderRadius: '8px', border: '1px solid var(--color-ui-border)',
                           background: targetPages === p ? 'var(--color-ui-accent)' : 'var(--color-ui-surface)',
                           color: targetPages === p ? 'white' : 'var(--color-ui-text)',
-                          cursor: 'pointer'
+                          cursor: 'pointer', transition: 'all 0.2s'
                         }}
                       >
                         {p} {p === 1 ? 'Page' : 'Pages'}
@@ -402,17 +384,14 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
                   </div>
                 </div>
 
-                <div style={{ marginBottom: '12px' }}>
-                  <label style={{ fontSize: '10.5px', fontWeight: 600, color: 'var(--color-ui-text-dim)', display: 'block', marginBottom: '6px' }}>Refinement Prompt (Optional)</label>
+                <div style={{ marginBottom: '14px' }}>
+                  <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-ui-text-dim)', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Refinement Instructions</label>
                   <textarea
                     value={userPrompt}
                     onChange={e => setUserPrompt(e.target.value)}
-                    placeholder="e.g. 'Shorten bullets to fit', 'Fill more space'"
-                    style={{
-                      width: '100%', padding: '8px', fontSize: '11.5px', borderRadius: '8px',
-                      background: 'var(--color-ui-bg)', border: '1px solid var(--color-ui-border)',
-                      color: 'var(--color-ui-text)', minHeight: '60px', resize: 'none'
-                    }}
+                    placeholder="e.g. 'Shorten bullets to fit', 'Expand to fill space'"
+                    className="field-textarea"
+                    style={{ fontSize: '12px', minHeight: '80px', background: 'var(--color-ui-bg)' }}
                   />
                 </div>
 
@@ -422,30 +401,25 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
                   onClick={handleSmartFit}
                   style={{
                     width: '100%',
-                    padding: '10px',
-                    fontSize: '12.5px',
+                    padding: '12px',
+                    fontSize: '13px',
+                    fontWeight: 700,
                     gap: '8px',
                     background: 'linear-gradient(135deg, #6366F1, #A855F7)',
-                    border: 'none'
+                    border: 'none',
+                    boxShadow: '0 4px 12px rgba(99,102,241,0.2)'
                   }}
                 >
-                  {isOptimizing ? <Loader2 className="animate-spin" size={14} /> : <Sparkles size={14} />}
-                  Smart Fit Content
+                  {isOptimizing ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                  Apply AI Optimization
                 </button>
-                <p style={{ fontSize: '10.5px', color: 'var(--color-ui-text-dim)', marginTop: '8px', lineHeight: 1.5 }}>
-                  AI will rewrite content and adjust styling to perfectly hit your target page count.
-                </p>
-              </div>
-
-              <div style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', lineHeight: 1.5, padding: '10px', background: 'rgba(99,102,241,0.07)', borderRadius: '8px' }}>
-                Changes are reflected live in the preview and apply to the downloaded PDF.
               </div>
             </div>
           )}
 
           {/* ── FONTS TAB ── */}
           {activeTab === 'fonts' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
               <FontSelect
                 label="Heading Font"
@@ -460,78 +434,73 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
                 options={FONT_OPTIONS}
                 onChange={v => updateFont('body', v)}
               />
-
-              <div style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', lineHeight: 1.5, padding: '10px', background: 'rgba(99,102,241,0.07)', borderRadius: '8px' }}>
-                Serif fonts (Garamond, Merriweather) suit traditional industries. Sans-serif fonts (Inter, Montserrat) suit tech and design roles.
-              </div>
             </div>
           )}
 
           {/* ── COLORS TAB ── */}
           {activeTab === 'colors' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <ColorControl label="Primary" value={config.colors.primary} onChange={v => updateColor('primary', v)} />
-              <ColorControl label="Accent"  value={config.colors.accent}  onChange={v => updateColor('accent', v)} />
-              <ColorControl label="Background" value={config.colors.background} onChange={v => updateColor('background', v)} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <ColorControl label="Primary Brand Color" value={config.colors.primary} onChange={v => updateColor('primary', v)} />
+              <ColorControl label="Accent / Highlights"  value={config.colors.accent}  onChange={v => updateColor('accent', v)} />
+              <ColorControl label="Page Background" value={config.colors.background} onChange={v => updateColor('background', v)} />
               {config.colors.sidebar !== undefined && (
-                <ColorControl label="Sidebar" value={config.colors.sidebar!} onChange={v => updateColor('sidebar', v)} />
+                <ColorControl label="Sidebar Background" value={config.colors.sidebar!} onChange={v => updateColor('sidebar', v)} />
               )}
             </div>
           )}
         </div>
 
-        {/* Download button */}
-        <div style={{ padding: '16px 20px', borderTop: '1px solid var(--color-ui-border)', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {/* Download action area */}
+        <div style={{ padding: '20px', borderTop: '1px solid var(--color-ui-border)', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '12px', background: 'var(--color-ui-bg)' }}>
           {canAccess('download-pdf') ? (
             <button
               className="btn-primary"
-              style={{ width: '100%', padding: '12px', fontSize: '13.5px', gap: '8px' }}
+              style={{ width: '100%', padding: '14px', fontSize: '14px', fontWeight: 700, gap: '10px', boxShadow: '0 4px 15px rgba(99,102,241,0.3)' }}
               onClick={handlePrint}
               disabled={isDownloading}
             >
               {isDownloading
-                ? <><Loader2 size={16} className="animate-spin" /> Generating PDF…</>
-                : <><Download size={16} /> Download PDF</>
+                ? <><Loader2 size={18} className="animate-spin" /> Preparing PDF…</>
+                : <><Download size={18} /> Export as PDF</>
               }
             </button>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <button
                 className="btn-primary"
-                style={{ width: '100%', padding: '12px', fontSize: '13.5px', gap: '8px', background: 'var(--color-ui-accent)' }}
+                style={{ width: '100%', padding: '12px', fontSize: '13.5px', gap: '8px' }}
                 onClick={handleDownloadTxt}
               >
-                <FileTextIcon size={16} /> Download TXT
+                <FileTextIcon size={16} /> Download Plain Text (.txt)
               </button>
               <button
                 className="btn-secondary"
-                style={{ width: '100%', padding: '12px', fontSize: '13.5px', gap: '8px', opacity: 0.7 }}
+                style={{ width: '100%', padding: '12px', fontSize: '13.5px', gap: '8px', borderStyle: 'dashed' }}
                 onClick={() => alert('PDF Export requires a Basic, Pro, or Ultimate plan. Please upgrade to download as PDF.')}
               >
-                <Download size={16} /> Download PDF (Upgrade)
+                <Download size={16} /> Export PDF (Locked)
               </button>
             </div>
           )}
         </div>
       </aside>
 
-      {/* ── RIGHT PREVIEW ────────────────────────────── */}
-      <main style={{
-        backgroundColor: 'var(--color-ui-preview-bg)',
+      {/* ── CENTER PREVIEW VIEWPORT ─────────────────────── */}
+      <main className="preview-viewport" style={{ 
+        flex: 1, 
         overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '32px 20px 64px',
+        padding: '40px 20px 80px',
+        backgroundColor: 'var(--color-ui-preview-bg)'
       }}>
-        <div style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
+        <div className="preview-scaler" style={{ transform: 'scale(0.85)', transformOrigin: 'top center' }}>
           <PagedPreview resume={resume} config={config} onPageCount={onPageCount} forcePageCount={pageCount} />
         </div>
       </main>
 
-      {/* Hidden off-screen render used to capture HTML for Puppeteer PDF export.
-          Rendered at full A4 width with no clipping so Puppeteer gets the complete
-          continuous document and can apply its own CSS-aware page breaks. */}
+      {/* Hidden off-screen render for Puppeteer PDF export */}
       <div
         ref={printRef}
         aria-hidden="true"
@@ -551,7 +520,7 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
   );
 };
 
-/* ── Sub-components ────────────────────────────────────────── */
+/* ── UI HELPERS ─────────────────────────────────────────────── */
 
 const SliderControl: React.FC<{
   label: string;
@@ -562,20 +531,16 @@ const SliderControl: React.FC<{
   step: number;
   onChange: (v: number) => void;
 }> = ({ label, value, display, min, max, step, onChange }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-ui-text-muted)' }}>{label}</label>
-      <span style={{ fontSize: '11.5px', fontWeight: 700, color: 'var(--color-ui-accent)', minWidth: '40px', textAlign: 'right' }}>{display}</span>
+      <label style={{ fontSize: '11px', fontWeight: 800, color: 'var(--color-ui-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</label>
+      <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--color-ui-accent)', background: 'var(--color-ui-accent-subtle)', padding: '2px 8px', borderRadius: '6px' }}>{display}</span>
     </div>
     <input
       type="range" min={min} max={max} step={step} value={value}
       onChange={e => onChange(parseFloat(e.target.value))}
-      style={{ width: '100%', accentColor: 'var(--color-ui-accent)' }}
+      style={{ width: '100%', accentColor: 'var(--color-ui-accent)', cursor: 'pointer' }}
     />
-    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--color-ui-text-dim)' }}>
-      <span>{min}{typeof min === 'number' && step < 1 ? '×' : ''}</span>
-      <span>{max}{typeof max === 'number' && step < 1 ? '×' : ''}</span>
-    </div>
   </div>
 );
 
@@ -585,30 +550,30 @@ const FontSelect: React.FC<{
   options: { label: string; value: string }[];
   onChange: (v: string) => void;
 }> = ({ label, value, options, onChange }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-    <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-ui-text-muted)' }}>{label}</label>
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+    <label style={{ fontSize: '11px', fontWeight: 800, color: 'var(--color-ui-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</label>
     <select
       className="field-input"
       value={value}
       onChange={e => onChange(e.target.value)}
-      style={{ fontSize: '12.5px' }}
+      style={{ fontSize: '13px', fontWeight: 600 }}
     >
       {options.map(opt => (
         <option key={opt.value} value={opt.value}>{opt.label}</option>
       ))}
     </select>
-    {/* Live font preview */}
+    {/* Sample preview */}
     <div style={{
       fontFamily: value,
-      fontSize: '17px',
+      fontSize: '18px',
       color: 'var(--color-ui-text)',
-      padding: '8px 12px',
+      padding: '12px',
       background: 'var(--color-ui-bg)',
-      borderRadius: '6px',
+      borderRadius: '10px',
       border: '1px solid var(--color-ui-border)',
-      letterSpacing: '0.02em',
+      textAlign: 'center'
     }}>
-      Aa Bb — Resume Preview
+      The quick brown fox jumps...
     </div>
   </div>
 );
@@ -618,18 +583,18 @@ const ColorControl: React.FC<{
   value: string;
   onChange: (v: string) => void;
 }> = ({ label, value, onChange }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-    <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-ui-text-muted)' }}>{label}</label>
-    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-      <div style={{ position: 'relative', width: '40px', height: '36px', flexShrink: 0 }}>
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <label style={{ fontSize: '11px', fontWeight: 800, color: 'var(--color-ui-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</label>
+    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+      <div style={{ position: 'relative', width: '44px', height: '40px', flexShrink: 0 }}>
         <input
           type="color"
           value={value}
           onChange={e => onChange(e.target.value)}
           style={{
             position: 'absolute', inset: 0, width: '100%', height: '100%',
-            border: '1px solid var(--color-ui-border)', borderRadius: '7px',
-            cursor: 'pointer', padding: '2px',
+            border: '1px solid var(--color-ui-border)', borderRadius: '10px',
+            cursor: 'pointer', padding: '3px',
             backgroundColor: 'transparent',
           }}
         />
@@ -639,7 +604,7 @@ const ColorControl: React.FC<{
         className="field-input"
         value={value}
         onChange={e => onChange(e.target.value)}
-        style={{ flex: 1, fontFamily: 'monospace', fontSize: '12px' }}
+        style={{ flex: 1, fontFamily: 'monospace', fontSize: '13px', fontWeight: 600, letterSpacing: '0.05em' }}
       />
     </div>
   </div>
