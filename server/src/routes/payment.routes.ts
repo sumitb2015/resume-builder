@@ -55,6 +55,8 @@ router.post('/verify', async (req, res) => {
       isAnnual
     } = req.body;
 
+    console.log(`[Payment Verify] Received verification request for User: ${userId}, Plan: ${planTier}`);
+
     const secret = process.env.RAZORPAY_KEY_SECRET || '';
 
     const generated_signature = crypto
@@ -63,18 +65,37 @@ router.post('/verify', async (req, res) => {
       .digest('hex');
 
     if (generated_signature === razorpay_signature) {
+      console.log(`[Payment Verify] Signature matched for User: ${userId}`);
       if (db && userId && planTier) {
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + (isAnnual ? 365 : 30));
 
-        await db.collection('users').doc(userId).update({
-          plan: planTier,
-          updatedAt: new Date(),
-          expiresAt: expiresAt
-        });
+        console.log(`[Payment Verify] Updating database for User: ${userId} to Plan: ${planTier}, expires: ${expiresAt}`);
+        
+        try {
+          const userRef = db.collection('users').doc(userId);
+          const doc = await userRef.get();
+          
+          if (!doc.exists) {
+             console.error(`[Payment Verify] User document ${userId} NOT FOUND in database!`);
+          }
+
+          await userRef.update({
+            plan: planTier,
+            updatedAt: new Date(),
+            expiresAt: expiresAt
+          });
+          console.log(`[Payment Verify] Database update SUCCESS for User: ${userId}`);
+        } catch (dbErr) {
+          console.error(`[Payment Verify] Database update FAILED for User: ${userId}:`, dbErr);
+          throw dbErr;
+        }
+      } else {
+        console.warn(`[Payment Verify] Skipping DB update. db: ${!!db}, userId: ${userId}, planTier: ${planTier}`);
       }
       res.json({ success: true, message: 'Payment verified successfully' });
     } else {
+      console.error(`[Payment Verify] Signature mismatch for User: ${userId}`);
       res.status(400).json({ success: false, message: 'Invalid payment signature' });
     }
   } catch (error: any) {
