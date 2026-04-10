@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Loader2, Wand2, CheckCircle2, ChevronLeft, ChevronRight, Briefcase, GraduationCap, Trophy, Sparkles, Check, ArrowRight, Upload, MousePointer2 } from 'lucide-react';
+
 import { api } from '../lib/api';
 import type { Resume, TemplateConfig, SmartResumeResponse } from '../shared/types';
 import { templates } from '../templates';
