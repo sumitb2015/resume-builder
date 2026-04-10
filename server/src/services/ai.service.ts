@@ -64,8 +64,6 @@ export const generateSmartTailoredResume = async (params: {
       console.error("Firecrawl search failed:", error);
     }
   }
-    console.error("Firecrawl search failed:", error);
-  }
 
   const prompt = `You are an expert AI resume strategist. Your task is to generate a complete, highly professional, and modern resume in JSON format.
   
