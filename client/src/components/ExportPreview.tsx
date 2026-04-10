@@ -10,7 +10,6 @@ import { usePlan } from '../contexts/PlanContext';
 interface Props {
   resume: Resume;
   config: TemplateConfig;
-  onBack: () => void;
   onUpdateConfig: (config: TemplateConfig) => void;
   onUpdateResume: (resume: Resume) => void;
   pageCount: number;
@@ -41,7 +40,7 @@ const FONT_OPTIONS = [
   { label: 'Source Sans 3 — Neutral',             value: '"Source Sans 3", system-ui, sans-serif' },
 ];
 
-const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig, onUpdateResume, pageCount, onPageCount }) => {
+const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpdateResume, pageCount, onPageCount }) => {
   const { canAccess } = usePlan();
   const printRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<'layout' | 'fonts' | 'colors'>('layout');

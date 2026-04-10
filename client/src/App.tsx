@@ -603,18 +603,6 @@ function AppContent() {
       );
     }
 
-    if (view === 'preview') {
-      return (
-        <div className="app-layout-root">
-          {sidebar}
-          <div className="app-main-content">
-            {topBar}
-            <ExportPreview resume={resume} config={activeTemplate} onBack={() => setView('builder')} onUpdateConfig={setActiveTemplate} onUpdateResume={setResume} pageCount={pageCount} onPageCount={setPageCount} />
-          </div>
-        </div>
-      );
-    }
-
     const isToolView = ['builder', 'ats-checker', 'job-tailor', 'cover-letter', 'interview-prep', 'preview'].includes(view);
     const atsLocked = !canAccess('dynamic-ats');
     const tailorLocked = !canAccess('job-tailor');
@@ -739,7 +727,7 @@ function AppContent() {
               </div>
 
               <div style={{ width: '1px', height: '18px', background: 'var(--color-ui-border)' }} />
-              
+
               <button className={rightPanelOpen ? 'btn-primary' : 'btn-secondary'} style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }} onClick={() => setRightPanelOpen(v => !v)}>
                 <Palette size={14} /> 
                 Style
@@ -756,7 +744,7 @@ function AppContent() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '100px', justifyContent: 'flex-end' }}>
                 {autoSaveStatus === 'saving' && (
                   <span style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span className="spin" style={{ width: '10px', height: '10px', border: '1.5px solid var(--color-ui-border)', borderTopColor: 'var(--color-ui-accent)', borderRadius: '50%' }} />
+                    <span className="spin" style={{ width: '10px', height: '10px', border: '1.5px solid var(--color-ui-border)', borderTopColor: 'var(--color-ui-accent)', borderRadius: '50%' }} />    
                     Saving
                   </span>
                 )}
@@ -765,7 +753,7 @@ function AppContent() {
               </div>
 
               <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }} onClick={handleSave}><Save size={14} /> Save</button>
-              
+
               <button className="btn-primary" style={{ gap: '6px', fontSize: '13px', padding: '8px 18px', boxShadow: '0 4px 12px rgba(99,102,241,0.25)' }} onClick={() => {
                 setActiveTemplate(t => ({ ...t, settings: t.settings ?? { margin: 15, fontSize: 100, lineHeight: 1.5 } }));
                 setView('preview');
@@ -788,6 +776,17 @@ function AppContent() {
       </header>
     ) : null;
 
+    if (view === 'preview') {
+      return (
+        <div className="app-layout-root">
+          {sidebar}
+          <div className="app-main-content">
+            {topBar}
+            <ExportPreview resume={resume} config={activeTemplate} onBack={() => setView('builder')} onUpdateConfig={setActiveTemplate} onUpdateResume={setResume} pageCount={pageCount} onPageCount={setPageCount} />
+          </div>
+        </div>
+      );
+    }
     if (view === 'ats-checker') {
       return (
         <div className="app-layout-root">
