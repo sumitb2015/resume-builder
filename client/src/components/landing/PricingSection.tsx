@@ -116,10 +116,12 @@ const PricingSection: React.FC<Props> = ({ onStart }) => {
       const isAnnualPlan = annual && tier.period !== '14 days';
       const order = await api.createOrder(price, 'INR', currentUser.uid, tier.name.toLowerCase(), isAnnualPlan);
       
-      const keyId = import.meta.env.VITE_RAZORPAY_KEY_ID;
-      if (!keyId) {
+      const rawKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID;
+      if (!rawKeyId) {
         throw new Error('Razorpay Key ID is not configured (VITE_RAZORPAY_KEY_ID is missing from .env).');
       }
+
+      const keyId = rawKeyId.trim();
 
       console.log(`[Razorpay Debug] Initiating payment for order: ${order.id} with key: ${keyId.substring(0, 8)}...`);
 
