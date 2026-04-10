@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import {
-  FileText, Upload, ArrowLeft, Loader2, AlertCircle,
-  Zap, Link2, CheckCircle2, Copy, Download,
+  FileText, Upload, ArrowLeft, Loader2,
+  CheckCircle2, Copy,
 } from 'lucide-react';
 import { api } from '../lib/api';
 import type { Resume } from '../shared/types';
@@ -15,7 +15,6 @@ interface Props {
 
 type WizardStep = 1 | 2 | 3;
 type ResumeSource = 'current' | 'upload';
-type JdTab = 'paste' | 'url';
 
 export default function CoverLetterPage({ resume, onBack }: Props) {
   const [step, setStep] = useState<WizardStep>(1);
@@ -26,14 +25,9 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [jdTab, setJdTab] = useState<JdTab>('paste');
   const [jobText, setJobText] = useState('');
-  const [jobUrl, setJobUrl] = useState('');
-  const [fetchingUrl, setFetchingUrl] = useState(false);
-  const [urlError, setUrlError] = useState('');
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [result, setResult] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -69,13 +63,12 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
   const handleGenerate = async () => {
     if (!activeResume || !canProceedStep2) return;
     setLoading(true);
-    setError('');
     setStep(3);
     try {
       const res = await api.generateCoverLetter(activeResume, jobText);
       setResult(res.text);
     } catch (err: any) {
-      setError(err.message || 'Generation failed. Please try again.');
+      alert(err.message || 'Generation failed. Please try again.');
       setStep(2);
     } finally {
       setLoading(false);
@@ -111,7 +104,6 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
     <div style={{ flex: 1, overflowY: 'auto', background: 'var(--color-ui-bg)' }}>
       <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 24px 100px' }}>
 
-        {/* Back + title */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
           <button
             onClick={onBack}
@@ -133,7 +125,6 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
           </p>
         </div>
 
-        {/* Step indicator */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0', marginBottom: '48px' }}>
           {['Resume', 'Job Description', 'Cover Letter'].map((label, i) => {
             const s = i + 1;
@@ -164,7 +155,6 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
           })}
         </div>
 
-        {/* ── STEP 1: Resume source ── */}
         {step === 1 && (
           <div style={{ maxWidth: '600px', margin: '0 auto' }}>
             <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '8px' }}>
@@ -215,6 +205,7 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
                 <input ref={fileInputRef} type="file" style={{ display: 'none' }} onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
                 {uploading ? <Loader2 size={24} className="spin" /> : uploadedResume ? <CheckCircle2 size={24} color="#4ADE80" /> : <Upload size={24} />}
                 <p style={{ marginTop: '8px', fontSize: '13px' }}>{uploadedResume ? uploadedResume.personal.name : 'Click to upload'}</p>
+                {uploadError && <p style={{ fontSize: '12px', color: '#EF4444', marginTop: '8px' }}>{uploadError}</p>}
               </div>
             )}
 
@@ -224,7 +215,6 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
           </div>
         )}
 
-        {/* ── STEP 2: Job description ── */}
         {step === 2 && (
           <div style={{ maxWidth: '600px', margin: '0 auto' }}>
             <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '8px' }}>
@@ -242,7 +232,6 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
           </div>
         )}
 
-        {/* ── STEP 3: Result ── */}
         {step === 3 && (
           loading ? (
             <div style={{ textAlign: 'center', padding: '60px 0' }}>
@@ -271,21 +260,7 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
                 </button>
               </div>
             </div>
-          ) : <p>Error occurred.</p>
-        )}
-      </div>
-    </div>
-  );
-}
-dleDownloadWord}>
-                  <FileText size={16} /> Download Word
-                </button>
-                <button className="btn-ghost" onClick={() => { setStep(1); setResult(null); }}>
-                  Try another
-                </button>
-              </div>
-            </div>
-          ) : <p>Error occurred.</p>
+          ) : <p>Error occurred. Please try again.</p>
         )}
       </div>
     </div>
