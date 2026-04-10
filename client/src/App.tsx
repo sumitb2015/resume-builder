@@ -361,7 +361,7 @@ function AppContent() {
   const [activeTemplate, setActiveTemplate] = useState<TemplateConfig>({ ...templates[1]! });
   const [zoom, setZoom] = useState(0.75);
   const [pageCount, setPageCount] = useState(1);
-  const [upgradePrompt, setUpgradePrompt] = useState<{ requiredPlan: 'pro' | 'ultimate'; featureLabel: string } | null>(null);
+  const [upgradePrompt, setUpgradePrompt] = useState<{ requiredPlan: 'basic' | 'pro' | 'ultimate'; featureLabel: string } | null>(null);
   const [showProfile, setShowProfile] = useState(false);
   const [showExpertReview, setShowExpertReview] = useState(false);
 

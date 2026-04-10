@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Loader2, Wand2, CheckCircle2, ChevronLeft, ChevronRight, Briefcase, GraduationCap, Trophy, Sparkles, Check, ArrowRight, Upload, FileText, MousePointer2 } from 'lucide-react';
+import { Loader2, Wand2, CheckCircle2, ChevronLeft, ChevronRight, Briefcase, GraduationCap, Trophy, Sparkles, Check, ArrowRight, Upload, MousePointer2 } from 'lucide-react';
 import { api } from '../lib/api';
 import type { Resume, TemplateConfig, SmartResumeResponse } from '../shared/types';
 import { templates } from '../templates';
@@ -111,7 +111,7 @@ export default function AiWriterFlow({ onComplete, onBack }: Props) {
   const [education, setEducation] = useState('');
   const [achievements, setAchievements] = useState('');
   const [coreSkills, setCoreSkills] = useState('');
-  const [context, setContext] = useState('');
+  const [context] = useState('');
 
   // AI Response State
   const [aiResponse, setAiResponse] = useState<SmartResumeResponse | null>(null);

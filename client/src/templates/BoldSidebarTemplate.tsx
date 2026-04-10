@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
-import { Mail, Phone, MapPin, Link2 } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 
 const BoldSidebarTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, languages, projects } = resume;

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Resume, TemplateConfig } from '../shared/types';
+import type { Resume } from '../shared/types';
 import RichContent from './RichContent';
 
 const AtsTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {

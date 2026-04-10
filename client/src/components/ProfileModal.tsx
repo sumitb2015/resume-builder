@@ -18,7 +18,6 @@ const PLAN_CONFIG = {
 const ProfileModal: React.FC<Props> = ({ user, onClose, onLogout }) => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'profile' | 'settings'>('profile');
 
   useEffect(() => {
     api.getUserProfile(user.uid)

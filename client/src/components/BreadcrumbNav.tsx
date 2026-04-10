@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { House } from "lucide-react";
 
-type View = 'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder' | 'preview' | 'ats-checker' | 'job-tailor' | 'ai-writer' | 'blog';
+type View = 'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder' | 'preview' | 'ats-checker' | 'job-tailor' | 'ai-writer' | 'blog' | 'cover-letter' | 'interview-prep';
 
 interface BreadcrumbNavProps {
   view: View;
