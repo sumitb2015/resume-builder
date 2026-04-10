@@ -4,6 +4,7 @@ import { api } from '../lib/api';
 import type { Resume, ImprovementSuggestions } from '../shared/types';
 import { usePlan } from '../contexts/PlanContext';
 import type { Feature } from '../contexts/PlanContext';
+import BreadcrumbNav from './BreadcrumbNav';
 
 interface Props {
   onSelect: (mode: 'manual' | 'enhance' | 'linkedin' | 'ai-writer', resume?: Resume, improvements?: ImprovementSuggestions) => void;
@@ -69,16 +70,8 @@ export default function ModeSelectModal({ onSelect, onBack, onUpgradeNeeded }: P
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <header style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-ui-border)', display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <button
-          onClick={onBack}
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-ui-text-muted)', fontSize: '13px', fontWeight: 500, padding: '6px 10px', borderRadius: '8px' }}
-          onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-ui-text)')}
-          onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-ui-text-muted)')}
-        >
-          <ArrowLeft size={15} /> Back
-        </button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+      <header style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-ui-border)', display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer' }} onClick={onBack}>
           <div style={{ width: '26px', height: '26px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Zap size={13} color="white" fill="white" />
           </div>
@@ -86,6 +79,8 @@ export default function ModeSelectModal({ onSelect, onBack, onUpgradeNeeded }: P
             Bespoke<span style={{ color: '#818CF8' }}>CV</span>
           </span>
         </div>
+        <div style={{ width: '1px', height: '18px', background: 'var(--color-ui-border)' }} />
+        <BreadcrumbNav view="mode-select" onNavigate={(v) => { if (v === 'landing') onBack(); }} />
       </header>
 
       {/* Content */}

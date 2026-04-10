@@ -6,6 +6,7 @@ import { api } from '../lib/api';
 import { buildPdfHtml } from '../lib/buildPdfHtml';
 import { ChevronLeft, Download, Type, Move, Palette, Sparkles, Loader2, Undo2, Redo2, FileText as FileTextIcon } from 'lucide-react';
 import { usePlan } from '../contexts/PlanContext';
+import BreadcrumbNav from './BreadcrumbNav';
 
 interface Props {
   resume: Resume;
@@ -42,7 +43,7 @@ const FONT_OPTIONS = [
 ];
 
 const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig, onUpdateResume, pageCount, onPageCount }) => {
-  const { plan, canAccess } = usePlan();
+  const { canAccess } = usePlan();
   const printRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<'layout' | 'fonts' | 'colors'>('layout');
   const [isOptimizing, setIsOptimizing] = useState(false);
@@ -268,19 +269,17 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onBack, onUpdateConfig
           padding: '16px 20px',
           borderBottom: '1px solid var(--color-ui-border)',
           display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
+          flexDirection: 'column',
+          gap: '12px',
           flexShrink: 0,
         }}>
-          <button onClick={onBack} className="btn-ghost" style={{ padding: '6px' }}>
-            <ChevronLeft size={18} />
-          </button>
-          <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <button onClick={onBack} className="btn-ghost" style={{ padding: '6px' }}>
+              <ChevronLeft size={18} />
+            </button>
             <div style={{ fontSize: '15px', fontWeight: 700 }}>Preview & Export</div>
-            <div style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', marginTop: '1px' }}>
-              {pageCount} Page{pageCount > 1 ? 's' : ''} · {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-            </div>
           </div>
+          <BreadcrumbNav view="preview" onNavigate={(v) => { if (v === 'builder') onBack(); }} />
         </div>
 
         {/* Tab bar */}

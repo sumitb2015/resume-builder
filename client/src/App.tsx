@@ -14,6 +14,7 @@ import SavedResumesPanel from './components/SavedResumesPanel';
 import PagedPreview from './components/PagedPreview';
 import StylePanel from './components/StylePanel';
 import ExportPreview from './components/ExportPreview';
+import BreadcrumbNav from './components/BreadcrumbNav';
 import { templates } from './templates';
 import type { Resume, TemplateConfig, ImprovementSuggestions } from './shared/types';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -106,6 +107,9 @@ const FEATURE_REQUIRED_PLAN: Record<Feature, 'pro' | 'ultimate'> = {
   'ai-bullets': 'pro',
   'skills-finder': 'pro',
   'style-colors': 'pro',
+  'download-pdf': 'pro',
+  'resume-sharing': 'pro',
+  'analytics': 'pro',
 };
 
 const FEATURE_LABELS: Record<Feature, string> = {
@@ -118,6 +122,9 @@ const FEATURE_LABELS: Record<Feature, string> = {
   'ai-bullets': 'AI Bullet Writer',
   'skills-finder': 'Skills Finder',
   'style-colors': 'Style Customization',
+  'download-pdf': 'Download PDF',
+  'resume-sharing': 'Resume Sharing',
+  'analytics': 'Analytics',
 };
 
 // Plan badge config
@@ -189,7 +196,7 @@ function PlanBadge({ size = 'md' }: { size?: 'sm' | 'md' }) {
   );
 }
 
-function PlanSelectPage({ onSelected }: { onSelected: () => void }) {
+function PlanSelectPage({ onSelected, onBack }: { onSelected: () => void; onBack: () => void }) {
   const { setPlan } = usePlan();
 
   const handleSelect = (planId: 'basic' | 'pro' | 'ultimate') => {
@@ -203,6 +210,10 @@ function PlanSelectPage({ onSelected }: { onSelected: () => void }) {
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       padding: '40px 24px',
     }}>
+      <div style={{ position: 'absolute', top: '24px', left: '24px' }}>
+        <BreadcrumbNav view="plan-select" onNavigate={(v) => { if (v === 'landing') onBack(); }} />
+      </div>
+
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '48px' }}>
         <div style={{ width: '32px', height: '32px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Zap size={16} color="white" fill="white" />
@@ -536,15 +547,18 @@ function AppContent() {
     
     if (view === 'login') {
       return (
-        <LoginPage onLoginSuccess={() => {
-          setTimeout(() => {
-            setView('mode-select');
-          }, 100);
-        }} />
+        <LoginPage 
+          onLoginSuccess={() => {
+            setTimeout(() => {
+              setView('mode-select');
+            }, 100);
+          }}
+          onBack={() => setView('landing')} 
+        />
       );
     }
 
-    if (view === 'plan-select') return <PlanSelectPage onSelected={() => setView('mode-select')} />;
+    if (view === 'plan-select') return <PlanSelectPage onSelected={() => setView('mode-select')} onBack={() => setView('landing')} />;
 
     if (view === 'mode-select') {
       return (
@@ -578,7 +592,7 @@ function AppContent() {
 
     const topBar = isToolView ? (
       <header className="top-bar no-print" style={{ position: 'relative' }}>
-        {/* Left: logo + plan badge + (builder only) template button */}
+        {/* Left: logo + breadcrumb + plan badge */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer' }} onClick={() => setView('landing')}>
             <div style={{ width: '26px', height: '26px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -586,6 +600,8 @@ function AppContent() {
             </div>
             <span style={{ fontSize: '15px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)' }}>Bespoke<span style={{ color: '#818CF8' }}>CV</span></span>
           </div>
+          <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)' }} />
+          <BreadcrumbNav view={view} onNavigate={setView} />
           <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)' }} />
           <PlanBadge size="sm" />
           {view === 'builder' && (

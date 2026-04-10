@@ -1,9 +1,10 @@
 import { useState, useRef } from 'react';
-import { ArrowLeft, Loader2, Wand2, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, Wand2, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { api } from '../lib/api';
 import type { Resume, TemplateConfig } from '../shared/types';
 import { templates } from '../templates';
 import TemplateRenderer from '../templates/TemplateRenderer';
+import BreadcrumbNav from './BreadcrumbNav';
 
 const SAMPLE_RESUME: Resume = {
   personal: {
@@ -142,17 +143,8 @@ export default function AiWriterFlow({ onComplete, onBack }: Props) {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <header style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-ui-border)', display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <button
-          onClick={step === 1 ? onBack : () => setStep((s) => (s - 1) as 1 | 2)}
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-ui-text-muted)', fontSize: '13px', fontWeight: 500, padding: '6px 10px', borderRadius: '8px' }}
-          onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-ui-text)')}
-          onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-ui-text-muted)')}
-          disabled={step === 3}
-        >
-          <ArrowLeft size={15} /> Back
-        </button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+      <header style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-ui-border)', display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer' }} onClick={onBack}>
           <div style={{ width: '26px', height: '26px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Wand2 size={13} color="white" />
           </div>
@@ -160,6 +152,8 @@ export default function AiWriterFlow({ onComplete, onBack }: Props) {
             AI Resume <span style={{ color: '#818CF8' }}>Writer</span>
           </span>
         </div>
+        <div style={{ width: '1px', height: '18px', background: 'var(--color-ui-border)' }} />
+        <BreadcrumbNav view="ai-writer" onNavigate={(v) => { if (v === 'landing' || v === 'mode-select') onBack(); }} />
       </header>
 
       {/* Content */}

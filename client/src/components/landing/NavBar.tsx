@@ -4,21 +4,25 @@ import { scrollToSection } from '../../lib/scroll';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePlan } from '../../contexts/PlanContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import BreadcrumbNav from '../BreadcrumbNav';
 
 interface Props { 
   onStart: () => void;
   isBlogPage?: boolean;
   onBackToHome?: () => void;
   onOpenBlog?: () => void;
+  view?: any;
+  currentLabel?: string;
 }
 
 const PLAN_BADGE_CONFIG = {
+  free:    { label: 'Free',     color: '#94A3B8', bg: 'rgba(148,163,184,0.15)', icon: (size: number) => <Shield size={size} /> },
   basic:   { label: 'Basic',    color: '#FCD34D', bg: 'rgba(245,158,11,0.15)', icon: (size: number) => <Shield size={size} /> },
   pro:     { label: 'Pro',      color: '#818CF8', bg: 'rgba(99,102,241,0.15)', icon: (size: number) => <Zap size={size} /> },
   ultimate:{ label: 'Ultimate', color: '#C084FC', bg: 'rgba(168,85,247,0.15)', icon: (size: number) => <Crown size={size} /> },
 } as const;
 
-const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog }) => {
+const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog, currentLabel }) => {
   const [scrollY, setScrollY] = useState(0);
   const [scrollPct, setScrollPct] = useState(0);
   const { currentUser, signOut } = useAuth();
@@ -103,18 +107,11 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
       {/* Nav links */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
         {isBlogPage ? (
-          <button
-            onClick={onBackToHome}
-            style={{
-              padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'transparent',
-              fontSize: '14px', fontWeight: 600, color: 'var(--color-ui-text-muted)',
-              cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '6px'
-            }}
-            onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-ui-text)'; e.currentTarget.style.background = 'var(--color-ui-surface-2)'; }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-ui-text-muted)'; e.currentTarget.style.background = 'transparent'; }}
-          >
-            ← Back to Home
-          </button>
+          <BreadcrumbNav 
+            view="blog" 
+            onNavigate={(v) => { if (v === 'landing') onBackToHome?.(); else if (v === 'blog') onOpenBlog?.(); }} 
+            currentLabel={currentLabel}
+          />
         ) : (
           <>
             {navLinks.map(link => (

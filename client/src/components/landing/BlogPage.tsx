@@ -166,12 +166,18 @@ const BlogPage: React.FC<Props> = ({ onBack, onStart }) => {
       </div>
     );
   };
+return (
+  <div className="landing-page" style={{ background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column' }}>
+    <NavBar 
+      onStart={onStart} 
+      isBlogPage={true} 
+      onBackToHome={onBack} 
+      onOpenBlog={() => setActiveArticle(null)}
+      currentLabel={activeArticle?.title}
+    />
 
-  return (
-    <div className="landing-page" style={{ background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column' }}>
-      <NavBar onStart={onStart} isBlogPage={true} onBackToHome={onBack} />
-      
-      <main style={{ flex: 1, paddingTop: '80px' }}>
+    <main style={{ flex: 1, paddingTop: '80px' }}>
+...
         {activeArticle ? renderFullArticle() : renderArticleList()}
       </main>
 

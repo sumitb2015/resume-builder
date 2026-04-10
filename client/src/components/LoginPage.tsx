@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Zap, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import BreadcrumbNav from './BreadcrumbNav';
 
 interface Props {
   onLoginSuccess: () => void;
+  onBack?: () => void;
 }
 
 const GoogleIcon = () => (
@@ -38,7 +40,7 @@ function firebaseErrorToField(code: string): { field: keyof FieldErrors; msg: st
   }
 }
 
-export default function LoginPage({ onLoginSuccess }: Props) {
+export default function LoginPage({ onLoginSuccess, onBack }: Props) {
   const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
 
   const [mode, setMode] = useState<Mode>('signin');
@@ -144,10 +146,15 @@ export default function LoginPage({ onLoginSuccess }: Props) {
       minHeight: '100vh',
       background: 'var(--color-ui-bg)',
       display: 'flex',
+      flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
       padding: '24px',
     }}>
+      <div style={{ position: 'absolute', top: '24px', left: '24px' }}>
+        <BreadcrumbNav view="login" onNavigate={(v) => { if (v === 'landing') onBack?.(); }} />
+      </div>
+
       <div style={{
         width: '100%',
         maxWidth: '420px',
