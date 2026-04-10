@@ -8,9 +8,9 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const firecrawl = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY || '',
-});
+const firecrawl = process.env.FIRECRAWL_API_KEY 
+  ? new FirecrawlApp({ apiKey: process.env.FIRECRAWL_API_KEY })
+  : null;
 
 const MODEL = 'gpt-4o-mini';
 
@@ -30,6 +30,9 @@ function extractJSON(text: string): any {
 }
 
 export const scrapeUrl = async (url: string): Promise<string> => {
+  if (!firecrawl) {
+    throw new Error('Firecrawl API key is not configured. Please set FIRECRAWL_API_KEY.');
+  }
   const response = (await firecrawl.scrape(url, {
     formats: ['markdown'],
   })) as any;
@@ -49,14 +52,18 @@ export const generateSmartTailoredResume = async (params: {
   achievements?: string;
 }) => {
   let marketTech = "Not available";
-  try {
-    const scrapeResponse = (await firecrawl.scrape(`https://www.google.com/search?q=latest+technologies+and+skills+for+${encodeURIComponent(params.targetRole)}+in+${encodeURIComponent(params.industry)}+2024+2025`, {
-      formats: ['markdown'],
-    })) as any;
-    if (scrapeResponse.success && scrapeResponse.markdown) {
-      marketTech = scrapeResponse.markdown.slice(0, 3000);
+  if (firecrawl) {
+    try {
+      const scrapeResponse = (await firecrawl.scrape(`https://www.google.com/search?q=latest+technologies+and+skills+for+${encodeURIComponent(params.targetRole)}+in+${encodeURIComponent(params.industry)}+2024+2025`, {
+        formats: ['markdown'],
+      })) as any;
+      if (scrapeResponse.success && scrapeResponse.markdown) {
+        marketTech = scrapeResponse.markdown.slice(0, 3000);
+      }
+    } catch (error) {
+      console.error("Firecrawl search failed:", error);
     }
-  } catch (error) {
+  }
     console.error("Firecrawl search failed:", error);
   }
 
