@@ -49,6 +49,7 @@ export const MAX_RESUMES: Record<Plan, number> = {
 interface PlanContextType {
   plan: Plan | null;
   setPlan: (plan: Plan) => void;
+  updatePlan: () => Promise<void>;
   canAccess: (feature: Feature) => boolean;
   remainingBullets: number;
   incrementBulletUsage: () => void;
@@ -74,6 +75,34 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
     return { date: todayKey(), count: 0 };
   });
 
+  const fetchPlanFromDb = async (userId: string) => {
+    try {
+      const profile: any = await api.getUserProfile(userId);
+      const dbPlan = profile.plan || 'free';
+      const expiresAt = profile.expiresAt ? new Date(profile.expiresAt._seconds ? profile.expiresAt._seconds * 1000 : profile.expiresAt) : null;
+      const now = new Date();
+
+      if (expiresAt && now > expiresAt) {
+        // Plan expired -> revert to free
+        setPlanState('free');
+        localStorage.setItem(`bespokecv_plan_${userId}`, 'free');
+      } else {
+        setPlanState(dbPlan as Plan);
+        localStorage.setItem(`bespokecv_plan_${userId}`, dbPlan);
+      }
+    } catch (err) {
+      console.error('Failed to fetch plan:', err);
+      // Even on error, if we don't have a plan yet, default to free
+      setPlanState(prev => prev || 'free');
+    }
+  };
+
+  const updatePlan = async () => {
+    if (uid) {
+      await fetchPlanFromDb(uid);
+    }
+  };
+
   // When the user changes (login/logout), reload plan and bullet data
   useEffect(() => {
     if (!uid) {
@@ -87,24 +116,7 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
     if (storedPlan) setPlanState(storedPlan);
 
     // 2. Fetch official plan from database
-    api.getUserProfile(uid).then((profile: any) => {
-      const dbPlan = profile.plan || 'free';
-      const expiresAt = profile.expiresAt ? new Date(profile.expiresAt._seconds ? profile.expiresAt._seconds * 1000 : profile.expiresAt) : null;
-      const now = new Date();
-
-      if (expiresAt && now > expiresAt) {
-        // Plan expired -> revert to free
-        setPlanState('free');
-        localStorage.setItem(`bespokecv_plan_${uid}`, 'free');
-      } else {
-        setPlanState(dbPlan as Plan);
-        localStorage.setItem(`bespokecv_plan_${uid}`, dbPlan);
-      }
-    }).catch(err => {
-      console.error('Failed to fetch plan:', err);
-      // Even on error, if we don't have a plan yet, default to free
-      setPlanState(prev => prev || 'free');
-    });
+    fetchPlanFromDb(uid);
 
     const bKey = `bespokecv_bullets_${uid}`;
     try {
@@ -150,7 +162,7 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
   const maxResumes = plan ? MAX_RESUMES[plan] : 0;
 
   return (
-    <PlanContext.Provider value={{ plan, setPlan, canAccess, remainingBullets, incrementBulletUsage, maxResumes }}>
+    <PlanContext.Provider value={{ plan, setPlan, updatePlan, canAccess, remainingBullets, incrementBulletUsage, maxResumes }}>
       {children}
     </PlanContext.Provider>
   );

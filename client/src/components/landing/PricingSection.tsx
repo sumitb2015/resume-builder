@@ -96,7 +96,7 @@ const PricingSection: React.FC<Props> = ({ onStart }) => {
   const [annual, setAnnual] = useState(false);
   const [loading, setLoading] = useState<string | null>(null);
   const { currentUser } = useAuth();
-  const { setPlan } = usePlan();
+  const { updatePlan } = usePlan();
 
   const handleSelectPlan = async (tier: typeof TIERS[0]) => {
     if (!currentUser) {
@@ -144,7 +144,9 @@ const PricingSection: React.FC<Props> = ({ onStart }) => {
             });
 
             if (verifyRes.success) {
-              setPlan(tier.name.toLowerCase() as any);
+              // Wait a moment for Firestore to propagate before fetching
+              await new Promise(resolve => setTimeout(resolve, 1500));
+              await updatePlan();
               alert(`Success! You are now on the ${tier.name} plan.`);
               window.location.reload(); 
             } else {
