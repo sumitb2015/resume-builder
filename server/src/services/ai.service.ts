@@ -30,9 +30,9 @@ function extractJSON(text: string): any {
 }
 
 export const scrapeUrl = async (url: string): Promise<string> => {
-  const response = await firecrawl.scrape(url, {
+  const response = (await firecrawl.scrape(url, {
     formats: ['markdown'],
-  });
+  })) as any;
   if (!response.success) {
     throw new Error(response.error || 'Failed to scrape URL');
   }
@@ -50,9 +50,9 @@ export const generateSmartTailoredResume = async (params: {
 }) => {
   let marketTech = "Not available";
   try {
-    const scrapeResponse = await firecrawl.scrape(`https://www.google.com/search?q=latest+technologies+and+skills+for+${encodeURIComponent(params.targetRole)}+in+${encodeURIComponent(params.industry)}+2024+2025`, {
+    const scrapeResponse = (await firecrawl.scrape(`https://www.google.com/search?q=latest+technologies+and+skills+for+${encodeURIComponent(params.targetRole)}+in+${encodeURIComponent(params.industry)}+2024+2025`, {
       formats: ['markdown'],
-    });
+    })) as any;
     if (scrapeResponse.success && scrapeResponse.markdown) {
       marketTech = scrapeResponse.markdown.slice(0, 3000);
     }
