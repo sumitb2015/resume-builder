@@ -610,9 +610,9 @@ function AppContent() {
     const isToolView = ['builder', 'ats-checker', 'job-tailor', 'cover-letter', 'interview-prep'].includes(view);
     const atsLocked = !canAccess('dynamic-ats');
     const tailorLocked = !canAccess('job-tailor');
-    const coverLetterLocked = !canAccess('cover-letter' as any);
-    const interviewLocked = !canAccess('interview-prep' as any);
-    const expertLocked = !canAccess('expert-review' as any);
+    const coverLetterLocked = !canAccess('cover-letter');
+    const interviewLocked = !canAccess('interview-prep');
+    const expertLocked = !canAccess('expert-review');
 
     const topBar = isToolView ? (
       <header className="top-bar no-print" style={{ position: 'relative' }}>
@@ -652,7 +652,7 @@ function AppContent() {
           border: '1px solid var(--color-ui-border)',
         }}>
           {([
-            { id: 'builder' as const, label: 'Builder', Icon: FileText, locked: false },
+            { id: 'builder' as const, label: 'Builder', Icon: FileText, locked: false, plan: '' },
             { id: 'ats-checker' as const, label: 'ATS Check', Icon: Award, locked: atsLocked, plan: 'Pro' },
             { id: 'job-tailor' as const, label: 'Job Tailor', Icon: Zap, locked: tailorLocked, plan: 'Ultimate' },
             { id: 'cover-letter' as const, label: 'Cover Letter', Icon: FileText, locked: coverLetterLocked, plan: 'Pro' },
@@ -662,17 +662,17 @@ function AppContent() {
             return (
               <button
                 key={tab.id}
-                title={tab.locked ? `Requires ${(tab as any).plan} plan` : undefined}
+                title={tab.locked ? `Requires ${tab.plan} plan` : undefined}
                 onClick={() => {
                   if (tab.id === 'builder') setView('builder');
                   else if (tab.id === 'ats-checker') handleGoAtsChecker();
                   else if (tab.id === 'job-tailor') handleGoJobTailor();
                   else if (tab.id === 'cover-letter') {
-                    if (coverLetterLocked) showUpgrade('cover-letter' as any);
+                    if (coverLetterLocked) showUpgrade('cover-letter');
                     else setView('cover-letter');
                   }
                   else if (tab.id === 'interview-prep') {
-                    if (interviewLocked) showUpgrade('interview-prep' as any);
+                    if (interviewLocked) showUpgrade('interview-prep');
                     else setView('interview-prep');
                   }
                 }}
