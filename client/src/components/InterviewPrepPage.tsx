@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  FileText, ArrowLeft, Loader2, Zap, HelpCircle, CheckCircle2, ChevronDown, ChevronUp,
+  ArrowLeft, Loader2, HelpCircle, ChevronDown, ChevronUp,
 } from 'lucide-react';
 import { api } from '../lib/api';
 import type { Resume } from '../shared/types';

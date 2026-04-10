@@ -66,21 +66,6 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
     if (dropped) handleFile(dropped);
   };
 
-  const handleFetchUrl = async () => {
-    if (!jobUrl.trim()) return;
-    setFetchingUrl(true);
-    setUrlError('');
-    try {
-      const res = await api.fetchJobUrl(jobUrl.trim());
-      setJobText(res.text);
-      setJdTab('paste');
-    } catch (err: any) {
-      setUrlError(err.message || 'Failed to fetch job URL. Try pasting the text directly.');
-    } finally {
-      setFetchingUrl(false);
-    }
-  };
-
   const handleGenerate = async () => {
     if (!activeResume || !canProceedStep2) return;
     setLoading(true);
@@ -279,6 +264,20 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
                   {copied ? 'Copied!' : <><Copy size={16} /> Copy Text</>}
                 </button>
                 <button className="btn-primary" onClick={handleDownloadWord}>
+                  <FileText size={16} /> Download Word
+                </button>
+                <button className="btn-ghost" onClick={() => { setStep(1); setResult(null); }}>
+                  Try another
+                </button>
+              </div>
+            </div>
+          ) : <p>Error occurred.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+dleDownloadWord}>
                   <FileText size={16} /> Download Word
                 </button>
                 <button className="btn-ghost" onClick={() => { setStep(1); setResult(null); }}>

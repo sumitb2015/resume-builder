@@ -2,7 +2,7 @@ import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
-const AtsTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
+const AtsTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
 
   // ATS templates strictly use standard fonts and no complex layouts

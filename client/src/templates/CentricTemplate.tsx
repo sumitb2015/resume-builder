@@ -4,7 +4,7 @@ import RichContent from './RichContent';
 import { Mail, Phone, MapPin, Link2 } from 'lucide-react';
 
 const CentricTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, languages } = resume;
   const primary = config.colors.primary;
 
   return (

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, User, Mail, CreditCard, Calendar, Settings, LogOut, Shield, Zap, Crown } from 'lucide-react';
+import { X, User, Calendar, Settings, LogOut, Shield, Zap, Crown } from 'lucide-react';
 import { api } from '../lib/api';
 
 interface Props {
