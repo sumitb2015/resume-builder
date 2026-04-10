@@ -82,18 +82,22 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
       const expiresAt = profile.expiresAt ? new Date(profile.expiresAt._seconds ? profile.expiresAt._seconds * 1000 : profile.expiresAt) : null;
       const now = new Date();
 
+      let finalPlan: Plan = dbPlan as Plan;
       if (expiresAt && now > expiresAt) {
         // Plan expired -> revert to free
-        setPlanState('free');
-        localStorage.setItem(`bespokecv_plan_${userId}`, 'free');
-      } else {
-        setPlanState(dbPlan as Plan);
-        localStorage.setItem(`bespokecv_plan_${userId}`, dbPlan);
+        finalPlan = 'free';
       }
+      
+      setPlanState(finalPlan);
+      localStorage.setItem(`bespokecv_plan_${userId}`, finalPlan);
     } catch (err) {
-      console.error('Failed to fetch plan:', err);
-      // Even on error, if we don't have a plan yet, default to free
-      setPlanState(prev => prev || 'free');
+      console.error('Failed to fetch plan from database:', err);
+      // DO NOT overwrite with 'free' here if we already have a state (like from localStorage)
+      // This prevents the UI from flickering to 'Free' if the network is flaky
+      setPlanState(prev => {
+        if (prev) return prev;
+        return 'free';
+      });
     }
   };
 
