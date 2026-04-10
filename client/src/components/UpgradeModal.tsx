@@ -4,12 +4,12 @@ import { usePlan } from '../contexts/PlanContext';
 import type { Plan } from '../contexts/PlanContext';
 
 interface Props {
-  requiredPlan: 'pro' | 'ultimate';
+  requiredPlan: 'basic' | 'pro' | 'ultimate';
   featureLabel: string;
   onClose: () => void;
 }
 
-const PLAN_DETAILS: Record<'pro' | 'ultimate', {
+const PLAN_DETAILS: Record<'basic' | 'pro' | 'ultimate', {
   price: string;
   color: string;
   gradient: string;
@@ -17,6 +17,20 @@ const PLAN_DETAILS: Record<'pro' | 'ultimate', {
   features: string[];
   icon: React.ReactNode;
 }> = {
+  basic: {
+    price: '₹199/14d',
+    color: '#F59E0B',
+    gradient: 'linear-gradient(135deg, #F59E0B, #D97706)',
+    shadow: 'rgba(245,158,11,0.4)',
+    features: [
+      '3 professional templates',
+      'PDF export (1/day)',
+      'ATS score (template level)',
+      'AI bullets (3/day)',
+      'Live preview & editor',
+    ],
+    icon: <Zap size={18} color="white" fill="white" />,
+  },
   pro: {
     price: '₹499/mo',
     color: '#818CF8',
@@ -54,7 +68,7 @@ const PLAN_DETAILS: Record<'pro' | 'ultimate', {
 export default function UpgradeModal({ requiredPlan, featureLabel, onClose }: Props) {
   const { setPlan } = usePlan();
   const details = PLAN_DETAILS[requiredPlan];
-  const planLabel = requiredPlan === 'pro' ? 'Pro' : 'Ultimate';
+  const planLabel = requiredPlan.charAt(0).toUpperCase() + requiredPlan.slice(1);
 
   const handleActivate = () => {
     setPlan(requiredPlan as Plan);
