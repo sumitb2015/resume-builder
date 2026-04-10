@@ -188,12 +188,21 @@ export default function AiWriterFlow({ onComplete, onBack }: Props) {
     setStep(5);
     setLoadingMsg('Searching for latest market trends...');
     
-    try {
-      // Simulate status updates
-      setTimeout(() => setLoadingMsg('Analyzing your career details...'), 3000);
-      setTimeout(() => setLoadingMsg('Incorporating in-demand technologies...'), 6000);
-      setTimeout(() => setLoadingMsg('Generating your professional resume...'), 9000);
+    const messages = [
+      'Searching for latest market trends...',
+      'Analyzing your career details...',
+      'Incorporating in-demand technologies...',
+      'Drafting your professional resume...',
+      'Optimizing for ATS compatibility...',
+      'Polishing quantified achievements...'
+    ];
+    let msgIndex = 0;
+    const interval = setInterval(() => {
+      msgIndex = (msgIndex + 1) % messages.length;
+      setLoadingMsg(messages[msgIndex]!);
+    }, 4000);
 
+    try {
       const result = await api.generateSmartResume({
         targetRole,
         industry,
@@ -209,6 +218,8 @@ export default function AiWriterFlow({ onComplete, onBack }: Props) {
     } catch (err: any) {
       setStep(4);
       setError(err.message || 'Failed to generate resume. Please try again.');
+    } finally {
+      clearInterval(interval);
     }
   };
 

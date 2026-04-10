@@ -5,7 +5,7 @@ A modern, ATS-friendly resume builder with AI-powered job tailoring, inspired by
 ## Features
 - **Real-time Preview:** See your resume update as you type.
 - **Modern UI:** Professional, minimalist design with a focus on "human" elements (Life Philosophy, etc.).
-- **Job Tailoring:** Paste a job description and let AI (mocked) align your resume to the role.
+- **Job Tailoring:** Paste a job description and let AI align your resume to the role.
 - **ATS Friendly:** Clean structure and parseable text layers.
 
 ## Tech Stack
@@ -34,4 +34,4 @@ npm run dev
 ```
 
 ## AI Integration
-To enable real Google Gemini AI features, add `GOOGLE_GENAI_API_KEY` to your `.env` and update `server/src/index.ts` to use `@google/generative-ai`.
+The app uses **OpenAI (gpt-4o-mini)** for resume generation and tailoring, and **Firecrawl** for real-time market data retrieval. Ensure `OPENAI_API_KEY` and `FIRECRAWL_API_KEY` are present in your `.env` file.

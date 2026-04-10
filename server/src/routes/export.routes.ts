@@ -6,14 +6,24 @@ const router = Router();
 // Reuse a single browser instance across requests to avoid per-request launch overhead.
 // Reconnect automatically if it crashes.
 let browserInstance: Browser | null = null;
+let requestCount = 0;
+const MAX_REQUESTS_PER_BROWSER = 50; // Restart browser after 50 renders to prevent memory leaks
 
 async function getBrowser(): Promise<Browser> {
   if (browserInstance) {
     try {
-      await browserInstance.version(); // throws if disconnected
-      return browserInstance;
+      if (requestCount >= MAX_REQUESTS_PER_BROWSER) {
+        console.log('[export] Browser request limit reached. Restarting...');
+        await browserInstance.close().catch(() => {});
+        browserInstance = null;
+        requestCount = 0;
+      } else {
+        await browserInstance.version(); // throws if disconnected
+        return browserInstance;
+      }
     } catch {
       browserInstance = null;
+      requestCount = 0;
     }
   }
 
@@ -45,7 +55,11 @@ router.post('/pdf', async (req: any, res: any) => {
   let page;
   try {
     const browser = await getBrowser();
+    requestCount++;
     page = await browser.newPage();
+    
+    // Set a per-page timeout
+    page.setDefaultTimeout(30000); // 30s max for any operation
 
     // 794px = 210mm at 96 dpi — matches the A4 width used in the preview
     await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 1 });
@@ -72,6 +86,7 @@ router.post('/pdf', async (req: any, res: any) => {
   } catch (error: any) {
     console.error('[export] PDF generation error:', error);
     browserInstance = null; // force a fresh browser on the next request
+    requestCount = 0;
     res.status(500).json({ error: error.message || 'PDF generation failed' });
   } finally {
     if (page) {

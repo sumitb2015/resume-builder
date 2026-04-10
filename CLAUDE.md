@@ -46,7 +46,7 @@ Defined in `client/src/shared/types.ts`. The `Resume` type is used everywhere �
 - Use `breakInside: 'avoid', pageBreakInside: 'avoid'` on section wrapper divs to prevent mid-section page breaks.
 
 ### AI services (server)
-- `server/src/services/claude.service.ts` — handles all builder AI features (bullet generation, summary, ATS score, job tailoring). Despite the filename it uses **OpenAI**, not Claude.
+- `server/src/services/ai.service.ts` — handles all builder AI features (bullet generation, summary, ATS score, job tailoring, and smart resume generation). Uses **OpenAI (gpt-4o-mini)** and **Firecrawl**.
 - `server/src/services/parse.service.ts` — handles resume parsing from uploaded files and LinkedIn text.
 - Both use `gpt-4o-mini`. **Never upgrade to gpt-4o** unless explicitly asked — user preference for token cost.
 - `parse.service.ts` uses `response_format: { type: 'json_object' }` to get structured Resume output.
