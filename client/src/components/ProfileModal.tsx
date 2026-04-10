@@ -9,9 +9,10 @@ interface Props {
 }
 
 const PLAN_CONFIG = {
-  basic: { label: 'Basic', color: '#FCD34D', icon: Shield },
-  pro: { label: 'Pro', color: '#818CF8', icon: Zap },
-  ultimate: { label: 'Ultimate', color: '#C084FC', icon: Crown },
+  free: { label: 'Free', color: '#94A3B8', icon: Shield, features: 'Basic sharing' },
+  basic: { label: 'Basic', color: '#FCD34D', icon: Shield, features: 'Pro features unlocked' },
+  pro: { label: 'Pro', color: '#818CF8', icon: Zap, features: 'All AI tools unlocked' },
+  ultimate: { label: 'Ultimate', color: '#C084FC', icon: Crown, features: 'Full job tailoring' },
 };
 
 const ProfileModal: React.FC<Props> = ({ user, onClose, onLogout }) => {
@@ -33,8 +34,7 @@ const ProfileModal: React.FC<Props> = ({ user, onClose, onLogout }) => {
 
   const formatDate = (dateObj: any) => {
     if (!dateObj) {
-      // Fallback: If no expiration is set, assume 30 days from creation or now
-      return 'Ongoing';
+      return 'Never';
     }
     
     let date: Date;
@@ -46,7 +46,7 @@ const ProfileModal: React.FC<Props> = ({ user, onClose, onLogout }) => {
       date = new Date(dateObj);
     }
 
-    if (isNaN(date.getTime())) return 'Managed';
+    if (isNaN(date.getTime())) return 'Permanent';
 
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -63,8 +63,8 @@ const ProfileModal: React.FC<Props> = ({ user, onClose, onLogout }) => {
     alert('Preferences coming soon! You will be able to set default templates and AI writing styles.');
   };
 
-  const plan = (profile?.plan || 'basic') as keyof typeof PLAN_CONFIG;
-  const config = PLAN_CONFIG[plan];
+  const plan = (profile?.plan || 'free') as keyof typeof PLAN_CONFIG;
+  const config = PLAN_CONFIG[plan] || PLAN_CONFIG.free;
 
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()} style={{ zIndex: 1000 }}>
@@ -139,7 +139,7 @@ const ProfileModal: React.FC<Props> = ({ user, onClose, onLogout }) => {
                   </div>
                   <div>
                     <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-ui-text)' }}>{config.label} Plan</div>
-                    <div style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>Pro features unlocked</div>
+                    <div style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>{config.features}</div>
                   </div>
                 </div>
                 <div style={{ 

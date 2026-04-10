@@ -84,20 +84,23 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
 
     // 2. Fetch official plan from database
     api.getUserProfile(uid).then((profile: any) => {
-      if (profile.plan) {
-        const expiresAt = profile.expiresAt ? new Date(profile.expiresAt._seconds ? profile.expiresAt._seconds * 1000 : profile.expiresAt) : null;
-        const now = new Date();
+      const dbPlan = profile.plan || 'free';
+      const expiresAt = profile.expiresAt ? new Date(profile.expiresAt._seconds ? profile.expiresAt._seconds * 1000 : profile.expiresAt) : null;
+      const now = new Date();
 
-        if (expiresAt && now > expiresAt) {
-          // Plan expired
-          setPlanState(null);
-          localStorage.removeItem(`bespokecv_plan_${uid}`);
-        } else {
-          setPlanState(profile.plan as Plan);
-          localStorage.setItem(`bespokecv_plan_${uid}`, profile.plan);
-        }
+      if (expiresAt && now > expiresAt) {
+        // Plan expired -> revert to free
+        setPlanState('free');
+        localStorage.setItem(`bespokecv_plan_${uid}`, 'free');
+      } else {
+        setPlanState(dbPlan as Plan);
+        localStorage.setItem(`bespokecv_plan_${uid}`, dbPlan);
       }
-    }).catch(err => console.error('Failed to fetch plan:', err));
+    }).catch(err => {
+      console.error('Failed to fetch plan:', err);
+      // Even on error, if we don't have a plan yet, default to free
+      setPlanState(prev => prev || 'free');
+    });
 
     const bKey = `bespokecv_bullets_${uid}`;
     try {

@@ -97,19 +97,19 @@ const initialResume: Resume = {
 };
 
 // Maps a feature to the minimum plan required
-const FEATURE_REQUIRED_PLAN: Record<Feature, 'pro' | 'ultimate'> = {
+const FEATURE_REQUIRED_PLAN: Record<Feature, 'basic' | 'pro' | 'ultimate'> = {
   'enhance-mode': 'pro',
   'linkedin-mode': 'ultimate',
   'job-tailor': 'ultimate',
   'extra-templates': 'pro',
   'dynamic-ats': 'pro',
   'ai-summary': 'pro',
-  'ai-bullets': 'pro',
+  'ai-bullets': 'basic',
   'skills-finder': 'pro',
   'style-colors': 'pro',
-  'download-pdf': 'pro',
-  'resume-sharing': 'pro',
-  'analytics': 'pro',
+  'download-pdf': 'basic',
+  'resume-sharing': 'basic',
+  'analytics': 'basic',
 };
 
 const FEATURE_LABELS: Record<Feature, string> = {
@@ -137,6 +137,16 @@ const PLAN_BADGE: Record<string, { label: string; color: string; bg: string; ico
 
 // Plan-select page shown on first login
 const PLAN_OPTIONS = [
+  {
+    id: 'free' as const,
+    name: 'Free',
+    price: '₹0',
+    period: 'forever',
+    tagline: 'Get started for free',
+    color: '#94A3B8',
+    gradient: 'linear-gradient(135deg, #94A3B8, #64748B)',
+    features: ['1 basic template', 'Live preview & editor', 'Resume sharing', 'Basic analytics'],
+  },
   {
     id: 'basic' as const,
     name: 'Basic',
@@ -199,7 +209,7 @@ function PlanBadge({ size = 'md' }: { size?: 'sm' | 'md' }) {
 function PlanSelectPage({ onSelected, onBack }: { onSelected: () => void; onBack: () => void }) {
   const { setPlan } = usePlan();
 
-  const handleSelect = (planId: 'basic' | 'pro' | 'ultimate') => {
+  const handleSelect = (planId: 'free' | 'basic' | 'pro' | 'ultimate') => {
     setPlan(planId);
     onSelected();
   };
@@ -232,19 +242,19 @@ function PlanSelectPage({ onSelected, onBack }: { onSelected: () => void; onBack
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', maxWidth: '900px', width: '100%' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', maxWidth: '1100px', width: '100%' }}>
         {PLAN_OPTIONS.map((plan, i) => (
           <div
             key={plan.id}
             style={{
               borderRadius: '16px', padding: '28px 24px',
-              border: i === 1 ? `1px solid ${plan.color}50` : '1px solid var(--color-ui-border)',
-              background: i === 1 ? `linear-gradient(135deg, ${plan.color}12, ${plan.color}06)` : 'var(--color-ui-surface)',
+              border: i === 2 ? `1px solid ${plan.color}50` : '1px solid var(--color-ui-border)',
+              background: i === 2 ? `linear-gradient(135deg, ${plan.color}12, ${plan.color}06)` : 'var(--color-ui-surface)',
               display: 'flex', flexDirection: 'column',
               position: 'relative',
             }}
           >
-            {i === 1 && (
+            {i === 2 && (
               <div style={{
                 position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)',
                 padding: '4px 14px', borderRadius: '100px',
@@ -279,9 +289,9 @@ function PlanSelectPage({ onSelected, onBack }: { onSelected: () => void; onBack
               onClick={() => handleSelect(plan.id)}
               style={{
                 width: '100%', padding: '11px', borderRadius: '9px',
-                background: i === 1 ? plan.gradient : 'transparent',
-                border: i === 1 ? 'none' : `1px solid ${plan.color}50`,
-                color: i === 1 ? 'white' : plan.color,
+                background: i === 2 ? plan.gradient : 'transparent',
+                border: i === 2 ? 'none' : `1px solid ${plan.color}50`,
+                color: i === 2 ? 'white' : plan.color,
                 fontSize: '14px', fontWeight: 700, cursor: 'pointer',
                 transition: 'opacity 0.15s',
               }}
@@ -472,7 +482,8 @@ function AppContent() {
   const handleSaveConfirm = () => {
     const name = saveNameValue.trim() || 'My Resume';
     if (!canSaveMore) {
-      setUpgradePrompt({ requiredPlan: plan === 'basic' ? 'pro' : 'ultimate', featureLabel: `Save more resumes` });
+      const nextPlan = (plan === 'free' || plan === 'basic') ? 'pro' : 'ultimate';
+      setUpgradePrompt({ requiredPlan: nextPlan, featureLabel: `Save more resumes` });
       setSavePrompt(false);
       return;
     }
