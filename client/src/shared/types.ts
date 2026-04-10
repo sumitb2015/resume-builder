@@ -84,6 +84,14 @@ export interface ImprovementSuggestions {
   suggestions: ImprovementSuggestion[];
 }
 
+export interface SmartResumeResponse {
+  resume: Resume;
+  analysis: {
+    addedTechnologies: string[];
+    changesMade: string[];
+  };
+}
+
 export interface TemplateConfig {
   id: string;
   name: string;

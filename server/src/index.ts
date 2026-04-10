@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import * as aiService from './services/claude.service';
+import * as openaiService from './services/openai.service';
 import parseRoutes from './routes/parse.routes';
 import exportRoutes from './routes/export.routes';
 import paymentRoutes from './routes/payment.routes';
@@ -119,6 +120,16 @@ app.post('/api/ai/generate-full-resume', async (req, res) => {
   try {
     const { currentRole, targetRole, industry, experience, context } = req.body;
     const result = await aiService.generateFullResume({ currentRole, targetRole, industry, experience, context });
+    res.json(result);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/ai/generate-smart-resume', async (req, res) => {
+  try {
+    const params = req.body;
+    const result = await openaiService.generateSmartTailoredResume(params);
     res.json(result);
   } catch (error: any) {
     res.status(500).json({ error: error.message });

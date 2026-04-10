@@ -1,4 +1,4 @@
-import type { Resume, ImprovementSuggestions } from '../shared/types';
+import type { Resume, ImprovementSuggestions, SmartResumeResponse } from '../shared/types';
 
 const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
 
@@ -69,6 +69,16 @@ export const api = {
 
   generateFullResume: (params: { currentRole?: string; targetRole: string; industry: string; experience: string; context?: string }) =>
     post<Resume>('/api/ai/generate-full-resume', params),
+
+  generateSmartResume: (params: {
+    targetRole: string;
+    industry: string;
+    currentRole?: string;
+    experience: string;
+    context?: string;
+    education?: string;
+    achievements?: string;
+  }) => post<SmartResumeResponse>('/api/ai/generate-smart-resume', params),
 
   rephrase: (text: string, instruction?: string) =>
     post<{ text: string }>('/api/ai/rephrase', { text, instruction }),
