@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { X, User, Calendar, Settings, LogOut, Shield, Zap, Crown } from 'lucide-react';
-import { api } from '../lib/api';
+import { usePlan } from '../contexts/PlanContext';
 
 interface Props {
   user: any;
@@ -16,35 +16,11 @@ const PLAN_CONFIG = {
 };
 
 const ProfileModal: React.FC<Props> = ({ user, onClose, onLogout }) => {
-  const [profile, setProfile] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { plan: currentPlan, expiresAt } = usePlan();
 
-  useEffect(() => {
-    api.getUserProfile(user.uid)
-      .then(data => {
-        setProfile(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Failed to fetch profile:', err);
-        setLoading(false);
-      });
-  }, [user.uid]);
-
-  const formatDate = (dateObj: any) => {
-    if (!dateObj) {
-      return 'Never';
-    }
+  const formatDate = (date: Date | null) => {
+    if (!date) return 'Permanent';
     
-    let date: Date;
-    if (dateObj._seconds) {
-      date = new Date(dateObj._seconds * 1000);
-    } else if (dateObj.seconds) {
-      date = new Date(dateObj.seconds * 1000);
-    } else {
-      date = new Date(dateObj);
-    }
-
     if (isNaN(date.getTime())) return 'Permanent';
 
     return date.toLocaleDateString('en-US', {
@@ -62,8 +38,8 @@ const ProfileModal: React.FC<Props> = ({ user, onClose, onLogout }) => {
     alert('Preferences coming soon! You will be able to set default templates and AI writing styles.');
   };
 
-  const plan = (profile?.plan || 'free') as keyof typeof PLAN_CONFIG;
-  const config = PLAN_CONFIG[plan] || PLAN_CONFIG.free;
+  const planKey = (currentPlan || 'free') as keyof typeof PLAN_CONFIG;
+  const config = PLAN_CONFIG[planKey] || PLAN_CONFIG.free;
 
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()} style={{ zIndex: 1000 }}>
@@ -112,56 +88,50 @@ const ProfileModal: React.FC<Props> = ({ user, onClose, onLogout }) => {
             Subscription Status
           </h3>
           
-          {loading ? (
-            <div style={{ padding: '20px', textAlign: 'center' }}>
-              <div className="spin" style={{ width: '24px', height: '24px', border: '2px solid var(--color-ui-border)', borderTopColor: '#6366F1', borderRadius: '50%', margin: '0 auto' }} />
-            </div>
-          ) : (
-            <div style={{ 
-              background: 'var(--color-ui-surface-2)', 
-              borderRadius: '12px', 
-              padding: '16px',
-              border: '1px solid var(--color-ui-border)',
-              marginBottom: '24px',
-              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div style={{ 
-                    padding: '8px', 
-                    borderRadius: '8px', 
-                    background: `${config.color}20`,
-                    color: config.color,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center'
-                  }}>
-                    <config.icon size={20} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-ui-text)' }}>{config.label} Plan</div>
-                    <div style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>{config.features}</div>
-                  </div>
-                </div>
+          <div style={{ 
+            background: 'var(--color-ui-surface-2)', 
+            borderRadius: '12px', 
+            padding: '16px',
+            border: '1px solid var(--color-ui-border)',
+            marginBottom: '24px',
+            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{ 
-                  padding: '4px 12px', 
-                  borderRadius: '100px', 
-                  background: 'rgba(74,222,128,0.15)', 
-                  color: '#4ADE80',
-                  fontSize: '11px',
-                  fontWeight: 800,
-                  border: '1px solid rgba(74,222,128,0.2)'
+                  padding: '8px', 
+                  borderRadius: '8px', 
+                  background: `${config.color}20`,
+                  color: config.color,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}>
-                  ACTIVE
+                  <config.icon size={20} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-ui-text)' }}>{config.label} Plan</div>
+                  <div style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>{config.features}</div>
                 </div>
               </div>
-              
-              <div style={{ height: '1px', background: 'var(--color-ui-border)', margin: '12px 0' }} />
-              
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-ui-text-muted)', fontSize: '13px' }}>
-                <Calendar size={14} style={{ opacity: 0.7 }} />
-                <span>Renewal Date: <strong>{formatDate(profile?.expiresAt)}</strong></span>
+              <div style={{ 
+                padding: '4px 12px', 
+                borderRadius: '100px', 
+                background: 'rgba(74,222,128,0.15)', 
+                color: '#4ADE80',
+                fontSize: '11px',
+                fontWeight: 800,
+                border: '1px solid rgba(74,222,128,0.2)'
+              }}>
+                ACTIVE
               </div>
             </div>
-          )}
+            
+            <div style={{ height: '1px', background: 'var(--color-ui-border)', margin: '12px 0' }} />
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-ui-text-muted)', fontSize: '13px' }}>
+              <Calendar size={14} style={{ opacity: 0.7 }} />
+              <span>Renewal Date: <strong>{formatDate(expiresAt)}</strong></span>
+            </div>
+          </div>
 
           <h3 style={{ fontSize: '11px', fontWeight: 800, color: 'var(--color-ui-text-dim)', letterSpacing: '0.1em', marginBottom: '16px', textTransform: 'uppercase' }}>
             Account Settings

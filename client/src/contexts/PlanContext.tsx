@@ -48,6 +48,7 @@ export const MAX_RESUMES: Record<Plan, number> = {
 
 interface PlanContextType {
   plan: Plan | null;
+  expiresAt: Date | null;
   setPlan: (plan: Plan) => void;
   updatePlan: () => Promise<void>;
   canAccess: (feature: Feature) => boolean;
@@ -70,6 +71,7 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
   const bulletKey = uid ? `bespokecv_bullets_${uid}` : null;
 
   const [plan, setPlanState] = useState<Plan | null>(null);
+  const [expiresAtState, setExpiresAtState] = useState<Date | null>(null);
 
   const [bulletData, setBulletData] = useState<{ date: string; count: number }>(() => {
     return { date: todayKey(), count: 0 };
@@ -89,6 +91,7 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
       }
       
       setPlanState(finalPlan);
+      setExpiresAtState(expiresAt);
       localStorage.setItem(`bespokecv_plan_${userId}`, finalPlan);
     } catch (err) {
       console.error('Failed to fetch plan from database:', err);
@@ -111,6 +114,7 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!uid) {
       setPlanState(null);
+      setExpiresAtState(null);
       setBulletData({ date: todayKey(), count: 0 });
       return;
     }
@@ -166,7 +170,7 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
   const maxResumes = plan ? MAX_RESUMES[plan] : 0;
 
   return (
-    <PlanContext.Provider value={{ plan, setPlan, updatePlan, canAccess, remainingBullets, incrementBulletUsage, maxResumes }}>
+    <PlanContext.Provider value={{ plan, expiresAt: expiresAtState, setPlan, updatePlan, canAccess, remainingBullets, incrementBulletUsage, maxResumes }}>
       {children}
     </PlanContext.Provider>
   );

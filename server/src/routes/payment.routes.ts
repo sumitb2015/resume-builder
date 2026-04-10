@@ -55,51 +55,65 @@ router.post('/verify', async (req, res) => {
       isAnnual
     } = req.body;
 
-    console.log(`[Payment Verify] Received verification request for User: ${userId}, Plan: ${planTier}`);
+    console.log(`[Payment Verify] START - User: ${userId}, Plan: ${planTier}`);
+
+    if (!userId || !planTier) {
+      console.error('[Payment Verify] Missing userId or planTier in request body');
+      return res.status(400).json({ success: false, message: 'Missing userId or planTier' });
+    }
 
     const secret = process.env.RAZORPAY_KEY_SECRET || '';
-
     const generated_signature = crypto
       .createHmac('sha256', secret)
       .update(razorpay_order_id + "|" + razorpay_payment_id)
       .digest('hex');
 
-    if (generated_signature === razorpay_signature) {
-      console.log(`[Payment Verify] Signature matched for User: ${userId}`);
-      if (db && userId && planTier) {
-        const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + (isAnnual ? 365 : 30));
-
-        console.log(`[Payment Verify] Updating database for User: ${userId} to Plan: ${planTier}, expires: ${expiresAt}`);
-        
-        try {
-          const userRef = db.collection('users').doc(userId);
-          const doc = await userRef.get();
-          
-          if (!doc.exists) {
-             console.error(`[Payment Verify] User document ${userId} NOT FOUND in database!`);
-          }
-
-          await userRef.update({
-            plan: planTier,
-            updatedAt: new Date(),
-            expiresAt: expiresAt
-          });
-          console.log(`[Payment Verify] Database update SUCCESS for User: ${userId}`);
-        } catch (dbErr) {
-          console.error(`[Payment Verify] Database update FAILED for User: ${userId}:`, dbErr);
-          throw dbErr;
-        }
-      } else {
-        console.warn(`[Payment Verify] Skipping DB update. db: ${!!db}, userId: ${userId}, planTier: ${planTier}`);
-      }
-      res.json({ success: true, message: 'Payment verified successfully' });
-    } else {
+    if (generated_signature !== razorpay_signature) {
       console.error(`[Payment Verify] Signature mismatch for User: ${userId}`);
-      res.status(400).json({ success: false, message: 'Invalid payment signature' });
+      return res.status(400).json({ success: false, message: 'Invalid payment signature' });
+    }
+
+    console.log(`[Payment Verify] Signature matched for User: ${userId}`);
+
+    if (!db) {
+      console.error('[Payment Verify] Database not initialized!');
+      return res.status(500).json({ success: false, message: 'Database initialization error' });
+    }
+
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + (isAnnual ? 365 : 30));
+
+    console.log(`[Payment Verify] Attempting DB update for User: ${userId} to Plan: ${planTier}`);
+    
+    try {
+      const userRef = db.collection('users').doc(userId);
+      const doc = await userRef.get();
+      
+      if (!doc.exists) {
+         console.error(`[Payment Verify] User document ${userId} NOT FOUND. Creating one...`);
+         await userRef.set({
+           uid: userId,
+           plan: planTier,
+           createdAt: new Date(),
+           updatedAt: new Date(),
+           expiresAt: expiresAt
+         }, { merge: true });
+      } else {
+        await userRef.update({
+          plan: planTier,
+          updatedAt: new Date(),
+          expiresAt: expiresAt
+        });
+      }
+      
+      console.log(`[Payment Verify] Database update SUCCESS for User: ${userId}`);
+      return res.json({ success: true, message: 'Payment verified and plan updated' });
+    } catch (dbErr: any) {
+      console.error(`[Payment Verify] Database update FAILED for User: ${userId}:`, dbErr);
+      return res.status(500).json({ success: false, message: `Database update failed: ${dbErr.message}` });
     }
   } catch (error: any) {
-    console.error('Signature verification error:', error);
+    console.error('[Payment Verify] Unexpected error:', error);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
