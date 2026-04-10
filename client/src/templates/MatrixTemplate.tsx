@@ -1,10 +1,10 @@
 import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
-import { Mail, Phone, MapPin, Link2, Briefcase, GraduationCap, Laptop, Award, CheckCircle2 } from 'lucide-react';
+import { Mail, Phone, MapPin, Link2, CheckCircle2 } from 'lucide-react';
 
 const MatrixTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, projects } = resume;
   const primary = config.colors.primary;
 
   return (

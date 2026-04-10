@@ -2,7 +2,7 @@ import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 import { 
-  Mail, Phone, MapPin, Link2, Globe, Calendar, 
+  Mail, Phone, MapPin, Link2, Calendar, 
   Briefcase, GraduationCap, Laptop, Award, Languages, Sparkles 
 } from 'lucide-react';
 

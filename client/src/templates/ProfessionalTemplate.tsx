@@ -1,12 +1,11 @@
 import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
-import { Mail, Phone, MapPin, Link2, Globe, Calendar, Award } from 'lucide-react';
+import { Mail, Phone, MapPin, Link2, Calendar } from 'lucide-react';
 
 const ProfessionalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
   const primary = config.colors.primary;
-  const accent = config.colors.accent;
 
   return (
     <div className="resume-paper" style={{

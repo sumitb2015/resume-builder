@@ -16,7 +16,10 @@ export type Feature =
   | 'job-tailor'
   | 'download-pdf'
   | 'resume-sharing'
-  | 'analytics';
+  | 'analytics'
+  | 'cover-letter'
+  | 'interview-prep'
+  | 'expert-review';
 
 const PLAN_FEATURES: Record<Plan, Feature[]> = {
   free: ['resume-sharing', 'analytics'],
@@ -24,12 +27,13 @@ const PLAN_FEATURES: Record<Plan, Feature[]> = {
   pro: [
     'enhance-mode', 'extra-templates', 'dynamic-ats', 'ai-summary', 
     'ai-bullets', 'skills-finder', 'style-colors', 'download-pdf',
-    'resume-sharing', 'analytics'
+    'resume-sharing', 'analytics', 'cover-letter'
   ],
   ultimate: [
     'enhance-mode', 'linkedin-mode', 'extra-templates', 'dynamic-ats',
     'ai-summary', 'ai-bullets', 'skills-finder', 'style-colors', 'job-tailor',
-    'download-pdf', 'resume-sharing', 'analytics'
+    'download-pdf', 'resume-sharing', 'analytics', 'cover-letter',
+    'interview-prep', 'expert-review'
   ],
 };
 

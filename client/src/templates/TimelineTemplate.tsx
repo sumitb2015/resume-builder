@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
-import { Mail, Phone, MapPin, Link2, Calendar, Briefcase, GraduationCap, Award } from 'lucide-react';
+import { Mail, Phone, MapPin, Link2, Briefcase, GraduationCap, Award } from 'lucide-react';
 
 const TimelineTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;

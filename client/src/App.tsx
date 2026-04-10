@@ -5,6 +5,9 @@ import LoginPage from './components/LoginPage';
 import ResumeBuilder from './components/ResumeBuilder';
 import AtsCheckerPage from './components/AtsCheckerPage';
 import JobTailorPage from './components/JobTailorPage';
+import CoverLetterPage from './components/CoverLetterPage';
+import InterviewPrepPage from './components/InterviewPrepPage';
+import ExpertReviewModal from './components/ExpertReviewModal';
 import ModeSelectModal from './components/ModeSelectModal';
 import AiWriterFlow from './components/AiWriterFlow';
 import BlogPage from './components/landing/BlogPage';
@@ -26,7 +29,7 @@ import { legacyMarkdownToHtml } from './lib/htmlUtils';
 import './index.css';
 import {
   Zap, Palette, Check, ChevronLeft, ChevronRight, FileText, LogOut, Crown, Shield,
-  Save, FolderOpen, Sun, Moon, Award, Lock,
+  Save, FolderOpen, Sun, Moon, Award, Lock, HelpCircle, MessageSquare,
 } from 'lucide-react';
 
 const initialResume: Resume = {
@@ -110,9 +113,12 @@ const FEATURE_REQUIRED_PLAN: Record<Feature, 'basic' | 'pro' | 'ultimate'> = {
   'download-pdf': 'basic',
   'resume-sharing': 'basic',
   'analytics': 'basic',
+  'cover-letter': 'pro',
+  'interview-prep': 'ultimate',
+  'expert-review': 'ultimate',
 };
 
-const FEATURE_LABELS: Record<Feature, string> = {
+const FEATURE_LABELS: Record<string, string> = {
   'enhance-mode': 'Resume Import',
   'linkedin-mode': 'LinkedIn Import',
   'job-tailor': 'Job Tailoring',
@@ -125,6 +131,9 @@ const FEATURE_LABELS: Record<Feature, string> = {
   'download-pdf': 'Download PDF',
   'resume-sharing': 'Resume Sharing',
   'analytics': 'Analytics',
+  'cover-letter': 'Cover Letter Generator',
+  'interview-prep': 'AI Interview Prep',
+  'expert-review': 'Expert Review',
 };
 
 // Plan badge config
@@ -334,7 +343,7 @@ function AppContent() {
   const { savedResumes, canSaveMore, saveResume, renameResume, deleteResume } = useSavedResumes();
   const { theme, toggleTheme } = useTheme();
 
-  const [view, setView] = useState<'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder' | 'preview' | 'ats-checker' | 'job-tailor' | 'ai-writer' | 'blog'>('landing');
+  const [view, setView] = useState<'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder' | 'preview' | 'ats-checker' | 'job-tailor' | 'cover-letter' | 'interview-prep' | 'ai-writer' | 'blog'>('landing');
   const initialResumeRef = useRef<Resume | null>(null);
   
   useEffect(() => {
@@ -354,6 +363,7 @@ function AppContent() {
   const [pageCount, setPageCount] = useState(1);
   const [upgradePrompt, setUpgradePrompt] = useState<{ requiredPlan: 'pro' | 'ultimate'; featureLabel: string } | null>(null);
   const [showProfile, setShowProfile] = useState(false);
+  const [showExpertReview, setShowExpertReview] = useState(false);
 
   // Saved resume state
   const [currentResumeId, setCurrentResumeId] = useState<string | null>(null);
@@ -597,9 +607,12 @@ function AppContent() {
       return <ExportPreview resume={resume} config={activeTemplate} onBack={() => setView('builder')} onUpdateConfig={setActiveTemplate} onUpdateResume={setResume} pageCount={pageCount} onPageCount={setPageCount} />;
     }
 
-    const isToolView = view === 'builder' || view === 'ats-checker' || view === 'job-tailor';
+    const isToolView = ['builder', 'ats-checker', 'job-tailor', 'cover-letter', 'interview-prep'].includes(view);
     const atsLocked = !canAccess('dynamic-ats');
     const tailorLocked = !canAccess('job-tailor');
+    const coverLetterLocked = !canAccess('cover-letter' as any);
+    const interviewLocked = !canAccess('interview-prep' as any);
+    const expertLocked = !canAccess('expert-review' as any);
 
     const topBar = isToolView ? (
       <header className="top-bar no-print" style={{ position: 'relative' }}>
@@ -642,6 +655,8 @@ function AppContent() {
             { id: 'builder' as const, label: 'Builder', Icon: FileText, locked: false },
             { id: 'ats-checker' as const, label: 'ATS Check', Icon: Award, locked: atsLocked, plan: 'Pro' },
             { id: 'job-tailor' as const, label: 'Job Tailor', Icon: Zap, locked: tailorLocked, plan: 'Ultimate' },
+            { id: 'cover-letter' as const, label: 'Cover Letter', Icon: FileText, locked: coverLetterLocked, plan: 'Pro' },
+            { id: 'interview-prep' as const, label: 'Interview Prep', Icon: HelpCircle, locked: interviewLocked, plan: 'Ultimate' },
           ] as const).map(tab => {
             const isActive = view === tab.id;
             return (
@@ -651,7 +666,15 @@ function AppContent() {
                 onClick={() => {
                   if (tab.id === 'builder') setView('builder');
                   else if (tab.id === 'ats-checker') handleGoAtsChecker();
-                  else handleGoJobTailor();
+                  else if (tab.id === 'job-tailor') handleGoJobTailor();
+                  else if (tab.id === 'cover-letter') {
+                    if (coverLetterLocked) showUpgrade('cover-letter' as any);
+                    else setView('cover-letter');
+                  }
+                  else if (tab.id === 'interview-prep') {
+                    if (interviewLocked) showUpgrade('interview-prep' as any);
+                    else setView('interview-prep');
+                  }
                 }}
                 style={{
                   display: 'flex', alignItems: 'center', gap: '5px',
@@ -674,6 +697,16 @@ function AppContent() {
 
         {/* Right: action buttons */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button
+            className="btn-ghost"
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#818CF8', fontWeight: 600 }}
+            onClick={() => {
+              if (expertLocked) showUpgrade('expert-review' as any);
+              else setShowExpertReview(true);
+            }}
+          >
+            <MessageSquare size={14} /> Expert Review {expertLocked && <Lock size={9} />}
+          </button>
           <button className="btn-ghost" style={{ padding: '7px 10px' }} onClick={toggleTheme}>{theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}</button>
           {view === 'builder' && (
             <>
@@ -757,6 +790,32 @@ function AppContent() {
           <JobTailorPage
             resume={resume}
             onApplyChanges={(updated) => { setResume(updated); setView('builder'); }}
+            onBack={() => setView('builder')}
+            onUpgradeNeeded={showUpgrade}
+          />
+        </div>
+      );
+    }
+
+    if (view === 'cover-letter') {
+      return (
+        <div className="app-grid" style={{ background: 'var(--color-ui-bg)' }}>
+          {topBar}
+          <CoverLetterPage
+            resume={resume}
+            onBack={() => setView('builder')}
+            onUpgradeNeeded={showUpgrade}
+          />
+        </div>
+      );
+    }
+
+    if (view === 'interview-prep') {
+      return (
+        <div className="app-grid" style={{ background: 'var(--color-ui-bg)' }}>
+          {topBar}
+          <InterviewPrepPage
+            resume={resume}
             onBack={() => setView('builder')}
             onUpgradeNeeded={showUpgrade}
           />
@@ -858,6 +917,7 @@ function AppContent() {
       {savedToast && <div style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: 'var(--color-success)', color: 'white', padding: '8px 16px', borderRadius: '8px' }}>Resume saved</div>}
       {upgradePrompt && <UpgradeModal requiredPlan={upgradePrompt.requiredPlan} featureLabel={upgradePrompt.featureLabel} onClose={() => setUpgradePrompt(null)} />}
       {showProfile && <ProfileModal user={currentUser} onClose={() => setShowProfile(false)} onLogout={handleLogout} />}
+      {showExpertReview && <ExpertReviewModal userId={currentUser?.uid || ''} resumeId={currentResumeId} resumeData={resume} onClose={() => setShowExpertReview(false)} />}
       <PrintPortal resume={resume} config={activeTemplate} pageCount={pageCount} />
     </>
   );

@@ -55,7 +55,7 @@ const ContrastTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
           {/* SUMMARY */}
           {personal.summary && (
             <section style={{ marginBottom: '40px' }}>
-              <SectionHeader title="Professional Profile" color={primary} />
+              <SectionHeader title="Professional Profile" />
               <RichContent html={personal.summary} style={{ fontSize: '1rem', lineHeight: 1.7, color: '#475569' }} />
             </section>
           )}
@@ -63,7 +63,7 @@ const ContrastTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
           {/* EXPERIENCE */}
           {experience.length > 0 && (
             <section style={{ marginBottom: '40px' }}>
-              <SectionHeader title="Experience" color={primary} />
+              <SectionHeader title="Experience" />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                 {experience.map(exp => (
                   <div key={exp.id}>
@@ -92,7 +92,7 @@ const ContrastTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
           {/* PROJECTS */}
           {projects.length > 0 && (
             <section>
-              <SectionHeader title="Key Projects" color={primary} />
+              <SectionHeader title="Key Projects" />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 {projects.map(p => (
                   <div key={p.id}>
@@ -171,7 +171,7 @@ const ContrastTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
   );
 };
 
-const SectionHeader: React.FC<{ title: string; color: string }> = ({ title, color }) => (
+const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
   <h2 style={{ 
     fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', 
     textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '20px',

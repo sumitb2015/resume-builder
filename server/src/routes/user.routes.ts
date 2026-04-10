@@ -58,4 +58,31 @@ router.get('/me/:uid', async (req, res) => {
   }
 });
 
+// Request Expert Review
+router.post('/request-review', async (req, res) => {
+  try {
+    const { userId, resumeId, resumeData, comments } = req.body;
+    
+    if (!userId || !db) {
+      return res.status(400).json({ error: 'User ID and database initialization required' });
+    }
+
+    const reviewRequest = {
+      userId,
+      resumeId: resumeId || 'temp',
+      resumeData: resumeData || {},
+      comments: comments || '',
+      status: 'pending',
+      createdAt: new Date(),
+    };
+
+    const docRef = await db.collection('expert_reviews').add(reviewRequest);
+    
+    res.json({ success: true, id: docRef.id });
+  } catch (error: any) {
+    console.error('Expert Review Request Error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

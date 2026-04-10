@@ -292,3 +292,51 @@ Ensure the result is professional, achievement-oriented, and suitable for a high
 
 return (await ask(fullPrompt)).trim();
 };
+
+export const generateCoverLetter = async (resumeData: any, jobDescription: string) => {
+  const prompt = `You are an expert career coach and professional writer. Write a highly persuasive, modern cover letter for a candidate based on their resume and the job description.
+
+Resume: ${JSON.stringify(resumeData, null, 2)}
+
+Job Description: ${jobDescription}
+
+Instructions:
+1. Use a professional but engaging tone.
+2. Connect the candidate's specific achievements from the resume to the requirements in the JD.
+3. Keep it under 400 words.
+4. Use standard cover letter formatting (Date, Salutation, Intro, Body, Closing).
+5. Ensure there are no placeholders like [Company Name]; use the information from the JD if available, otherwise use general terms.
+
+Return the cover letter text only.`;
+
+  return (await ask(prompt)).trim();
+};
+
+export const generateInterviewPrep = async (resumeData: any, jobDescription: string) => {
+  const prompt = `You are an expert interviewer. Analyze this resume against the job description and prepare the candidate for an interview.
+
+Resume: ${JSON.stringify(resumeData, null, 2)}
+
+Job Description: ${jobDescription}
+
+Identify:
+1. Potential gaps or weak points in the candidate's profile relative to the JD.
+2. The top 5-8 most likely questions they will face (technical and behavioral).
+3. For each question, provide a "Best way to answer" strategy and a sample response based on their resume.
+
+Return ONLY valid JSON with this exact structure:
+{
+  "analysis": "2-3 sentence overview of the interview focus",
+  "questions": [
+    {
+      "question": "The interview question",
+      "type": "behavioral | technical | situational",
+      "strategy": "How to approach this question",
+      "sampleAnswer": "A strong response tailored to the resume"
+    }
+  ]
+}`;
+
+  const text = await ask(prompt);
+  return extractJSON(text);
+};

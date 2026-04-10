@@ -29,6 +29,18 @@ export const api = {
       suggestedSummary: string;
     }>('/api/ai/tailor-resume', { resume, jobDescription }),
 
+  generateCoverLetter: (resume: unknown, jobDescription: string) =>
+    post<{ text: string }>('/api/ai/generate-cover-letter', { resume, jobDescription }),
+
+  generateInterviewPrep: (resume: unknown, jobDescription: string) =>
+    post<{
+      analysis: string;
+      questions: { question: string; type: string; strategy: string; sampleAnswer: string }[];
+    }>('/api/ai/generate-interview-prep', { resume, jobDescription }),
+
+  requestExpertReview: (userId: string, resumeId: string | null, resumeData: any, comments: string) =>
+    post<{ success: boolean; id: string }>('/api/user/request-review', { userId, resumeId, resumeData, comments }),
+
   atsScore: (resume: unknown, jobDescription: string) =>
     post<{
       score: number;

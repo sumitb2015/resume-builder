@@ -120,6 +120,28 @@ app.post('/api/ai/tailor-resume', async (req, res) => {
   }
 });
 
+app.post('/api/ai/generate-cover-letter', async (req, res) => {
+  try {
+    const { resume, jobDescription } = tailorResumeSchema.parse(req.body);
+    const result = await aiService.generateCoverLetter(resume, jobDescription);
+    res.json({ text: result });
+  } catch (error: any) {
+    if (error instanceof z.ZodError) return res.status(400).json({ error: error.errors });
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/ai/generate-interview-prep', async (req, res) => {
+  try {
+    const { resume, jobDescription } = tailorResumeSchema.parse(req.body);
+    const result = await aiService.generateInterviewPrep(resume, jobDescription);
+    res.json(result);
+  } catch (error: any) {
+    if (error instanceof z.ZodError) return res.status(400).json({ error: error.errors });
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post('/api/ai/ats-score', async (req, res) => {
   try {
     const { resume, jobDescription } = atsScoreSchema.parse(req.body);
