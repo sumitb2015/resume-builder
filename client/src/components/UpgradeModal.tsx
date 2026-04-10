@@ -4,12 +4,12 @@ import { usePlan } from '../contexts/PlanContext';
 import type { Plan } from '../contexts/PlanContext';
 
 interface Props {
-  requiredPlan: 'basic' | 'pro' | 'ultimate';
+  requiredPlan: Plan;
   featureLabel: string;
   onClose: () => void;
 }
 
-const PLAN_DETAILS: Record<'basic' | 'pro' | 'ultimate', {
+const PLAN_DETAILS: Record<string, {
   price: string;
   color: string;
   gradient: string;
@@ -67,7 +67,7 @@ const PLAN_DETAILS: Record<'basic' | 'pro' | 'ultimate', {
 
 export default function UpgradeModal({ requiredPlan, featureLabel, onClose }: Props) {
   const { setPlan } = usePlan();
-  const details = PLAN_DETAILS[requiredPlan];
+  const details = PLAN_DETAILS[requiredPlan] || PLAN_DETAILS.pro;
   const planLabel = requiredPlan.charAt(0).toUpperCase() + requiredPlan.slice(1);
 
   const handleActivate = () => {

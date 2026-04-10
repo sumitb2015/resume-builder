@@ -585,7 +585,7 @@ function AppContent() {
       return (
         <>
           <ModeSelectModal onSelect={handleModeSelect} onBack={() => setView('landing')} onUpgradeNeeded={showUpgrade} />
-          {upgradePrompt && <UpgradeModal requiredPlan={upgradePrompt.requiredPlan} featureLabel={upgradePrompt.featureLabel} onClose={() => setUpgradePrompt(null)} />}
+          {upgradePrompt && <UpgradeModal requiredPlan={upgradePrompt.requiredPlan as any} featureLabel={upgradePrompt.featureLabel} onClose={() => setUpgradePrompt(null)} />}
         </>
       );
     }
@@ -622,7 +622,7 @@ function AppContent() {
             <div style={{ width: '26px', height: '26px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Zap size={13} color="white" fill="white" />
             </div>
-            <span style={{ fontSize: '15px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)' }}>Bespoke<span style={{ color: '#818CF8' }}>CV</span></span>
+            <span style={{ fontSize: '15px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)' }}>Bespoke <span style={{ color: '#818CF8' }}>CV</span></span>
           </div>
           <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)' }} />
           <BreadcrumbNav view={view} onNavigate={setView} />
@@ -915,7 +915,7 @@ function AppContent() {
         </div>
       )}
       {savedToast && <div style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: 'var(--color-success)', color: 'white', padding: '8px 16px', borderRadius: '8px' }}>Resume saved</div>}
-      {upgradePrompt && <UpgradeModal requiredPlan={upgradePrompt.requiredPlan} featureLabel={upgradePrompt.featureLabel} onClose={() => setUpgradePrompt(null)} />}
+      {upgradePrompt && <UpgradeModal requiredPlan={upgradePrompt.requiredPlan as any} featureLabel={upgradePrompt.featureLabel} onClose={() => setUpgradePrompt(null)} />}
       {showProfile && <ProfileModal user={currentUser} onClose={() => setShowProfile(false)} onLogout={handleLogout} />}
       {showExpertReview && <ExpertReviewModal userId={currentUser?.uid || ''} resumeId={currentResumeId} resumeData={resume} onClose={() => setShowExpertReview(false)} />}
       <PrintPortal resume={resume} config={activeTemplate} pageCount={pageCount} />
