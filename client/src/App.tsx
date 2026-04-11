@@ -31,7 +31,7 @@ import { useSavedResumes } from './hooks/useSavedResumes';
 import { legacyMarkdownToHtml } from './lib/htmlUtils';
 import {
   Zap, Palette, Check, ChevronLeft, ChevronRight, FileText, LogOut, Crown, Shield,
-  Save, FolderOpen, Sun, Moon, Award, Lock, HelpCircle, MessageSquare,
+  Save, FolderOpen, Sun, Moon, Award, Lock, HelpCircle, MessageSquare, Menu,
 } from 'lucide-react';
 
 // Initial dummy resume data
