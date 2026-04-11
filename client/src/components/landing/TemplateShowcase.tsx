@@ -214,7 +214,7 @@ const TemplateShowcase: React.FC<Props> = ({ onStart }) => {
             background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)',
             marginBottom: '20px',
           }}>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#818CF8', letterSpacing: '0.04em' }}>15 TEMPLATES</span>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: '#818CF8', letterSpacing: '0.04em' }}>{templates.length} TEMPLATES</span>
           </div>
           <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)', marginBottom: '14px' }}>
             A template for every career

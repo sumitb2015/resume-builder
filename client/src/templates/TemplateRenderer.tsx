@@ -38,6 +38,11 @@ import PikachuTemplate from './PikachuTemplate';
 import GengarTemplate from './GengarTemplate';
 import CasteliaTemplate from './CasteliaTemplate';
 import GlalieTemplate from './GlalieTemplate';
+import CharizardTemplate from './CharizardTemplate';
+import SnorlaxTemplate from './SnorlaxTemplate';
+import EeveeTemplate from './EeveeTemplate';
+import MewtwoTemplate from './MewtwoTemplate';
+import LucarioTemplate from './LucarioTemplate';
 
 interface Props {
   resume: Resume;
@@ -132,6 +137,11 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config, isPaged = false }) 
             case 'gengar': return <GengarTemplate {...templateProps} />;
             case 'castelia': return <CasteliaTemplate {...templateProps} />;
             case 'glalie': return <GlalieTemplate {...templateProps} />;
+            case 'charizard': return <CharizardTemplate {...templateProps} />;
+            case 'snorlax': return <SnorlaxTemplate {...templateProps} />;
+            case 'eevee': return <EeveeTemplate {...templateProps} />;
+            case 'mewtwo': return <MewtwoTemplate {...templateProps} />;
+            case 'lucario': return <LucarioTemplate {...templateProps} />;
             default: return <ClassicTemplate {...templateProps} />;
           }
         })()}
