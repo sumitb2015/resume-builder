@@ -347,6 +347,7 @@ function AppContent() {
   // Saved resume state
   const [currentResumeId, setCurrentResumeId] = useState<string | null>(null);
   const [showSavedPanel, setShowSavedPanel] = useState(false);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [savePrompt, setSavePrompt] = useState(false);
   const [saveNameValue, setSaveNameValue] = useState('');
   const [savedToast, setSavedToast] = useState(false);
@@ -612,9 +613,9 @@ function AppContent() {
     const interviewLocked = !canAccess('interview-prep');
     const expertLocked = !canAccess('expert-review');
 
-    const sidebar = isToolView && (!isMobile || showSavedPanel) ? (
-      <aside className="app-sidebar no-print" style={isMobile ? { position: 'fixed', left: 0, top: 0, bottom: 0, width: '240px', zIndex: 200 } : {}}>
-        <div className="sidebar-logo" onClick={() => setView('landing')} style={{ cursor: 'pointer' }}>
+    const sidebar = isToolView ? (
+      <aside className={`app-sidebar no-print ${showMobileSidebar ? 'show-mobile' : ''}`} style={isMobile ? { position: 'fixed', left: 0, top: 0, bottom: 0, width: '240px', zIndex: 200 } : {}}>
+        <div className="sidebar-logo" onClick={() => { setView('landing'); setShowMobileSidebar(false); }} style={{ cursor: 'pointer' }}>
           <div className="sidebar-logo-icon">
             <Zap size={18} color="white" fill="white" />
           </div>
@@ -622,13 +623,14 @@ function AppContent() {
         </div>
 
         <div style={{ flex: 1, width: '100%', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-          {([
+          {[
             { id: 'builder' as const, label: 'Resume Builder', Icon: FileText, locked: false, plan: '' },
+            ...(isMobile ? [{ id: 'my-resumes' as const, label: 'My Resumes', Icon: FolderOpen, locked: false, plan: '' }] : []),
             { id: 'ats-checker' as const, label: 'ATS Checker', Icon: Award, locked: atsLocked, plan: 'Pro' },
             { id: 'job-tailor' as const, label: 'Job Tailor', Icon: Zap, locked: tailorLocked, plan: 'Ultimate' },
             { id: 'cover-letter' as const, label: 'Cover Letter', Icon: FileText, locked: coverLetterLocked, plan: 'Pro' },
             { id: 'interview-prep' as const, label: 'Interview Prep', Icon: HelpCircle, locked: interviewLocked, plan: 'Ultimate' },
-          ] as const).map(tab => {
+          ].map(tab => {
             const isActive = view === tab.id;
             return (
               <button
@@ -637,7 +639,9 @@ function AppContent() {
                 title={tab.locked ? `Requires ${tab.plan} plan` : tab.label}
                 style={isMobile ? { width: 'calc(100% - 24px)', justifyContent: 'flex-start' } : {}}
                 onClick={() => {
+                  setShowMobileSidebar(false);
                   if (tab.id === 'builder') setView('builder');
+                  else if (tab.id === 'my-resumes') setShowSavedPanel(true);
                   else if (tab.id === 'ats-checker') handleGoAtsChecker();
                   else if (tab.id === 'job-tailor') handleGoJobTailor();
                   else if (tab.id === 'cover-letter') {
@@ -664,7 +668,7 @@ function AppContent() {
           <button 
             className="sidebar-item" 
             style={isMobile ? { width: 'calc(100% - 24px)', justifyContent: 'flex-start' } : {}}
-            onClick={() => { if (expertLocked) showUpgrade('expert-review' as any); else setShowExpertReview(true); }}
+            onClick={() => { setShowMobileSidebar(false); if (expertLocked) showUpgrade('expert-review' as any); else setShowExpertReview(true); }}
             title="Expert Review"
           >
             <div className="sidebar-icon"><MessageSquare size={20} /></div>
@@ -704,7 +708,7 @@ function AppContent() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '16px', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
           {isMobile && (
-            <button className="btn-ghost" style={{ padding: '6px' }} onClick={() => setShowSavedPanel(true)}>
+            <button className="btn-ghost" style={{ padding: '6px' }} onClick={() => setShowMobileSidebar(true)}>
               <Menu size={20} />
             </button>
           )}
@@ -790,7 +794,7 @@ function AppContent() {
                 setView('preview');
               }}>
                 <FileText size={15} /> 
-                {isMobile ? 'Export' : 'Preview & Export'}
+                {isMobile ? 'Preview' : 'Preview & Export'}
               </button>
             </>
           )}
@@ -809,9 +813,9 @@ function AppContent() {
 
     if (view === 'preview') {
       return (
-        <div className="app-layout-root">
+        <div className="app-layout-root" style={isMobile ? { height: '100vh', overflow: 'hidden' } : {}}>
           {sidebar}
-          <div className="app-main-content">
+          <div className="app-main-content" style={isMobile ? { height: '100vh', overflow: 'hidden' } : {}}>
             {topBar}
             <ExportPreview resume={resume} config={activeTemplate} onUpdateConfig={setActiveTemplate} onUpdateResume={setResume} pageCount={pageCount} onPageCount={setPageCount} />
           </div>
@@ -894,72 +898,74 @@ function AppContent() {
               {!isMobile && <button onClick={() => setFormExpanded(v => !v)} style={{ position: 'absolute', top: '50%', right: '-11px', transform: 'translateY(-50%)', width: '22px', height: '44px', borderRadius: '0 8px 8px 0', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderLeft: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-ui-text-muted)', zIndex: 10 }}>{formExpanded ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}</button>}
             </div>
 
-            <main className="preview-viewport" style={{ flex: 1, minWidth: 0, padding: isMobile ? '16px 8px' : '32px 24px 64px' }}>
-              {/* Preview toolbar */}
-              <div className="no-print" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, width: '100%', maxWidth: '1000px', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '12px' : '0' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '12px', flexWrap: 'wrap', justifyContent: isMobile ? 'center' : 'flex-start' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', background: 'var(--color-ui-surface)', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-ui-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      {activeTemplate.name}
-                    </span>
-                  </div>
-                  <div style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '6px',
-                    fontSize: '11px', fontWeight: 800, padding: '4px 12px', borderRadius: '8px',
-                    ...(activeTemplate.atsScore >= 85
-                      ? { background: 'rgba(63,185,80,0.12)', color: 'var(--color-success)', border: '1px solid rgba(63,185,80,0.2)' }
-                      : activeTemplate.atsScore >= 70
-                      ? { background: 'rgba(210,153,34,0.12)', color: 'var(--color-warning)', border: '1px solid rgba(210,153,34,0.2)' }
-                      : { background: 'rgba(248,81,73,0.12)', color: 'var(--color-danger)', border: '1px solid rgba(248,81,73,0.2)' }),
-                  }}>
-                    <Award size={12} />
-                    ATS SCORE: {activeTemplate.atsScore}%
-                  </div>
-                  {!isMobile && (
+            {!isMobile && (
+              <main className="preview-viewport" style={{ flex: 1, minWidth: 0, padding: isMobile ? '16px 8px' : '32px 24px 64px' }}>
+                {/* Preview toolbar */}
+                <div className="no-print" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, width: '100%', maxWidth: '1000px', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '12px' : '0' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '12px', flexWrap: 'wrap', justifyContent: isMobile ? 'center' : 'flex-start' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', background: 'var(--color-ui-surface)', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}>
-                      <FileText size={12} color="var(--color-ui-text-muted)" />
-                      <span style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', fontWeight: 600 }}>
-                        A4 · {pageCount} {pageCount === 1 ? 'PAGE' : 'PAGES'}
+                      <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-ui-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        {activeTemplate.name}
                       </span>
                     </div>
-                  )}
+                    <div style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '6px',
+                      fontSize: '11px', fontWeight: 800, padding: '4px 12px', borderRadius: '8px',
+                      ...(activeTemplate.atsScore >= 85
+                        ? { background: 'rgba(63,185,80,0.12)', color: 'var(--color-success)', border: '1px solid rgba(63,185,80,0.2)' }
+                        : activeTemplate.atsScore >= 70
+                        ? { background: 'rgba(210,153,34,0.12)', color: 'var(--color-warning)', border: '1px solid rgba(210,153,34,0.2)' }
+                        : { background: 'rgba(248,81,73,0.12)', color: 'var(--color-danger)', border: '1px solid rgba(248,81,73,0.2)' }),
+                    }}>
+                      <Award size={12} />
+                      ATS SCORE: {activeTemplate.atsScore}%
+                    </div>
+                    {!isMobile && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', background: 'var(--color-ui-surface)', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}>
+                        <FileText size={12} color="var(--color-ui-text-muted)" />
+                        <span style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', fontWeight: 600 }}>
+                          A4 · {pageCount} {pageCount === 1 ? 'PAGE' : 'PAGES'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderRadius: '10px' }}>
+                    <button className="btn-ghost" style={{ width: '28px', height: '28px', padding: 0, borderRadius: '6px', fontSize: '16px' }} onClick={() => setZoom(z => Math.max(0.3, +(z - 0.1).toFixed(1)))}>−</button>
+                    <button onClick={() => setZoom(isMobile ? 0.4 : 0.75)} style={{ minWidth: '40px', textAlign: 'center', fontSize: '12px', fontWeight: 800, color: 'var(--color-ui-accent)', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                      {Math.round(zoom * 100)}%
+                    </button>
+                    <button className="btn-ghost" style={{ width: '28px', height: '28px', padding: 0, borderRadius: '6px', fontSize: '16px' }} onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(1)))}>+</button>
+                    {!isMobile && (
+                      <>
+                        <div style={{ width: '1px', height: '16px', background: 'var(--color-ui-border)', margin: '0 4px' }} />
+                        {[50, 75, 100].map(v => (
+                          <button
+                            key={v}
+                            onClick={() => setZoom(v / 100)}
+                            style={{
+                              padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700,
+                              border: 'none', cursor: 'pointer',
+                              background: Math.round(zoom * 100) === v ? 'var(--color-ui-accent-subtle)' : 'transparent',
+                              color: Math.round(zoom * 100) === v ? 'var(--color-ui-accent)' : 'var(--color-ui-text-dim)',
+                              transition: 'all 0.15s',
+                            }}
+                          >
+                            {v}%
+                          </button>
+                        ))}
+                      </>
+                    )}
+                  </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderRadius: '10px' }}>
-                  <button className="btn-ghost" style={{ width: '28px', height: '28px', padding: 0, borderRadius: '6px', fontSize: '16px' }} onClick={() => setZoom(z => Math.max(0.3, +(z - 0.1).toFixed(1)))}>−</button>
-                  <button onClick={() => setZoom(isMobile ? 0.4 : 0.75)} style={{ minWidth: '40px', textAlign: 'center', fontSize: '12px', fontWeight: 800, color: 'var(--color-ui-accent)', background: 'transparent', border: 'none', cursor: 'pointer' }}>
-                    {Math.round(zoom * 100)}%
-                  </button>
-                  <button className="btn-ghost" style={{ width: '28px', height: '28px', padding: 0, borderRadius: '6px', fontSize: '16px' }} onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(1)))}>+</button>
-                  {!isMobile && (
-                    <>
-                      <div style={{ width: '1px', height: '16px', background: 'var(--color-ui-border)', margin: '0 4px' }} />
-                      {[50, 75, 100].map(v => (
-                        <button
-                          key={v}
-                          onClick={() => setZoom(v / 100)}
-                          style={{
-                            padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700,
-                            border: 'none', cursor: 'pointer',
-                            background: Math.round(zoom * 100) === v ? 'var(--color-ui-accent-subtle)' : 'transparent',
-                            color: Math.round(zoom * 100) === v ? 'var(--color-ui-accent)' : 'var(--color-ui-text-dim)',
-                            transition: 'all 0.15s',
-                          }}
-                        >
-                          {v}%
-                        </button>
-                      ))}
-                    </>
-                  )}
+                <div className="preview-scaler" style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
+                  <ErrorBoundary componentName="PagedPreview">
+                    <PagedPreview resume={resume} config={activeTemplate} onPageCount={setPageCount} />
+                  </ErrorBoundary>
                 </div>
-              </div>
-
-              <div className="preview-scaler" style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
-                <ErrorBoundary componentName="PagedPreview">
-                  <PagedPreview resume={resume} config={activeTemplate} onPageCount={setPageCount} />
-                </ErrorBoundary>
-              </div>
-            </main>
+              </main>
+            )}
 
             {(!isMobile || rightPanelOpen) && (
               <div style={{ 
@@ -981,6 +987,13 @@ function AppContent() {
   return (
     <>
       {mainContent}
+      {showMobileSidebar && isMobile && (
+        <div 
+          className="modal-overlay no-print" 
+          style={{ zIndex: 190, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(2px)' }} 
+          onClick={() => setShowMobileSidebar(false)} 
+        />
+      )}
       {showSavedPanel && <SavedResumesPanel savedResumes={savedResumes} currentResumeId={currentResumeId} maxResumes={maxResumes} onLoad={handleLoadResume} onDelete={deleteResume} onRename={renameResume} onNewResume={handleNewResume} onClose={() => setShowSavedPanel(false)} onUpgradeNeeded={() => {}} />}
       {savePrompt && (
         <div className="modal-overlay no-print" onClick={e => e.target === e.currentTarget && setSavePrompt(false)}>

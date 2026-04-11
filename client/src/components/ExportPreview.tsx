@@ -49,6 +49,7 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
   const [targetPages, setTargetPages] = useState(1);
   const [userPrompt, setUserPrompt] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [showMobileSettings, setShowMobileSettings] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
@@ -253,14 +254,18 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
     }
   };
 
+  const mobileScale = Math.min(0.8, (window.innerWidth - 32) / 794);
+
   return (
     <div style={{
       display: 'flex',
       flexDirection: isMobile ? 'column' : 'row',
-      height: '100%',
+      flex: 1,
+      height: isMobile ? 'auto' : '100%',
       backgroundColor: 'var(--color-ui-bg)',
       color: 'var(--color-ui-text)',
-      overflow: isMobile ? 'auto' : 'hidden'
+      overflow: 'hidden',
+      position: 'relative'
     }}>
       {/* ── LEFT CONFIG PANEL ─────────────────────────── */}
       <aside style={{
@@ -270,9 +275,32 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
         borderBottom: isMobile ? '1px solid var(--color-ui-border)' : 'none',
         display: 'flex',
         flexDirection: 'column',
-        overflow: isMobile ? 'visible' : 'hidden',
+        overflow: isMobile ? 'auto' : 'hidden',
         flexShrink: 0,
+        zIndex: 100,
+        ...(isMobile ? {
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '75vh',
+          transform: showMobileSettings ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+          boxShadow: '0 -8px 32px rgba(0,0,0,0.2)',
+          borderTop: '1px solid var(--color-ui-border)',
+          borderRadius: '24px 24px 0 0',
+        } : {})
       }}>
+        {/* Mobile handle */}
+        {isMobile && (
+          <div 
+            onClick={() => setShowMobileSettings(false)}
+            style={{ width: '100%', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+          >
+            <div style={{ width: '40px', height: '4px', background: 'var(--color-ui-border)', borderRadius: '2px' }} />
+          </div>
+        )}
+
         {/* Tab bar */}
         <div style={{ display: 'flex', padding: '12px', gap: '4px', flexShrink: 0, borderBottom: '1px solid var(--color-ui-border)' }}>
           {([
@@ -494,21 +522,46 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
         </div>
       </aside>
 
+      {/* Mobile Settings Toggle Overlay */}
+      {isMobile && showMobileSettings && (
+        <div 
+          onClick={() => setShowMobileSettings(false)}
+          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 90, backdropFilter: 'blur(2px)' }} 
+        />
+      )}
+
       {/* ── CENTER PREVIEW VIEWPORT ─────────────────────── */}
-      <main className="preview-viewport" style={{ 
+      <main className="preview-viewport export-preview-viewport" style={{ 
         flex: 1, 
-        overflowY: isMobile ? 'visible' : 'auto',
+        overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: isMobile ? '20px 0 60px' : '40px 20px 80px',
+        padding: isMobile ? '32px 16px 120px' : '40px 20px 80px',
         backgroundColor: 'var(--color-ui-preview-bg)',
         height: isMobile ? 'auto' : '100%',
       }}>
-        <div className="preview-scaler" style={{ transform: `scale(${isMobile ? 0.4 : 0.85})`, transformOrigin: 'top center' }}>
+        <div className="preview-scaler" style={{ transform: `scale(${isMobile ? mobileScale : 0.85})`, transformOrigin: 'top center' }}>
           <PagedPreview resume={resume} config={config} onPageCount={onPageCount} forcePageCount={pageCount} />
         </div>
       </main>
+
+      {/* Mobile FAB to toggle settings */}
+      {isMobile && (
+        <button
+          onClick={() => setShowMobileSettings(true)}
+          style={{
+            position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)',
+            padding: '12px 24px', borderRadius: '100px', background: 'var(--color-ui-accent)',
+            color: 'white', fontSize: '14px', fontWeight: 800, gap: '8px', display: 'flex',
+            alignItems: 'center', boxShadow: '0 8px 24px rgba(99,102,241,0.4)', zIndex: 80,
+            border: 'none', cursor: 'pointer'
+          }}
+        >
+          <Palette size={18} />
+          Edit Style
+        </button>
+      )}
 
       {/* Hidden off-screen render for Puppeteer PDF export */}
       <div

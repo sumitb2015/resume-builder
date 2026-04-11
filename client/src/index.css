@@ -1093,7 +1093,7 @@ button:focus:not(:focus-visible) { outline: none; }
     overflow: visible !important;
     height: auto !important;
   }
-  .preview-viewport {
+  .preview-viewport:not(.export-preview-viewport) {
     min-height: 800px;
     height: auto !important;
     overflow-y: visible !important;
@@ -1104,15 +1104,10 @@ button:focus:not(:focus-visible) { outline: none; }
     align-items: center !important;
     width: 100% !important;
   }
-  .preview-scaler {
+  .preview-viewport:not(.export-preview-viewport) .preview-scaler {
     transform-origin: top center !important;
     margin: 0 auto !important;
     width: 210mm !important;
-    min-width: 210mm !important;
-    flex-shrink: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
   }
 }
 
