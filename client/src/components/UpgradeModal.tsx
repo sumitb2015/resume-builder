@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom';
 import { X, Check, Zap, Crown } from 'lucide-react';
 import { usePlan } from '../contexts/PlanContext';
-import type { Plan } from '../contexts/PlanContext';
+import type { Plan } from '../shared/constants';
 
 interface Props {
   requiredPlan: Plan;

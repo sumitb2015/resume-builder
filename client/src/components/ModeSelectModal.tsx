@@ -3,7 +3,7 @@ import { Zap, PenLine, Upload, Link2, ArrowLeft, AlertCircle, Lock, Wand2 } from
 import { api } from '../lib/api';
 import type { Resume, ImprovementSuggestions } from '../shared/types';
 import { usePlan } from '../contexts/PlanContext';
-import type { Feature } from '../contexts/PlanContext';
+import type { Feature } from '../shared/constants';
 import BreadcrumbNav from './BreadcrumbNav';
 import LoadingSpinner from './LoadingSpinner';
 

@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePlan } from '../contexts/PlanContext';
 import type { Resume, TemplateConfig } from '../shared/types';
-import { MAX_RESUMES } from '../shared/constants';
 
 export interface SavedResume {
   id: string;

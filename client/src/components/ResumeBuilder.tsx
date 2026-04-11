@@ -6,7 +6,7 @@ import {
   Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Check, X, GripVertical, Lock, FileText, PenLine
 } from 'lucide-react';
 import { usePlan } from '../contexts/PlanContext';
-import type { Feature } from '../contexts/PlanContext';
+import type { Feature } from '../shared/constants';
 import RichEditor from './RichEditor';
 import { stripHtml, plainTextToHtml, htmlCharCount } from '../lib/htmlUtils';
 

@@ -3,7 +3,7 @@ import { X, ChevronDown, ChevronUp, Lock } from 'lucide-react';
 import type { TemplateConfig, Resume } from '../shared/types';
 import { colorPalettes } from '../templates';
 import { usePlan } from '../contexts/PlanContext';
-import type { Feature } from '../contexts/PlanContext';
+import type { Feature } from '../shared/constants';
 import TemplateRenderer from '../templates/TemplateRenderer';
 
 const SAMPLE_RESUME: Resume = {

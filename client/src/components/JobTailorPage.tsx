@@ -6,7 +6,7 @@ import {
 import { api } from '../lib/api';
 import { plainTextToHtml, stripHtml } from '../lib/htmlUtils';
 import type { Resume } from '../shared/types';
-import type { Feature } from '../contexts/PlanContext';
+import type { Feature } from '../shared/constants';
 
 interface TailorResult {
   missingKeywords: string[];

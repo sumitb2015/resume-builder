@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { X, FolderOpen, Trash2, Edit3, Clock, Plus, Lock } from 'lucide-react';
 import type { SavedResume } from '../hooks/useSavedResumes';
-import { usePlan, MAX_RESUMES } from '../contexts/PlanContext';
+import { usePlan } from '../contexts/PlanContext';
+import { MAX_RESUMES } from '../shared/constants';
 
 interface Props {
   savedResumes: SavedResume[];

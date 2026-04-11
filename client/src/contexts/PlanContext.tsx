@@ -2,8 +2,8 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
 import { api } from '../lib/api';
 import { 
-  Plan, 
-  Feature, 
+  type Plan, 
+  type Feature, 
   FEATURE_REQUIRED_PLAN, 
   PLAN_RANK,
   MAX_RESUMES, 
