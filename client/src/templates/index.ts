@@ -321,6 +321,16 @@ export const templates: TemplateConfig[] = [
     atsScore: 97,
     category: 'minimal',
   },
+  {
+    id: 'bronzor',
+    name: 'Bronzor (Premium)',
+    thumbnail: '',
+    colors: { primary: '#0f766e', accent: '#14b8a6', text: '#111827', background: '#FFFFFF', sidebar: '#0f172a' },
+    fonts: { heading: '"DM Serif Display", serif', body: '"DM Sans", sans-serif' },
+    layout: 'two-column',
+    atsScore: 94,
+    category: 'professional',
+  },
 ];
 
 // Preset color palettes for template customization

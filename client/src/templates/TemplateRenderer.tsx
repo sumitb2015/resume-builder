@@ -32,6 +32,7 @@ import SwissTemplate from './SwissTemplate';
 import BoldSidebarTemplate from './BoldSidebarTemplate';
 import CentricTemplate from './CentricTemplate';
 import LinearTemplate from './LinearTemplate';
+import BronzorTemplate from './BronzorTemplate';
 
 interface Props {
   resume: Resume;
@@ -117,6 +118,7 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config, isPaged = false }) 
             case 'bold-sidebar': return <BoldSidebarTemplate {...templateProps} />;
             case 'centric': return <CentricTemplate {...templateProps} />;
             case 'linear': return <LinearTemplate {...templateProps} />;
+            case 'bronzor': return <BronzorTemplate {...templateProps} />;
             default: return <ClassicTemplate {...templateProps} />;
           }
         })()}
