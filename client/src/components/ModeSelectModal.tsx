@@ -1,10 +1,11 @@
 import { useState, useRef } from 'react';
-import { Zap, PenLine, Upload, Link2, ArrowLeft, Loader2, AlertCircle, Lock, Wand2 } from 'lucide-react';
+import { Zap, PenLine, Upload, Link2, ArrowLeft, AlertCircle, Lock, Wand2 } from 'lucide-react';
 import { api } from '../lib/api';
 import type { Resume, ImprovementSuggestions } from '../shared/types';
 import { usePlan } from '../contexts/PlanContext';
 import type { Feature } from '../contexts/PlanContext';
 import BreadcrumbNav from './BreadcrumbNav';
+import LoadingSpinner from './LoadingSpinner';
 
 interface Props {
   onSelect: (mode: 'manual' | 'enhance' | 'linkedin' | 'ai-writer', resume?: Resume, improvements?: ImprovementSuggestions) => void;
@@ -88,11 +89,7 @@ export default function ModeSelectModal({ onSelect, onBack, onUpgradeNeeded }: P
 
         {/* Loading */}
         {step === 'loading' && (
-          <div style={{ textAlign: 'center' }}>
-            <Loader2 size={40} style={{ color: '#818CF8', animation: 'spin 1s linear infinite', marginBottom: '20px' }} />
-            <p style={{ fontSize: '16px', color: 'var(--color-ui-text)', fontWeight: 600 }}>{loadingMsg}</p>
-            <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', marginTop: '8px' }}>This may take a few seconds…</p>
-          </div>
+          <LoadingSpinner label={loadingMsg} />
         )}
 
         {/* Pick mode */}
