@@ -41,7 +41,7 @@ const CtaSection: React.FC<Props> = ({ onStart }) => (
         <ArrowRight size={18} />
       </button>
       <div style={{ display: 'flex', justifyContent: 'center', gap: '28px', marginTop: '28px', flexWrap: 'wrap', position: 'relative' }}>
-        {['No credit card required', 'PDF export included', `${templates.length}+ professional templates`].map(t => (
+        {['Start for free', 'PDF export included', `${templates.length}+ professional templates`].map(t => (
           <div key={t} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
             <Check size={14} color="#4ADE80" />
             <span style={{ fontSize: '13.5px', color: 'var(--color-ui-text-muted)' }}>{t}</span>
