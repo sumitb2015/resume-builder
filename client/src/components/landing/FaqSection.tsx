@@ -66,7 +66,7 @@ const FAQS: FaqItem[] = [
   {
     category: 'Features',
     question: 'How many resume templates are available?',
-    answer: 'There are 15 professional templates ranging from minimal single-column layouts to two-column executive designs. Basic plan users get access to 3 templates; Pro and Ultimate unlock all 15. Every template is A4-sized and fully ATS-compatible.',
+    answer: 'There are 40+ professional templates ranging from minimal single-column layouts to two-column executive designs. Basic plan users get access to 3 templates; Pro and Ultimate unlock all 40+. Every template is A4-sized and fully ATS-compatible.',
   },
   {
     category: 'Features',
@@ -78,7 +78,7 @@ const FAQS: FaqItem[] = [
   {
     category: 'Pricing',
     question: 'What plans are available?',
-    answer: 'There are three plans:\n\n• Basic (₹199 / 14 days) — 3 templates, live editor, PDF export (1/day), template-based ATS score, AI bullets (3/day)\n• Pro (₹499 / mo) — All 15 templates, unlimited PDF exports, dynamic ATS with JD matching, unlimited AI bullets, summary writer, skills finder, resume import\n• Ultimate (₹699 / mo) — Everything in Pro plus job tailoring, LinkedIn import, diff review, AI improvement suggestions, email support, drag & drop reordering',
+    answer: 'There are three plans:\n\n• Basic (₹199 / 14 days) — 3 templates, live editor, PDF export (1/day), template-based ATS score, AI bullets (3/day)\n• Pro (₹499 / mo) — All 40+ templates, unlimited PDF exports, dynamic ATS with JD matching, unlimited AI bullets, summary writer, skills finder, resume import\n• Ultimate (₹699 / mo) — Everything in Pro plus job tailoring, LinkedIn import, diff review, AI improvement suggestions, email support, drag & drop reordering',
   },
   {
     category: 'Pricing',

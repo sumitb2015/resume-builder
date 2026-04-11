@@ -152,33 +152,6 @@ const SeoContentSection: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom CTA Banner with Glassmorphism */}
-      <div style={{ 
-        marginTop: '100px', 
-        textAlign: 'center', 
-        background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%)', 
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        padding: '60px 40px', 
-        borderRadius: '32px', 
-        border: '1px solid rgba(99, 102, 241, 0.15)',
-        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.05)'
-      }}>
-        <h3 style={{ fontSize: '28px', fontWeight: 900, marginBottom: '20px', letterSpacing: '-0.02em' }}>Ready to Land Your Dream Job?</h3>
-        <p style={{ fontSize: '17px', marginBottom: '32px', color: 'var(--color-ui-text-muted)', maxWidth: '600px', margin: '0 auto 32px' }}>
-          Join over 50,000 successful job seekers who have used BespokeCV to build professional, ATS-optimized resumes.
-        </p>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
-          {['Free Tier Available', '40+ ATS Templates', 'AI Writing Assistant', '98% ATS Pass Rate'].map((item, idx) => (
-            <div key={idx} style={{ 
-              fontSize: '13px', fontWeight: 700, color: '#818CF8', background: 'rgba(129, 140, 248, 0.1)', 
-              padding: '8px 16px', borderRadius: '100px', border: '1px solid rgba(129, 140, 248, 0.2)' 
-            }}>
-              ✓ {item}
-            </div>
-          ))}
-        </div>
-      </div>
     </section>
   );
 };

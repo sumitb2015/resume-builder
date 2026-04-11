@@ -1,7 +1,7 @@
 {
   "name": "BespokeCV — AI Resume Builder",
   "short_name": "BespokeCV",
-  "description": "Build ATS-optimized resumes in minutes with AI-powered writing and 15 professional templates.",
+  "description": "Build ATS-optimized resumes in minutes with AI-powered writing and 40+ professional templates.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0A0A0F",
