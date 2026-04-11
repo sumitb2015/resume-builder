@@ -3,12 +3,14 @@ import type { Resume, ExperienceEntry, SkillEntry, EducationEntry, ProjectEntry,
 import { api } from '../lib/api';
 import {
   User, Briefcase, GraduationCap, Wrench, FolderOpen,
-  Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Check, X, GripVertical, Lock, FileText, PenLine
+  Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Check, X, GripVertical, Lock, FileText, PenLine, Camera
 } from 'lucide-react';
 import { usePlan } from '../contexts/PlanContext';
 import type { Feature } from '../shared/constants';
 import RichEditor from './RichEditor';
 import { stripHtml, plainTextToHtml, htmlCharCount } from '../lib/htmlUtils';
+import { storage } from '../lib/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 interface Props {
   resume: Resume;
@@ -99,6 +101,7 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
   const [loadingSkills, setLoadingSkills] = useState(false);
   const [skillSuggestions, setSkillSuggestions] = useState<{ technical: string[]; soft: string[] } | null>(null);
   const [skillJobTitle, setSkillJobTitle] = useState('');
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   // Collapsed state for each section's cards
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
@@ -296,6 +299,28 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
     } as React.CSSProperties,
   });
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Basic validation
+    if (!file.type.startsWith('image/')) { alert('Please upload an image file.'); return; }
+    if (file.size > 2 * 1024 * 1024) { alert('File too large (max 2MB).'); return; }
+
+    setUploadingPhoto(true);
+    try {
+      const storageRef = ref(storage, `photos/${resume.personal.email || 'anonymous'}_${Date.now()}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(snapshot.ref);
+      up('photoUrl', url);
+    } catch (err) {
+      console.error('Upload failed:', err);
+      alert('Upload failed. Check Firebase Storage rules.');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="editor-panel">
@@ -410,20 +435,69 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
           <div className="fade-slide-in" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <SectionHeader title="Personal Info" />
 
-            <Field label="Full Name" error={err('personal.name', resume.personal.name, 'Name is required')}>
-              <input
-                className="field-input"
-                value={resume.personal.name}
-                onChange={e => up('name', e.target.value)}
-                onBlur={() => touch('personal.name')}
-                placeholder="e.g. Jane Smith"
-                style={{ borderColor: err('personal.name', resume.personal.name, '') ? 'var(--color-danger)' : undefined }}
-              />
-            </Field>
+            <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', marginBottom: '10px' }}>
+              <div style={{ position: 'relative', flexShrink: 0 }}>
+                <div style={{
+                  width: '90px',
+                  height: '90px',
+                  borderRadius: '12px',
+                  background: 'var(--color-ui-surface)',
+                  border: '1px solid var(--color-ui-border)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden',
+                  position: 'relative'
+                }}>
+                  {resume.personal.photoUrl ? (
+                    <img src={resume.personal.photoUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <User size={32} style={{ color: 'var(--color-ui-text-dim)' }} />
+                  )}
+                  {uploadingPhoto && (
+                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Loader2 size={20} className="spin" style={{ color: 'white' }} />
+                    </div>
+                  )}
+                </div>
+                <label style={{
+                  position: 'absolute',
+                  bottom: '-6px',
+                  right: '-6px',
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  background: 'var(--color-ui-accent)',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                  border: '2px solid var(--color-ui-surface)'
+                }}>
+                  <Camera size={14} />
+                  <input type="file" hidden accept="image/*" onChange={handlePhotoUpload} disabled={uploadingPhoto} />
+                </label>
+              </div>
 
-            <Field label="Job Title">
-              <input className="field-input" value={resume.personal.title} onChange={e => up('title', e.target.value)} placeholder="e.g. Senior Software Engineer" />
-            </Field>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <Field label="Full Name" error={err('personal.name', resume.personal.name, 'Name is required')}>
+                  <input
+                    className="field-input"
+                    value={resume.personal.name}
+                    onChange={e => up('name', e.target.value)}
+                    onBlur={() => touch('personal.name')}
+                    placeholder="e.g. Jane Smith"
+                    style={{ borderColor: err('personal.name', resume.personal.name, '') ? 'var(--color-danger)' : undefined }}
+                  />
+                </Field>
+
+                <Field label="Job Title">
+                  <input className="field-input" value={resume.personal.title} onChange={e => up('title', e.target.value)} placeholder="e.g. Senior Software Engineer" />
+                </Field>
+              </div>
+            </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <Field label="Email" error={err('personal.email', resume.personal.email, 'Email is required')}>
