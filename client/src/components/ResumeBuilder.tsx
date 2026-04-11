@@ -449,7 +449,11 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
       </div>
 
       {/* ── SECTION CONTENT ──────────────────────────── */}
-      <div className="editor-content" style={{ display: improvements && editorTab === 'suggestions' ? 'none' : undefined }}>
+      <div className="editor-content" style={{ 
+        display: improvements && editorTab === 'suggestions' ? 'none' : undefined,
+        overflow: isMobile ? 'visible' : 'auto',
+        height: isMobile ? 'auto' : undefined
+      }}>
 
         {/* ── PERSONAL ─────────────────────────────────────────────────────── */}
         {activeTab === 'personal' && (

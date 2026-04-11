@@ -338,7 +338,7 @@ function AppContent() {
   const [resume, setResume] = useState<Resume>(initialResume);
   const [improvements, setImprovements] = useState<ImprovementSuggestions | null>(null);
   const [activeTemplate, setActiveTemplate] = useState<TemplateConfig>({ ...templates[1]! });
-  const [zoom, setZoom] = useState(0.75);
+  const [zoom, setZoom] = useState(isMobile ? 0.4 : 0.75);
   const [pageCount, setPageCount] = useState(1);
   const [upgradePrompt, setUpgradePrompt] = useState<{ requiredPlan: Plan; featureLabel: string } | null>(null);
   const [showProfile, setShowProfile] = useState(false);
@@ -885,8 +885,9 @@ function AppContent() {
         <div className="app-main-content">
           {topBar}
 
-          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', overflow: isMobile ? 'auto' : 'hidden', height: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', overflow: isMobile ? 'visible' : 'hidden', height: isMobile ? 'auto' : '100%' }}>
             <div style={{ width: formWidth, flexShrink: 0, transition: 'width 0.25s', position: 'relative', height: isMobile ? 'auto' : '100%', overflow: isMobile ? 'visible' : 'hidden' }} className="no-print">
+
               <ErrorBoundary componentName="ResumeBuilder">
                 <ResumeBuilder resume={resume} onChange={setResumeWithHistory} improvements={improvements} onDismissImprovements={() => setImprovements(null)} onUpgradeNeeded={showUpgrade} />
               </ErrorBoundary>
