@@ -4,7 +4,7 @@ import {
 } from 'lucide-react';
 import { api } from '../lib/api';
 import type { Resume } from '../shared/types';
-import type { Feature } from '../contexts/PlanContext';
+import type { Feature } from '../shared/constants';
 
 interface Props {
   resume: Resume;
