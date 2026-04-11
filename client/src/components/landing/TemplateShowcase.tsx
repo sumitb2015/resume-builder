@@ -205,13 +205,29 @@ const TemplateShowcase: React.FC<Props> = ({ onStart }) => {
 
   return (
     <section id="templates" style={{ padding: '100px 48px', background: 'var(--color-ui-surface-2)' }}>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .template-scroll-container::-webkit-scrollbar {
+          height: 6px;
+        }
+        .template-scroll-container::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.05);
+          border-radius: 10px;
+        }
+        .template-scroll-container::-webkit-scrollbar-thumb {
+          background: rgba(99, 102, 241, 0.2);
+          border-radius: 10px;
+        }
+        .template-scroll-container::-webkit-scrollbar-thumb:hover {
+          background: rgba(99, 102, 241, 0.4);
+        }
+      `}} />
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '56px' }}>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
             padding: '6px 16px', borderRadius: '100px',
-            background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)',
+            background: 'rgba(99, 102, 241,0.1)', border: '1px solid rgba(99,102,241,0.2)',
             marginBottom: '20px',
           }}>
             <span style={{ fontSize: '12px', fontWeight: 600, color: '#818CF8', letterSpacing: '0.04em' }}>{templates.length} TEMPLATES</span>
@@ -259,14 +275,26 @@ const TemplateShowcase: React.FC<Props> = ({ onStart }) => {
           </div>
         </div>
 
-        {/* Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '16px',
-        }}>
+        {/* Scrollable Grid */}
+        <div 
+          className="template-scroll-container"
+          style={{
+            display: 'grid',
+            gridTemplateRows: 'repeat(2, 1fr)',
+            gridAutoFlow: 'column',
+            gridAutoColumns: 'calc((100% - (3 * 16px)) / 4)',
+            gap: '16px',
+            overflowX: 'auto',
+            paddingBottom: '24px',
+            scrollSnapType: 'x mandatory',
+            scrollBehavior: 'smooth',
+            scrollbarWidth: 'thin',
+          }}
+        >
           {filtered.map(t => (
-            <TemplateCard key={t.id} t={t} onStart={onStart} />
+            <div key={t.id} style={{ scrollSnapAlign: 'start' }}>
+              <TemplateCard t={t} onStart={onStart} />
+            </div>
           ))}
         </div>
 
