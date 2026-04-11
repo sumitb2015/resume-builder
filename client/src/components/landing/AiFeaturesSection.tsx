@@ -38,6 +38,27 @@ const AI_FEATURES = [
     demo: 'skills',
   },
   {
+    icon: '✉️',
+    title: 'Cover Letter',
+    desc: 'Generate a tailored cover letter that connects your experience to the job requirements in seconds.',
+    color: '#3B82F6',
+    demo: 'coverLetter',
+  },
+  {
+    icon: '🤝',
+    title: 'Interview Prep',
+    desc: 'Get a list of 8+ likely interview questions and suggested answers based on your resume and the JD.',
+    color: '#F43F5E',
+    demo: 'interview',
+  },
+  {
+    icon: '👨‍🏫',
+    title: 'Expert Review',
+    desc: 'Get your resume reviewed by a human expert for personalized feedback on strategy and wording.',
+    color: '#14B8A6',
+    demo: 'expert',
+  },
+  {
     icon: '🔄',
     title: 'Diff Review',
     desc: 'See exactly what changed before/after job tailoring with a clear before/after comparison view.',
@@ -129,6 +150,45 @@ const SkillsDemoPanel: React.FC<{ color: string }> = ({ color }) => (
   </div>
 );
 
+const CoverLetterDemoPanel: React.FC<{ color: string }> = ({ color }) => (
+  <div style={{ ...demoPanelBase, padding: '16px', height: '100%' }}>
+    <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>Dear Hiring Manager,</div>
+    <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>
+      I am writing to express my strong interest in the <span style={{ color, fontWeight: 600 }}>Senior Developer</span> role. 
+      My experience with <span style={{ color, fontWeight: 600 }}>React and Node.js</span> aligns perfectly with your requirements for...
+    </p>
+    <div style={{ marginTop: '8px', padding: '4px 8px', borderRadius: '4px', background: color + '15', border: `1px solid ${color}30`, display: 'inline-block', fontSize: '9px', color: color, fontWeight: 600 }}>
+      Tailored to: Google J.D.
+    </div>
+  </div>
+);
+
+const InterviewDemoPanel: React.FC<{ color: string }> = ({ color }) => (
+  <div style={{ ...demoPanelBase, padding: '14px', height: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Q: Tell me about a time you...</div>
+    <div style={{ padding: '8px', borderRadius: '6px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)' }}>
+      <div style={{ fontSize: '9px', color: color, fontWeight: 700, marginBottom: '4px' }}>Suggested Answer Strategy</div>
+      <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.4 }}>
+        Focus on the $2M cost saving project you led in 2023. Use the STAR method to highlight...
+      </div>
+    </div>
+  </div>
+);
+
+const ExpertDemoPanel: React.FC<{ color: string }> = ({ color }) => (
+  <div style={{ ...demoPanelBase, padding: '16px', height: '100%', display: 'flex', alignItems: 'center', gap: '12px' }}>
+    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: color + '20', border: `1px solid ${color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>
+      👨‍💼
+    </div>
+    <div style={{ flex: 1 }}>
+      <div style={{ fontSize: '10px', color: 'white', fontWeight: 600, marginBottom: '2px' }}>Expert Feedback</div>
+      <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', fontStyle: 'italic' }}>
+        "Your header is strong, but let's reword the 'Cloud Architect' section to emphasize..."
+      </div>
+    </div>
+  </div>
+);
+
 const DiffDemoPanel: React.FC<{ color: string }> = ({ color }) => (
   <div style={{ ...demoPanelBase, padding: '16px', height: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
     <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Before → After</div>
@@ -147,6 +207,9 @@ const DEMO_PANELS: Record<string, React.FC<{ color: string }>> = {
   ats: AtsDemoPanel,
   summary: SummaryDemoPanel,
   skills: SkillsDemoPanel,
+  coverLetter: CoverLetterDemoPanel,
+  interview: InterviewDemoPanel,
+  expert: ExpertDemoPanel,
   diff: DiffDemoPanel,
 };
 
@@ -209,7 +272,7 @@ const AiFeaturesSection: React.FC = () => (
           Let AI do the heavy lifting
         </h2>
         <p style={{ fontSize: '16px', color: 'var(--color-ui-text-muted)', maxWidth: '480px', margin: '0 auto' }}>
-          Six purpose-built AI tools to craft compelling, ATS-optimized resumes that make you stand out.
+          Nine purpose-built AI tools to craft compelling, ATS-optimized resumes that make you stand out.
         </p>
       </div>
 

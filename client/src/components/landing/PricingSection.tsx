@@ -29,7 +29,7 @@ const TIERS = [
   },
   {
     name: 'Basic',
-    price: { monthly: 399, annual: 319 },
+    price: { monthly: 199, annual: 159 },
     period: '14 days',
     tagline: 'Try the essentials, no commitment',
     cta: 'Start 14-Day Trial',
@@ -64,6 +64,7 @@ const TIERS = [
       { label: 'AI bullet point writer (unlimited)', included: true, Icon: Zap },
       { label: 'AI summary writer', included: true, Icon: Zap },
       { label: 'Skills finder', included: true, Icon: Award },
+      { label: 'AI Cover Letter generator', included: true, Icon: FileText },
       { label: 'Color & style customization', included: true, Icon: Palette },
       { label: 'Resume import from PDF / DOCX', included: true, Icon: Upload },
       { label: 'Job tailoring (full resume rewrite)', included: false, Icon: FileText },
@@ -80,17 +81,17 @@ const TIERS = [
     features: [
       { label: 'Everything in Pro', included: true, Icon: Award },
       { label: 'Job tailoring — AI rewrites resume to match JD', included: true, Icon: FileText },
+      { label: 'AI Cover Letter generator', included: true, Icon: FileText },
+      { label: 'AI Interview Prep (8+ questions/answers)', included: true, Icon: Zap },
+      { label: 'Expert Human Review (1 per month)', included: true, Icon: Award },
       { label: 'Diff review (before/after on every change)', included: true, Icon: Zap },
       { label: 'Resume import from PDF / DOCX', included: true, Icon: Upload },
       { label: 'LinkedIn profile import', included: true, Icon: Link2 },
       { label: 'AI improvement suggestions on import', included: true, Icon: Zap },
       { label: 'Priority PDF generation', included: true, Icon: Download },
-      { label: 'Email support', included: true, Icon: Award },
-      { label: 'Drag & drop section reordering', included: true, Icon: Palette },
-      { label: 'Early access to new templates', included: true, Icon: Palette },
     ],
   },
-];
+],
 
 const PricingSection: React.FC<Props> = ({ onStart }) => {
   const [annual, setAnnual] = useState(false);

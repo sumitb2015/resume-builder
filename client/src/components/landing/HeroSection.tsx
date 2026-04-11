@@ -51,8 +51,8 @@ const HeroSection: React.FC<Props> = ({ onStart }) => (
     </h1>
 
     {/* Subheading */}
-    <p style={{ fontSize: '19px', fontWeight: 400, color: 'var(--color-ui-text-muted)', lineHeight: 1.65, maxWidth: '580px', margin: '0 auto 44px' }}>
-      Build ATS-optimized resumes with AI-powered writing, 15 professional templates, and real-time live preview. Land more interviews.
+    <p style={{ fontSize: '19px', fontWeight: 400, color: 'var(--color-ui-text-muted)', lineHeight: 1.65, maxWidth: '640px', margin: '0 auto 44px' }}>
+      Build ATS-optimized resumes with AI-powered writing, tailored cover letters, and interview prep. 15+ professional templates with real-time live preview.
     </p>
 
     {/* CTAs */}
