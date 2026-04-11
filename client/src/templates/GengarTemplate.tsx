@@ -3,7 +3,7 @@ import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
 const GengarTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, languages, projects } = resume;
   const primary = config.colors.primary;
   const accent = config.colors.accent;
   const textColor = config.colors.text || '#1f2937';
