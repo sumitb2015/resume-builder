@@ -108,6 +108,30 @@ const BronzorTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             )}
           </div>
         </div>
+
+        {personal.photoUrl && (
+          <div
+            style={{
+              width: '100px',
+              height: '100px',
+              borderRadius: '50%',
+              overflow: 'hidden',
+              border: `3px solid rgba(255, 255, 255, 0.3)`,
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+              flexShrink: 0,
+            }}
+          >
+            <img
+              src={personal.photoUrl}
+              alt={personal.name}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              }}
+            />
+          </div>
+        )}
       </header>
 
       {/* BODY */}
