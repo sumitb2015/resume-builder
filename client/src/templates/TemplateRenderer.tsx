@@ -33,6 +33,11 @@ import BoldSidebarTemplate from './BoldSidebarTemplate';
 import CentricTemplate from './CentricTemplate';
 import LinearTemplate from './LinearTemplate';
 import BronzorTemplate from './BronzorTemplate';
+import OnyxTemplate from './OnyxTemplate';
+import PikachuTemplate from './PikachuTemplate';
+import GengarTemplate from './GengarTemplate';
+import CasteliaTemplate from './CasteliaTemplate';
+import GlalieTemplate from './GlalieTemplate';
 
 interface Props {
   resume: Resume;
@@ -119,6 +124,11 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config, isPaged = false }) 
             case 'centric': return <CentricTemplate {...templateProps} />;
             case 'linear': return <LinearTemplate {...templateProps} />;
             case 'bronzor': return <BronzorTemplate {...templateProps} />;
+            case 'onyx': return <OnyxTemplate {...templateProps} />;
+            case 'pikachu': return <PikachuTemplate {...templateProps} />;
+            case 'gengar': return <GengarTemplate {...templateProps} />;
+            case 'castelia': return <CasteliaTemplate {...templateProps} />;
+            case 'glalie': return <GlalieTemplate {...templateProps} />;
             default: return <ClassicTemplate {...templateProps} />;
           }
         })()}
