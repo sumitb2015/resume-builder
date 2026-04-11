@@ -1098,10 +1098,15 @@ button:focus:not(:focus-visible) { outline: none; }
     height: auto !important;
     overflow: visible !important;
     padding: 40px 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
   }
   .preview-scaler {
     transform-origin: top center !important;
     margin: 0 auto !important;
+    width: 794px; /* Standard A4 width at 96 DPI */
+    flex-shrink: 0;
   }
 }
 
