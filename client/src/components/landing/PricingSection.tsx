@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Check, X, FileText, Zap, Palette, Award, Upload, Link2, Download } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { usePlan } from '../../contexts/PlanContext';
 import { templates } from '../../templates';
 import type { Plan } from '../../shared/constants';
 
