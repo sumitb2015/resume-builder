@@ -15,6 +15,7 @@ import UpgradeModal from './components/UpgradeModal';
 import ProfileModal from './components/ProfileModal';
 import SavedResumesPanel from './components/SavedResumesPanel';
 import PagedPreview from './components/PagedPreview';
+import ErrorBoundary from './components/ErrorBoundary';
 import StylePanel from './components/StylePanel';
 import ExportPreview from './components/ExportPreview';
 import BreadcrumbNav from './components/BreadcrumbNav';
@@ -814,7 +815,9 @@ function AppContent() {
 
           <div style={{ display: 'flex', overflow: 'hidden', height: '100%' }}>
             <div style={{ width: formWidth, flexShrink: 0, transition: 'width 0.25s', position: 'relative', height: '100%', overflow: 'hidden' }} className="no-print">
-              <ResumeBuilder resume={resume} onChange={setResumeWithHistory} improvements={improvements} onDismissImprovements={() => setImprovements(null)} onUpgradeNeeded={showUpgrade} />
+              <ErrorBoundary componentName="ResumeBuilder">
+                <ResumeBuilder resume={resume} onChange={setResumeWithHistory} improvements={improvements} onDismissImprovements={() => setImprovements(null)} onUpgradeNeeded={showUpgrade} />
+              </ErrorBoundary>
               <button onClick={() => setFormExpanded(v => !v)} style={{ position: 'absolute', top: '50%', right: '-11px', transform: 'translateY(-50%)', width: '22px', height: '44px', borderRadius: '0 8px 8px 0', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderLeft: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-ui-text-muted)', zIndex: 10 }}>{formExpanded ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}</button>
             </div>
 
@@ -873,7 +876,9 @@ function AppContent() {
               </div>
 
               <div className="preview-scaler" style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
-                <PagedPreview resume={resume} config={activeTemplate} onPageCount={setPageCount} />
+                <ErrorBoundary componentName="PagedPreview">
+                  <PagedPreview resume={resume} config={activeTemplate} onPageCount={setPageCount} />
+                </ErrorBoundary>
               </div>
             </main>
 

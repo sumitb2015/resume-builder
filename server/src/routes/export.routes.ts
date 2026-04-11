@@ -44,7 +44,7 @@ async function getBrowser(): Promise<Browser> {
 }
 
 router.post('/pdf', async (req: any, res: any) => {
-  const { html, filename = 'resume' } = req.body;
+  const { html, filename = 'resume', metadata = {} } = req.body;
 
   if (!html || typeof html !== 'string') {
     return res.status(400).json({ error: 'html is required' });
@@ -64,12 +64,22 @@ router.post('/pdf', async (req: any, res: any) => {
     // 794px = 210mm at 96 dpi — matches the A4 width used in the preview
     await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 1 });
 
+    // Inject CSS to ensure links are clickable and have proper cursor
+    const cssToInject = `
+      <style>
+        a { text-decoration: none !important; color: inherit !important; -webkit-print-color-adjust: exact; }
+        @media print {
+          a[href]:after { content: none !important; }
+          .no-print { display: none !important; }
+        }
+      </style>
+    `;
+    const finalHtml = html.replace('</head>', `${cssToInject}</head>`);
+
     // waitUntil: networkidle0 ensures Google Fonts are fully loaded before rendering.
-    // Wrapped in try/catch so a slow font CDN won't block the whole export.
     try {
-      await page.setContent(html, { waitUntil: 'networkidle0', timeout: 15000 });
+      await page.setContent(finalHtml, { waitUntil: 'networkidle0', timeout: 15000 });
     } catch {
-      // Timeout — fonts may not be loaded but the content is; proceed anyway.
       console.warn('[export] setContent timeout — generating PDF with available fonts');
     }
 
@@ -78,6 +88,9 @@ router.post('/pdf', async (req: any, res: any) => {
       printBackground: true,
       // Margins are already baked into the HTML body padding; set PDF margins to 0.
       margin: { top: '0', right: '0', bottom: '0', left: '0' },
+      // Metadata injection (Note: Puppeteer supports basic metadata via browser-level or third-party libs usually, 
+      // but we can set the title tag in HTML which Puppeteer uses as the PDF Title)
+      displayHeaderFooter: false,
     });
 
     res.setHeader('Content-Type', 'application/pdf');

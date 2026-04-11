@@ -78,9 +78,42 @@ router.post('/request-review', async (req, res) => {
 
     const docRef = await db.collection('expert_reviews').add(reviewRequest);
     
+    // ADMIN NOTIFICATION LOG (Point 6)
+    console.log(`[ADMIN NOTIFY] New Expert Review Request! 
+      User: ${userId}
+      Resume: ${resumeId}
+      ID: ${docRef.id}
+      Time: ${new Date().toISOString()}`);
+
     res.json({ success: true, id: docRef.id });
   } catch (error: any) {
     console.error('Expert Review Request Error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Save ATS Score History (Point 6)
+router.post('/ats-history', async (req, res) => {
+  try {
+    const { userId, resumeId, score, jobTitle, company } = req.body;
+    
+    if (!userId || !db) {
+      return res.status(400).json({ error: 'User ID and database initialization required' });
+    }
+
+    const historyEntry = {
+      userId,
+      resumeId: resumeId || 'temp',
+      score,
+      jobTitle: jobTitle || 'Unknown Position',
+      company: company || 'Unknown Company',
+      createdAt: new Date(),
+    };
+
+    const docRef = await db.collection('ats_history').add(historyEntry);
+    res.json({ success: true, id: docRef.id });
+  } catch (error: any) {
+    console.error('ATS History Save Error:', error);
     res.status(500).json({ error: error.message });
   }
 });

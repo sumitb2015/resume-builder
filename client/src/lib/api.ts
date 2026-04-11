@@ -119,11 +119,14 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
     });
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ error: 'Request failed' }));
+      const err = await res.json().catch(() => ({ error: 'Fetch profile failed' }));
       throw new Error(err.error || `HTTP ${res.status}`);
     }
     return res.json();
   },
+
+  saveAtsHistory: (data: { userId: string; resumeId: string | null; score: number; jobTitle?: string; company?: string }) =>
+    post<{ success: boolean; id: string }>('/api/user/ats-history', data),
 
   exportPdf: async (html: string, filename: string): Promise<Blob> => {
     const res = await fetch(`${BASE}/api/export/pdf`, {

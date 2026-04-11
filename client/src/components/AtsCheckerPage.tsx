@@ -4,6 +4,7 @@ import {
   Sparkles, Link2, CheckCircle2,
 } from 'lucide-react';
 import { api } from '../lib/api';
+import { useAuth } from '../contexts/AuthContext';
 import type { Resume } from '../shared/types';
 import type { Feature } from '../contexts/PlanContext';
 
@@ -25,6 +26,7 @@ type ResumeSource = 'current' | 'upload';
 type JdTab = 'paste' | 'url';
 
 export default function AtsCheckerPage({ resume, onBack }: Props) {
+  const { currentUser } = useAuth();
   const [step, setStep] = useState<WizardStep>(1);
   const [resumeSource, setResumeSource] = useState<ResumeSource>('current');
   const [uploadedResume, setUploadedResume] = useState<Resume | null>(null);
@@ -95,6 +97,16 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
     try {
       const res = await api.atsScore(activeResume, jobText);
       setResult(res);
+
+      // Save to history (Point 6)
+      if (currentUser) {
+        api.saveAtsHistory({
+          userId: currentUser.uid,
+          resumeId: null, 
+          score: res.score,
+          jobTitle: activeResume.personal.title || 'Unknown Position',
+        }).catch(err => console.error('Failed to save ATS history:', err));
+      }
     } catch (err: any) {
       setError(err.message || 'Analysis failed. Please try again.');
       setStep(2);
