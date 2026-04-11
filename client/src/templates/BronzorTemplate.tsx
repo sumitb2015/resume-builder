@@ -40,7 +40,6 @@ const BronzorTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
       }}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap');
       `}</style>
 
       {/* HEADER */}
