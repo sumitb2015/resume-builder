@@ -37,7 +37,7 @@ const HeroSection: React.FC<Props> = ({ onStart }) => (
     }}>
       <Sparkles size={12} color="#818CF8" />
       <span style={{ fontSize: '12.5px', fontWeight: 600, color: '#818CF8', letterSpacing: '0.01em' }}>
-        The #1 AI Resume Builder for <strong style={{ color: '#A78BFA' }}>India</strong>
+        Trusted by <strong style={{ color: '#A78BFA' }}>50,000+</strong> job seekers worldwide
       </span>
     </div>
 
@@ -46,13 +46,13 @@ const HeroSection: React.FC<Props> = ({ onStart }) => (
       The AI Resume Builder
       <br />
       <span style={{ background: 'linear-gradient(135deg, #6366F1 0%, #A855F7 50%, #EC4899 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-        for Indian Job Seekers
+        that gets you hired
       </span>
     </h1>
 
     {/* Subheading */}
     <p style={{ fontSize: '19px', fontWeight: 400, color: 'var(--color-ui-text-muted)', lineHeight: 1.65, maxWidth: '580px', margin: '0 auto 44px' }}>
-      Build ATS-optimized resumes with AI writing, 15 professional templates, and real-time preview. Trusted by 50,000+ job seekers in India.
+      Build ATS-optimized resumes with AI-powered writing, 15 professional templates, and real-time live preview. Land more interviews.
     </p>
 
     {/* CTAs */}
