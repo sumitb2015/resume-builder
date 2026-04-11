@@ -8,6 +8,7 @@ export interface Resume {
     linkedin: string;
     website: string;
     summary: string;
+    photoUrl?: string;
   };
   experience: ExperienceEntry[];
   education: EducationEntry[];
