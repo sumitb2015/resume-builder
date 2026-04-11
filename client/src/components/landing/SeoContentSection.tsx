@@ -1,12 +1,45 @@
 import React from 'react';
 
 const SeoContentSection: React.FC = () => {
+  const glassCardStyle: React.CSSProperties = {
+    background: 'rgba(99, 102, 241, 0.03)',
+    backdropFilter: 'blur(16px)',
+    WebkitBackdropFilter: 'blur(16px)',
+    border: '1px solid rgba(99, 102, 241, 0.12)',
+    borderRadius: '24px',
+    padding: '40px',
+    boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.04)',
+    height: '100%',
+    boxSizing: 'border-box',
+    display: 'flex',
+    flexDirection: 'column',
+    transition: 'transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease',
+  };
+
+  const featureCardStyle: React.CSSProperties = {
+    ...glassCardStyle,
+    padding: '32px',
+    background: 'rgba(255, 255, 255, 0.02)',
+  };
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.currentTarget.style.transform = 'translateY(-6px)';
+    e.currentTarget.style.boxShadow = '0 12px 40px 0 rgba(99, 102, 241, 0.1)';
+    e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.3)';
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.currentTarget.style.transform = 'translateY(0)';
+    e.currentTarget.style.boxShadow = '0 8px 32px 0 rgba(0, 0, 0, 0.04)';
+    e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.12)';
+  };
+
   return (
     <section 
       id="seo-content" 
       style={{ 
-        padding: '100px 24px', 
-        maxWidth: '1000px', 
+        padding: '120px 24px', 
+        maxWidth: '1100px', 
         margin: '0 auto', 
         background: 'var(--color-ui-bg)',
         color: 'var(--color-ui-text)',
@@ -14,77 +47,136 @@ const SeoContentSection: React.FC = () => {
         fontSize: '16px'
       }}
     >
-      <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-        <h2 style={{ fontSize: '36px', fontWeight: 800, marginBottom: '20px', letterSpacing: '-0.02em' }}>
+      {/* Header with gradient highlight */}
+      <div style={{ textAlign: 'center', marginBottom: '80px' }}>
+        <h2 style={{ 
+          fontSize: 'clamp(32px, 5vw, 48px)', 
+          fontWeight: 900, 
+          marginBottom: '24px', 
+          letterSpacing: '-0.03em',
+          lineHeight: 1.1,
+          background: 'linear-gradient(135deg, var(--color-ui-text) 60%, #818CF8 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+        }}>
           The Ultimate AI-Powered Resume Builder
         </h2>
-        <p style={{ fontSize: '18px', color: 'var(--color-ui-text-muted)', maxWidth: '700px', margin: '0 auto' }}>
+        <p style={{ fontSize: '19px', color: 'var(--color-ui-text-muted)', maxWidth: '750px', margin: '0 auto', fontWeight: 500 }}>
           Empowering job seekers with cutting-edge AI technology to beat the ATS and land interviews at top product and service companies.
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px' }}>
-        <div>
-          <h3 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '16px', color: '#818CF8' }}>
+      {/* Main Glass Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '32px', marginBottom: '80px' }}>
+        <div 
+          style={glassCardStyle}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <div style={{ 
+            width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(129, 140, 248, 0.1)', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' 
+          }}>
+            <span style={{ fontSize: '24px' }}>🎯</span>
+          </div>
+          <h3 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '20px', color: '#818CF8', letterSpacing: '-0.01em' }}>
             Why ATS Optimization Matters
           </h3>
-          <p>
-            In today's highly competitive job market, a single role at a top-tier company can attract thousands of applications. To manage this volume, 98% of Fortune 500 companies and leading global firms use <strong>Applicant Tracking Systems (ATS)</strong>. If your resume isn't optimized with the right keywords and formatting, it may never reach a human recruiter.
+          <p style={{ color: 'var(--color-ui-text-muted)', flex: 1 }}>
+            In today's highly competitive job market, a single role at a top-tier company can attract thousands of applications. To manage this volume, <strong>98% of Fortune 500 companies</strong> and leading global firms use <strong>Applicant Tracking Systems (ATS)</strong>.
           </p>
-          <p style={{ marginTop: '12px' }}>
-            BespokeCV is built specifically to handle these automated gatekeepers. Our AI analyzes your profile against job descriptions from top employers, ensuring your skills in Java, Python, React, Cloud Computing, or Project Management are highlighted exactly where they need to be.
+          <p style={{ marginTop: '16px', color: 'var(--color-ui-text-muted)' }}>
+            BespokeCV is built specifically to handle these automated gatekeepers. Our AI ensures your skills in <strong>Java, Python, React, or Project Management</strong> are highlighted exactly where they need to be.
           </p>
         </div>
 
-        <div>
-          <h3 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '16px', color: '#A78BFA' }}>
-            Tailored for Freshers and Professionals
+        <div 
+          style={glassCardStyle}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <div style={{ 
+            width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(167, 139, 250, 0.1)', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' 
+          }}>
+            <span style={{ fontSize: '24px' }}>🚀</span>
+          </div>
+          <h3 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '20px', color: '#A78BFA', letterSpacing: '-0.01em' }}>
+            Tailored for Every Career Stage
           </h3>
-          <p>
-            Whether you are a <strong>fresher</strong> graduating from university, or a <strong>senior professional</strong> looking to transition to new industries, BespokeCV offers the tools you need. Our AI Bullet Writer uses industry-standard frameworks like the Google XYZ formula to turn your responsibilities into high-impact achievements.
+          <p style={{ color: 'var(--color-ui-text-muted)', flex: 1 }}>
+            Whether you are a <strong>fresher</strong> graduating from university or a <strong>senior professional</strong> transitioning industries, BespokeCV offers the tools you need.
           </p>
-          <p style={{ marginTop: '12px' }}>
-            We understand the nuances of the global job market—from the importance of quantifiable metrics to the specific certifications valued across industries. Our 40+ professional templates are designed to be clean, modern, and 100% ATS-friendly.
+          <p style={{ marginTop: '16px', color: 'var(--color-ui-text-muted)' }}>
+            Our AI Bullet Writer uses the <strong>Google XYZ formula</strong> to turn responsibilities into high-impact achievements. Choose from <strong>40+ professional templates</strong> designed to be 100% ATS-friendly.
           </p>
         </div>
       </div>
 
-      <div style={{ marginTop: '60px', borderTop: '1px solid var(--color-ui-border)', paddingTop: '60px' }}>
-        <h3 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '24px', textAlign: 'center' }}>
+      {/* Feature Grid */}
+      <div style={{ marginTop: '80px', borderTop: '1px solid var(--color-ui-border)', paddingTop: '80px' }}>
+        <h3 style={{ fontSize: '28px', fontWeight: 900, marginBottom: '48px', textAlign: 'center', letterSpacing: '-0.02em' }}>
           Master the 2026 Job Hunt with AI
         </h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '30px' }}>
-          <div style={{ background: 'var(--color-ui-surface)', padding: '24px', borderRadius: '16px', border: '1px solid var(--color-ui-border)' }}>
-            <h4 style={{ fontWeight: 700, marginBottom: '12px' }}>Resume Tailoring for LinkedIn & Beyond</h4>
-            <p style={{ fontSize: '14px', color: 'var(--color-ui-text-muted)' }}>
-              Stop using the same generic resume for every application. Our Job Tailor tool analyzes job descriptions from top platforms to suggest specific rewrites that increase your match score.
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+          <div 
+            style={featureCardStyle}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <h4 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '14px', color: 'var(--color-ui-text)' }}>Resume Tailoring</h4>
+            <p style={{ fontSize: '14.5px', color: 'var(--color-ui-text-muted)', margin: 0 }}>
+              Stop using generic resumes. Our Job Tailor analyzes job descriptions to suggest specific rewrites that increase your match score instantly.
             </p>
           </div>
-          <div style={{ background: 'var(--color-ui-surface)', padding: '24px', borderRadius: '16px', border: '1px solid var(--color-ui-border)' }}>
-            <h4 style={{ fontWeight: 700, marginBottom: '12px' }}>AI-Powered Skill Discovery</h4>
-            <p style={{ fontSize: '14px', color: 'var(--color-ui-text-muted)' }}>
-              Not sure which skills are trending in your sector? Our AI scans thousands of job postings to identify the high-demand keywords you should add to your profile today.
+          <div 
+            style={featureCardStyle}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <h4 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '14px', color: 'var(--color-ui-text)' }}>Skill Discovery</h4>
+            <p style={{ fontSize: '14.5px', color: 'var(--color-ui-text-muted)', margin: 0 }}>
+              Not sure what's trending? Our AI scans thousands of postings to identify high-demand keywords you should add to your profile today.
             </p>
           </div>
-          <div style={{ background: 'var(--color-ui-surface)', padding: '24px', borderRadius: '16px', border: '1px solid var(--color-ui-border)' }}>
-            <h4 style={{ fontWeight: 700, marginBottom: '12px' }}>Pixel-Perfect PDF Export</h4>
-            <p style={{ fontSize: '14px', color: 'var(--color-ui-text-muted)' }}>
-              Say goodbye to formatting headaches. Build your resume once and export as a professional A4 PDF that maintains its integrity across all devices and ATS platforms.
+          <div 
+            style={featureCardStyle}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <h4 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '14px', color: 'var(--color-ui-text)' }}>Pro PDF Export</h4>
+            <p style={{ fontSize: '14.5px', color: 'var(--color-ui-text-muted)', margin: 0 }}>
+              Say goodbye to formatting headaches. Build once and export as a pixel-perfect A4 PDF that maintains its integrity across all ATS platforms.
             </p>
           </div>
         </div>
       </div>
 
-      <div style={{ marginTop: '60px', textAlign: 'center', background: 'linear-gradient(135deg, rgba(99,102,241,0.05), rgba(168,85,247,0.05))', padding: '40px', borderRadius: '24px', border: '1px solid rgba(99,102,241,0.1)' }}>
-        <h3 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '16px' }}>Ready to Land Your Dream Job?</h3>
-        <p style={{ marginBottom: '24px', color: 'var(--color-ui-text-muted)' }}>
-          Join over 50,000 successful job seekers who have used BespokeCV to build professional, ATS-optimized resumes. Start building today.
+      {/* Bottom CTA Banner with Glassmorphism */}
+      <div style={{ 
+        marginTop: '100px', 
+        textAlign: 'center', 
+        background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%)', 
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        padding: '60px 40px', 
+        borderRadius: '32px', 
+        border: '1px solid rgba(99, 102, 241, 0.15)',
+        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.05)'
+      }}>
+        <h3 style={{ fontSize: '28px', fontWeight: 900, marginBottom: '20px', letterSpacing: '-0.02em' }}>Ready to Land Your Dream Job?</h3>
+        <p style={{ fontSize: '17px', marginBottom: '32px', color: 'var(--color-ui-text-muted)', maxWidth: '600px', margin: '0 auto 32px' }}>
+          Join over 50,000 successful job seekers who have used BespokeCV to build professional, ATS-optimized resumes.
         </p>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-ui-text-dim)' }}>✓ Free Tier Available</span>
-          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-ui-text-dim)' }}>✓ 40+ ATS Templates</span>
-          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-ui-text-dim)' }}>✓ AI Writing Assistant</span>
-          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-ui-text-dim)' }}>✓ 98% ATS Pass Rate</span>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          {['Free Tier Available', '40+ ATS Templates', 'AI Writing Assistant', '98% ATS Pass Rate'].map((item, idx) => (
+            <div key={idx} style={{ 
+              fontSize: '13px', fontWeight: 700, color: '#818CF8', background: 'rgba(129, 140, 248, 0.1)', 
+              padding: '8px 16px', borderRadius: '100px', border: '1px solid rgba(129, 140, 248, 0.2)' 
+            }}>
+              ✓ {item}
+            </div>
+          ))}
         </div>
       </div>
     </section>
