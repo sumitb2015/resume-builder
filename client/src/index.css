@@ -1099,8 +1099,9 @@ button:focus:not(:focus-visible) { outline: none; }
     overflow-y: visible !important;
     overflow-x: hidden !important;
     padding: 40px 0 !important;
-    display: block !important;
-    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
     width: 100% !important;
   }
   .preview-scaler {
@@ -1108,8 +1109,10 @@ button:focus:not(:focus-visible) { outline: none; }
     margin: 0 auto !important;
     width: 210mm !important;
     min-width: 210mm !important;
-    display: inline-block !important;
-    text-align: left !important; /* Reset text-align for content */
+    flex-shrink: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
   }
 }
 

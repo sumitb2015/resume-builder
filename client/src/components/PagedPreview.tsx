@@ -137,7 +137,15 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount, forcePageC
   return (
     <div
       className="paged-preview-root"
-      style={{ display: 'flex', flexDirection: 'column', gap: `${PAGE_GAP}px`, alignItems: 'center' }}
+      style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: `${PAGE_GAP}px`, 
+        alignItems: 'center',
+        width: '210mm',
+        minWidth: '210mm',
+        flexShrink: 0,
+      }}
     >
       {/* Off-screen measurement render — no padding so scrollHeight = raw content height */}
       <div
@@ -165,6 +173,7 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount, forcePageC
             className="preview-page"
             style={{
               width: '210mm',
+              minWidth: '210mm',
               height: '297mm',
               overflow: 'hidden',
               position: 'relative',
@@ -173,6 +182,7 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount, forcePageC
               padding: `${marginMm}mm`,
               display: 'flex',
               flexDirection: 'column',
+              flexShrink: 0,
             }}
           >
             {/* Content area — explicitly clamped to USABLE_PAGE_H so the clip boundary
