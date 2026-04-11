@@ -6,7 +6,7 @@ import {
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import type { Resume } from '../shared/types';
-import type { Feature } from '../contexts/PlanContext';
+import type { Feature } from '../shared/constants';
 
 interface AtsResult {
   score: number;

@@ -27,6 +27,7 @@ import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { FEATURE_REQUIRED_PLAN, FEATURE_LABELS } from './shared/constants';
 import type { Feature, Plan } from './shared/constants';
 import { useSavedResumes } from './hooks/useSavedResumes';
+import { legacyMarkdownToHtml } from './lib/htmlUtils';
 import {
   Zap, Palette, Check, ChevronLeft, ChevronRight, FileText, LogOut, Crown, Shield,
   Save, FolderOpen, Sun, Moon, Award, Lock, HelpCircle, MessageSquare,
@@ -325,7 +326,7 @@ function AppContent() {
   const [activeTemplate, setActiveTemplate] = useState<TemplateConfig>({ ...templates[1]! });
   const [zoom, setZoom] = useState(0.75);
   const [pageCount, setPageCount] = useState(1);
-  const [upgradePrompt, setUpgradePrompt] = useState<{ requiredPlan: 'basic' | 'pro' | 'ultimate'; featureLabel: string } | null>(null);
+  const [upgradePrompt, setUpgradePrompt] = useState<{ requiredPlan: Plan; featureLabel: string } | null>(null);
   const [showProfile, setShowProfile] = useState(false);
   const [showExpertReview, setShowExpertReview] = useState(false);
 
