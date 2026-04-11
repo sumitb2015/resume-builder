@@ -24,8 +24,13 @@ import type { Resume, TemplateConfig, ImprovementSuggestions } from './shared/ty
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PlanProvider, usePlan } from './contexts/PlanContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
-import { Feature, Plan, FEATURE_REQUIRED_PLAN, FEATURE_LABELS } from './shared/constants';
+import { FEATURE_REQUIRED_PLAN, FEATURE_LABELS } from './shared/constants';
+import type { Feature, Plan } from './shared/constants';
 import { useSavedResumes } from './hooks/useSavedResumes';
+import {
+  Zap, Palette, Check, ChevronLeft, ChevronRight, FileText, LogOut, Crown, Shield,
+  Save, FolderOpen, Sun, Moon, Award, Lock, HelpCircle, MessageSquare,
+} from 'lucide-react';
 
 // Initial dummy resume data
 const initialResume: Resume = {
