@@ -91,7 +91,7 @@ const TIERS = [
       { label: 'Priority PDF generation', included: true, Icon: Download },
     ],
   },
-],
+];
 
 const PricingSection: React.FC<Props> = ({ onStart }) => {
   const [annual, setAnnual] = useState(false);
