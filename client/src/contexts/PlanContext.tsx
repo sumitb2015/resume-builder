@@ -1,50 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
 import { api } from '../lib/api';
-
-export type Plan = 'free' | 'basic' | 'pro' | 'ultimate';
-
-export type Feature =
-  | 'enhance-mode'
-  | 'linkedin-mode'
-  | 'extra-templates'
-  | 'dynamic-ats'
-  | 'ai-summary'
-  | 'ai-bullets'
-  | 'skills-finder'
-  | 'style-colors'
-  | 'job-tailor'
-  | 'download-pdf'
-  | 'resume-sharing'
-  | 'analytics'
-  | 'cover-letter'
-  | 'interview-prep'
-  | 'expert-review';
-
-const PLAN_FEATURES: Record<Plan, Feature[]> = {
-  free: ['resume-sharing', 'analytics'],
-  basic: ['ai-bullets', 'download-pdf', 'resume-sharing', 'analytics'],
-  pro: [
-    'enhance-mode', 'extra-templates', 'dynamic-ats', 'ai-summary', 
-    'ai-bullets', 'skills-finder', 'style-colors', 'download-pdf',
-    'resume-sharing', 'analytics', 'cover-letter'
-  ],
-  ultimate: [
-    'enhance-mode', 'linkedin-mode', 'extra-templates', 'dynamic-ats',
-    'ai-summary', 'ai-bullets', 'skills-finder', 'style-colors', 'job-tailor',
-    'download-pdf', 'resume-sharing', 'analytics', 'cover-letter',
-    'interview-prep', 'expert-review'
-  ],
-};
-
-const BASIC_BULLET_LIMIT = 3;
-
-export const MAX_RESUMES: Record<Plan, number> = {
-  free: 1,
-  basic: 1,
-  pro: 3,
-  ultimate: 10,
-};
+import { 
+  Plan, 
+  Feature, 
+  FEATURE_REQUIRED_PLAN, 
+  PLAN_RANK,
+  MAX_RESUMES, 
+  BASIC_BULLET_LIMIT 
+} from '../shared/constants';
 
 interface PlanContextType {
   plan: Plan | null;
@@ -147,7 +111,8 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
 
   const canAccess = (feature: Feature): boolean => {
     if (!plan) return false;
-    return PLAN_FEATURES[plan].includes(feature);
+    const required = FEATURE_REQUIRED_PLAN[feature];
+    return PLAN_RANK[plan] >= PLAN_RANK[required];
   };
 
   const remainingBullets: number = (() => {

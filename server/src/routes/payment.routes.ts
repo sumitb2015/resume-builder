@@ -120,34 +120,55 @@ router.post('/verify', async (req, res) => {
 
 // Webhook (Asynchronous)
 router.post('/webhook', async (req, res) => {
-  try {
-    const secret = process.env.RAZORPAY_WEBHOOK_SECRET || '';
-    const signature = req.headers['x-razorpay-signature'] as string;
-    
-    // Simple dev bypass or HMAC verification
-    if (process.env.NODE_ENV === 'development' || true) { // Force for now to ensure it works during setup
-      const event = req.body;
-      if (event.event === 'payment.captured' || event.event === 'order.paid') {
-        const payment = event.payload.payment?.entity || event.payload.order?.entity;
-        const userId = payment.notes?.userId;
-        const newPlan = payment.notes?.planTier;
-        const isAnnual = payment.notes?.isAnnual === 'true';
+  const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+  const signature = req.headers['x-razorpay-signature'] as string;
 
-        if (db && userId && newPlan) {
-          const expiresAt = new Date();
-          expiresAt.setDate(expiresAt.getDate() + (isAnnual ? 365 : 30));
+  if (secret && signature) {
+    const expectedSignature = crypto
+      .createHmac('sha256', secret)
+      .update(JSON.stringify(req.body))
+      .digest('hex');
 
-          await db.collection('users').doc(userId).update({
-            plan: newPlan,
-            updatedAt: new Date(),
-            expiresAt: expiresAt
-          });
-        }
-      }
-      res.status(200).send('OK');
+    if (expectedSignature !== signature) {
+      console.error('[Webhook] Signature mismatch');
+      return res.status(400).send('Invalid signature');
     }
+  }
+
+  try {
+    const event = req.body;
+    console.log(`[Webhook] Received event: ${event.event}`);
+
+    if (event.event === 'payment.captured' || event.event === 'order.paid') {
+      const entity = event.payload.payment ? event.payload.payment.entity : event.payload.order.entity;
+      
+      // Notes are stored in different places depending on whether it's a payment or order entity
+      const notes = entity.notes || {};
+      const userId = notes.userId;
+      const planTier = notes.planTier;
+      const isAnnual = notes.isAnnual === 'true';
+
+      if (userId && planTier && db) {
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + (isAnnual ? 365 : 30));
+
+        console.log(`[Webhook] Updating plan for user ${userId} to ${planTier}`);
+        
+        await db.collection('users').doc(userId).update({
+          plan: planTier,
+          updatedAt: new Date(),
+          expiresAt: expiresAt
+        });
+        
+        console.log(`[Webhook] Success for user ${userId}`);
+      } else {
+        console.warn('[Webhook] Missing userId, planTier or database initialization in event payload');
+      }
+    }
+
+    res.status(200).send('OK');
   } catch (error: any) {
-    console.error('Webhook Error:', error);
+    console.error('[Webhook] Error:', error);
     res.status(500).json({ error: error.message });
   }
 });

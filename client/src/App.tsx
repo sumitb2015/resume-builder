@@ -23,15 +23,10 @@ import type { Resume, TemplateConfig, ImprovementSuggestions } from './shared/ty
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PlanProvider, usePlan } from './contexts/PlanContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
-import type { Feature } from './contexts/PlanContext';
+import { Feature, Plan, FEATURE_REQUIRED_PLAN, FEATURE_LABELS } from './shared/constants';
 import { useSavedResumes } from './hooks/useSavedResumes';
-import { legacyMarkdownToHtml } from './lib/htmlUtils';
-import './index.css';
-import {
-  Zap, Palette, Check, ChevronLeft, ChevronRight, FileText, LogOut, Crown, Shield,
-  Save, FolderOpen, Sun, Moon, Award, Lock, HelpCircle, MessageSquare,
-} from 'lucide-react';
 
+// Initial dummy resume data
 const initialResume: Resume = {
   personal: {
     name: 'ALEX MORGAN',
@@ -97,43 +92,6 @@ const initialResume: Resume = {
     { id: '2', language: 'Spanish', proficiency: 'Intermediate' },
   ],
   custom: [],
-};
-
-// Maps a feature to the minimum plan required
-const FEATURE_REQUIRED_PLAN: Record<Feature, 'basic' | 'pro' | 'ultimate'> = {
-  'enhance-mode': 'pro',
-  'linkedin-mode': 'ultimate',
-  'job-tailor': 'ultimate',
-  'extra-templates': 'pro',
-  'dynamic-ats': 'pro',
-  'ai-summary': 'pro',
-  'ai-bullets': 'basic',
-  'skills-finder': 'pro',
-  'style-colors': 'pro',
-  'download-pdf': 'basic',
-  'resume-sharing': 'basic',
-  'analytics': 'basic',
-  'cover-letter': 'pro',
-  'interview-prep': 'ultimate',
-  'expert-review': 'ultimate',
-};
-
-const FEATURE_LABELS: Record<string, string> = {
-  'enhance-mode': 'Resume Import',
-  'linkedin-mode': 'LinkedIn Import',
-  'job-tailor': 'Job Tailoring',
-  'extra-templates': 'Premium Templates',
-  'dynamic-ats': 'Dynamic ATS Score',
-  'ai-summary': 'AI Summary Writer',
-  'ai-bullets': 'AI Bullet Writer',
-  'skills-finder': 'Skills Finder',
-  'style-colors': 'Style Customization',
-  'download-pdf': 'Download PDF',
-  'resume-sharing': 'Resume Sharing',
-  'analytics': 'Analytics',
-  'cover-letter': 'Cover Letter Generator',
-  'interview-prep': 'AI Interview Prep',
-  'expert-review': 'Expert Review',
 };
 
 // Plan badge config

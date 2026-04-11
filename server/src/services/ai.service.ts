@@ -116,9 +116,22 @@ export const generateSmartTailoredResume = async (params: {
 };
 
 export const generateBulletPoints = async (role: string, company: string, industry: string): Promise<string[]> => {
-  const prompt = `Write 3 strong, quantified resume bullet points for a ${role} at ${company} in the ${industry} industry.
-Focus on measurable impact, strong action verbs, and specific metrics.
-Return ONLY valid JSON: {"bullets": ["bullet 1", "bullet 2", "bullet 3"]}`;
+  const prompt = `You are a professional resume writer specializing in high-impact, quantified bullet points.
+Write 3 strong, results-oriented bullet points for a ${role} at ${company} in the ${industry} industry.
+
+Guidelines:
+1. Start with strong action verbs (e.g., "Spearheaded", "Architected", "Optimized").
+2. Include specific metrics and KPIs (e.g., "reduced latency by 30%", "increased revenue by $2M").
+3. Use the Google XYZ formula: "Accomplished [X] as measured by [Y], by doing [Z]".
+4. Keep bullets concise but descriptive.
+
+Example for a Software Engineer:
+- "Reduced infrastructure costs by 25% ($120k/year) by migrating legacy monolithic services to a containerized microservices architecture on AWS."
+
+Return ONLY valid JSON in this format:
+{
+  "bullets": ["bullet 1", "bullet 2", "bullet 3"]
+}`;
 
   const text = await ask(prompt);
   const parsed = extractJSON(text);
