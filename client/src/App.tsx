@@ -351,7 +351,6 @@ function AppContent() {
   const [savePrompt, setSavePrompt] = useState(false);
   const [saveNameValue, setSaveNameValue] = useState('');
   const [savedToast, setSavedToast] = useState(false);
-  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
   // ── UNDO/REDO ─────────────────────────────────────────────
@@ -455,7 +454,6 @@ function AppContent() {
 
   const showSavedToast = () => {
     setSavedToast(true);
-    setLastSavedAt(new Date());
     setTimeout(() => setSavedToast(false), 2500);
   };
 
