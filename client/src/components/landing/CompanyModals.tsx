@@ -37,7 +37,7 @@ export const AboutModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         We believe every job seeker deserves a professional, well-crafted resume — regardless of their design skills or budget. Our mission is to democratize access to career tools that were previously only available through expensive resume services.
       </p>
 
-      <h2 style={h2Style}>Where We're From</h2>
+      <h2 style={h2Style}>Our Global Team</h2>
       <div style={{
         display: 'flex', alignItems: 'center', gap: '10px',
         background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)',
@@ -45,12 +45,12 @@ export const AboutModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       }}>
         <MapPin size={18} color="#818CF8" />
         <div>
-          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ui-text)' }}>Pune, Maharashtra, India</div>
-          <div style={{ fontSize: '12px', color: 'var(--color-ui-text)' }}>Proudly built in India, serving job seekers worldwide</div>
+          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ui-text)' }}>Remote-First & Distributed</div>
+          <div style={{ fontSize: '12px', color: 'var(--color-ui-text)' }}>Serving job seekers worldwide with a passion for excellence</div>
         </div>
       </div>
       <p style={pStyle}>
-        We're a small, passionate team based in Pune — one of India's fastest-growing tech hubs. We understand the unique challenges Indian job seekers face, from navigating competitive markets to tailoring resumes for both domestic and international opportunities.
+        We're a small, passionate team of designers and engineers working remotely to build the best career tools. We understand the unique challenges job seekers face globally, from navigating competitive markets to tailoring resumes for both domestic and international opportunities.
       </p>
 
       <h2 style={h2Style}>What Makes Us Different</h2>
@@ -95,7 +95,7 @@ export const CareersModal: React.FC<{ onClose: () => void }> = ({ onClose }) => 
 
     <h2 style={h2Style}>Our Culture</h2>
     <p style={pStyle}>
-      At BespokeCV, we move fast, care deeply about our users, and believe the best products come from small, empowered teams. We're based in Pune, India — and we're building something that matters: giving every job seeker a fair shot.
+      At BespokeCV, we move fast, care deeply about our users, and believe the best products come from small, empowered teams. We're a distributed team building something that matters: giving every job seeker a fair shot.
     </p>
 
     <h2 style={h2Style}>Roles We're Planning to Open</h2>
@@ -128,8 +128,8 @@ export const CareersModal: React.FC<{ onClose: () => void }> = ({ onClose }) => 
     }}>
       <MapPin size={16} color="#818CF8" style={{ flexShrink: 0, marginTop: '2px' }} />
       <div>
-        <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ui-text)', marginBottom: '2px' }}>Pune, Maharashtra, India</div>
-        <div style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)' }}>Roles will be a mix of in-office and remote-friendly</div>
+        <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ui-text)', marginBottom: '2px' }}>Remote-First & Global</div>
+        <div style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)' }}>Roles will be remote-friendly and flexible</div>
       </div>
     </div>
 
@@ -193,7 +193,7 @@ export const ContactModal: React.FC<{ onClose: () => void }> = ({ onClose }) => 
       }}>
         <MapPin size={18} color="#818CF8" style={{ flexShrink: 0, marginTop: '1px' }} />
         <div>
-          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '3px' }}>Pune, Maharashtra, India</div>
+          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '3px' }}>Remote-First & Distributed</div>
           <div style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)' }}>
             Reach us anytime at{' '}
             <a href="mailto:support@bespokecv.in" style={{ color: '#818CF8', textDecoration: 'none' }}>
@@ -223,7 +223,7 @@ export const ContactModal: React.FC<{ onClose: () => void }> = ({ onClose }) => 
             <input
               type="text"
               required
-              placeholder="Rahul Sharma"
+              placeholder="John Doe"
               value={name}
               onChange={e => setName(e.target.value)}
               style={inputStyle}
@@ -237,7 +237,7 @@ export const ContactModal: React.FC<{ onClose: () => void }> = ({ onClose }) => 
             <input
               type="email"
               required
-              placeholder="rahul@example.com"
+              placeholder="john@example.com"
               value={email}
               onChange={e => setEmail(e.target.value)}
               style={inputStyle}

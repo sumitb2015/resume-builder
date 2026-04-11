@@ -18,7 +18,7 @@ export const tagColors: Record<string, string> = {
   'Resume Optimization': '#F43F5E',
   'Career Guides': '#14B8A6',
   'Personal Branding': '#F97316',
-  'Indian Job Market': '#EF4444',
+  'Global Job Market': '#EF4444',
   'Design & Layout': '#84CC16'
 };
 
@@ -177,7 +177,7 @@ export const ARTICLES: Article[] = [
     excerpt: 'Your ATS score is the hidden number that determines if a human ever sees your resume. Learn how it is calculated and how to maximize it.',
     content: `
       <h2>The Secret Filter</h2>
-      <p>Most large companies in India and globally use Applicant Tracking Systems (ATS) to manage thousands of applications. When you upload your resume, the ATS parses the text and assigns a "match score" based on how well your profile aligns with the job description.</p>
+      <p>Most large companies globally use Applicant Tracking Systems (ATS) to manage thousands of applications. When you upload your resume, the ATS parses the text and assigns a "match score" based on how well your profile aligns with the job description.</p>
       
       <h2>How the Score is Calculated</h2>
       <p>The ATS algorithm looks for several key factors:</p>
@@ -255,21 +255,21 @@ export const ARTICLES: Article[] = [
     `
   },
   {
-    id: 'ai-job-hunt-india',
+    id: 'ai-job-hunt-modern',
     tag: 'AI Career Tools',
-    title: 'How AI Resume Builders Are Changing the Indian Job Hunt',
+    title: 'How AI Resume Builders Are Changing the Modern Job Hunt',
     date: 'April 6, 2026',
     readTime: '7 min read',
-    excerpt: 'From Bangalore to Mumbai, AI is leveling the playing field for job seekers. Here is how to stay ahead in 2025.',
+    excerpt: 'From entry-level to executive roles, AI is leveling the playing field for job seekers. Here is how to stay ahead in 2025.',
     content: `
       <h2>The Efficiency Gap</h2>
-      <p>In the past, high-quality resume services were expensive. Today, AI tools like BespokeCV provide the same (or better) quality for a fraction of the cost, making professional resumes accessible to everyone in India.</p>
+      <p>In the past, high-quality resume services were expensive. Today, AI tools like BespokeCV provide the same (or better) quality for a fraction of the cost, making professional resumes accessible to everyone.</p>
       
       <h2>Personalization at Scale</h2>
-      <p>AI allows candidates to tailor their resumes for 10 different jobs in the time it used to take to do one. This is critical in India's highly competitive market where speed often matters.</p>
+      <p>AI allows candidates to tailor their resumes for 10 different jobs in the time it used to take to do one. This is critical in a highly competitive market where speed often matters.</p>
       
       <h2>Quantifying Impact</h2>
-      <p>Many Indian freshers struggle to describe their projects. AI helps by suggesting professional, metric-driven language that highlights the true value of their work.</p>
+      <p>Many freshers struggle to describe their projects. AI helps by suggesting professional, metric-driven language that highlights the true value of their work.</p>
       
       <h2>The Future is Hybrid</h2>
       <p>The best resumes in 2025 will be those where AI does the heavy lifting of formatting and keyword matching, while the human adds the unique personal touches and specific project details.</p>
@@ -309,7 +309,7 @@ export const ARTICLES: Article[] = [
     excerpt: 'We compared AI-generated achievements with human-written ones. See which one recruiters preferred in our blind study.',
     content: `
       <h2>The Experiment</h2>
-      <p>We gave 50 hiring managers in India pairs of resumes. One had bullet points written by candidates themselves, and the other had the same achievements rephrased by AI to follow the Google XYZ formula.</p>
+      <p>We gave 50 hiring managers pairs of resumes. One had bullet points written by candidates themselves, and the other had the same achievements rephrased by AI to follow the Google XYZ formula.</p>
       
       <h2>The Results</h2>
       <p>Recruiters preferred the AI-enhanced bullet points <strong>78% of the time</strong>. The main reasons cited were clarity, directness, and the inclusion of measurable results.</p>
@@ -334,20 +334,20 @@ export const ARTICLES: Article[] = [
     excerpt: 'Just graduated? Learn how to fill your resume with value even if you have never had a full-time job.',
     content: `
       <h2>Focus on Potential</h2>
-      <p>If you don't have experience, focus on your education, projects, and skills. Indian companies hiring freshers are looking for evidence of learning and dedication.</p>
+      <p>If you don't have experience, focus on your education, projects, and skills. Companies hiring freshers are looking for evidence of learning and dedication.</p>
       
       <h2>Education Front and Center</h2>
-      <p>Include your CGPA (if it's good), relevant coursework, and any academic honors. If you took an online course in a high-demand skill like AI or Data Science, highlight it.</p>
+      <p>Include your GPA (if it's good), relevant coursework, and any academic honors. If you took an online course in a high-demand skill like AI or Data Science, highlight it.</p>
       
       <h2>Projects are Your "Experience"</h2>
       <p>Treat your final year project or internship like a job. Use bullet points to describe what you built, what tools you used, and what you learned. If you built a simple app, mention the tech stack (React, Python, etc.).</p>
       
       <h2>Extracurriculars Matter</h2>
-      <p>Were you part of a college club? Did you organize a fest? These show leadership, teamwork, and communication—the "soft skills" recruiters value in freshers.</p>
+      <p>Were you part of a university club? Did you organize an event? These show leadership, teamwork, and communication—the "soft skills" recruiters value in freshers.</p>
     `
   },
   {
-    id: 'industry-switching-india',
+    id: 'industry-switching',
     tag: 'Career Guides',
     title: 'How to Rewrite Your Resume When Switching Industries',
     date: 'April 2, 2026',
@@ -358,7 +358,7 @@ export const ARTICLES: Article[] = [
       <p>Every job has skills that apply anywhere: Project Management, Data Analysis, Client Communication, and Leadership. These are the "golden threads" that connect your old industry to the new one.</p>
       
       <h2>The "Functional" vs "Hybrid" Format</h2>
-      <p>In India, recruiters prefer chronological resumes, but if you are switching industries, use a "Hybrid" format. Keep your jobs in order, but add a large "Core Competencies" section at the top that highlights the skills relevant to the *new* industry.</p>
+      <p>Recruiters often prefer chronological resumes, but if you are switching industries, use a "Hybrid" format. Keep your jobs in order, but add a large "Core Competencies" section at the top that highlights the skills relevant to the *new* industry.</p>
       
       <h2>Translate Your Language</h2>
       <p>If you're moving from a technical role to a management role, talk less about "Coding" and more about "Problem Solving" and "Resource Allocation". Read the JDs of your target industry to learn their specific vocabulary.</p>
@@ -373,7 +373,7 @@ export const ARTICLES: Article[] = [
     title: 'Modernizing a 10-Year-Old Resume (Senior Edition)',
     date: 'April 1, 2026',
     readTime: '6 min read',
-    excerpt: 'Do not let your resume look dated. Learn how senior professionals in India can refresh their profile for the 2025 market.',
+    excerpt: 'Do not let your resume look dated. Learn how senior professionals can refresh their profile for the 2025 market.',
     content: `
       <h2>The "Rule of 10"</h2>
       <p>You don't need to list every detail of a job you held 15 years ago. Focus 80% of your resume space on your last 10 years of experience. For anything older, a simple one-liner with title and company is enough.</p>
@@ -434,46 +434,46 @@ export const ARTICLES: Article[] = [
     `
   },
   {
-    id: 'indian-resume-formats',
-    tag: 'Indian Job Market',
-    title: 'Best Resume Formats for IT, Finance, and Govt Jobs',
+    id: 'standard-resume-formats',
+    tag: 'Global Job Market',
+    title: 'Best Resume Formats for IT, Finance, and Corporate Jobs',
     date: 'March 29, 2026',
     readTime: '7 min read',
-    excerpt: 'One size does not fit all. Learn which resume layouts perform best in India\'s biggest industries.',
+    excerpt: 'One size does not fit all. Learn which resume layouts perform best in major industries.',
     content: `
       <h2>IT & Technology: The Skill-First Approach</h2>
-      <p>In Indian IT, your tech stack is everything. Use a layout that puts your "Technical Skills" at the top, followed by "Project Highlights". Indian tech recruiters want to see exactly what you can build.</p>
+      <p>In tech, your stack is everything. Use a layout that puts your "Technical Skills" at the top, followed by "Project Highlights". Recruiters want to see exactly what you can build.</p>
       
       <h2>Finance & Consulting: The Conservative Classic</h2>
       <p>For Big 4 or major banks, stick to a monochrome, single-column, traditional layout (like our "Classic" or "Executive" templates). Focus heavily on certifications (CA, CFA, MBA) and quantifiable financial impact.</p>
       
-      <h2>Government & PSUs: The Detailed Chronology</h2>
-      <p>Government roles in India often require more exhaustive detail. Ensure every date is exact, and include all educational details from 10th grade onwards, as these are often used for eligibility verification.</p>
+      <h2>Public Sector & Large Corporates: The Detailed Chronology</h2>
+      <p>Corporate roles often require more exhaustive detail. Ensure every date is exact, and include relevant educational details, as these are often used for eligibility verification.</p>
       
       <h2>Product Startups: The Modern Minimalist</h2>
-      <p>Bangalore startups value "Output" over "Pedigree". Use a clean, modern template that highlights "Key Achievements" and "Links to Portfolio/Github".</p>
+      <p>Startups value "Output" over "Pedigree". Use a clean, modern template that highlights "Key Achievements" and "Links to Portfolio/Github".</p>
     `
   },
   {
-    id: 'top-skills-india-2025',
-    tag: 'Indian Job Market',
-    title: 'Top Skills Indian Recruiters Want in 2025',
+    id: 'top-skills-2025',
+    tag: 'Global Job Market',
+    title: 'Top Skills Recruiters Want in 2025',
     date: 'March 28, 2026',
     readTime: '6 min read',
-    excerpt: 'The Indian market is evolving fast. Here are the high-demand skills you need to highlight on your resume this year.',
+    excerpt: 'The market is evolving fast. Here are the high-demand skills you need to highlight on your resume this year.',
     content: `
       <h2>AI Literacy (All Industries)</h2>
       <p>It's not just for engineers anymore. Recruiters in HR, Marketing, and Operations are looking for candidates who can use AI tools (ChatGPT, Midjourney, etc.) to increase their productivity.</p>
       
       <h2>Data Storytelling</h2>
-      <p>Being able to use Excel is basic. Indian companies now want people who can analyze data and "tell a story" with it to drive business decisions. Tools like PowerBI or Tableau are major pluses.</p>
+      <p>Being able to use Excel is basic. Companies now want people who can analyze data and "tell a story" with it to drive business decisions. Tools like PowerBI or Tableau are major pluses.</p>
       
       <h2>Cross-Functional Collaboration</h2>
-      <p>With the rise of "Agile" in Indian corporates, the ability to work across teams (Tech + Product + Sales) is a top-tier soft skill. Show examples of when you acted as a bridge.</p>
+      <p>With the rise of "Agile" in corporates, the ability to work across teams (Tech + Product + Sales) is a top-tier soft skill. Show examples of when you acted as a bridge.</p>
       
       <h2>Industry-Specific Trends</h2>
       <ul>
-        <li><strong>Fintech:</strong> UPI integration, Blockchain, Risk Modeling.</li>
+        <li><strong>Fintech:</strong> Digital payments integration, Blockchain, Risk Modeling.</li>
         <li><strong>E-commerce:</strong> Supply Chain Optimization, Customer Retention AI.</li>
         <li><strong>EdTech:</strong> Instructional Design, Gamification.</li>
       </ul>
@@ -481,8 +481,8 @@ export const ARTICLES: Article[] = [
   },
   {
     id: 'off-campus-placements',
-    tag: 'Indian Job Market',
-    title: 'Winning Off-Campus Placements at Top Product Firms',
+    tag: 'Global Job Market',
+    title: 'Winning Placements at Top Product Firms Without a Campus Visit',
     date: 'March 27, 2026',
     readTime: '8 min read',
     excerpt: 'No campus visit from Google or Microsoft? No problem. Here is how to get noticed through the "front door" of the job portal.',
@@ -494,7 +494,7 @@ export const ARTICLES: Article[] = [
       <p>FAANG companies use extremely sophisticated ATS systems. Your resume must be perfectly formatted—no icons, no tables, and 100% text-based. Use our "Standard" template for maximum safety.</p>
       
       <h2>Open Source & Hackathons</h2>
-      <p>Off-campus candidates need to prove they are better than the campus picks. Highlight your GitHub contributions, GSoC projects, or wins at national-level hackathons like Smart India Hackathon.</p>
+      <p>External candidates need to prove they are exceptional. Highlight your GitHub contributions, GSoC projects, or wins at national-level hackathons.</p>
       
       <h2>The "Cold" Outreach</h2>
       <p>Emailing a recruiter directly? Send them a link to your "Online Resume" (hosted on BespokeCV). It's mobile-friendly and lets them see your full profile without downloading a file.</p>
@@ -509,7 +509,7 @@ export const ARTICLES: Article[] = [
     excerpt: 'Does a colorful resume help you stand out or get you rejected? We debunk the biggest myths in resume design.',
     content: `
       <h2>Myth 1: "It needs a headshot to be personal."</h2>
-      <p><strong>Reality:</strong> In India (and most of the West), photos on resumes are discouraged unless you are a model or actor. It can lead to unconscious bias and even cause ATS issues.</p>
+      <p><strong>Reality:</strong> In most of the West, photos on resumes are discouraged unless you are a model or actor. It can lead to unconscious bias and even cause ATS issues.</p>
       
       <h2>Myth 2: "Creative industries need creative resumes."</h2>
       <p><strong>Reality:</strong> Even if you are a Designer, your resume should be clean. Let your *Portfolio* be creative. Your resume is a document that needs to be read quickly.</p>
