@@ -318,17 +318,17 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
     if (file.size > 2 * 1024 * 1024) { alert('File too large (max 2MB).'); return; }
 
     setUploadingPhoto(true);
-    try {
-      const storageRef = ref(storage, `photos/${resume.personal.email || 'anonymous'}_${Date.now()}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      const url = await getDownloadURL(snapshot.ref);
-      up('photoUrl', url);
-    } catch (err) {
-      console.error('Upload failed:', err);
-      alert('Upload failed. Check Firebase Storage rules.');
-    } finally {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      up('photoUrl', base64String);
       setUploadingPhoto(false);
-    }
+    };
+    reader.onerror = () => {
+      alert('Failed to read file.');
+      setUploadingPhoto(false);
+    };
+    reader.readAsDataURL(file);
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
