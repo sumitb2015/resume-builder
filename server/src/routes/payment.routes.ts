@@ -154,11 +154,11 @@ router.post('/webhook', async (req, res) => {
 
         console.log(`[Webhook] Updating plan for user ${userId} to ${planTier}`);
         
-        await db.collection('users').doc(userId).update({
+        await db.collection('users').doc(userId).set({
           plan: planTier,
           updatedAt: new Date(),
           expiresAt: expiresAt
-        });
+        }, { merge: true });
         
         console.log(`[Webhook] Success for user ${userId}`);
       } else {

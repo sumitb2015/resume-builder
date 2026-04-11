@@ -14,19 +14,24 @@ const firecrawl = process.env.FIRECRAWL_API_KEY
 
 const MODEL = 'gpt-4o-mini';
 
-async function ask(prompt: string): Promise<string> {
+async function ask(prompt: string, jsonMode = false): Promise<string> {
   const res = await openai.chat.completions.create({
     model: MODEL,
     messages: [{ role: 'user', content: prompt }],
-    max_tokens: 1024,
+    max_tokens: 2048,
+    response_format: jsonMode ? { type: "json_object" } : undefined,
   });
   return res.choices[0]?.message?.content?.trim() ?? '';
 }
 
 function extractJSON(text: string): any {
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('No JSON found in response');
-  return JSON.parse(match[0]);
+  try {
+    return JSON.parse(text);
+  } catch {
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('No JSON found in response');
+    return JSON.parse(match[0]);
+  }
 }
 
 export const scrapeUrl = async (url: string): Promise<string> => {
@@ -133,7 +138,7 @@ Return ONLY valid JSON in this format:
   "bullets": ["bullet 1", "bullet 2", "bullet 3"]
 }`;
 
-  const text = await ask(prompt);
+  const text = await ask(prompt, true);
   const parsed = extractJSON(text);
   return Array.isArray(parsed.bullets) ? parsed.bullets : [];
 };
@@ -163,7 +168,7 @@ Analyze carefully and return ONLY valid JSON with this exact structure:
   "suggestedSummary": "rewritten professional summary tailored to this specific role"
 }`;
 
-  const text = await ask(prompt);
+  const text = await ask(prompt, true);
   return extractJSON(text);
 };
 
@@ -190,7 +195,7 @@ Return ONLY valid JSON with this exact structure:
   "suggestedSummary": "rewritten professional summary that directly addresses the ATS gaps and targets this specific role"
 }`;
 
-  const text = await ask(prompt);
+  const text = await ask(prompt, true);
   return extractJSON(text);
 };
 
@@ -210,7 +215,7 @@ Return ONLY valid JSON:
   "feedback": "2-3 sentence actionable summary of what to improve"
 }`;
 
-  const text = await ask(prompt);
+  const text = await ask(prompt, true);
   return extractJSON(text);
 };
 
@@ -222,7 +227,7 @@ Split into technical and soft skills. Return ONLY valid JSON:
   "soft": ["10 soft skills"]
 }`;
 
-  const text = await ask(prompt);
+  const text = await ask(prompt, true);
   return extractJSON(text);
 };
 
@@ -254,7 +259,7 @@ Return ONLY valid JSON with this exact structure:
   }
 }`;
 
-  const text = await ask(prompt);
+  const text = await ask(prompt, true);
   return extractJSON(text);
 };
 
@@ -355,6 +360,6 @@ Return ONLY valid JSON with this exact structure:
   ]
 }`;
 
-  const text = await ask(prompt);
+  const text = await ask(prompt, true);
   return extractJSON(text);
 };
