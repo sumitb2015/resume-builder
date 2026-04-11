@@ -19,7 +19,7 @@ const CtaSection: React.FC<Props> = ({ onStart }) => (
         Ready to land your dream job?
       </h2>
       <p style={{ fontSize: '17px', color: 'var(--color-ui-text-muted)', marginBottom: '40px', lineHeight: 1.65, maxWidth: '540px', margin: '0 auto 40px', position: 'relative' }}>
-        Join thousands of professionals who built interview-winning resumes with BespokeCV. No signup required to start.
+        Join thousands of professionals who built interview-winning resumes with BespokeCV. Get started for free.
       </p>
       <button
         onClick={onStart}

@@ -17,7 +17,7 @@ const FAQS: FaqItem[] = [
   {
     category: 'General',
     question: 'Do I need to create an account to get started?',
-    answer: 'You can start building your resume immediately without signing in. An account lets you save multiple resumes, access your work across sessions, and unlock plan features.',
+    answer: 'Yes, a free account is required to start building. This ensures your progress is automatically saved securely, allowing you to access and edit your resumes across different devices and sessions without losing your work.',
   },
   {
     category: 'General',
