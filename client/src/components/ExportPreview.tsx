@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import PagedPreview from './PagedPreview';
 import TemplateRenderer from '../templates/TemplateRenderer';
@@ -48,6 +48,13 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
   const [isDownloading, setIsDownloading] = useState(false);
   const [targetPages, setTargetPages] = useState(1);
   const [userPrompt, setUserPrompt] = useState('');
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Undo/Redo State
   const [past, setPast] = useState<HistoryItem[]>([]);
@@ -248,20 +255,23 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
 
   return (
     <div style={{
-      display: 'grid',
-      gridTemplateColumns: '320px 1fr',
+      display: 'flex',
+      flexDirection: isMobile ? 'column' : 'row',
       height: '100%',
       backgroundColor: 'var(--color-ui-bg)',
       color: 'var(--color-ui-text)',
-      overflow: 'hidden'
+      overflow: isMobile ? 'auto' : 'hidden'
     }}>
       {/* ── LEFT CONFIG PANEL ─────────────────────────── */}
       <aside style={{
+        width: isMobile ? '100%' : '320px',
         backgroundColor: 'var(--color-ui-surface)',
-        borderRight: '1px solid var(--color-ui-border)',
+        borderRight: isMobile ? 'none' : '1px solid var(--color-ui-border)',
+        borderBottom: isMobile ? '1px solid var(--color-ui-border)' : 'none',
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden',
+        overflow: isMobile ? 'visible' : 'hidden',
+        flexShrink: 0,
       }}>
         {/* Tab bar */}
         <div style={{ display: 'flex', padding: '12px', gap: '4px', flexShrink: 0, borderBottom: '1px solid var(--color-ui-border)' }}>
@@ -487,14 +497,15 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
       {/* ── CENTER PREVIEW VIEWPORT ─────────────────────── */}
       <main className="preview-viewport" style={{ 
         flex: 1, 
-        overflowY: 'auto',
+        overflowY: isMobile ? 'visible' : 'auto',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '40px 20px 80px',
-        backgroundColor: 'var(--color-ui-preview-bg)'
+        padding: isMobile ? '20px 0 60px' : '40px 20px 80px',
+        backgroundColor: 'var(--color-ui-preview-bg)',
+        height: isMobile ? 'auto' : '100%',
       }}>
-        <div className="preview-scaler" style={{ transform: 'scale(0.85)', transformOrigin: 'top center' }}>
+        <div className="preview-scaler" style={{ transform: `scale(${isMobile ? 0.4 : 0.85})`, transformOrigin: 'top center' }}>
           <PagedPreview resume={resume} config={config} onPageCount={onPageCount} forcePageCount={pageCount} />
         </div>
       </main>
