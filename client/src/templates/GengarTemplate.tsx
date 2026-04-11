@@ -103,7 +103,7 @@ const GengarTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
             )}
           </div>
         </div>
-        {personal.photoUrl && (
+        {personal.photoUrl ? (
           <div
             style={{
               width: '130px',
@@ -120,6 +120,28 @@ const GengarTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
               alt={personal.name}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
+          </div>
+        ) : (
+          <div
+            className="photo-placeholder"
+            onClick={() => window.dispatchEvent(new CustomEvent('request-photo-upload'))}
+            style={{
+              width: '130px',
+              height: '130px',
+              borderRadius: '50%',
+              border: `2px dashed ${accent}40`,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              backgroundColor: `${accent}05`,
+              flexShrink: 0,
+              marginLeft: '30px',
+            }}
+          >
+            <span style={{ fontSize: '24pt', color: accent }}>+</span>
+            <span style={{ fontSize: '9pt', color: accent, fontWeight: 600 }}>PHOTO</span>
           </div>
         )}
       </header>

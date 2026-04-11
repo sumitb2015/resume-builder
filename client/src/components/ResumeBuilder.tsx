@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { Resume, ExperienceEntry, SkillEntry, EducationEntry, ProjectEntry, CertificationEntry, LanguageEntry, ImprovementSuggestions } from '../shared/types';
 import { api } from '../lib/api';
 import {
@@ -102,6 +102,16 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
   const [skillSuggestions, setSkillSuggestions] = useState<{ technical: string[]; soft: string[] } | null>(null);
   const [skillJobTitle, setSkillJobTitle] = useState('');
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleRequestUpload = () => {
+      setActiveTab('personal');
+      setTimeout(() => photoInputRef.current?.click(), 100);
+    };
+    window.addEventListener('request-photo-upload', handleRequestUpload);
+    return () => window.removeEventListener('request-photo-upload', handleRequestUpload);
+  }, []);
 
   // Collapsed state for each section's cards
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
@@ -477,7 +487,7 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
                   border: '2px solid var(--color-ui-surface)'
                 }}>
                   <Camera size={14} />
-                  <input type="file" hidden accept="image/*" onChange={handlePhotoUpload} disabled={uploadingPhoto} />
+                  <input ref={photoInputRef} type="file" hidden accept="image/*" onChange={handlePhotoUpload} disabled={uploadingPhoto} />
                 </label>
               </div>
 

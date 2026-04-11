@@ -50,7 +50,7 @@ const OnyxTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
           flexDirection: 'column',
         }}
       >
-        {personal.photoUrl && (
+        {personal.photoUrl ? (
           <div
             style={{
               width: '150px',
@@ -66,6 +66,27 @@ const OnyxTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
               alt={personal.name}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
+          </div>
+        ) : (
+          <div
+            className="photo-placeholder"
+            onClick={() => window.dispatchEvent(new CustomEvent('request-photo-upload'))}
+            style={{
+              width: '150px',
+              height: '150px',
+              borderRadius: '50%',
+              border: `2px dashed rgba(255, 255, 255, 0.3)`,
+              margin: '0 auto 30px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            }}
+          >
+            <span style={{ fontSize: '28pt', color: '#FFFFFF', opacity: 0.7 }}>+</span>
+            <span style={{ fontSize: '9pt', color: '#FFFFFF', fontWeight: 600, opacity: 0.7 }}>PHOTO</span>
           </div>
         )}
 

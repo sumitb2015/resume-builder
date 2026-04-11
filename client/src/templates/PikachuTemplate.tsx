@@ -50,7 +50,7 @@ const PikachuTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
           paddingBottom: '30px',
         }}
       >
-        {personal.photoUrl && (
+        {personal.photoUrl ? (
           <div
             style={{
               width: '120px',
@@ -66,6 +66,27 @@ const PikachuTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
               alt={personal.name}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
+          </div>
+        ) : (
+          <div
+            className="photo-placeholder"
+            onClick={() => window.dispatchEvent(new CustomEvent('request-photo-upload'))}
+            style={{
+              width: '120px',
+              height: '120px',
+              borderRadius: '12px',
+              border: `2px dashed ${accent}40`,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              backgroundColor: `${accent}05`,
+              flexShrink: 0,
+            }}
+          >
+            <span style={{ fontSize: '24pt', color: accent }}>+</span>
+            <span style={{ fontSize: '9pt', color: accent, fontWeight: 600 }}>PHOTO</span>
           </div>
         )}
         <div style={{ flex: 1 }}>

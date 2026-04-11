@@ -96,7 +96,7 @@ const GlalieTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
             )}
           </div>
         </div>
-        {personal.photoUrl && (
+        {personal.photoUrl ? (
           <div
             style={{
               width: '140px',
@@ -110,6 +110,26 @@ const GlalieTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
               alt={personal.name}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
+          </div>
+        ) : (
+          <div
+            className="photo-placeholder"
+            onClick={() => window.dispatchEvent(new CustomEvent('request-photo-upload'))}
+            style={{
+              width: '140px',
+              height: '140px',
+              border: `2px dashed ${primary}40`,
+              padding: '5px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              backgroundColor: `${primary}05`,
+            }}
+          >
+            <span style={{ fontSize: '24pt', color: primary }}>+</span>
+            <span style={{ fontSize: '9pt', color: primary, fontWeight: 600 }}>PHOTO</span>
           </div>
         )}
       </header>

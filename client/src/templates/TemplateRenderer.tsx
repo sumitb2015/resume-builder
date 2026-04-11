@@ -86,6 +86,9 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config, isPaged = false }) 
             box-shadow: none !important;
             transform: none !important;
           }
+          .photo-placeholder {
+            display: none !important;
+          }
         }
       `}} />
       <div className={`template-container ${isPaged ? 'paged-mode' : ''}`}>
