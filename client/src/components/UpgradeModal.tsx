@@ -1,6 +1,5 @@
 import { createPortal } from 'react-dom';
 import { X, Check, Zap, Crown } from 'lucide-react';
-import { usePlan } from '../contexts/PlanContext';
 import { templates } from '../templates';
 import type { Plan } from '../shared/constants';
 
@@ -8,6 +7,7 @@ interface Props {
   requiredPlan: Plan;
   featureLabel: string;
   onClose: () => void;
+  onUpgrade: (plan: Exclude<Plan, 'free'>) => void;
 }
 
 const PLAN_DETAILS: Record<string, {
@@ -66,13 +66,12 @@ const PLAN_DETAILS: Record<string, {
   },
 };
 
-export default function UpgradeModal({ requiredPlan, featureLabel, onClose }: Props) {
-  const { setPlan } = usePlan();
+export default function UpgradeModal({ requiredPlan, featureLabel, onClose, onUpgrade }: Props) {
   const details = PLAN_DETAILS[requiredPlan] || PLAN_DETAILS.pro;
   const planLabel = requiredPlan.charAt(0).toUpperCase() + requiredPlan.slice(1);
 
   const handleActivate = () => {
-    setPlan(requiredPlan as Plan);
+    onUpgrade(requiredPlan as Exclude<Plan, 'free'>);
     onClose();
   };
 
@@ -174,10 +173,6 @@ export default function UpgradeModal({ requiredPlan, featureLabel, onClose }: Pr
             Upgrade to {planLabel}
           </button>
         </div>
-
-        <p style={{ fontSize: '11px', color: 'var(--color-ui-text-dim)', textAlign: 'center', margin: 0 }}>
-          Demo mode — plan activated instantly. Payment integration coming soon.
-        </p>
       </div>
     </div>,
     document.body,

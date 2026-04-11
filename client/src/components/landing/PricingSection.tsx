@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Check, X, FileText, Zap, Palette, Award, Upload, Link2, Download } from 'lucide-react';
-import { api } from '../../lib/api';
-import { openRazorpay } from '../../lib/razorpay';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePlan } from '../../contexts/PlanContext';
 import { templates } from '../../templates';
+import type { Plan } from '../../shared/constants';
 
-interface Props { onStart: () => void }
+interface Props { 
+  onStart: () => void;
+  onCheckout: (plan: Exclude<Plan, 'free'>, isAnnual: boolean) => void;
+}
 
 const TIERS = [
   {
@@ -94,13 +96,11 @@ const TIERS = [
   },
 ];
 
-const PricingSection: React.FC<Props> = ({ onStart }) => {
+const PricingSection: React.FC<Props> = ({ onStart, onCheckout }) => {
   const [annual, setAnnual] = useState(false);
-  const [loading, setLoading] = useState<string | null>(null);
   const { currentUser } = useAuth();
-  const { updatePlan } = usePlan();
 
-  const handleSelectPlan = async (tier: typeof TIERS[0]) => {
+  const handleSelectPlan = (tier: typeof TIERS[0]) => {
     if (!currentUser) {
       onStart(); // Redirect to login
       return;
@@ -111,68 +111,8 @@ const PricingSection: React.FC<Props> = ({ onStart }) => {
       return;
     }
 
-    const price = annual && tier.period !== '14 days' ? tier.price.annual : tier.price.monthly;
-    
-    try {
-      setLoading(tier.name);
-      const isAnnualPlan = annual && tier.period !== '14 days';
-      const order = await api.createOrder(price, 'INR', currentUser.uid, tier.name.toLowerCase(), isAnnualPlan);
-      
-      const rawKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID;
-      if (!rawKeyId) {
-        throw new Error('Razorpay Key ID is not configured (VITE_RAZORPAY_KEY_ID is missing from .env).');
-      }
-
-      const keyId = rawKeyId.trim();
-
-      console.log(`[Razorpay Debug] Initiating payment for order: ${order.id} with key: ${keyId.substring(0, 8)}...`);
-
-      await openRazorpay({
-        key: keyId,
-        amount: order.amount,
-        currency: order.currency,
-        name: 'BespokeCV',
-        description: `${tier.name} Plan - ${isAnnualPlan ? 'Annual' : 'Monthly'}`,
-        order_id: order.id,
-        handler: async (response: any) => {
-          try {
-            const verifyRes = await api.verifyPayment({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              planTier: tier.name.toLowerCase(),
-              userId: currentUser.uid,
-              isAnnual: isAnnualPlan
-            });
-
-            if (verifyRes.success) {
-              // Wait a moment for Firestore to propagate before fetching
-              await new Promise(resolve => setTimeout(resolve, 1500));
-              await updatePlan();
-              alert(`Success! You are now on the ${tier.name} plan.`);
-              window.location.reload(); 
-            } else {
-              alert('Payment verification failed. Please contact support.');
-            }
-          } catch (err) {
-            console.error('Verification error:', err);
-            alert('An error occurred during verification. If money was deducted, please contact support.');
-          }
-        },
-        prefill: {
-          name: currentUser.displayName || '',
-          email: currentUser.email || '',
-        },
-        theme: {
-          color: '#6366F1',
-        },
-      });
-    } catch (error: any) {
-      console.error('Payment initiation failed:', error);
-      alert('Failed to initiate payment. Please try again.');
-    } finally {
-      setLoading(null);
-    }
+    const isAnnualPlan = annual && tier.period !== '14 days';
+    onCheckout(tier.name.toLowerCase() as any, isAnnualPlan);
   };
 
   return (
@@ -288,28 +228,24 @@ const PricingSection: React.FC<Props> = ({ onStart }) => {
               {/* CTA button */}
               <button
                 onClick={() => handleSelectPlan(tier)}
-                disabled={loading !== null}
                 style={{
                   width: '100%', padding: '12px', borderRadius: '10px',
                   marginBottom: '24px', fontSize: '14.5px', fontWeight: 600,
                   cursor: 'pointer', transition: 'all 0.2s',
-                  opacity: loading ? 0.7 : 1,
                   ...(tier.ctaStyle === 'primary'
                     ? { background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', border: 'none', color: 'white', boxShadow: '0 6px 24px rgba(99,102,241,0.4)' }
                     : { background: 'transparent', border: '1px solid var(--color-ui-border)', color: 'var(--color-ui-text)' }),
                 }}
                 onMouseEnter={e => {
-                  if (loading) return;
                   e.currentTarget.style.transform = 'translateY(-2px)';
                   if (tier.ctaStyle === 'primary') e.currentTarget.style.boxShadow = '0 10px 32px rgba(99,102,241,0.5)';
                 }}
                 onMouseLeave={e => {
-                  if (loading) return;
                   e.currentTarget.style.transform = 'translateY(0)';
                   if (tier.ctaStyle === 'primary') e.currentTarget.style.boxShadow = '0 6px 24px rgba(99,102,241,0.4)';
                 }}
               >
-                {loading === tier.name ? 'Processing...' : tier.cta}
+                {tier.cta}
               </button>
 
               {/* Divider */}

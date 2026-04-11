@@ -13,13 +13,15 @@ import CtaSection from './landing/CtaSection';
 import FooterSection from './landing/FooterSection';
 import { TosModal, PrivacyModal } from './landing/TosModal';
 import { AboutModal, CareersModal, ContactModal } from './landing/CompanyModals';
+import type { Plan } from '../shared/constants';
 
 interface Props { 
   onStart: () => void;
   onOpenBlog: () => void;
+  onCheckout: (plan: Exclude<Plan, 'free'>, isAnnual: boolean) => void;
 }
 
-const LandingPage: React.FC<Props> = ({ onStart, onOpenBlog }) => {
+const LandingPage: React.FC<Props> = ({ onStart, onOpenBlog, onCheckout }) => {
   const [tosOpen, setTosOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -34,7 +36,7 @@ const LandingPage: React.FC<Props> = ({ onStart, onOpenBlog }) => {
       <TemplateShowcase onStart={onStart} />
       <AiFeaturesSection />
       <HowItWorksSection />
-      <PricingSection onStart={onStart} />
+      <PricingSection onStart={onStart} onCheckout={onCheckout} />
       <TestimonialsSection />
       <FaqSection />
       <SeoContentSection />

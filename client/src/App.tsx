@@ -14,6 +14,7 @@ import BlogPage from './components/landing/BlogPage';
 import UpgradeModal from './components/UpgradeModal';
 import ProfileModal from './components/ProfileModal';
 import SavedResumesPanel from './components/SavedResumesPanel';
+import CheckoutPage from './components/CheckoutPage';
 import PagedPreview from './components/PagedPreview';
 import ErrorBoundary from './components/ErrorBoundary';
 import StylePanel from './components/StylePanel';
@@ -180,12 +181,16 @@ function PlanBadge({ size = 'md' }: { size?: 'sm' | 'md' }) {
   );
 }
 
-function PlanSelectPage({ onSelected, onBack }: { onSelected: () => void; onBack: () => void }) {
+function PlanSelectPage({ onSelected, onBack, onCheckout }: { onSelected: () => void; onBack: () => void; onCheckout: (planId: Exclude<Plan, 'free'>) => void }) {
   const { setPlan } = usePlan();
 
   const handleSelect = (planId: 'free' | 'basic' | 'pro' | 'ultimate') => {
-    setPlan(planId);
-    onSelected();
+    if (planId === 'free') {
+      setPlan('free');
+      onSelected();
+    } else {
+      onCheckout(planId);
+    }
   };
 
   return (
@@ -308,7 +313,9 @@ function AppContent() {
   const { savedResumes, canSaveMore, saveResume, renameResume, deleteResume } = useSavedResumes();
   const { theme, toggleTheme } = useTheme();
 
-  const [view, setView] = useState<'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder' | 'preview' | 'ats-checker' | 'job-tailor' | 'cover-letter' | 'interview-prep' | 'ai-writer' | 'blog'>('landing');
+  const [view, setView] = useState<'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder' | 'preview' | 'ats-checker' | 'job-tailor' | 'cover-letter' | 'interview-prep' | 'ai-writer' | 'blog' | 'checkout'>('landing');
+  const [checkoutPlan, setCheckoutPlan] = useState<Exclude<Plan, 'free'>>('pro');
+  const [checkoutAnnual, setCheckoutAnnual] = useState(false);
   const initialResumeRef = useRef<Resume | null>(null);
   
   useEffect(() => {
@@ -528,7 +535,13 @@ function AppContent() {
   const formWidth = formExpanded ? '48%' : '40%';
 
   const mainContent = (() => {
-    if (view === 'landing') return <LandingPage onStart={handleStart} onOpenBlog={() => setView('blog')} />;
+    if (view === 'landing') return (
+      <LandingPage 
+        onStart={handleStart} 
+        onOpenBlog={() => setView('blog')} 
+        onCheckout={(p, a) => { setCheckoutPlan(p); setCheckoutAnnual(a); setView('checkout'); }}
+      />
+    );
     if (view === 'blog') return <BlogPage onBack={() => setView('landing')} onStart={handleStart} />;
     
     if (view === 'login') {
@@ -544,13 +557,30 @@ function AppContent() {
       );
     }
 
-    if (view === 'plan-select') return <PlanSelectPage onSelected={() => setView('mode-select')} onBack={() => setView('landing')} />;
+    if (view === 'plan-select') return (
+      <PlanSelectPage 
+        onSelected={() => setView('mode-select')} 
+        onBack={() => setView('landing')} 
+        onCheckout={(p) => { setCheckoutPlan(p); setCheckoutAnnual(false); setView('checkout'); }}
+      />
+    );
+
+    if (view === 'checkout') {
+      return (
+        <CheckoutPage
+          planTier={checkoutPlan}
+          isAnnual={checkoutAnnual}
+          onBack={() => setView('plan-select')}
+          onSuccess={() => setView('mode-select')}
+        />
+      );
+    }
 
     if (view === 'mode-select') {
       return (
         <>
           <ModeSelectModal onSelect={handleModeSelect} onBack={() => setView('landing')} onUpgradeNeeded={showUpgrade} />
-          {upgradePrompt && <UpgradeModal requiredPlan={upgradePrompt.requiredPlan as any} featureLabel={upgradePrompt.featureLabel} onClose={() => setUpgradePrompt(null)} />}
+          {upgradePrompt && <UpgradeModal requiredPlan={upgradePrompt.requiredPlan as any} featureLabel={upgradePrompt.featureLabel} onClose={() => setUpgradePrompt(null)} onUpgrade={(p) => { setCheckoutPlan(p); setCheckoutAnnual(false); setView('checkout'); }} />}
         </>
       );
     }
@@ -914,7 +944,7 @@ function AppContent() {
         </div>
       )}
       {savedToast && <div style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: 'var(--color-success)', color: 'white', padding: '8px 16px', borderRadius: '8px' }}>Resume saved</div>}
-      {upgradePrompt && <UpgradeModal requiredPlan={upgradePrompt.requiredPlan as any} featureLabel={upgradePrompt.featureLabel} onClose={() => setUpgradePrompt(null)} />}
+      {upgradePrompt && <UpgradeModal requiredPlan={upgradePrompt.requiredPlan as any} featureLabel={upgradePrompt.featureLabel} onClose={() => setUpgradePrompt(null)} onUpgrade={(p) => { setCheckoutPlan(p); setCheckoutAnnual(false); setView('checkout'); }} />}
       {showProfile && <ProfileModal user={currentUser} onClose={() => setShowProfile(false)} onLogout={handleLogout} />}
       {showExpertReview && <ExpertReviewModal userId={currentUser?.uid || ''} resumeId={currentResumeId} resumeData={resume} onClose={() => setShowExpertReview(false)} />}
       <PrintPortal resume={resume} config={activeTemplate} pageCount={pageCount} />

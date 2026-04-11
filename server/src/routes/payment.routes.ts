@@ -10,10 +10,46 @@ const router = Router();
 
 const razorpay = process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET
   ? new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID,
-      key_secret: process.env.RAZORPAY_KEY_SECRET,
+      key_id: process.env.RAZORPAY_KEY_ID.trim(),
+      key_secret: process.env.RAZORPAY_KEY_SECRET.trim(),
     })
   : null;
+
+// Pricing Map (Source of Truth)
+const PLAN_PRICES: Record<string, { monthly: number; annualMonthly: number }> = {
+  basic: { monthly: 199, annualMonthly: 159 },
+  pro: { monthly: 599, annualMonthly: 479 },
+  ultimate: { monthly: 999, annualMonthly: 799 },
+};
+
+// Helper to validate and return discount percentage
+const getDiscountPercentage = (code?: string): number => {
+  if (!code) return 0;
+  
+  const discountCodesEnv = process.env.DISCOUNT_CODES || ""; // Format: SUMMER20:20,WELCOME50:50
+  const pairs = discountCodesEnv.split(",").map(p => p.trim());
+  
+  for (const pair of pairs) {
+    const [name, percent] = pair.split(":");
+    if (name && percent && name.toUpperCase() === code.toUpperCase()) {
+      return parseInt(percent, 10) || 0;
+    }
+  }
+  
+  return 0;
+};
+
+// Validate Discount Code Endpoint
+router.post('/validate-discount', (req, res) => {
+  const { code } = req.body;
+  const discount = getDiscountPercentage(code);
+  
+  if (discount > 0) {
+    res.json({ valid: true, discountPercent: discount });
+  } else {
+    res.json({ valid: false, discountPercent: 0, message: "Invalid or expired discount code" });
+  }
+});
 
 // Create Order
 router.post('/create-order', async (req, res) => {
@@ -21,25 +57,56 @@ router.post('/create-order', async (req, res) => {
     if (!razorpay) {
       return res.status(500).json({ error: 'Razorpay is not configured on the server. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET.' });
     }
-    const { amount, currency, receipt, notes, userId, planTier, isAnnual } = req.body;
+    
+    const { currency, receipt, notes, userId, planTier, isAnnual, discountCode } = req.body;
 
-    const options = {
-      amount: amount * 100, // amount in the smallest currency unit (paise)
+    if (!planTier || !PLAN_PRICES[planTier.toLowerCase()]) {
+      return res.status(400).json({ error: 'Invalid plan tier selected.' });
+    }
+
+    const tier = planTier.toLowerCase();
+    const pricing = PLAN_PRICES[tier];
+    
+    // Calculate base amount
+    let baseAmount = isAnnual ? pricing.annualMonthly * 12 : pricing.monthly;
+    
+    // Apply discount if any
+    const discountPercent = getDiscountPercentage(discountCode);
+    const finalAmount = Math.round(baseAmount * (1 - discountPercent / 100));
+    const finalAmountPaise = Math.floor(finalAmount * 100);
+
+    const options: any = {
+      amount: finalAmountPaise,
       currency: currency || 'INR',
       receipt: receipt || `receipt_${Date.now()}`,
       notes: {
         ...(notes || {}),
-        userId: userId || '',
-        planTier: planTier || '',
-        isAnnual: isAnnual ? 'true' : 'false',
+        userId: userId || 'unknown',
+        planTier: planTier || 'unknown',
+        isAnnual: isAnnual === true || isAnnual === 'true',
       },
     };
+
+    if (discountCode) {
+      options.notes.discountCode = discountCode;
+      options.notes.discountPercent = discountPercent.toString();
+    }
+
+    console.log('[Razorpay] Creating order with options:', JSON.stringify(options, null, 2));
 
     const order = await razorpay.orders.create(options);
     res.json(order);
   } catch (error: any) {
     console.error('Razorpay Order Creation Error:', error);
-    res.status(500).json({ error: error.message || 'Failed to create Razorpay order' });
+    // Serialize the error for better frontend debugging
+    const errorMessage = 
+      error?.error?.description || 
+      error?.description || 
+      error?.message || 
+      (typeof error === 'object' ? JSON.stringify(error) : String(error)) || 
+      'Failed to create Razorpay order';
+      
+    res.status(500).json({ error: errorMessage });
   }
 });
 

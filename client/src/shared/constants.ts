@@ -69,4 +69,10 @@ export const MAX_RESUMES: Record<Plan, number> = {
   ultimate: 10,
 };
 
+export const PLAN_PRICES: Record<Exclude<Plan, 'free'>, { monthly: number; annualMonthly: number }> = {
+  basic: { monthly: 199, annualMonthly: 159 },
+  pro: { monthly: 599, annualMonthly: 479 },
+  ultimate: { monthly: 999, annualMonthly: 799 },
+};
+
 export const BASIC_BULLET_LIMIT = 3;

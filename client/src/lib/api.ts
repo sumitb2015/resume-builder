@@ -98,8 +98,17 @@ export const api = {
   fetchJobUrl: (url: string) =>
     post<{ text: string }>('/api/fetch-job-url', { url }),
 
-  createOrder: (amount: number, currency?: string, userId?: string, planTier?: string, isAnnual?: boolean) =>
-    post<{ id: string; amount: number; currency: string }>('/api/payment/create-order', { amount, currency, userId, planTier, isAnnual }),
+  validateDiscount: (code: string) =>
+    post<{ valid: boolean; discountPercent: number; message?: string }>('/api/payment/validate-discount', { code }),
+
+  createOrder: (params: { 
+    userId: string; 
+    planTier: string; 
+    isAnnual: boolean; 
+    discountCode?: string;
+    currency?: string; 
+  }) =>
+    post<{ id: string; amount: number; currency: string }>('/api/payment/create-order', params),
 
   verifyPayment: (data: {
     razorpay_order_id: string;
