@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   FileText, Upload, ArrowLeft, Loader2, AlertCircle, Award,
   Sparkles, Link2, CheckCircle2,

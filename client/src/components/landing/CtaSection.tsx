@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowRight, Check } from 'lucide-react';
 import { templates } from '../../templates';
 

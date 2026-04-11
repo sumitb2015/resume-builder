@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { templates } from '../../templates';
 import type { TemplateConfig, Resume } from '../../shared/types';
 import TemplateRenderer from '../../templates/TemplateRenderer';

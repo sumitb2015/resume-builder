@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, Check, Zap, Crown, Shield, CreditCard, Tag, AlertCircle, Loader2 } from 'lucide-react';
 import { api } from '../lib/api';
 import { openRazorpay } from '../lib/razorpay';
