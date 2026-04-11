@@ -9,8 +9,6 @@ import { usePlan } from '../contexts/PlanContext';
 import type { Feature } from '../shared/constants';
 import RichEditor from './RichEditor';
 import { stripHtml, plainTextToHtml, htmlCharCount } from '../lib/htmlUtils';
-import { storage } from '../lib/firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 interface Props {
   resume: Resume;
