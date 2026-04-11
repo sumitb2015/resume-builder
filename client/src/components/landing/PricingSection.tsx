@@ -4,6 +4,7 @@ import { api } from '../../lib/api';
 import { openRazorpay } from '../../lib/razorpay';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePlan } from '../../contexts/PlanContext';
+import { templates } from '../../templates';
 
 interface Props { onStart: () => void }
 
@@ -41,7 +42,7 @@ const TIERS = [
       { label: 'PDF export (1 per day)', included: true, Icon: Download },
       { label: 'ATS score (template-based)', included: true, Icon: Award },
       { label: 'AI bullet point writer (3/day)', included: true, Icon: Zap },
-      { label: 'All 15 premium templates', included: false, Icon: Palette },
+      { label: `All ${templates.length} premium templates`, included: false, Icon: Palette },
       { label: 'AI summary writer', included: false, Icon: Zap },
       { label: 'Skills finder', included: false, Icon: Award },
       { label: 'Job tailoring (JD matching)', included: false, Icon: FileText },
@@ -57,7 +58,7 @@ const TIERS = [
     ctaStyle: 'primary' as const,
     popular: true,
     features: [
-      { label: 'All 15 premium templates', included: true, Icon: Palette },
+      { label: `All ${templates.length} premium templates`, included: true, Icon: Palette },
       { label: 'Live preview & editor', included: true, Icon: FileText },
       { label: 'Unlimited PDF exports', included: true, Icon: Download },
       { label: 'Dynamic ATS score with JD matching', included: true, Icon: Award },

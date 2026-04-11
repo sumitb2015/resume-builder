@@ -1,4 +1,5 @@
 import React from 'react';
+import { templates } from '../../templates';
 
 const SeoContentSection: React.FC = () => {
   const glassCardStyle: React.CSSProperties = {
@@ -108,7 +109,7 @@ const SeoContentSection: React.FC = () => {
             Whether you are a <strong>fresher</strong> graduating from university or a <strong>senior professional</strong> transitioning industries, BespokeCV offers the tools you need.
           </p>
           <p style={{ marginTop: '16px', color: 'var(--color-ui-text-muted)' }}>
-            Our AI Bullet Writer uses the <strong>Google XYZ formula</strong> to turn responsibilities into high-impact achievements. Choose from <strong>40+ professional templates</strong> designed to be 100% ATS-friendly.
+            Our AI Bullet Writer uses the <strong>Google XYZ formula</strong> to turn responsibilities into high-impact achievements. Choose from <strong>{templates.length}+ professional templates</strong> designed to be 100% ATS-friendly.
           </p>
         </div>
       </div>

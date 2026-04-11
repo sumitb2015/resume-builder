@@ -38,7 +38,8 @@ The `Resume` object, selected `TemplateConfig`, and `ImprovementSuggestions` all
 Defined in `client/src/shared/types.ts`. The `Resume` type is used everywhere — frontend state, AI prompts, template rendering, and API responses all share the exact same shape.
 
 ### Template system
-- 15 templates in `client/src/templates/`, each accepting `{ resume: Resume, config: TemplateConfig }`.
+
+- 40+ templates in `client/src/templates/`, each accepting `{ resume: Resume, config: TemplateConfig }`.
 - `TemplateRenderer.tsx` switches on `config.id` to pick the right template.
 - `templates/index.ts` exports the `templates` array (TemplateConfig definitions) and `colorPalettes`.
 - All templates use inline styles. A4 print sizing is handled via the `.resume-paper` CSS class in `index.css`.

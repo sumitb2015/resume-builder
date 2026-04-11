@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, Mail, Briefcase, Rocket, Heart, Users } from 'lucide-react';
 import { LegalModal } from './TosModal';
+import { templates } from '../../templates';
 
 // Shared styles that respect CSS variables (light/dark mode)
 const h2Style: React.CSSProperties = { fontSize: '16px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '10px', marginTop: '28px' };
@@ -27,7 +28,7 @@ export const AboutModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '8px' }}>
-        {statCard(<Rocket size={18} />, '15+', 'Resume Templates')}
+        {statCard(<Rocket size={18} />, `${templates.length}+`, 'Resume Templates')}
         {statCard(<Users size={18} />, '10k+', 'Resumes Created')}
         {statCard(<Heart size={18} />, '4.9★', 'User Rating')}
       </div>

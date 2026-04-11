@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight, Star, Sparkles } from 'lucide-react';
 import { scrollToSection } from '../../lib/scroll';
+import { templates } from '../../templates';
 
 interface Props { onStart: () => void }
 
@@ -52,7 +53,7 @@ const HeroSection: React.FC<Props> = ({ onStart }) => (
 
     {/* Subheading */}
     <p style={{ fontSize: '19px', fontWeight: 400, color: 'var(--color-ui-text-muted)', lineHeight: 1.65, maxWidth: '640px', margin: '0 auto 44px' }}>
-      Build ATS-optimized resumes with AI-powered writing, tailored cover letters, and interview prep. 15+ professional templates with real-time live preview.
+      Build ATS-optimized resumes with AI-powered writing, tailored cover letters, and interview prep. {templates.length}+ professional templates with real-time live preview.
     </p>
 
     {/* CTAs */}

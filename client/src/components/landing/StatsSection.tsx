@@ -1,7 +1,8 @@
 import React from 'react';
+import { templates } from '../../templates';
 
 const STATS = [
-  { value: '15', label: 'Professional Templates' },
+  { value: `${templates.length}+`, label: 'Professional Templates' },
   { value: '50K+', label: 'Resumes Created' },
   { value: '98%', label: 'ATS Pass Rate' },
   { value: 'AI', label: 'Powered Resume Builder' },

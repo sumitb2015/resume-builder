@@ -139,7 +139,7 @@ const PLAN_OPTIONS = [
     tagline: 'Core AI writing tools',
     color: '#818CF8',
     gradient: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-    features: ['All 15 templates', 'Dynamic ATS + JD matching', 'Unlimited AI bullets', 'AI summary writer', 'Skills finder', 'Color customization'],
+    features: [`All ${templates.length} templates`, 'Dynamic ATS + JD matching', 'Unlimited AI bullets', 'AI summary writer', 'Skills finder', 'Color customization'],
   },
   {
     id: 'ultimate' as const,
