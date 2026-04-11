@@ -317,6 +317,13 @@ function AppContent() {
   const [checkoutPlan, setCheckoutPlan] = useState<Exclude<Plan, 'free'>>('pro');
   const [checkoutAnnual, setCheckoutAnnual] = useState(false);
   const initialResumeRef = useRef<Resume | null>(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   useEffect(() => {
     if (view === 'builder' && !initialResumeRef.current) {
@@ -326,7 +333,7 @@ function AppContent() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view]);
 
-  const [rightPanelOpen, setRightPanelOpen] = useState(true);
+  const [rightPanelOpen, setRightPanelOpen] = useState(!isMobile);
   const [formExpanded, setFormExpanded] = useState(false);
   const [resume, setResume] = useState<Resume>(initialResume);
   const [improvements, setImprovements] = useState<ImprovementSuggestions | null>(null);
@@ -532,7 +539,7 @@ function AppContent() {
     );
   }
 
-  const formWidth = formExpanded ? '48%' : '40%';
+  const formWidth = isMobile ? '100%' : (formExpanded ? '48%' : '40%');
 
   const mainContent = (() => {
     if (view === 'landing') return (
@@ -605,13 +612,13 @@ function AppContent() {
     const interviewLocked = !canAccess('interview-prep');
     const expertLocked = !canAccess('expert-review');
 
-    const sidebar = isToolView ? (
-      <aside className="app-sidebar no-print">
+    const sidebar = isToolView && (!isMobile || showSavedPanel) ? (
+      <aside className="app-sidebar no-print" style={isMobile ? { position: 'fixed', left: 0, top: 0, bottom: 0, width: '240px', zIndex: 200 } : {}}>
         <div className="sidebar-logo" onClick={() => setView('landing')} style={{ cursor: 'pointer' }}>
           <div className="sidebar-logo-icon">
             <Zap size={18} color="white" fill="white" />
           </div>
-          <span className="sidebar-logo-text">Bespoke<span style={{ color: '#818CF8' }}>CV</span></span>
+          <span className="sidebar-logo-text" style={isMobile ? { opacity: 1 } : {}}>Bespoke<span style={{ color: '#818CF8' }}>CV</span></span>
         </div>
 
         <div style={{ flex: 1, width: '100%', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
@@ -628,6 +635,7 @@ function AppContent() {
                 key={tab.id}
                 className={`sidebar-item ${isActive ? 'active' : ''}`}
                 title={tab.locked ? `Requires ${tab.plan} plan` : tab.label}
+                style={isMobile ? { width: 'calc(100% - 24px)', justifyContent: 'flex-start' } : {}}
                 onClick={() => {
                   if (tab.id === 'builder') setView('builder');
                   else if (tab.id === 'ats-checker') handleGoAtsChecker();
@@ -646,7 +654,7 @@ function AppContent() {
                   <tab.Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
                   {tab.locked && <Lock size={10} style={{ position: 'absolute', bottom: -2, right: -2, background: 'var(--color-ui-surface)', borderRadius: '50%', padding: '1px' }} />}
                 </div>
-                <span className="sidebar-label">{tab.label}</span>
+                <span className="sidebar-label" style={isMobile ? { opacity: 1 } : {}}>{tab.label}</span>
               </button>
             );
           })}
@@ -655,32 +663,55 @@ function AppContent() {
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center', paddingBottom: '10px' }}>
           <button 
             className="sidebar-item" 
+            style={isMobile ? { width: 'calc(100% - 24px)', justifyContent: 'flex-start' } : {}}
             onClick={() => { if (expertLocked) showUpgrade('expert-review' as any); else setShowExpertReview(true); }}
             title="Expert Review"
           >
             <div className="sidebar-icon"><MessageSquare size={20} /></div>
-            <span className="sidebar-label">Expert Review</span>
+            <span className="sidebar-label" style={isMobile ? { opacity: 1 } : {}}>Expert Review</span>
           </button>
-          <button className="sidebar-item" onClick={toggleTheme} title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}>
+          <button 
+            className="sidebar-item" 
+            style={isMobile ? { width: 'calc(100% - 24px)', justifyContent: 'flex-start' } : {}}
+            onClick={toggleTheme} 
+            title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+          >
             <div className="sidebar-icon">{theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}</div>
-            <span className="sidebar-label">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+            <span className="sidebar-label" style={isMobile ? { opacity: 1 } : {}}>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
           </button>
           <div style={{ height: '1px', width: '40%', background: 'var(--color-ui-border)', margin: '8px 0' }} />
-          <button className="sidebar-item" onClick={handleLogout} title="Sign Out">
+          <button 
+            className="sidebar-item" 
+            style={isMobile ? { width: 'calc(100% - 24px)', justifyContent: 'flex-start' } : {}}
+            onClick={handleLogout} 
+            title="Sign Out"
+          >
             <div className="sidebar-icon"><LogOut size={20} /></div>
-            <span className="sidebar-label">Sign Out</span>
+            <span className="sidebar-label" style={isMobile ? { opacity: 1 } : {}}>Sign Out</span>
           </button>
         </div>
       </aside>
     ) : null;
 
     const topBar = isToolView ? (
-      <header className="top-bar no-print" style={{ borderBottom: '1px solid var(--color-ui-border)', background: 'var(--color-ui-bg)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <header className="top-bar no-print" style={{ 
+        borderBottom: '1px solid var(--color-ui-border)', 
+        background: 'var(--color-ui-bg)',
+        height: isMobile ? 'auto' : '56px',
+        padding: isMobile ? '8px 12px' : '0 20px',
+        flexWrap: isMobile ? 'wrap' : 'nowrap',
+        gap: isMobile ? '8px' : '0',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '16px', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
+          {isMobile && (
+            <button className="btn-ghost" style={{ padding: '6px' }} onClick={() => setShowSavedPanel(true)}>
+              <Menu size={20} />
+            </button>
+          )}
           <BreadcrumbNav view={view} onNavigate={setView} />
-          <div style={{ width: '1px', height: '16px', background: 'var(--color-ui-border)' }} />
+          {!isMobile && <div style={{ width: '1px', height: '16px', background: 'var(--color-ui-border)' }} />}
           <PlanBadge size="sm" />
-          {view === 'builder' && (
+          {view === 'builder' && !isMobile && (
             <>
               <div style={{ width: '1px', height: '16px', background: 'var(--color-ui-border)' }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -697,64 +728,69 @@ function AppContent() {
           )}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '12px', flexWrap: isMobile ? 'wrap' : 'nowrap', justifyContent: isMobile ? 'flex-end' : 'flex-start', flex: isMobile ? 1 : 'none' }}>
           {view === 'builder' && (
             <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: 'var(--color-ui-surface)', padding: '2px', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}>
-                <button
-                  className="btn-ghost"
-                  style={{ padding: '6px 8px', opacity: canUndo ? 1 : 0.35 }}
-                  onClick={undo}
-                  disabled={!canUndo}
-                  title="Undo (Ctrl+Z)"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6"/><path d="M3 13C4.5 7.5 10 4 16 5.5A9 9 0 0 1 21 13"/></svg>
-                </button>
-                <button
-                  className="btn-ghost"
-                  style={{ padding: '6px 8px', opacity: canRedo ? 1 : 0.35 }}
-                  onClick={redo}
-                  disabled={!canRedo}
-                  title="Redo (Ctrl+Y)"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 7v6h-6"/><path d="M21 13C19.5 7.5 14 4 8 5.5A9 9 0 0 0 3 13"/></svg>
-                </button>
-              </div>
+              {!isMobile && (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: 'var(--color-ui-surface)', padding: '2px', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}>
+                    <button
+                      className="btn-ghost"
+                      style={{ padding: '6px 8px', opacity: canUndo ? 1 : 0.35 }}
+                      onClick={undo}
+                      disabled={!canUndo}
+                      title="Undo (Ctrl+Z)"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6"/><path d="M3 13C4.5 7.5 10 4 16 5.5A9 9 0 0 1 21 13"/></svg>
+                    </button>
+                    <button
+                      className="btn-ghost"
+                      style={{ padding: '6px 8px', opacity: canRedo ? 1 : 0.35 }}
+                      onClick={redo}
+                      disabled={!canRedo}
+                      title="Redo (Ctrl+Y)"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 7v6-h-6"/><path d="M21 13C19.5 7.5 14 4 8 5.5A9 9 0 0 0 3 13"/></svg>
+                    </button>
+                  </div>
+                  <div style={{ width: '1px', height: '18px', background: 'var(--color-ui-border)' }} />
+                </>
+              )}
 
-              <div style={{ width: '1px', height: '18px', background: 'var(--color-ui-border)' }} />
-
-              <button className={rightPanelOpen ? 'btn-primary' : 'btn-secondary'} style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }} onClick={() => setRightPanelOpen(v => !v)}>
+              <button className={rightPanelOpen ? 'btn-primary' : 'btn-secondary'} style={{ gap: '6px', fontSize: '12.5px', padding: isMobile ? '6px 10px' : '7px 14px' }} onClick={() => setRightPanelOpen(v => !v)}>
                 <Palette size={14} /> 
-                Style
+                {isMobile ? '' : 'Style'}
               </button>
 
-              <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }} onClick={() => setShowSavedPanel(true)}>
-                <FolderOpen size={14} /> 
-                My Resumes
-                {savedResumes.length > 0 && <span style={{ position: 'absolute', top: '-5px', right: '-5px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-ui-accent)', fontSize: '9px', fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>{savedResumes.length}</span>}
-              </button>
+              {!isMobile && (
+                <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }} onClick={() => setShowSavedPanel(true)}>
+                  <FolderOpen size={14} /> 
+                  My Resumes
+                  {savedResumes.length > 0 && <span style={{ position: 'absolute', top: '-5px', right: '-5px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-ui-accent)', fontSize: '9px', fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>{savedResumes.length}</span>}
+                </button>
+              )}
 
-              <div style={{ width: '1px', height: '18px', background: 'var(--color-ui-border)' }} />
+              {!isMobile && <div style={{ width: '1px', height: '18px', background: 'var(--color-ui-border)' }} />}
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '100px', justifyContent: 'flex-end' }}>
-                {autoSaveStatus === 'saving' && (
-                  <span style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span className="spin" style={{ width: '10px', height: '10px', border: '1.5px solid var(--color-ui-border)', borderTopColor: 'var(--color-ui-accent)', borderRadius: '50%' }} />    
-                    Saving
-                  </span>
-                )}
-                {autoSaveStatus === 'saved' && <span style={{ fontSize: '11px', color: 'var(--color-success)', fontWeight: 700 }}>✓ Saved</span>}
-                {lastSavedAt && autoSaveStatus === 'idle' && <span style={{ fontSize: '11px', color: 'var(--color-ui-text-dim)', fontWeight: 500 }}>Saved {lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
-              </div>
+              {autoSaveStatus !== 'idle' && !isMobile && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '80px', justifyContent: 'flex-end' }}>
+                  {autoSaveStatus === 'saving' && (
+                    <span style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span className="spin" style={{ width: '10px', height: '10px', border: '1.5px solid var(--color-ui-border)', borderTopColor: 'var(--color-ui-accent)', borderRadius: '50%' }} />    
+                    </span>
+                  )}
+                  {autoSaveStatus === 'saved' && <span style={{ fontSize: '11px', color: 'var(--color-success)', fontWeight: 700 }}>✓</span>}
+                </div>
+              )}
 
-              <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }} onClick={handleSave}><Save size={14} /> Save</button>
+              <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: isMobile ? '6px 10px' : '7px 14px' }} onClick={handleSave}><Save size={14} /> {isMobile ? '' : 'Save'}</button>
 
-              <button className="btn-primary" style={{ gap: '6px', fontSize: '13px', padding: '8px 18px', boxShadow: '0 4px 12px rgba(99,102,241,0.25)' }} onClick={() => {
+              <button className="btn-primary" style={{ gap: '6px', fontSize: isMobile ? '12px' : '13px', padding: isMobile ? '6px 12px' : '8px 18px', boxShadow: '0 4px 12px rgba(99,102,241,0.25)' }} onClick={() => {
                 setActiveTemplate(t => ({ ...t, settings: t.settings ?? { margin: 15, fontSize: 100, lineHeight: 1.5 } }));
                 setView('preview');
               }}>
                 <FileText size={15} /> 
-                Preview & Export
+                {isMobile ? 'Export' : 'Preview & Export'}
               </button>
             </>
           )}
@@ -844,23 +880,23 @@ function AppContent() {
     }
 
     return (
-      <div className="app-layout-root">
+      <div className="app-layout-root" style={{ flexDirection: isMobile ? 'column' : 'row' }}>
         {sidebar}
         <div className="app-main-content">
           {topBar}
 
-          <div style={{ display: 'flex', overflow: 'hidden', height: '100%' }}>
-            <div style={{ width: formWidth, flexShrink: 0, transition: 'width 0.25s', position: 'relative', height: '100%', overflow: 'hidden' }} className="no-print">
+          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', overflow: isMobile ? 'auto' : 'hidden', height: '100%' }}>
+            <div style={{ width: formWidth, flexShrink: 0, transition: 'width 0.25s', position: 'relative', height: isMobile ? 'auto' : '100%', overflow: isMobile ? 'visible' : 'hidden' }} className="no-print">
               <ErrorBoundary componentName="ResumeBuilder">
                 <ResumeBuilder resume={resume} onChange={setResumeWithHistory} improvements={improvements} onDismissImprovements={() => setImprovements(null)} onUpgradeNeeded={showUpgrade} />
               </ErrorBoundary>
-              <button onClick={() => setFormExpanded(v => !v)} style={{ position: 'absolute', top: '50%', right: '-11px', transform: 'translateY(-50%)', width: '22px', height: '44px', borderRadius: '0 8px 8px 0', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderLeft: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-ui-text-muted)', zIndex: 10 }}>{formExpanded ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}</button>
+              {!isMobile && <button onClick={() => setFormExpanded(v => !v)} style={{ position: 'absolute', top: '50%', right: '-11px', transform: 'translateY(-50%)', width: '22px', height: '44px', borderRadius: '0 8px 8px 0', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderLeft: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-ui-text-muted)', zIndex: 10 }}>{formExpanded ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}</button>}
             </div>
 
-            <main className="preview-viewport" style={{ flex: 1, minWidth: 0 }}>
+            <main className="preview-viewport" style={{ flex: 1, minWidth: 0, padding: isMobile ? '16px 8px' : '32px 24px 64px' }}>
               {/* Preview toolbar */}
-              <div className="no-print" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, width: '100%', maxWidth: '1000px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div className="no-print" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, width: '100%', maxWidth: '1000px', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '12px' : '0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '12px', flexWrap: 'wrap', justifyContent: isMobile ? 'center' : 'flex-start' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', background: 'var(--color-ui-surface)', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}>
                     <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-ui-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                       {activeTemplate.name}
@@ -878,36 +914,42 @@ function AppContent() {
                     <Award size={12} />
                     ATS SCORE: {activeTemplate.atsScore}%
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', background: 'var(--color-ui-surface)', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}>
-                    <FileText size={12} color="var(--color-ui-text-muted)" />
-                    <span style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', fontWeight: 600 }}>
-                      A4 · {pageCount} {pageCount === 1 ? 'PAGE' : 'PAGES'}
-                    </span>
-                  </div>
+                  {!isMobile && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', background: 'var(--color-ui-surface)', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}>
+                      <FileText size={12} color="var(--color-ui-text-muted)" />
+                      <span style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', fontWeight: 600 }}>
+                        A4 · {pageCount} {pageCount === 1 ? 'PAGE' : 'PAGES'}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderRadius: '10px' }}>
                   <button className="btn-ghost" style={{ width: '28px', height: '28px', padding: 0, borderRadius: '6px', fontSize: '16px' }} onClick={() => setZoom(z => Math.max(0.3, +(z - 0.1).toFixed(1)))}>−</button>
-                  <button onClick={() => setZoom(0.75)} style={{ minWidth: '40px', textAlign: 'center', fontSize: '12px', fontWeight: 800, color: 'var(--color-ui-accent)', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                  <button onClick={() => setZoom(isMobile ? 0.4 : 0.75)} style={{ minWidth: '40px', textAlign: 'center', fontSize: '12px', fontWeight: 800, color: 'var(--color-ui-accent)', background: 'transparent', border: 'none', cursor: 'pointer' }}>
                     {Math.round(zoom * 100)}%
                   </button>
                   <button className="btn-ghost" style={{ width: '28px', height: '28px', padding: 0, borderRadius: '6px', fontSize: '16px' }} onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(1)))}>+</button>
-                  <div style={{ width: '1px', height: '16px', background: 'var(--color-ui-border)', margin: '0 4px' }} />
-                  {[50, 75, 100].map(v => (
-                    <button
-                      key={v}
-                      onClick={() => setZoom(v / 100)}
-                      style={{
-                        padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700,
-                        border: 'none', cursor: 'pointer',
-                        background: Math.round(zoom * 100) === v ? 'var(--color-ui-accent-subtle)' : 'transparent',
-                        color: Math.round(zoom * 100) === v ? 'var(--color-ui-accent)' : 'var(--color-ui-text-dim)',
-                        transition: 'all 0.15s',
-                      }}
-                    >
-                      {v}%
-                    </button>
-                  ))}
+                  {!isMobile && (
+                    <>
+                      <div style={{ width: '1px', height: '16px', background: 'var(--color-ui-border)', margin: '0 4px' }} />
+                      {[50, 75, 100].map(v => (
+                        <button
+                          key={v}
+                          onClick={() => setZoom(v / 100)}
+                          style={{
+                            padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700,
+                            border: 'none', cursor: 'pointer',
+                            background: Math.round(zoom * 100) === v ? 'var(--color-ui-accent-subtle)' : 'transparent',
+                            color: Math.round(zoom * 100) === v ? 'var(--color-ui-accent)' : 'var(--color-ui-text-dim)',
+                            transition: 'all 0.15s',
+                          }}
+                        >
+                          {v}%
+                        </button>
+                      ))}
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -918,9 +960,17 @@ function AppContent() {
               </div>
             </main>
 
-            <div style={{ width: rightPanelOpen ? '320px' : '0', flexShrink: 0, overflow: 'hidden', transition: 'width 0.25s' }} className="no-print">
-              {rightPanelOpen && <StylePanel templates={templates} activeTemplate={activeTemplate} onTemplateChange={setActiveTemplate} onColorChange={handleColorChange} onClose={() => setRightPanelOpen(false)} zoom={zoom} onZoomChange={setZoom} onUpgradeNeeded={showUpgrade} />}
-            </div>
+            {(!isMobile || rightPanelOpen) && (
+              <div style={{ 
+                width: rightPanelOpen ? (isMobile ? '100%' : '320px') : '0', 
+                flexShrink: 0, 
+                overflow: 'hidden', 
+                transition: 'width 0.25s',
+                ...(isMobile ? { position: 'fixed', top: 0, right: 0, bottom: 0, zIndex: 300, background: 'var(--color-ui-bg)' } : {})
+              }} className="no-print">
+                {rightPanelOpen && <StylePanel templates={templates} activeTemplate={activeTemplate} onTemplateChange={setActiveTemplate} onColorChange={handleColorChange} onClose={() => setRightPanelOpen(false)} zoom={zoom} onZoomChange={setZoom} onUpgradeNeeded={showUpgrade} />}
+              </div>
+            )}
           </div>
         </div>
       </div>

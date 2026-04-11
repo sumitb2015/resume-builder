@@ -12,6 +12,14 @@ interface Props {
 }
 
 const FooterSection: React.FC<Props> = ({ onOpenTos, onOpenPrivacy, onOpenAbout, onOpenBlog, onOpenCareers, onOpenContact }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const linkStyle: React.CSSProperties = {
     fontSize: '14px', color: 'var(--color-ui-text-muted)', textDecoration: 'none',
     background: 'none', border: 'none', cursor: 'pointer', padding: '0',
@@ -28,9 +36,14 @@ const FooterSection: React.FC<Props> = ({ onOpenTos, onOpenPrivacy, onOpenAbout,
   };
 
   return (
-    <footer style={{ borderTop: '1px solid var(--color-ui-border)', padding: '72px 48px 48px' }}>
+    <footer style={{ borderTop: '1px solid var(--color-ui-border)', padding: isMobile ? '48px 20px' : '72px 48px 48px' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '48px', marginBottom: '64px' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr 1fr 1fr', 
+          gap: isMobile ? '40px' : '48px', 
+          marginBottom: isMobile ? '48px' : '64px' 
+        }}>
 
           {/* Brand column */}
           <div>
@@ -98,7 +111,17 @@ const FooterSection: React.FC<Props> = ({ onOpenTos, onOpenPrivacy, onOpenAbout,
         </div>
 
         {/* Bottom bar */}
-        <div style={{ borderTop: '1px solid var(--color-ui-border)', paddingTop: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ 
+          borderTop: '1px solid var(--color-ui-border)', 
+          paddingTop: '28px', 
+          display: 'flex', 
+          justifyContent: isMobile ? 'center' : 'space-between', 
+          alignItems: 'center', 
+          flexDirection: isMobile ? 'column' : 'row',
+          flexWrap: 'wrap', 
+          gap: '12px',
+          textAlign: isMobile ? 'center' : 'left'
+        }}>
           <p style={{ fontSize: '13px', color: 'var(--color-ui-text-dim)' }}>
             © 2026 BespokeCV · AI-powered resume builder
           </p>

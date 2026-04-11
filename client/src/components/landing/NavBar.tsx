@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Zap, LogOut, Shield, Crown, Sun, Moon, Layout, Sparkles, CreditCard, BookOpen } from 'lucide-react';
+import { Zap, LogOut, Shield, Crown, Sun, Moon, Layout, Sparkles, CreditCard, BookOpen, Menu, X as CloseIcon } from 'lucide-react';
 import { scrollToSection } from '../../lib/scroll';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePlan } from '../../contexts/PlanContext';
@@ -25,9 +25,20 @@ const PLAN_BADGE_CONFIG = {
 const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog, currentLabel }) => {
   const [scrollY, setScrollY] = useState(0);
   const [scrollPct, setScrollPct] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const { currentUser, signOut } = useAuth();
   const { plan } = usePlan();
   const { theme, toggleTheme } = useTheme();
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+      if (window.innerWidth >= 1024) setMobileMenuOpen(false);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const el = document.querySelector('.landing-page') as HTMLElement | null;
@@ -72,20 +83,26 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
     } else {
       scrollToSection('hero');
     }
+    setMobileMenuOpen(false);
+  };
+
+  const handleNavClick = (id: string) => {
+    scrollToSection(id);
+    setMobileMenuOpen(false);
   };
 
   return (
     <nav style={{
       position: 'sticky', top: 0, zIndex: 100,
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '0 40px', height: '72px',
-      backgroundColor: scrollY > 40 ? 'var(--color-ui-nav-scroll)' : 'transparent',
-      borderBottom: scrollY > 40 ? '1px solid var(--color-ui-border)' : '1px solid transparent',
-      backdropFilter: scrollY > 40 ? 'blur(20px)' : 'none',
+      padding: isMobile ? '0 16px' : '0 40px', height: '72px',
+      backgroundColor: (scrollY > 40 || mobileMenuOpen) ? 'var(--color-ui-nav-scroll)' : 'transparent',
+      borderBottom: (scrollY > 40 || mobileMenuOpen) ? '1px solid var(--color-ui-border)' : '1px solid transparent',
+      backdropFilter: (scrollY > 40 || mobileMenuOpen) ? 'blur(20px)' : 'none',
       transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
     }}>
       {/* Scroll progress bar */}
-      {scrollPct > 0 && (
+      {scrollPct > 0 && !mobileMenuOpen && (
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, height: '2.5px',
           background: 'rgba(255,255,255,0.05)', zIndex: 1,
@@ -99,7 +116,7 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
         </div>
       )}
       {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={handleLogoClick}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', zIndex: 101 }} onClick={handleLogoClick}>
         <div style={{ 
           width: '34px', height: '34px', 
           background: 'linear-gradient(135deg, #6366F1, #A855F7)', 
@@ -113,25 +130,46 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
         </span>
       </div>
 
-      {/* Nav links */}
-      <div style={{ 
-        display: 'flex', alignItems: 'center', gap: '6px',
-        padding: '6px', borderRadius: '16px',
-        background: scrollY > 40 ? 'rgba(255,255,255,0.03)' : 'transparent',
-        border: scrollY > 40 ? '1px solid rgba(255,255,255,0.05)' : 'none',
-      }}>
-        {isBlogPage ? (
-          <BreadcrumbNav 
-            view="blog" 
-            onNavigate={(v) => { if (v === 'landing') onBackToHome?.(); else if (v === 'blog') onOpenBlog?.(); }} 
-            currentLabel={currentLabel}
-          />
-        ) : (
-          <>
-            {navLinks.map(link => (
+      {/* Desktop Nav links */}
+      {!isMobile && (
+        <div style={{ 
+          display: 'flex', alignItems: 'center', gap: '6px',
+          padding: '6px', borderRadius: '16px',
+          background: scrollY > 40 ? 'rgba(255,255,255,0.03)' : 'transparent',
+          border: scrollY > 40 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+        }}>
+          {isBlogPage ? (
+            <BreadcrumbNav 
+              view="blog" 
+              onNavigate={(v) => { if (v === 'landing') onBackToHome?.(); else if (v === 'blog') onOpenBlog?.(); }} 
+              currentLabel={currentLabel}
+            />
+          ) : (
+            <>
+              {navLinks.map(link => (
+                <button
+                  key={link.id}
+                  onClick={() => scrollToSection(link.id)}
+                  style={linkBtnStyle}
+                  onMouseEnter={e => { 
+                    e.currentTarget.style.color = 'var(--color-ui-text)'; 
+                    e.currentTarget.style.background = 'var(--color-ui-surface-2)';
+                    e.currentTarget.style.borderColor = 'var(--color-ui-border)';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={e => { 
+                    e.currentTarget.style.color = 'var(--color-ui-text-muted)'; 
+                    e.currentTarget.style.background = 'transparent'; 
+                    e.currentTarget.style.borderColor = 'transparent';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <span style={{ opacity: 0.7 }}>{link.icon}</span>
+                  {link.label}
+                </button>
+              ))}
               <button
-                key={link.id}
-                onClick={() => scrollToSection(link.id)}
+                onClick={onOpenBlog}
                 style={linkBtnStyle}
                 onMouseEnter={e => { 
                   e.currentTarget.style.color = 'var(--color-ui-text)'; 
@@ -146,87 +184,72 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
                   e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >
-                <span style={{ opacity: 0.7 }}>{link.icon}</span>
-                {link.label}
+                <span style={{ opacity: 0.7 }}><BookOpen size={15} /></span>
+                Blog
               </button>
-            ))}
-            <button
-              onClick={onOpenBlog}
-              style={linkBtnStyle}
-              onMouseEnter={e => { 
-                e.currentTarget.style.color = 'var(--color-ui-text)'; 
-                e.currentTarget.style.background = 'var(--color-ui-surface-2)';
-                e.currentTarget.style.borderColor = 'var(--color-ui-border)';
-                e.currentTarget.style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={e => { 
-                e.currentTarget.style.color = 'var(--color-ui-text-muted)'; 
-                e.currentTarget.style.background = 'transparent'; 
-                e.currentTarget.style.borderColor = 'transparent';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              <span style={{ opacity: 0.7 }}><BookOpen size={15} /></span>
-              Blog
-            </button>
-          </>
-        )}
-      </div>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Right side: theme toggle + CTA / User section */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', zIndex: 101 }}>
         {/* Theme toggle */}
-        <button
-          onClick={toggleTheme}
-          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          style={iconBtnStyle}
-          onMouseEnter={e => { 
-            e.currentTarget.style.color = 'var(--color-ui-text)'; 
-            e.currentTarget.style.background = 'var(--color-ui-surface-2)';
-            e.currentTarget.style.borderColor = 'var(--color-ui-text-muted)';
-          }}
-          onMouseLeave={e => { 
-            e.currentTarget.style.color = 'var(--color-ui-text-muted)'; 
-            e.currentTarget.style.background = 'transparent'; 
-            e.currentTarget.style.borderColor = 'var(--color-ui-border)';
-          }}
-        >
-          {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-        </button>
+        {!isMobile && (
+          <button
+            onClick={toggleTheme}
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            style={iconBtnStyle}
+            onMouseEnter={e => { 
+              e.currentTarget.style.color = 'var(--color-ui-text)'; 
+              e.currentTarget.style.background = 'var(--color-ui-surface-2)';
+              e.currentTarget.style.borderColor = 'var(--color-ui-text-muted)';
+            }}
+            onMouseLeave={e => { 
+              e.currentTarget.style.color = 'var(--color-ui-text-muted)'; 
+              e.currentTarget.style.background = 'transparent'; 
+              e.currentTarget.style.borderColor = 'var(--color-ui-border)';
+            }}
+          >
+            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+        )}
 
         {currentUser ? (
-          <>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px', borderRadius: '12px', background: 'var(--color-ui-surface-2)', border: '1px solid var(--color-ui-border)' }}>
-              {currentUser.photoURL ? (
-                <img
-                  src={currentUser.photoURL}
-                  alt={currentUser.displayName ?? 'User'}
-                  style={{ width: '28px', height: '28px', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}
-                />
-              ) : (
-                <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: 'white' }}>
-                  {(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}
-                </div>
-              )}
-              
-              {badge && (
-                <div style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '4px',
-                  padding: '2px 8px', borderRadius: '6px',
-                  background: badge.bg, border: `1px solid ${badge.color}30`,
-                }}>
-                  <span style={{ color: badge.color, display: 'flex', alignItems: 'center' }}>{badge.icon(10)}</span>
-                  <span style={{ fontSize: '10px', fontWeight: 800, color: badge.color, letterSpacing: '0.02em', textTransform: 'uppercase' }}>{badge.label}</span>
-                </div>
-              )}
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '12px' }}>
+            {!isMobile && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px', borderRadius: '12px', background: 'var(--color-ui-surface-2)', border: '1px solid var(--color-ui-border)' }}>
+                {currentUser.photoURL ? (
+                  <img
+                    src={currentUser.photoURL}
+                    alt={currentUser.displayName ?? 'User'}
+                    style={{ width: '28px', height: '28px', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}
+                  />
+                ) : (
+                  <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: 'white' }}>
+                    {(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}
+                  </div>
+                )}
+                
+                {badge && (
+                  <div style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '4px',
+                    padding: '2px 8px', borderRadius: '6px',
+                    background: badge.bg, border: `1px solid ${badge.color}30`,
+                  }}>
+                    <span style={{ color: badge.color, display: 'flex', alignItems: 'center' }}>{badge.icon(10)}</span>
+                    <span style={{ fontSize: '10px', fontWeight: 800, color: badge.color, letterSpacing: '0.02em', textTransform: 'uppercase' }}>{badge.label}</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             <button
               onClick={onStart}
               style={{
-                padding: '10px 24px', borderRadius: '12px',
+                padding: isMobile ? '8px 16px' : '10px 24px', borderRadius: '12px',
                 background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-                border: 'none', color: 'white', fontSize: '14px', fontWeight: 700,
+                border: 'none', color: 'white', fontSize: isMobile ? '13px' : '14px', fontWeight: 700,
                 cursor: 'pointer', letterSpacing: '-0.01em',
                 boxShadow: '0 4px 15px rgba(99,102,241,0.35)',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -234,33 +257,36 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
               onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(99,102,241,0.45)'; }}
               onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 15px rgba(99,102,241,0.35)'; }}
             >
-              Open Builder
+              {isMobile ? 'Builder' : 'Open Builder'}
             </button>
-            <button
-              onClick={() => signOut()}
-              title="Sign out"
-              style={iconBtnStyle}
-              onMouseEnter={e => { 
-                e.currentTarget.style.color = 'var(--color-danger)'; 
-                e.currentTarget.style.background = 'rgba(248, 81, 73, 0.1)';
-                e.currentTarget.style.borderColor = 'rgba(248, 81, 73, 0.2)';
-              }}
-              onMouseLeave={e => { 
-                e.currentTarget.style.color = 'var(--color-ui-text-muted)'; 
-                e.currentTarget.style.background = 'transparent'; 
-                e.currentTarget.style.borderColor = 'var(--color-ui-border)';
-              }}
-            >
-              <LogOut size={16} />
-            </button>
-          </>
+            
+            {!isMobile && (
+              <button
+                onClick={() => signOut()}
+                title="Sign out"
+                style={iconBtnStyle}
+                onMouseEnter={e => { 
+                  e.currentTarget.style.color = 'var(--color-danger)'; 
+                  e.currentTarget.style.background = 'rgba(248, 81, 73, 0.1)';
+                  e.currentTarget.style.borderColor = 'rgba(248, 81, 73, 0.2)';
+                }}
+                onMouseLeave={e => { 
+                  e.currentTarget.style.color = 'var(--color-ui-text-muted)'; 
+                  e.currentTarget.style.background = 'transparent'; 
+                  e.currentTarget.style.borderColor = 'var(--color-ui-border)';
+                }}
+              >
+                <LogOut size={16} />
+              </button>
+            )}
+          </div>
         ) : (
           <button
             onClick={onStart}
             style={{
-              padding: '10px 24px', borderRadius: '12px',
+              padding: isMobile ? '8px 16px' : '10px 24px', borderRadius: '12px',
               background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-              border: 'none', color: 'white', fontSize: '14px', fontWeight: 700,
+              border: 'none', color: 'white', fontSize: isMobile ? '13px' : '14px', fontWeight: 700,
               cursor: 'pointer', letterSpacing: '-0.01em',
               boxShadow: '0 4px 15px rgba(99,102,241,0.35)',
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -268,12 +294,125 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
             onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(99,102,241,0.45)'; }}
             onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 15px rgba(99,102,241,0.35)'; }}
           >
-            Get Started Free
+            {isMobile ? 'Get Started' : 'Get Started Free'}
+          </button>
+        )}
+
+        {isMobile && (
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            style={{ ...iconBtnStyle, border: 'none', background: 'var(--color-ui-surface-2)', color: 'var(--color-ui-text)' }}
+          >
+            {mobileMenuOpen ? <CloseIcon size={20} /> : <Menu size={20} />}
           </button>
         )}
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobile && mobileMenuOpen && (
+        <div style={{
+          position: 'fixed', top: '72px', left: 0, right: 0, bottom: 0,
+          background: 'var(--color-ui-bg)',
+          zIndex: 100, padding: '24px',
+          display: 'flex', flexDirection: 'column', gap: '20px',
+          animation: 'fadeSlideIn 0.3s ease-out',
+          overflowY: 'auto',
+        }}>
+          {!isBlogPage && navLinks.map(link => (
+            <button
+              key={link.id}
+              onClick={() => handleNavClick(link.id)}
+              style={{
+                ...linkBtnStyle, width: '100%', padding: '16px',
+                background: 'var(--color-ui-surface)', borderRadius: '14px',
+                border: '1px solid var(--color-ui-border)', justifyContent: 'flex-start',
+                fontSize: '16px',
+              }}
+            >
+              <span style={{ color: 'var(--color-ui-accent)' }}>{link.icon}</span>
+              {link.label}
+            </button>
+          ))}
+          <button
+            onClick={() => { onOpenBlog?.(); setMobileMenuOpen(false); }}
+            style={{
+              ...linkBtnStyle, width: '100%', padding: '16px',
+              background: 'var(--color-ui-surface)', borderRadius: '14px',
+              border: '1px solid var(--color-ui-border)', justifyContent: 'flex-start',
+              fontSize: '16px',
+            }}
+          >
+            <span style={{ color: 'var(--color-ui-accent)' }}><BookOpen size={15} /></span>
+            Blog
+          </button>
+
+          <div style={{ height: '1px', background: 'var(--color-ui-border)', margin: '10px 0' }} />
+          
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ui-text-muted)' }}>Appearance</span>
+            <button
+              onClick={toggleTheme}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px',
+                borderRadius: '10px', background: 'var(--color-ui-surface-2)',
+                border: '1px solid var(--color-ui-border)', color: 'var(--color-ui-text)',
+                fontSize: '14px', fontWeight: 600,
+              }}
+            >
+              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+              {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+            </button>
+          </div>
+
+          {currentUser && (
+            <>
+              <div style={{ height: '1px', background: 'var(--color-ui-border)', margin: '10px 0' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px' }}>
+                {currentUser.photoURL ? (
+                  <img
+                    src={currentUser.photoURL}
+                    alt={currentUser.displayName ?? 'User'}
+                    style={{ width: '40px', height: '40px', borderRadius: '10px' }}
+                  />
+                ) : (
+                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 700, color: 'white' }}>
+                    {(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}
+                  </div>
+                )}
+                <div>
+                  <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-ui-text)' }}>{currentUser.displayName || 'User'}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>{currentUser.email}</div>
+                </div>
+              </div>
+              {badge && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '12px 16px', borderRadius: '12px',
+                  background: badge.bg, border: `1px solid ${badge.color}30`,
+                }}>
+                  <span style={{ color: badge.color }}>{badge.icon(16)}</span>
+                  <span style={{ fontSize: '14px', fontWeight: 700, color: badge.color }}>{badge.label} Plan</span>
+                </div>
+              )}
+              <button
+                onClick={() => { signOut(); setMobileMenuOpen(false); }}
+                style={{
+                  ...linkBtnStyle, width: '100%', padding: '16px',
+                  background: 'rgba(248, 81, 73, 0.05)', borderRadius: '14px',
+                  border: '1px solid rgba(248, 81, 73, 0.1)', justifyContent: 'flex-start',
+                  fontSize: '16px', color: 'var(--color-danger)',
+                }}
+              >
+                <LogOut size={16} />
+                Sign Out
+              </button>
+            </>
+          )}
+        </div>
+      )}
     </nav>
   );
 };
 
 export default NavBar;
+

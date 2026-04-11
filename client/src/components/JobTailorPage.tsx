@@ -33,6 +33,13 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
   const [uploadError, setUploadError] = useState('');
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const [jdTab, setJdTab] = useState<JdTab>('paste');
   const [jobText, setJobText] = useState('');
@@ -187,7 +194,7 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
               Use your current resume from the builder, or upload a different one.
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
               <SourceCard
                 icon={<FileText size={22} style={{ color: '#A855F7' }} />}
                 title="Current resume"

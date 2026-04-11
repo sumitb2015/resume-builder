@@ -24,6 +24,13 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
   const [uploadError, setUploadError] = useState('');
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const [jobText, setJobText] = useState('');
 
@@ -160,7 +167,7 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
             <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '8px' }}>
               Select your resume
             </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
               <button
                 onClick={() => { setResumeSource('current'); setUploadedResume(null); }}
                 style={{

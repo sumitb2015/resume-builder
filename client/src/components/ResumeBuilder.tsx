@@ -86,6 +86,13 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
   const { canAccess, remainingBullets, incrementBulletUsage } = usePlan();
   const [activeTab, setActiveTab] = useState<TabId>('personal');
   const [editorTab, setEditorTab] = useState<'builder' | 'suggestions'>('suggestions');
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const [appliedSuggestions, setAppliedSuggestions] = useState<Set<number>>(new Set());
 
@@ -422,11 +429,17 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
       )}
 
       {/* ── SECTION NAV ──────────────────────────────── */}
-      <div className="editor-nav" style={{ display: improvements && editorTab === 'suggestions' ? 'none' : undefined }}>
+      <div className="editor-nav" style={{ 
+        display: (improvements && editorTab === 'suggestions') ? 'none' : 'flex',
+        overflowX: isMobile ? 'auto' : 'visible',
+        whiteSpace: isMobile ? 'nowrap' : 'normal',
+        padding: isMobile ? '8px' : '12px 0',
+        gap: isMobile ? '8px' : '0'
+      }}>
         {TABS.map(({ id, label, icon: Icon, countKey }) => {
           const count = countKey ? getCount({ id, label, icon: Icon, countKey }) : 0;
           return (
-            <button key={id} className={`nav-item ${activeTab === id ? 'active' : ''}`} onClick={() => setActiveTab(id)}>
+            <button key={id} className={`nav-item ${activeTab === id ? 'active' : ''}`} onClick={() => setActiveTab(id)} style={{ flexShrink: 0 }}>
               <Icon size={15} strokeWidth={activeTab === id ? 2.5 : 2} />
               <span>{label}</span>
               {countKey && count > 0 && <span className="nav-badge">{count}</span>}
@@ -443,7 +456,7 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
           <div className="fade-slide-in" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <SectionHeader title="Personal Info" />
 
-            <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', marginBottom: '10px' }}>
+            <div style={{ display: 'flex', gap: isMobile ? '14px' : '20px', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'center' : 'flex-start', marginBottom: '10px' }}>
               <div style={{ position: 'relative', flexShrink: 0 }}>
                 <div style={{
                   width: '90px',
@@ -489,7 +502,7 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
                 </label>
               </div>
 
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '14px', width: isMobile ? '100%' : 'auto' }}>
                 <Field label="Full Name" error={err('personal.name', resume.personal.name, 'Name is required')}>
                   <input
                     className="field-input"
@@ -507,7 +520,7 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px' }}>
               <Field label="Email" error={err('personal.email', resume.personal.email, 'Email is required')}>
                 <input
                   className="field-input"
@@ -527,7 +540,7 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
               <input className="field-input" value={resume.personal.location} onChange={e => up('location', e.target.value)} placeholder="City, State" />
             </Field>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px' }}>
               <Field label="LinkedIn">
                 <input className="field-input" value={resume.personal.linkedin} onChange={e => up('linkedin', e.target.value)} placeholder="linkedin.com/in/..." />
               </Field>
@@ -667,7 +680,7 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
 
                   {!isCollapsed && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '10px' }}>
                         <Field label="Company" error={err(`exp.${exp.id}.company`, exp.company, 'Required')}>
                           <input className="field-input" value={exp.company} onChange={e => updateExp(exp.id, 'company', e.target.value)} onBlur={() => touch(`exp.${exp.id}.company`)} placeholder="Company Inc." style={{ borderColor: err(`exp.${exp.id}.company`, exp.company, '') ? 'var(--color-danger)' : undefined }} />
                         </Field>
@@ -675,7 +688,7 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
                           <input className="field-input" value={exp.role} onChange={e => updateExp(exp.id, 'role', e.target.value)} onBlur={() => touch(`exp.${exp.id}.role`)} placeholder="Software Engineer" style={{ borderColor: err(`exp.${exp.id}.role`, exp.role, '') ? 'var(--color-danger)' : undefined }} />
                         </Field>
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '10px' }}>
                         <Field label="Start Date">
                           <input className="field-input" value={exp.startDate} onChange={e => updateExp(exp.id, 'startDate', e.target.value)} placeholder="Jan 2022" />
                         </Field>

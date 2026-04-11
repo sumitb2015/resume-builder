@@ -193,6 +193,13 @@ const TemplateCard: React.FC<{ t: TemplateConfig; onStart: () => void }> = ({ t,
 
 const TemplateShowcase: React.FC<Props> = ({ onStart }) => {
   const [filter, setFilter] = useState<Filter>('all');
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const counts = {
     all: templates.length,
@@ -204,7 +211,7 @@ const TemplateShowcase: React.FC<Props> = ({ onStart }) => {
   const filtered = filter === 'all' ? templates : templates.filter(t => t.category === filter);
 
   return (
-    <section id="templates" style={{ padding: '100px 48px', background: 'var(--color-ui-surface-2)' }}>
+    <section id="templates" style={{ padding: isMobile ? '60px 20px' : '100px 48px', background: 'var(--color-ui-surface-2)' }}>
       <style dangerouslySetInnerHTML={{ __html: `
         .template-scroll-container::-webkit-scrollbar {
           height: 6px;
@@ -223,7 +230,7 @@ const TemplateShowcase: React.FC<Props> = ({ onStart }) => {
       `}} />
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '56px' }}>
+        <div style={{ textAlign: 'center', marginBottom: isMobile ? '40px' : '56px' }}>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
             padding: '6px 16px', borderRadius: '100px',
@@ -232,17 +239,18 @@ const TemplateShowcase: React.FC<Props> = ({ onStart }) => {
           }}>
             <span style={{ fontSize: '12px', fontWeight: 600, color: '#818CF8', letterSpacing: '0.04em' }}>{templates.length} TEMPLATES</span>
           </div>
-          <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)', marginBottom: '14px' }}>
+          <h2 style={{ fontSize: isMobile ? '28px' : 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)', marginBottom: '14px' }}>
             A template for every career
           </h2>
-          <p style={{ fontSize: '16px', color: 'var(--color-ui-text-muted)', maxWidth: '500px', margin: '0 auto' }}>
+          <p style={{ fontSize: isMobile ? '14px' : '16px', color: 'var(--color-ui-text-muted)', maxWidth: '500px', margin: '0 auto' }}>
             From minimalist to creative — each template is ATS-optimized and fully customizable with 10 color palettes.
           </p>
         </div>
 
         {/* Filter tabs — segmented control */}
         <div style={{
-          display: 'flex', justifyContent: 'center', marginBottom: '48px',
+          display: 'flex', justifyContent: 'center', marginBottom: isMobile ? '32px' : '48px',
+          overflowX: isMobile ? 'auto' : 'visible', paddingBottom: isMobile ? '10px' : '0'
         }}>
           <div style={{
             display: 'inline-flex', gap: '2px', padding: '4px',
@@ -254,11 +262,11 @@ const TemplateShowcase: React.FC<Props> = ({ onStart }) => {
                 key={tab.key}
                 onClick={() => setFilter(tab.key)}
                 style={{
-                  padding: '7px 20px', borderRadius: '100px',
+                  padding: isMobile ? '6px 14px' : '7px 20px', borderRadius: '100px',
                   border: 'none',
                   background: filter === tab.key ? 'linear-gradient(135deg, rgba(99,102,241,0.9), rgba(139,92,246,0.9))' : 'transparent',
                   color: filter === tab.key ? 'white' : 'var(--color-ui-text-muted)',
-                  fontSize: '13px', fontWeight: filter === tab.key ? 700 : 500,
+                  fontSize: isMobile ? '12px' : '13px', fontWeight: filter === tab.key ? 700 : 500,
                   cursor: 'pointer', transition: 'all 0.2s cubic-bezier(0.16,1,0.3,1)',
                   whiteSpace: 'nowrap',
                   boxShadow: filter === tab.key ? '0 2px 12px rgba(99,102,241,0.4)' : 'none',
@@ -280,9 +288,9 @@ const TemplateShowcase: React.FC<Props> = ({ onStart }) => {
           className="template-scroll-container"
           style={{
             display: 'grid',
-            gridTemplateRows: 'repeat(2, 1fr)',
+            gridTemplateRows: isMobile ? 'repeat(1, 1fr)' : 'repeat(2, 1fr)',
             gridAutoFlow: 'column',
-            gridAutoColumns: 'calc((100% - (3 * 16px)) / 4)',
+            gridAutoColumns: isMobile ? 'calc(100% - 40px)' : 'calc((100% - (3 * 16px)) / 4)',
             gap: '16px',
             overflowX: 'auto',
             paddingBottom: '24px',

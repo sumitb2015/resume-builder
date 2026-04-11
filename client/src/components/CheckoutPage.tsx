@@ -106,6 +106,14 @@ const CheckoutPage: React.FC<Props> = ({ planTier, isAnnual, onBack, onSuccess }
     }
   };
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const PlanIcon = planTier === 'ultimate' ? Crown : planTier === 'pro' ? Zap : Shield;
   const planColor = planTier === 'ultimate' ? '#C084FC' : planTier === 'pro' ? '#818CF8' : '#F59E0B';
 
@@ -113,9 +121,9 @@ const CheckoutPage: React.FC<Props> = ({ planTier, isAnnual, onBack, onSuccess }
     <div style={{
       minHeight: '100vh', background: 'var(--color-ui-bg)',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      padding: '40px 24px',
+      padding: isMobile ? '24px 16px' : '40px 24px',
     }}>
-      <div style={{ maxWidth: '800px', width: '100%', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '32px' }}>
+      <div style={{ maxWidth: '800px', width: '100%', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1fr', gap: isMobile ? '24px' : '32px' }}>
         {/* Left Side: Summary */}
         <div>
           <button 
@@ -123,39 +131,39 @@ const CheckoutPage: React.FC<Props> = ({ planTier, isAnnual, onBack, onSuccess }
             style={{ 
               display: 'flex', alignItems: 'center', gap: '6px', 
               background: 'transparent', border: 'none', color: 'var(--color-ui-text-muted)', 
-              fontSize: '14px', fontWeight: 600, cursor: 'pointer', marginBottom: '24px',
+              fontSize: '14px', fontWeight: 600, cursor: 'pointer', marginBottom: isMobile ? '20px' : '32px',
               padding: 0
             }}
           >
             <ChevronLeft size={16} /> Back to plans
           </button>
 
-          <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em', marginBottom: '32px' }}>
+          <h1 style={{ fontSize: isMobile ? '24px' : '28px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em', marginBottom: isMobile ? '24px' : '32px' }}>
             Complete your upgrade
           </h1>
 
           <div style={{ 
             background: 'var(--color-ui-surface)', borderRadius: '16px', border: '1px solid var(--color-ui-border)',
-            padding: '24px', marginBottom: '24px'
+            padding: isMobile ? '20px' : '24px', marginBottom: '24px'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
               <div style={{ 
-                width: '48px', height: '48px', borderRadius: '12px', background: `${planColor}15`,
+                width: isMobile ? '40px' : '48px', height: isMobile ? '40px' : '48px', borderRadius: '12px', background: `${planColor}15`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', color: planColor
               }}>
-                <PlanIcon size={24} />
+                <PlanIcon size={isMobile ? 20 : 24} />
               </div>
               <div>
-                <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)' }}>
+                <div style={{ fontSize: isMobile ? '16px' : '18px', fontWeight: 700, color: 'var(--color-ui-text)' }}>
                   {planTier.charAt(0).toUpperCase() + planTier.slice(1)} Plan
                 </div>
-                <div style={{ fontSize: '14px', color: 'var(--color-ui-text-muted)' }}>
+                <div style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)' }}>
                   Billing {isAnnual ? 'annually (Save ~20%)' : 'monthly'}
                 </div>
               </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {[
                 'Everything included in your tier',
                 'Cancel anytime with no hassle',
@@ -163,15 +171,15 @@ const CheckoutPage: React.FC<Props> = ({ planTier, isAnnual, onBack, onSuccess }
                 'Secure data encryption'
               ].map((f, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <Check size={16} color="#4ADE80" />
-                  <span style={{ fontSize: '14px', color: 'var(--color-ui-text-muted)' }}>{f}</span>
+                  <Check size={14} color="#4ADE80" />
+                  <span style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)' }}>{f}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--color-ui-text-muted)', fontSize: '13px' }}>
-            <Shield size={16} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--color-ui-text-muted)', fontSize: '12px' }}>
+            <Shield size={14} />
             Secure 256-bit SSL encrypted payment
           </div>
         </div>
@@ -179,12 +187,12 @@ const CheckoutPage: React.FC<Props> = ({ planTier, isAnnual, onBack, onSuccess }
         {/* Right Side: Payment Info */}
         <div style={{ 
           background: 'var(--color-ui-surface)', borderRadius: '24px', border: '1px solid var(--color-ui-border)',
-          padding: '32px', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', height: 'fit-content'
+          padding: isMobile ? '24px' : '32px', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', height: 'fit-content'
         }}>
-          <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '20px' }}>Order Summary</h2>
+          <h2 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '16px' }}>Order Summary</h2>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
               <span style={{ color: 'var(--color-ui-text-muted)' }}>
                 {planTier.charAt(0).toUpperCase() + planTier.slice(1)} ({isAnnual ? 'Annual' : 'Monthly'})
               </span>
@@ -192,9 +200,9 @@ const CheckoutPage: React.FC<Props> = ({ planTier, isAnnual, onBack, onSuccess }
             </div>
 
             {appliedDiscount && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px', color: '#4ADE80' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#4ADE80' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Tag size={14} /> Discount ({appliedDiscount.percent}%)
+                  <Tag size={12} /> Discount ({appliedDiscount.percent}%)
                 </span>
                 <span style={{ fontWeight: 600 }}>-₹{discountAmount}</span>
               </div>
@@ -203,12 +211,12 @@ const CheckoutPage: React.FC<Props> = ({ planTier, isAnnual, onBack, onSuccess }
             <div style={{ height: '1px', background: 'var(--color-ui-border)' }} />
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-              <span style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)' }}>Total</span>
+              <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-ui-text)' }}>Total</span>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.02em' }}>
+                <div style={{ fontSize: isMobile ? '24px' : '28px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.02em' }}>
                   ₹{finalPrice}
                 </div>
-                <div style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>including taxes</div>
+                <div style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)' }}>including taxes</div>
               </div>
             </div>
           </div>

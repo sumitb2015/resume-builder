@@ -34,6 +34,13 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
   const [uploadError, setUploadError] = useState('');
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const [jdTab, setJdTab] = useState<JdTab>('paste');
   const [jobText, setJobText] = useState('');
@@ -167,7 +174,7 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
               Use your current resume from the builder, or upload a different one.
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
               {/* Current resume card */}
               <SourceCard
                 icon={<FileText size={22} style={{ color: '#818CF8' }} />}
@@ -444,10 +451,17 @@ function AtsResults({
 }) {
   const color = scoreColor(result.score);
   const label = scoreLabel(result.score);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1fr', gap: '24px', marginBottom: '24px' }}>
         {/* Left: score + feedback */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* Score gauge */}

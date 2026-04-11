@@ -249,39 +249,57 @@ const FeatureCard: React.FC<{ feature: typeof AI_FEATURES[0] }> = ({ feature }) 
   );
 };
 
-const AiFeaturesSection: React.FC = () => (
-  <section id="ai-features" style={{
-    padding: '100px 48px',
-    background: 'var(--color-ui-bg)',
-    borderTop: '1px solid var(--color-ui-border)',
-    borderBottom: '1px solid var(--color-ui-border)',
-  }}>
-    <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-        <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: '8px',
-          padding: '6px 16px', borderRadius: '100px',
-          background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.25)',
-          marginBottom: '20px',
-        }}>
-          <Sparkles size={13} color="#C084FC" />
-          <span style={{ fontSize: '12px', fontWeight: 600, color: '#C084FC', letterSpacing: '0.04em' }}>AI-POWERED FEATURES</span>
-        </div>
-        <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)', marginBottom: '14px' }}>
-          Let AI do the heavy lifting
-        </h2>
-        <p style={{ fontSize: '16px', color: 'var(--color-ui-text-muted)', maxWidth: '480px', margin: '0 auto' }}>
-          Nine purpose-built AI tools to craft compelling, ATS-optimized resumes that make you stand out.
-        </p>
-      </div>
+const AiFeaturesSection: React.FC = () => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [isTablet, setIsTablet] = useState(window.innerWidth < 1024 && window.innerWidth >= 768);
 
-      {/* Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
-        {AI_FEATURES.map((f, i) => <FeatureCard key={i} feature={f} />)}
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+      setIsTablet(window.innerWidth < 1024 && window.innerWidth >= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return (
+    <section id="ai-features" style={{
+      padding: isMobile ? '60px 20px' : '100px 48px',
+      background: 'var(--color-ui-bg)',
+      borderTop: '1px solid var(--color-ui-border)',
+      borderBottom: '1px solid var(--color-ui-border)',
+    }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: isMobile ? '40px' : '64px' }}>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            padding: '6px 16px', borderRadius: '100px',
+            background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.25)',
+            marginBottom: '20px',
+          }}>
+            <Sparkles size={13} color="#C084FC" />
+            <span style={{ fontSize: '12px', fontWeight: 600, color: '#C084FC', letterSpacing: '0.04em' }}>AI-POWERED FEATURES</span>
+          </div>
+          <h2 style={{ fontSize: isMobile ? '28px' : 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)', marginBottom: '14px' }}>
+            Let AI do the heavy lifting
+          </h2>
+          <p style={{ fontSize: isMobile ? '14px' : '16px', color: 'var(--color-ui-text-muted)', maxWidth: '480px', margin: '0 auto' }}>
+            Nine purpose-built AI tools to craft compelling, ATS-optimized resumes that make you stand out.
+          </p>
+        </div>
+
+        {/* Grid */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: isMobile ? (isTablet ? 'repeat(2, 1fr)' : '1fr') : 'repeat(3, 1fr)', 
+          gap: '20px' 
+        }}>
+          {AI_FEATURES.map((f, i) => <FeatureCard key={i} feature={f} />)}
+        </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 export default AiFeaturesSection;

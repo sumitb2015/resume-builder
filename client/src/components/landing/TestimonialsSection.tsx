@@ -102,30 +102,48 @@ const TestimonialCard: React.FC<{ t: typeof TESTIMONIALS[0] }> = ({ t }) => (
   </div>
 );
 
-const TestimonialsSection: React.FC = () => (
-  <section style={{
-    padding: '100px 48px',
-    background: 'var(--color-ui-surface-2)',
-    borderTop: '1px solid var(--color-ui-border)',
-    borderBottom: '1px solid var(--color-ui-border)',
-  }}>
-    <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-        <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)', marginBottom: '14px' }}>
-          Loved by job seekers worldwide
-        </h2>
-        <p style={{ fontSize: '16px', color: 'var(--color-ui-text-muted)' }}>
-          Join 50,000+ professionals who've landed interviews with BespokeCV
-        </p>
-      </div>
+const TestimonialsSection: React.FC = () => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [isTablet, setIsTablet] = useState(window.innerWidth < 1024 && window.innerWidth >= 768);
 
-      {/* Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
-        {TESTIMONIALS.map((t, i) => <TestimonialCard key={i} t={t} />)}
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+      setIsTablet(window.innerWidth < 1024 && window.innerWidth >= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return (
+    <section style={{
+      padding: isMobile ? '60px 20px' : '100px 48px',
+      background: 'var(--color-ui-surface-2)',
+      borderTop: '1px solid var(--color-ui-border)',
+      borderBottom: '1px solid var(--color-ui-border)',
+    }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: isMobile ? '40px' : '64px' }}>
+          <h2 style={{ fontSize: isMobile ? '28px' : 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)', marginBottom: '14px' }}>
+            Loved by job seekers worldwide
+          </h2>
+          <p style={{ fontSize: isMobile ? '14px' : '16px', color: 'var(--color-ui-text-muted)' }}>
+            Join 50,000+ professionals who've landed interviews with BespokeCV
+          </p>
+        </div>
+
+        {/* Grid */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: isMobile ? (isTablet ? 'repeat(2, 1fr)' : '1fr') : 'repeat(3, 1fr)', 
+          gap: '20px' 
+        }}>
+          {TESTIMONIALS.map((t, i) => <TestimonialCard key={i} t={t} />)}
+        </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 export default TestimonialsSection;
