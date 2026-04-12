@@ -104,6 +104,20 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
     setBulletData({ date: todayKey(), count: 0 });
   }, [uid]);
 
+  // Cross-tab plan sync: when the user upgrades in another tab, this tab picks it up via the storage event
+  useEffect(() => {
+    if (!uid) return;
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === `bespokecv_plan_${uid}` && e.newValue) {
+        setPlanState(e.newValue as Plan);
+        // Re-fetch from DB to get the canonical plan (expiry, etc.)
+        fetchPlanFromDb(uid);
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, [uid]);
+
   const setPlan = (newPlan: Plan) => {
     if (planKey) localStorage.setItem(planKey, newPlan);
     setPlanState(newPlan);

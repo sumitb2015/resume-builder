@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
+import { useIsMobile } from '../hooks/useIsMobile';
 import {
   FileText, Upload, ArrowLeft, Loader2, AlertCircle,
   Zap, Link2, CheckCircle2, Check,
@@ -33,13 +34,7 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
   const [uploadError, setUploadError] = useState('');
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const isMobile = useIsMobile(768);
 
   const [jdTab, setJdTab] = useState<JdTab>('paste');
   const [jobText, setJobText] = useState('');
@@ -366,10 +361,21 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
         {/* ── STEP 3: Loading or results ── */}
         {step === 3 && (
           loading ? (
-            <div style={{ textAlign: 'center', padding: '60px 0' }}>
-              <Loader2 size={44} style={{ color: '#A855F7', animation: 'spin 1s linear infinite', marginBottom: '20px' }} />
-              <p style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-ui-text)' }}>Tailoring your resume…</p>
-              <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', marginTop: '8px' }}>AI is rewriting your bullets — this takes 15–30 seconds</p>
+            <div style={{ maxWidth: '700px', margin: '0 auto' }}>
+              <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', textAlign: 'center', marginBottom: '24px' }}>
+                <Loader2 size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', animation: 'spin 1s linear infinite', color: '#A855F7' }} />
+                AI is rewriting your bullets — this takes 15–30 seconds…
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {[100, 85, 95, 75, 90].map((w, i) => (
+                  <div key={i} style={{ background: 'var(--color-ui-surface)', borderRadius: '12px', padding: '16px 20px', border: '1px solid var(--color-ui-border)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div className="skeleton" style={{ height: '11px', width: '55px' }} />
+                    <div className="skeleton" style={{ height: '13px', width: `${w}%` }} />
+                    <div className="skeleton" style={{ height: '11px', width: '50px', marginTop: '6px' }} />
+                    <div className="skeleton" style={{ height: '13px', width: `${Math.min(100, w + 5)}%` }} />
+                  </div>
+                ))}
+              </div>
             </div>
           ) : result ? (
             <TailorResults

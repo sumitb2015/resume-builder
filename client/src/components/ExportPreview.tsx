@@ -1,7 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
+import { useIsMobile, useWindowWidth } from '../hooks/useIsMobile';
 import type { Resume, TemplateConfig } from '../shared/types';
 import PagedPreview from './PagedPreview';
 import TemplateRenderer from '../templates/TemplateRenderer';
+import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import { buildPdfHtml } from '../lib/buildPdfHtml';
 import { Download, Type, Move, Palette, Sparkles, Loader2, Undo2, Redo2, FileText as FileTextIcon } from 'lucide-react';
@@ -77,14 +79,9 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
   const [isDownloading, setIsDownloading] = useState(false);
   const [targetPages, setTargetPages] = useState(1);
   const [userPrompt, setUserPrompt] = useState('');
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const isMobile = useIsMobile();
+  const windowWidth = useWindowWidth();
   const [mobileSettingsView, setMobileSettingsView] = useState<'styles' | 'smartfit' | null>(null);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   // Undo/Redo State
   const [past, setPast] = useState<HistoryItem[]>([]);
@@ -282,7 +279,7 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
     }
   };
 
-  const mobileScale = Math.min(0.8, (window.innerWidth - 32) / 794);
+  const mobileScale = Math.min(0.8, (windowWidth - 32) / 794);
 
   // Calculate target page options: [1 ... pageCount+1]
   const targetPageOptions = Array.from({ length: Math.max(2, pageCount + 1) }, (_, i) => i + 1);
@@ -543,7 +540,7 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
                 <Button
                   variant="outline"
                   className="w-full h-11 text-[13.5px] font-semibold gap-2 border-dashed border-[var(--color-ui-border)] text-[var(--color-ui-text-muted)] hover:text-[var(--color-ui-text)] hover:bg-[var(--color-ui-surface-2)] active:scale-[0.98] transition-all"
-                  onClick={() => alert('PDF Export requires a Basic, Pro, or Ultimate plan. Please upgrade to download as PDF.')}
+                  onClick={() => toast.error('PDF Export requires a Basic, Pro, or Ultimate plan. Please upgrade to download as PDF.')}
                 >
                   <Download size={16} /> Export PDF (Locked)
                 </Button>

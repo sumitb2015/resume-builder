@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, User, Calendar, Settings, LogOut, Shield, Zap, Crown, ArrowLeft, Loader2, Check, Sparkles, Layout } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { usePlan } from '../contexts/PlanContext';
 import { updateProfile } from 'firebase/auth';
 import { templates } from '../templates';
@@ -60,7 +61,7 @@ const ProfileModal: React.FC<Props> = ({ user, onClose, onLogout }) => {
       // We don't need to manually refresh user since Firebase Auth handles it, 
       // but the UI might need a second to catch up in some setups.
     } catch (err) {
-      alert('Failed to update profile. Please try again.');
+      toast.error('Failed to update profile. Please try again.');
     } finally {
       setIsSavingProfile(false);
     }

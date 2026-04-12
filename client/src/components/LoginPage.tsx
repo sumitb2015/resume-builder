@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Zap, Loader2 } from 'lucide-react';
+import { Zap, Loader2, ArrowLeft, Mail } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import BreadcrumbNav from './BreadcrumbNav';
 
@@ -16,7 +16,7 @@ const GoogleIcon = () => (
   </svg>
 );
 
-type Mode = 'signin' | 'signup';
+type Mode = 'signin' | 'signup' | 'reset' | 'reset-sent';
 type FieldErrors = { name?: string; email?: string; password?: string; general?: string };
 
 function firebaseErrorToField(code: string): { field: keyof FieldErrors; msg: string } {
@@ -40,7 +40,7 @@ function firebaseErrorToField(code: string): { field: keyof FieldErrors; msg: st
 }
 
 export default function LoginPage({ onLoginSuccess }: Props) {
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
+  const { signInWithGoogle, signInWithEmail, signUpWithEmail, resetPassword } = useAuth();
 
   const [mode, setMode] = useState<Mode>('signin');
   const [name, setName] = useState('');
@@ -53,9 +53,31 @@ export default function LoginPage({ onLoginSuccess }: Props) {
   const switchMode = (next: Mode) => {
     setMode(next);
     setName('');
-    setEmail('');
     setPassword('');
     setFieldErrors({});
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.includes('@')) {
+      setFieldErrors({ email: 'Please enter a valid email address.' });
+      return;
+    }
+    setFieldErrors({});
+    setLoading(true);
+    try {
+      await resetPassword(email.trim());
+      setMode('reset-sent');
+    } catch (err: unknown) {
+      const code = (err as { code?: string }).code ?? '';
+      if (code === 'auth/user-not-found') {
+        setFieldErrors({ email: 'No account found with this email.' });
+      } else {
+        setFieldErrors({ general: 'Failed to send reset email. Please try again.' });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Client-side validation before hitting Firebase
@@ -180,20 +202,84 @@ export default function LoginPage({ onLoginSuccess }: Props) {
 
         {/* Dynamic title */}
         <h1 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '6px', textAlign: 'center' }}>
-          {mode === 'signin' ? 'Welcome back' : 'Create your account'}
+          {mode === 'signin' ? 'Welcome back' : mode === 'signup' ? 'Create your account' : mode === 'reset' ? 'Reset your password' : 'Check your email'}
         </h1>
         <p style={{ fontSize: '13.5px', color: 'var(--color-ui-text-muted)', marginBottom: '24px', lineHeight: 1.6, textAlign: 'center' }}>
-          {mode === 'signin' ? 'Sign in to continue building your resume' : 'Start building your perfect resume with AI'}
+          {mode === 'signin' ? 'Sign in to continue building your resume'
+            : mode === 'signup' ? 'Start building your perfect resume with AI'
+            : mode === 'reset' ? 'Enter your email and we\'ll send a reset link'
+            : `A password reset link has been sent to ${email}`}
         </p>
 
-        {/* Tab toggle */}
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
-          {tabBtn('Sign In', 'signin')}
-          {tabBtn('Create Account', 'signup')}
-        </div>
+        {/* Tab toggle — hidden for reset flows */}
+        {(mode === 'signin' || mode === 'signup') && (
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+            {tabBtn('Sign In', 'signin')}
+            {tabBtn('Create Account', 'signup')}
+          </div>
+        )}
+
+        {/* ── Password reset sent ── */}
+        {mode === 'reset-sent' && (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', padding: '8px 0' }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(99,102,241,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Mail size={26} style={{ color: '#818CF8' }} />
+            </div>
+            <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', textAlign: 'center', lineHeight: 1.6, maxWidth: '280px' }}>
+              If an account exists for that email, you'll receive a reset link shortly. Check your spam folder if it doesn't arrive.
+            </p>
+            <button
+              type="button"
+              className="btn-secondary"
+              style={{ gap: '8px', fontSize: '13px', width: '100%', justifyContent: 'center' }}
+              onClick={() => switchMode('signin')}
+            >
+              <ArrowLeft size={13} /> Back to Sign In
+            </button>
+          </div>
+        )}
+
+        {/* ── Password reset form ── */}
+        {mode === 'reset' && (
+          <form onSubmit={handleResetPassword} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div>
+              <label className="field-label">Email address</label>
+              <input
+                className="field-input"
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="you@email.com"
+                autoComplete="email"
+                autoFocus
+                style={inputStyle(!!fieldErrors.email)}
+              />
+              {fieldErrors.email && <p style={{ fontSize: '12px', color: 'var(--color-danger)', marginTop: '5px' }}>{fieldErrors.email}</p>}
+            </div>
+            {fieldErrors.general && (
+              <p style={{ fontSize: '12px', color: 'var(--color-danger)', textAlign: 'center' }}>{fieldErrors.general}</p>
+            )}
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={loading}
+              style={{ width: '100%', justifyContent: 'center', padding: '11px', fontSize: '14px', opacity: loading ? 0.7 : 1 }}
+            >
+              {loading ? <><Loader2 size={14} className="spin" /> Sending…</> : 'Send Reset Link →'}
+            </button>
+            <button
+              type="button"
+              className="btn-ghost"
+              style={{ gap: '6px', fontSize: '13px', justifyContent: 'center' }}
+              onClick={() => switchMode('signin')}
+            >
+              <ArrowLeft size={13} /> Back to Sign In
+            </button>
+          </form>
+        )}
 
         {/* Email / password form */}
-        <form onSubmit={handleEmailSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        {(mode === 'signin' || mode === 'signup') && <form onSubmit={handleEmailSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {mode === 'signup' && (
             <div>
               <label className="field-label">Full Name</label>
@@ -225,7 +311,18 @@ export default function LoginPage({ onLoginSuccess }: Props) {
           </div>
 
           <div>
-            <label className="field-label">Password</label>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+              <label className="field-label" style={{ margin: 0 }}>Password</label>
+              {mode === 'signin' && (
+                <button
+                  type="button"
+                  onClick={() => switchMode('reset')}
+                  style={{ fontSize: '12px', color: 'var(--color-ui-accent)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: 'var(--font-sans)' }}
+                >
+                  Forgot password?
+                </button>
+              )}
+            </div>
             <input
               className="field-input"
               type="password"
@@ -253,8 +350,10 @@ export default function LoginPage({ onLoginSuccess }: Props) {
               : mode === 'signup' ? 'Create Account →' : 'Sign In →'
             }
           </button>
-        </form>
+        </form>}
 
+        {/* Divider + Google — only for signin/signup */}
+        {(mode === 'signin' || mode === 'signup') && <>
         {/* Divider */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '20px 0' }}>
           <div style={{ flex: 1, height: '1px', background: 'var(--color-ui-border)' }} />
@@ -299,6 +398,7 @@ export default function LoginPage({ onLoginSuccess }: Props) {
           By continuing, you agree to our Terms of Service.<br />
           Your data stays private and is never sold.
         </p>
+        </>}
       </div>
     </div>
   );

@@ -98,7 +98,7 @@ const HeroSection: React.FC<Props> = ({ onStart }) => {
           onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 14px 44px rgba(99,102,241,0.55)'; }}
           onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(99,102,241,0.4)'; }}
         >
-          Build My Resume
+          Start Building
           <ArrowRight size={16} />
         </button>
         <button

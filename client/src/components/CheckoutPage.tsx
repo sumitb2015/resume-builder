@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, Check, Zap, Crown, Shield, CreditCard, Tag, AlertCircle, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import { openRazorpay } from '../lib/razorpay';
 import { useAuth } from '../contexts/AuthContext';
@@ -85,11 +86,11 @@ const CheckoutPage: React.FC<Props> = ({ planTier, isAnnual, onBack, onSuccess, 
               await updatePlan();
               onSuccess();
             } else {
-              alert('Payment verification failed. Please contact support.');
+              toast.error('Payment verification failed. Please contact support.');
             }
           } catch (err) {
             console.error('Verification error:', err);
-            alert('An error occurred during verification. If money was deducted, please contact support.');
+            toast.error('An error occurred during verification. If money was deducted, please contact support.');
           }
         },
         prefill: {
@@ -102,7 +103,7 @@ const CheckoutPage: React.FC<Props> = ({ planTier, isAnnual, onBack, onSuccess, 
       });
     } catch (error: any) {
       console.error('Payment initiation failed:', error);
-      alert(`Payment initiation failed: ${error.message}`);
+      toast.error(`Payment initiation failed: ${error.message}`);
     } finally {
       setLoading(false);
     }

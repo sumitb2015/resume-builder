@@ -16,21 +16,52 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
   }
 }
 
-async function post<T>(path: string, body: unknown): Promise<T> {
-  const authHeaders = await getAuthHeaders();
-  const res = await fetch(`${BASE}${path}`, {
-    method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      ...authHeaders
-    },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: 'Request failed' }));
-    throw new Error(err.error || `HTTP ${res.status}`);
+const sleep = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
+
+async function post<T>(path: string, body: unknown, options: { retryable?: boolean } = {}): Promise<T> {
+  const { retryable = true } = options;
+  const TIMEOUT_MS = 30_000;
+  const delays = [1000, 2000];
+  const maxRetries = retryable ? 2 : 0;
+  let lastError: Error = new Error('Request failed');
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    if (attempt > 0) await sleep(delays[attempt - 1]!);
+
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch(`${BASE}${path}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      clearTimeout(tid);
+      if (!res.ok) {
+        if (res.status === 429) {
+          const retryAfter = res.headers.get('Retry-After');
+          const seconds = retryAfter ? parseInt(retryAfter, 10) : 60;
+          throw new Error(`Rate limit reached — too many AI requests. Please wait ${seconds} second${seconds !== 1 ? 's' : ''} and try again.`);
+        }
+        const err = await res.json().catch(() => ({ error: 'Request failed' }));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+      return res.json();
+    } catch (err: unknown) {
+      clearTimeout(tid);
+      const isAbort = err instanceof DOMException && err.name === 'AbortError';
+      const isNetwork = err instanceof TypeError;
+      if ((!isAbort && !isNetwork) || attempt >= maxRetries) {
+        if (isAbort) throw new Error('Request timed out — please try again.');
+        throw err instanceof Error ? err : new Error('Request failed');
+      }
+      lastError = err instanceof Error ? err : new Error('Request failed');
+      console.warn(`[api] Attempt ${attempt + 1} failed, retrying…`, err);
+    }
   }
-  return res.json();
+  throw lastError;
 }
 
 export const api = {
@@ -82,16 +113,27 @@ export const api = {
     const formData = new FormData();
     formData.append('file', file);
     const authHeaders = await getAuthHeaders();
-    const res = await fetch(`${BASE}/api/parse/upload`, { 
-      method: 'POST', 
-      headers: { ...authHeaders },
-      body: formData 
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({ error: 'Upload failed' }));
-      throw new Error((err as any).error || `HTTP ${res.status}`);
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 30_000);
+    try {
+      const res = await fetch(`${BASE}/api/parse/upload`, {
+        method: 'POST',
+        headers: { ...authHeaders },
+        body: formData,
+        signal: controller.signal,
+      });
+      clearTimeout(tid);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Upload failed' }));
+        throw new Error((err as any).error || `HTTP ${res.status}`);
+      }
+      return res.json();
+    } catch (err: unknown) {
+      clearTimeout(tid);
+      if (err instanceof DOMException && err.name === 'AbortError')
+        throw new Error('Upload timed out — please try again.');
+      throw err;
     }
-    return res.json();
   },
 
   syncLinkedIn: (text: string) =>
@@ -168,18 +210,26 @@ export const api = {
 
   exportPdf: async (html: string, filename: string): Promise<Blob> => {
     const authHeaders = await getAuthHeaders();
-    const res = await fetch(`${BASE}/api/export/pdf`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        ...authHeaders
-      },
-      body: JSON.stringify({ html, filename }),
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({ error: 'Export failed' }));
-      throw new Error((err as any).error || `HTTP ${res.status}`);
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 30_000);
+    try {
+      const res = await fetch(`${BASE}/api/export/pdf`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify({ html, filename }),
+        signal: controller.signal,
+      });
+      clearTimeout(tid);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Export failed' }));
+        throw new Error((err as any).error || `HTTP ${res.status}`);
+      }
+      return res.blob();
+    } catch (err: unknown) {
+      clearTimeout(tid);
+      if (err instanceof DOMException && err.name === 'AbortError')
+        throw new Error('PDF export timed out — please try again.');
+      throw err;
     }
-    return res.blob();
   },
 };

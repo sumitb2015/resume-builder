@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
+import { useIsMobile } from '../hooks/useIsMobile';
 import {
   FileText, Upload, ArrowLeft, Loader2, AlertCircle, Award,
   Sparkles, Link2, CheckCircle2,
@@ -34,13 +35,7 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
   const [uploadError, setUploadError] = useState('');
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const isMobile = useIsMobile(768);
 
   const [jdTab, setJdTab] = useState<JdTab>('paste');
   const [jobText, setJobText] = useState('');
@@ -354,10 +349,39 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
         {/* ── STEP 3: Loading or results ── */}
         {step === 3 && (
           loading ? (
-            <div style={{ textAlign: 'center', padding: '60px 0' }}>
-              <Loader2 size={44} style={{ color: '#818CF8', animation: 'spin 1s linear infinite', marginBottom: '20px' }} />
-              <p style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-ui-text)' }}>Analyzing your resume…</p>
-              <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', marginTop: '8px' }}>This takes 10–20 seconds</p>
+            <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+              <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', textAlign: 'center', marginBottom: '24px' }}>
+                <Loader2 size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', animation: 'spin 1s linear infinite', color: '#818CF8' }} />
+                Analyzing your resume — this takes 10–20 seconds…
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1fr', gap: '24px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  <div style={{ background: 'var(--color-ui-surface)', borderRadius: '16px', padding: '32px 24px', border: '1px solid var(--color-ui-border)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                    <div className="skeleton" style={{ width: '140px', height: '140px', borderRadius: '50%' }} />
+                    <div className="skeleton" style={{ height: '18px', width: '100px' }} />
+                    <div className="skeleton" style={{ height: '13px', width: '140px' }} />
+                  </div>
+                  <div style={{ background: 'var(--color-ui-surface)', borderRadius: '14px', padding: '20px', border: '1px solid var(--color-ui-border)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div className="skeleton" style={{ height: '13px', width: '80px' }} />
+                    <div className="skeleton" style={{ height: '13px' }} />
+                    <div className="skeleton" style={{ height: '13px' }} />
+                    <div className="skeleton" style={{ height: '13px', width: '70%' }} />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  <div style={{ background: 'var(--color-ui-surface)', borderRadius: '14px', padding: '20px', border: '1px solid var(--color-ui-border)', flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div className="skeleton" style={{ height: '13px', width: '120px' }} />
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {[70, 90, 60, 80, 50].map((w, i) => <div key={i} className="skeleton" style={{ height: '24px', width: `${w}px`, borderRadius: '100px' }} />)}
+                    </div>
+                  </div>
+                  <div style={{ background: 'var(--color-ui-surface)', borderRadius: '14px', padding: '20px', border: '1px solid var(--color-ui-border)', flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div className="skeleton" style={{ height: '13px', width: '140px' }} />
+                    <div className="skeleton" style={{ height: '13px' }} />
+                    <div className="skeleton" style={{ height: '13px', width: '80%' }} />
+                  </div>
+                </div>
+              </div>
             </div>
           ) : result ? (
             <AtsResults result={result} scoreArc={scoreArc} scoreColor={scoreColor} scoreLabel={scoreLabel} CIRCUMFERENCE={CIRCUMFERENCE} RADIUS={RADIUS} onBack={onBack} onRedo={() => { setStep(1); setResult(null); }} />
@@ -451,13 +475,7 @@ function AtsResults({
 }) {
   const color = scoreColor(result.score);
   const label = scoreLabel(result.score);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const isMobile = useIsMobile(768);
 
   return (
     <div>

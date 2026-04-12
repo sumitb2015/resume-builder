@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   ArrowLeft, Loader2, HelpCircle, ChevronDown, ChevronUp,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import type { Resume } from '../shared/types';
 import type { Feature } from '../shared/constants';
@@ -31,7 +32,7 @@ export default function InterviewPrepPage({ resume, onBack }: Props) {
       const res = await api.generateInterviewPrep(resume, jobText);
       setResult(res);
     } catch (err: any) {
-      alert(err.message || 'Prep generation failed.');
+      toast.error(err.message || 'Prep generation failed.');
       setStep(2);
     } finally {
       setLoading(false);
