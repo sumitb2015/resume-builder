@@ -77,6 +77,7 @@ export const api = {
     post<{
       refactoredResume: Partial<Resume>;
       suggestedSettings: { fontSize: number; margin: number; lineHeight: number };
+      modifiedFields?: string[];
     }>('/api/ai/smart-fit', { resume, config, targetPages, userPrompt }),
 
   generateFullResume: (params: { currentRole?: string; targetRole: string; industry: string; experience: string; context?: string }) =>

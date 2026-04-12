@@ -117,4 +117,5 @@ export interface TemplateConfig {
     lineHeight: number;  // line height ratio (e.g. 1.5)
     padding?: number;    // mm - kept for backward compatibility
   };
+  modifiedFields?: string[];
 }
