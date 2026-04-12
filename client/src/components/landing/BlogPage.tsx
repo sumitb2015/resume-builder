@@ -158,6 +158,8 @@ const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile }) => {
           .blog-content li { margin-bottom: 8px; }
           .blog-content strong { color: var(--color-ui-text); font-weight: 700; }
           .blog-content em { color: var(--color-ui-text); font-style: italic; }
+          .blog-content img { width: 100%; height: auto; border-radius: 12px; margin: 32px 0; border: 1px solid var(--color-ui-border); }
+          .blog-content blockquote { border-left: 4px solid #818CF8; padding-left: 20px; margin: 30px 0; font-style: italic; color: var(--color-ui-text); }
         `}} />
         
         <div style={{ marginTop: '60px', paddingTop: '40px', borderTop: '1px solid var(--color-ui-border)', textAlign: 'center' }}>
