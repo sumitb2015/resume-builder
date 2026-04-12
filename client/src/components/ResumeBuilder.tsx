@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useIsMobile } from '../hooks/useIsMobile';
 import type { Resume, ExperienceEntry, SkillEntry, EducationEntry, ProjectEntry, CertificationEntry, LanguageEntry } from '../shared/types';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
@@ -85,13 +86,7 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
   const { canAccess, remainingBullets, incrementBulletUsage } = usePlan();
   const [activeTab, setActiveTab] = useState<TabId>('personal');
   const [editorTab, setEditorTab] = useState<'builder' | 'suggestions'>('suggestions');
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const isMobile = useIsMobile(768);
 
   const [appliedSuggestions, setAppliedSuggestions] = useState<Set<number>>(new Set());
 
@@ -212,6 +207,7 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
       const data = await api.generateBullets(exp.role, exp.company, 'Technology');
       setBulletSuggestions({ expId: exp.id, bullets: data.bullets });
       incrementBulletUsage();
+      toast.success('Bullet suggestions ready — click one to apply.');
     } catch (err: any) {
       toast.error(err?.message || 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
     } finally { setLoadingBullets(null); }
@@ -233,6 +229,7 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
     try {
       const data = await api.findSkills(skillJobTitle);
       setSkillSuggestions(data);
+      toast.success('Skill suggestions ready — click to add.');
     } catch (err: any) {
       toast.error(err?.message || 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
     } finally { setLoadingSkills(false); }
@@ -258,6 +255,7 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
       
       up('summary', plainTextToHtml(summaryText));
       setSummaryCustomPrompt('');
+      toast.success('Summary updated.');
     } catch (err: any) {
       toast.error(err?.message || 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
     } finally { setLoadingSummary(false); }
@@ -274,6 +272,7 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
     try {
       const { text } = await api.rephrase(resume.personal.summary);
       up('summary', plainTextToHtml(text));
+      toast.success('Summary rephrased.');
     } catch (err: any) {
       toast.error(err?.message || 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
     } finally { setLoadingSummary(false); }
@@ -327,6 +326,7 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
       const base64String = reader.result as string;
       up('photoUrl', base64String);
       setUploadingPhoto(false);
+      toast.success('Photo uploaded.');
     };
     reader.onerror = () => {
       toast.error('Failed to read file.');
@@ -762,6 +762,16 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
                         </button>
                       </div>
 
+                      {/* AI bullet skeleton while loading */}
+                      {loadingBullets === exp.id && !bulletSuggestions && (
+                        <div style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <div className="skeleton" style={{ height: '10px', width: '60%' }} />
+                          <div className="skeleton" style={{ height: '32px' }} />
+                          <div className="skeleton" style={{ height: '32px' }} />
+                          <div className="skeleton" style={{ height: '32px', width: '80%' }} />
+                        </div>
+                      )}
+
                       {/* AI bullet suggestions */}
                       {bulletSuggestions?.expId === exp.id && (
                         <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '10px', padding: '12px' }}>
@@ -865,6 +875,23 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
                   {loadingSkills ? <Loader2 size={13} className="spin" /> : 'Find'}
                 </button>
               </div>
+              {loadingSkills && !skillSuggestions && (
+                <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div className="skeleton" style={{ height: '10px', width: '40%' }} />
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {[80, 60, 90, 70, 50].map((w, i) => (
+                      <div key={i} className="skeleton" style={{ height: '24px', width: `${w}px`, borderRadius: '100px' }} />
+                    ))}
+                  </div>
+                  <div className="skeleton" style={{ height: '10px', width: '30%', marginTop: '4px' }} />
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {[65, 85, 55].map((w, i) => (
+                      <div key={i} className="skeleton" style={{ height: '24px', width: `${w}px`, borderRadius: '100px' }} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {skillSuggestions && (
                 <div style={{ marginTop: '12px' }}>
                   <div style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', marginBottom: '8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Technical</div>

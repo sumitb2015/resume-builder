@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { useIsMobile } from '../hooks/useIsMobile';
 import { X, ChevronDown, ChevronUp, Lock } from 'lucide-react';
 import type { TemplateConfig, Resume } from '../shared/types';
 import { colorPalettes } from '../templates';
@@ -59,7 +61,7 @@ interface Props {
 
 export default function StylePanel({ templates, activeTemplate, onTemplateChange, onColorChange, onClose, zoom, onZoomChange, onUpgradeNeeded }: Props) {
   const { canAccess } = usePlan();
-  const [isMobile] = useState(window.innerWidth < 1024);
+  const isMobile = useIsMobile();
   const [tplOpen, setTplOpen] = useState(true);
   const [colorOpen, setColorOpen] = useState(true);
   const [zoomOpen, setZoomOpen] = useState(true);
@@ -137,6 +139,7 @@ export default function StylePanel({ templates, activeTemplate, onTemplateChange
                     onClick={() => {
                       if (isLocked) { onUpgradeNeeded('extra-templates'); return; }
                       onTemplateChange({ ...t });
+                      toast.success(`Template: ${t.name}`);
                     }}
                     style={{
                       display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 0,

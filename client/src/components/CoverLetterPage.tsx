@@ -85,7 +85,9 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
 
   const handleCopy = () => {
     if (!result) return;
-    navigator.clipboard.writeText(result);
+    navigator.clipboard.writeText(result)
+      .then(() => toast.success('Copied to clipboard.'))
+      .catch(() => toast.error('Failed to copy — please select and copy manually.'));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

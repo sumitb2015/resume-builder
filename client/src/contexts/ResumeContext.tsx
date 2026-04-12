@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useRef } from 'react';
+import React, { createContext, useContext, useState, useRef, useEffect, useCallback } from 'react';
 import type { Resume, TemplateConfig, ImprovementSuggestions } from '../shared/types';
 import { templates } from '../templates';
 import { legacyMarkdownToHtml } from '../lib/htmlUtils';
+import { useAuth } from './AuthContext';
 
 interface ResumeContextType {
   resume: Resume;
@@ -18,6 +19,18 @@ interface ResumeContextType {
   setCurrentResumeId: React.Dispatch<React.SetStateAction<string | null>>;
   handleNewResume: () => void;
   loadResume: (saved: any) => void;
+  clearDraft: () => void;
+}
+
+function draftKey(uid: string | null) {
+  return uid ? `bespokecv_draft_${uid}` : 'bespokecv_draft_anonymous';
+}
+
+function loadDraft(uid: string | null): { resume: Resume; templateId: string } | null {
+  try {
+    const raw = localStorage.getItem(draftKey(uid));
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
 }
 
 const initialResume: Resume = {
@@ -99,10 +112,25 @@ export function migrateResume(resume: Resume): Resume {
 }
 
 export function ResumeProvider({ children }: { children: React.ReactNode }) {
+  const { currentUser } = useAuth();
+  const uid = currentUser?.uid ?? null;
+
   const [resume, setResumeState] = useState<Resume>(initialResume);
   const [activeTemplate, setActiveTemplate] = useState<TemplateConfig>({ ...templates[1]! });
   const [improvements, setImprovements] = useState<ImprovementSuggestions | null>(null);
   const [currentResumeId, setCurrentResumeId] = useState<string | null>(null);
+
+  // Load draft after auth resolves (uid changes from null → user uid after login)
+  useEffect(() => {
+    const draft = loadDraft(uid);
+    if (!draft?.resume) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setResumeState(migrateResume(draft.resume));
+    if (draft.templateId) {
+      const tpl = templates.find(t => t.id === draft.templateId);
+      if (tpl) setActiveTemplate({ ...tpl });
+    }
+  }, [uid]);
 
   // Undo/Redo history
   const historyRef = useRef<Resume[]>([]);
@@ -121,6 +149,22 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
     setCanUndo(historyIndexRef.current > 0);
     setCanRedo(false);
   };
+
+  // Debounced autosave — writes current resume+template to localStorage 1.5s after last change
+  const autosaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
+    autosaveTimerRef.current = setTimeout(() => {
+      try {
+        localStorage.setItem(draftKey(uid), JSON.stringify({ resume, templateId: activeTemplate.id }));
+      } catch { /* ignore localStorage quota errors */ }
+    }, 1500);
+    return () => { if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current); };
+  }, [resume, activeTemplate, uid]);
+
+  const clearDraft = useCallback(() => {
+    localStorage.removeItem(draftKey(uid));
+  }, [uid]);
 
   const setResume = (r: Resume | ((prev: Resume) => Resume)) => {
     setResumeState(prev => {
@@ -151,6 +195,7 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
   };
 
   const handleNewResume = () => {
+    localStorage.removeItem(draftKey(uid));
     setResumeState(initialResume);
     setActiveTemplate({ ...templates[1]! });
     setCurrentResumeId(null);
@@ -177,7 +222,7 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
   return (
     <ResumeContext.Provider value={{
       resume, setResume, activeTemplate, setActiveTemplate, improvements, setImprovements,
-      undo, redo, canUndo, canRedo, currentResumeId, setCurrentResumeId, handleNewResume, loadResume
+      undo, redo, canUndo, canRedo, currentResumeId, setCurrentResumeId, handleNewResume, loadResume, clearDraft
     }}>
       {children}
     </ResumeContext.Provider>

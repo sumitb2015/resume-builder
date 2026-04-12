@@ -989,6 +989,17 @@ body {
   color: #C4B5FD;
 }
 
+/* ── SKELETON LOADER ────────────────────────────────────── */
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.9; }
+}
+.skeleton {
+  background: var(--color-ui-border);
+  border-radius: 6px;
+  animation: skeletonPulse 1.4s ease-in-out infinite;
+}
+
 /* ── FLOAT (hero decorative blobs) ──────────────────────── */
 @keyframes float {
   0%, 100% { transform: translateX(-50%) translateY(0); }

@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+
 import { useNavigate, useLocation } from 'react-router-dom';
-import { 
-  Zap, FileText, Award, FolderOpen, Lock, MessageSquare, Sun, Moon, LogOut, Menu, ArrowLeft, Palette, HelpCircle
+import {
+  Zap, FileText, Award, FolderOpen, Lock, MessageSquare, Sun, Moon, LogOut, Menu, ArrowLeft, Palette, HelpCircle, Save
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { usePlan } from '../contexts/PlanContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { useResume } from '../contexts/ResumeContext';
 import { useSavedResumes } from '../hooks/useSavedResumes';
+import { useIsMobile } from '../hooks/useIsMobile';
 import BreadcrumbNav from './BreadcrumbNav';
 import UserAvatar from './UserAvatar';
 import ProfileModal from './ProfileModal';
@@ -65,21 +68,31 @@ export default function DashboardLayout({ children, rightPanel, showRightPanel, 
   const { currentUser, signOut } = useAuth();
   const { canAccess, maxResumes } = usePlan();
   const { theme, toggleTheme } = useTheme();
-  const { resume, setActiveTemplate, currentResumeId, handleNewResume, loadResume } = useResume();
-  const { savedResumes, renameResume, deleteResume } = useSavedResumes();
+  const { resume, activeTemplate, setActiveTemplate, currentResumeId, setCurrentResumeId, handleNewResume, loadResume, clearDraft } = useResume();
+  const { savedResumes, saveResume, renameResume, deleteResume } = useSavedResumes();
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const isMobile = useIsMobile();
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showExpertReview, setShowExpertReview] = useState(false);
   const [showSavedPanel, setShowSavedPanel] = useState(false);
   const [upgradePrompt, setUpgradePrompt] = useState<{ requiredPlan: Plan; featureLabel: string } | null>(null);
 
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const handleSave = () => {
+    const savedId = saveResume(
+      resume.personal.name || 'Untitled Resume',
+      resume,
+      activeTemplate,
+      currentResumeId ?? undefined
+    );
+    if (savedId) {
+      setCurrentResumeId(savedId);
+      clearDraft();
+      toast.success('Resume saved.');
+    } else {
+      toast.error('Save failed — upgrade your plan to save more resumes.');
+    }
+  };
 
   const path = location.pathname;
   const view = path === '/builder' ? 'builder' : 
@@ -241,9 +254,14 @@ export default function DashboardLayout({ children, rightPanel, showRightPanel, 
               {isMobile ? '' : 'Style'}
             </button>
 
+            <button className="btn-secondary" style={{ gap: '6px', fontSize: isMobile ? '12px' : '12.5px', padding: isMobile ? '6px 10px' : '7px 14px' }} onClick={handleSave}>
+              <Save size={isMobile ? 14 : 13} />
+              {isMobile ? '' : 'Save'}
+            </button>
+
             {!isMobile && (
               <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }} onClick={() => setShowSavedPanel(true)}>
-                <FolderOpen size={14} /> 
+                <FolderOpen size={14} />
                 My Resumes
                 {savedResumes.length > 0 && <span style={{ position: 'absolute', top: '-5px', right: '-5px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-ui-accent)', fontSize: '9px', fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>{savedResumes.length}</span>}
               </button>

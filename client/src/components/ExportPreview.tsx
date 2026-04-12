@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
+import { useIsMobile, useWindowWidth } from '../hooks/useIsMobile';
 import type { Resume, TemplateConfig } from '../shared/types';
 import PagedPreview from './PagedPreview';
 import TemplateRenderer from '../templates/TemplateRenderer';
@@ -78,14 +79,9 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
   const [isDownloading, setIsDownloading] = useState(false);
   const [targetPages, setTargetPages] = useState(1);
   const [userPrompt, setUserPrompt] = useState('');
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const isMobile = useIsMobile();
+  const windowWidth = useWindowWidth();
   const [mobileSettingsView, setMobileSettingsView] = useState<'styles' | 'smartfit' | null>(null);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   // Undo/Redo State
   const [past, setPast] = useState<HistoryItem[]>([]);
@@ -283,7 +279,7 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
     }
   };
 
-  const mobileScale = Math.min(0.8, (window.innerWidth - 32) / 794);
+  const mobileScale = Math.min(0.8, (windowWidth - 32) / 794);
 
   // Calculate target page options: [1 ... pageCount+1]
   const targetPageOptions = Array.from({ length: Math.max(2, pageCount + 1) }, (_, i) => i + 1);
