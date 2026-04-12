@@ -10,7 +10,7 @@ import {
 } from "./ui/breadcrumb";
 import { House } from "lucide-react";
 
-type View = 'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder' | 'preview' | 'ats-checker' | 'job-tailor' | 'ai-writer' | 'blog' | 'cover-letter' | 'interview-prep' | 'checkout' | 'plans';
+type View = 'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder' | 'preview' | 'ats-checker' | 'job-tailor' | 'ai-writer' | 'blog' | 'cover-letter' | 'interview-prep' | 'checkout' | 'plans' | 'hub';
 
 interface BreadcrumbNavProps {
   view: View;
