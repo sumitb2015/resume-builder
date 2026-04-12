@@ -71,7 +71,7 @@ export default function SavedResumesPanel({
 
       {/* Drawer */}
       <div style={{
-        width: '360px', height: '100%',
+        width: 'min(360px, 100%)', height: '100%',
         background: 'var(--color-ui-surface)',
         borderLeft: '1px solid var(--color-ui-border)',
         display: 'flex', flexDirection: 'column',

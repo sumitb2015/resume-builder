@@ -260,9 +260,23 @@ export default function AiWriterFlow({ onComplete, onBack }: Props) {
     );
   };
 
+  const [isMobile] = useState(window.innerWidth < 1024);
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column' }}>
-      <header style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-ui-border)', display: 'flex', alignItems: 'center', gap: '20px' }}>
+      <header style={{ 
+        padding: '16px 24px', 
+        borderBottom: '1px solid var(--color-ui-border)', 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '20px',
+        position: isMobile ? 'fixed' : 'sticky',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        background: 'var(--color-ui-bg)'
+      }}>
         <div 
           style={{ display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer' }} 
           onClick={() => {
@@ -280,6 +294,7 @@ export default function AiWriterFlow({ onComplete, onBack }: Props) {
         <div style={{ width: '1px', height: '18px', background: 'var(--color-ui-border)' }} />
         <BreadcrumbNav view="ai-writer" onNavigate={(v) => { if (v === 'landing' || v === 'mode-select') onBack(); }} />
       </header>
+      {isMobile && <div style={{ height: '60px' }} />}
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '48px 24px', overflowY: 'auto' }}>
         

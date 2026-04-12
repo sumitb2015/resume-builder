@@ -434,7 +434,12 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
         overflowX: isMobile ? 'auto' : 'visible',
         whiteSpace: isMobile ? 'nowrap' : 'normal',
         padding: isMobile ? '8px' : '12px 0',
-        gap: isMobile ? '8px' : '0'
+        gap: isMobile ? '8px' : '0',
+        position: isMobile ? 'sticky' : 'static',
+        top: isMobile ? '52px' : 0,
+        zIndex: 20,
+        background: 'var(--color-ui-surface)',
+        boxShadow: isMobile ? '0 4px 12px rgba(0,0,0,0.1)' : 'none'
       }}>
         {TABS.map(({ id, label, icon: Icon, countKey }) => {
           const count = countKey ? getCount({ id, label, icon: Icon, countKey }) : 0;
@@ -452,7 +457,8 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
       <div className="editor-content" style={{ 
         display: improvements && editorTab === 'suggestions' ? 'none' : undefined,
         overflow: isMobile ? 'visible' : 'auto',
-        height: isMobile ? 'auto' : undefined
+        height: isMobile ? 'auto' : undefined,
+        paddingBottom: isMobile ? '120px' : '32px'
       }}>
 
         {/* ── PERSONAL ─────────────────────────────────────────────────────── */}
@@ -666,7 +672,15 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
                   {/* Card header */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '12px', gap: '8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
-                      <GripVertical size={14} style={{ color: 'var(--color-ui-text-dim)', flexShrink: 0, cursor: 'grab' }} />
+                      <div style={{ 
+                        padding: isMobile ? '12px 10px' : '4px',
+                        marginBottom: isMobile ? '-10px' : '0',
+                        marginLeft: isMobile ? '-8px' : '0',
+                        marginRight: isMobile ? '-8px' : '0',
+                        cursor: 'grab', display: 'flex', alignItems: 'center'
+                      }}>
+                        <GripVertical size={isMobile ? 18 : 14} style={{ color: 'var(--color-ui-text-dim)', flexShrink: 0 }} />
+                      </div>
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-ui-text)', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {exp.role || <span style={{ color: 'var(--color-ui-text-dim)' }}>New Role</span>}
@@ -787,7 +801,15 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
                 <div key={edu.id} className="entry-card" {...dragCardProps('education', edu.id)}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '10px', gap: '8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
-                      <GripVertical size={14} style={{ color: 'var(--color-ui-text-dim)', flexShrink: 0, cursor: 'grab' }} />
+                      <div style={{ 
+                        padding: isMobile ? '12px 10px' : '4px',
+                        marginBottom: isMobile ? '-10px' : '0',
+                        marginLeft: isMobile ? '-8px' : '0',
+                        marginRight: isMobile ? '-8px' : '0',
+                        cursor: 'grab', display: 'flex', alignItems: 'center'
+                      }}>
+                        <GripVertical size={isMobile ? 18 : 14} style={{ color: 'var(--color-ui-text-dim)', flexShrink: 0 }} />
+                      </div>
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-ui-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {edu.school || <span style={{ color: 'var(--color-ui-text-dim)' }}>New School</span>}
@@ -866,7 +888,9 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {resume.skills.map(skill => (
                 <div key={skill.id} className="entry-card" {...dragCardProps('skills', skill.id)} style={{ ...dragCardProps('skills', skill.id).style, display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px' }}>
-                  <GripVertical size={13} style={{ color: 'var(--color-ui-text-dim)', flexShrink: 0, cursor: 'grab' }} />
+                  <div style={{ padding: isMobile ? '12px 8px' : '4px', margin: isMobile ? '-10px -8px' : '0', cursor: 'grab', display: 'flex', alignItems: 'center' }}>
+                    <GripVertical size={isMobile ? 18 : 13} style={{ color: 'var(--color-ui-text-dim)', flexShrink: 0 }} />
+                  </div>
                   <input className="field-input" value={skill.name} onChange={e => updateSkill(skill.id, 'name', e.target.value)} placeholder="Skill name" style={{ flex: 1, fontSize: '13px' }} />
                   <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
                     {[25, 50, 75, 100].map(v => (
@@ -895,7 +919,15 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
                 <div key={p.id} className="entry-card" {...dragCardProps('projects', p.id)}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '10px', gap: '8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
-                      <GripVertical size={14} style={{ color: 'var(--color-ui-text-dim)', flexShrink: 0, cursor: 'grab' }} />
+                      <div style={{ 
+                        padding: isMobile ? '12px 10px' : '4px',
+                        marginBottom: isMobile ? '-10px' : '0',
+                        marginLeft: isMobile ? '-8px' : '0',
+                        marginRight: isMobile ? '-8px' : '0',
+                        cursor: 'grab', display: 'flex', alignItems: 'center'
+                      }}>
+                        <GripVertical size={isMobile ? 18 : 14} style={{ color: 'var(--color-ui-text-dim)', flexShrink: 0 }} />
+                      </div>
                       <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-ui-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {p.title || <span style={{ color: 'var(--color-ui-text-dim)' }}>New Project</span>}
                       </div>

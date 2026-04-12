@@ -13,6 +13,13 @@ interface Props {
 
 const BlogPage: React.FC<Props> = ({ onBack, onStart }) => {
   const [activeArticle, setActiveArticle] = useState<Article | null>(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Modals state for footer
   const [tosOpen, setTosOpen] = useState(false);
@@ -23,14 +30,14 @@ const BlogPage: React.FC<Props> = ({ onBack, onStart }) => {
 
   const renderArticleList = () => (
     <>
-      <div style={{ textAlign: 'center', padding: '60px 24px 40px' }}>
+      <div style={{ textAlign: 'center', padding: isMobile ? '30px 20px 40px' : '60px 24px 40px' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 12px', background: 'rgba(99,102,241,0.1)', borderRadius: '100px', color: '#818CF8', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '16px' }}>
           <BookOpen size={14} /> BespokeCV Blog
         </div>
-        <h1 style={{ fontSize: '42px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em', marginBottom: '16px', lineHeight: 1.1 }}>
+        <h1 style={{ fontSize: isMobile ? '32px' : '42px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em', marginBottom: '16px', lineHeight: 1.1 }}>
           Resume Tips & <span style={{ color: '#818CF8' }}>Career Insights</span>
         </h1>
-        <p style={{ fontSize: '18px', color: 'var(--color-ui-text-muted)', maxWidth: '600px', margin: '0 auto', lineHeight: 1.6 }}>
+        <p style={{ fontSize: isMobile ? '16px' : '18px', color: 'var(--color-ui-text-muted)', maxWidth: '600px', margin: '0 auto', lineHeight: 1.6 }}>
           Practical advice from industry experts to help you craft a resume that gets results, beat the ATS, and land your dream job.
         </p>
       </div>
@@ -176,10 +183,9 @@ return (
       currentLabel={activeArticle?.title}
     />
 
-    <main style={{ flex: 1, paddingTop: '80px' }}>
-...
-        {activeArticle ? renderFullArticle() : renderArticleList()}
-      </main>
+    <main style={{ flex: 1, paddingTop: isMobile ? '20px' : '80px' }}>
+      {activeArticle ? renderFullArticle() : renderArticleList()}
+    </main>
 
       <FooterSection
         onOpenTos={() => setTosOpen(true)}

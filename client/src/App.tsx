@@ -31,7 +31,7 @@ import { useSavedResumes } from './hooks/useSavedResumes';
 import { legacyMarkdownToHtml } from './lib/htmlUtils';
 import {
   Zap, Palette, Check, ChevronLeft, ChevronRight, FileText, LogOut, Crown, Shield,
-  Save, FolderOpen, Sun, Moon, Award, Lock, HelpCircle, MessageSquare, Menu,
+  Save, FolderOpen, Sun, Moon, Award, Lock, HelpCircle, MessageSquare, Menu, ArrowLeft
 } from 'lucide-react';
 
 // Initial dummy resume data
@@ -207,10 +207,10 @@ function PlanSelectPage({ onSelected, onBack, onCheckout }: { onSelected: () => 
       padding: isMobile ? '80px 20px 40px' : '40px 24px',
     }}>
       <div style={{ 
-        position: 'absolute', 
+        position: 'fixed', 
         top: isMobile ? '16px' : '24px', 
         left: isMobile ? '16px' : '24px',
-        zIndex: 10
+        zIndex: 100
       }}>
         <BreadcrumbNav view="plan-select" onNavigate={(v) => { if (v === 'landing') onBack(); }} />
       </div>
@@ -699,7 +699,7 @@ function AppContent() {
             <div className="sidebar-icon">{theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}</div>
             <span className="sidebar-label" style={isMobile ? { opacity: 1 } : {}}>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
           </button>
-          <div style={{ height: '1px', width: '40%', background: 'var(--color-ui-border)', margin: '8px 0' }} />
+          <div style={{ height: '1px', width: '40%', background: 'var(--color-ui-border)', marginTop: '8px', marginBottom: '8px' }} />
           <button 
             className="sidebar-item" 
             style={isMobile ? { width: 'calc(100% - 24px)', justifyContent: 'flex-start' } : {}}
@@ -714,117 +714,84 @@ function AppContent() {
     ) : null;
 
     const topBar = isToolView ? (
-      <header className="top-bar no-print" style={{ 
-        borderBottom: '1px solid var(--color-ui-border)', 
-        background: 'var(--color-ui-bg)',
-        height: isMobile ? 'auto' : '56px',
-        padding: isMobile ? '8px 12px' : '0 20px',
-        flexWrap: isMobile ? 'wrap' : 'nowrap',
-        gap: isMobile ? '8px' : '0',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '16px', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
-          {isMobile && (
-            <button className="btn-ghost" style={{ padding: '6px' }} onClick={() => setShowMobileSidebar(true)}>
-              <Menu size={20} />
-            </button>
-          )}
-          <BreadcrumbNav view={view} onNavigate={setView} />
-          {!isMobile && <div style={{ width: '1px', height: '16px', background: 'var(--color-ui-border)' }} />}
-          <PlanBadge size="sm" />
-          {view === 'builder' && !isMobile && (
-            <>
-              <div style={{ width: '1px', height: '16px', background: 'var(--color-ui-border)' }} />
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-ui-text-muted)' }}>Template:</span>
-                <button className="btn-ghost" style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '4px 10px', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }} onClick={() => setRightPanelOpen(true)}>
-                  <div style={{ display: 'flex', gap: '3px' }}>
-                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: activeTemplate.colors.primary }} />
-                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: activeTemplate.colors.accent }} />
-                  </div>
-                  <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-ui-text)' }}>{activeTemplate.name}</span>
+      <>
+        <header className="top-bar no-print" style={{ 
+          borderBottom: '1px solid var(--color-ui-border)', 
+          background: 'var(--color-ui-bg)',
+          height: isMobile ? '52px' : '56px',
+          padding: isMobile ? '0 12px' : '0 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          position: 'sticky',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '16px' }}>
+            {isMobile && (
+              <button className="btn-ghost" style={{ padding: '6px' }} onClick={() => setShowMobileSidebar(true)}>
+                <Menu size={20} />
+              </button>
+            )}
+            <BreadcrumbNav view={view} onNavigate={setView} />
+            {!isMobile && (
+              <>
+                <div style={{ width: '1px', height: '16px', background: 'var(--color-ui-border)' }} />
+                <PlanBadge size="sm" />
+              </>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '12px' }}>
+            {view === 'preview' && (
+              <button 
+                className="btn-secondary" 
+                style={{ gap: '4px', fontSize: isMobile ? '12px' : '13px', padding: isMobile ? '5px 10px' : '8px 16px' }} 
+                onClick={() => setView('builder')}
+              >
+                <ArrowLeft size={14} />
+                {isMobile ? 'Edit' : 'Back to Editor'}
+              </button>
+            )}
+
+            {view === 'builder' && (
+              <>
+                <button className={rightPanelOpen ? 'btn-primary' : 'btn-secondary'} style={{ gap: '6px', fontSize: '12.5px', padding: isMobile ? '6px' : '7px 14px' }} onClick={() => setRightPanelOpen(v => !v)}>
+                  <Palette size={isMobile ? 18 : 14} /> 
+                  {isMobile ? '' : 'Style'}
                 </button>
+
+                {!isMobile && (
+                  <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }} onClick={() => setShowSavedPanel(true)}>
+                    <FolderOpen size={14} /> 
+                    My Resumes
+                    {savedResumes.length > 0 && <span style={{ position: 'absolute', top: '-5px', right: '-5px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-ui-accent)', fontSize: '9px', fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>{savedResumes.length}</span>}
+                  </button>
+                )}
+
+                <button className="btn-primary" style={{ gap: '6px', fontSize: isMobile ? '12px' : '13px', padding: isMobile ? '6px 12px' : '8px 18px' }} onClick={() => {
+                  setActiveTemplate(t => ({ ...t, settings: t.settings ?? { margin: 15, fontSize: 100, lineHeight: 1.5 } }));
+                  setView('preview');
+                }}>
+                  <FileText size={isMobile ? 14 : 15} /> 
+                  {isMobile ? 'Preview' : 'Preview & Export'}
+                </button>
+              </>
+            )}
+
+            {currentUser && (
+              <div 
+                onClick={() => setShowProfile(true)}
+                style={{ width: '30px', height: '30px', borderRadius: '8px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 800, color: 'white', cursor: 'pointer' }}
+              >
+                {(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}
               </div>
-            </>
-          )}
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '12px', flexWrap: isMobile ? 'wrap' : 'nowrap', justifyContent: isMobile ? 'flex-end' : 'flex-start', flex: isMobile ? 1 : 'none' }}>
-          {view === 'builder' && (
-            <>
-              {!isMobile && (
-                <>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: 'var(--color-ui-surface)', padding: '2px', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}>
-                    <button
-                      className="btn-ghost"
-                      style={{ padding: '6px 8px', opacity: canUndo ? 1 : 0.35 }}
-                      onClick={undo}
-                      disabled={!canUndo}
-                      title="Undo (Ctrl+Z)"
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6"/><path d="M3 13C4.5 7.5 10 4 16 5.5A9 9 0 0 1 21 13"/></svg>
-                    </button>
-                    <button
-                      className="btn-ghost"
-                      style={{ padding: '6px 8px', opacity: canRedo ? 1 : 0.35 }}
-                      onClick={redo}
-                      disabled={!canRedo}
-                      title="Redo (Ctrl+Y)"
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 7v6-h-6"/><path d="M21 13C19.5 7.5 14 4 8 5.5A9 9 0 0 0 3 13"/></svg>
-                    </button>
-                  </div>
-                  <div style={{ width: '1px', height: '18px', background: 'var(--color-ui-border)' }} />
-                </>
-              )}
-
-              <button className={rightPanelOpen ? 'btn-primary' : 'btn-secondary'} style={{ gap: '6px', fontSize: '12.5px', padding: isMobile ? '6px 10px' : '7px 14px' }} onClick={() => setRightPanelOpen(v => !v)}>
-                <Palette size={14} /> 
-                {isMobile ? '' : 'Style'}
-              </button>
-
-              {!isMobile && (
-                <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }} onClick={() => setShowSavedPanel(true)}>
-                  <FolderOpen size={14} /> 
-                  My Resumes
-                  {savedResumes.length > 0 && <span style={{ position: 'absolute', top: '-5px', right: '-5px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-ui-accent)', fontSize: '9px', fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>{savedResumes.length}</span>}
-                </button>
-              )}
-
-              {!isMobile && <div style={{ width: '1px', height: '18px', background: 'var(--color-ui-border)' }} />}
-
-              {autoSaveStatus !== 'idle' && !isMobile && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '80px', justifyContent: 'flex-end' }}>
-                  {autoSaveStatus === 'saving' && (
-                    <span style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span className="spin" style={{ width: '10px', height: '10px', border: '1.5px solid var(--color-ui-border)', borderTopColor: 'var(--color-ui-accent)', borderRadius: '50%' }} />    
-                    </span>
-                  )}
-                  {autoSaveStatus === 'saved' && <span style={{ fontSize: '11px', color: 'var(--color-success)', fontWeight: 700 }}>✓</span>}
-                </div>
-              )}
-
-              <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: isMobile ? '6px 10px' : '7px 14px' }} onClick={handleSave}><Save size={14} /> {isMobile ? '' : 'Save'}</button>
-
-              <button className="btn-primary" style={{ gap: '6px', fontSize: isMobile ? '12px' : '13px', padding: isMobile ? '6px 12px' : '8px 18px', boxShadow: '0 4px 12px rgba(99,102,241,0.25)' }} onClick={() => {
-                setActiveTemplate(t => ({ ...t, settings: t.settings ?? { margin: 15, fontSize: 100, lineHeight: 1.5 } }));
-                setView('preview');
-              }}>
-                <FileText size={15} /> 
-                {isMobile ? 'Preview' : 'Preview & Export'}
-              </button>
-            </>
-          )}
-
-          {currentUser && (
-            <div 
-              onClick={() => setShowProfile(true)}
-              style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 800, color: 'white', cursor: 'pointer', boxShadow: '0 2px 8px rgba(99,102,241,0.3)', border: '2px solid var(--color-ui-border)' }}
-            >
-              {(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}
-            </div>
-          )}
-        </div>
-      </header>
+            )}
+          </div>
+        </header>
+      </>
     ) : null;
 
     if (view === 'preview') {
@@ -954,7 +921,7 @@ function AppContent() {
                     <button className="btn-ghost" style={{ width: '28px', height: '28px', padding: 0, borderRadius: '6px', fontSize: '16px' }} onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(1)))}>+</button>
                     {!isMobile && (
                       <>
-                        <div style={{ width: '1px', height: '16px', background: 'var(--color-ui-border)', margin: '0 4px' }} />
+                        <div style={{ width: '1px', height: '16px', background: 'var(--color-ui-border)', marginLeft: '4px', marginRight: '4px' }} />
                         {[50, 75, 100].map(v => (
                           <button
                             key={v}

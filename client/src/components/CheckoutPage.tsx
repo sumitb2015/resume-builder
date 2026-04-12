@@ -126,17 +126,23 @@ const CheckoutPage: React.FC<Props> = ({ planTier, isAnnual, onBack, onSuccess }
       <div style={{ maxWidth: '800px', width: '100%', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1fr', gap: isMobile ? '24px' : '32px' }}>
         {/* Left Side: Summary */}
         <div>
-          <button 
-            onClick={onBack}
-            style={{ 
-              display: 'flex', alignItems: 'center', gap: '6px', 
-              background: 'transparent', border: 'none', color: 'var(--color-ui-text-muted)', 
-              fontSize: '14px', fontWeight: 600, cursor: 'pointer', marginBottom: isMobile ? '20px' : '32px',
-              padding: 0
-            }}
-          >
-            <ChevronLeft size={16} /> Back to plans
-          </button>
+          <div style={isMobile ? {
+            position: 'sticky', top: 0, zIndex: 100, background: 'var(--color-ui-bg)',
+            marginTop: '-24px', marginLeft: '-16px', marginRight: '-16px', marginBottom: '20px',
+            padding: '16px', borderBottom: '1px solid var(--color-ui-border)'
+          } : {}}>
+            <button 
+              onClick={onBack}
+              style={{ 
+                display: 'flex', alignItems: 'center', gap: '6px', 
+                background: 'transparent', border: 'none', color: 'var(--color-ui-text-muted)', 
+                fontSize: '14px', fontWeight: 600, cursor: 'pointer', marginBottom: isMobile ? '0' : '32px',
+                padding: 0
+              }}
+            >
+              <ChevronLeft size={16} /> Back to plans
+            </button>
+          </div>
 
           <h1 style={{ fontSize: isMobile ? '24px' : '28px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em', marginBottom: isMobile ? '24px' : '32px' }}>
             Complete your upgrade

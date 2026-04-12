@@ -6,6 +6,8 @@ import { api } from '../lib/api';
 import { buildPdfHtml } from '../lib/buildPdfHtml';
 import { Download, Type, Move, Palette, Sparkles, Loader2, Undo2, Redo2, FileText as FileTextIcon } from 'lucide-react';
 import { usePlan } from '../contexts/PlanContext';
+import { Button } from './ui/button';
+import { cn } from '@/lib/utils';
 
 interface Props {
   resume: Resume;
@@ -490,9 +492,9 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
         {/* Download action area */}
         <div style={{ padding: '20px', borderTop: '1px solid var(--color-ui-border)', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '12px', background: 'var(--color-ui-bg)' }}>
           {canAccess('download-pdf') ? (
-            <button
-              className="btn-primary"
-              style={{ width: '100%', padding: '14px', fontSize: '14px', fontWeight: 700, gap: '10px', boxShadow: '0 4px 15px rgba(99,102,241,0.3)' }}
+            <Button
+              variant="default"
+              className="w-full h-12 text-[14px] font-bold gap-2.5 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white shadow-[0_4px_15px_rgba(99,102,241,0.3)] hover:opacity-90 border-none transition-all"
               onClick={handlePrint}
               disabled={isDownloading}
             >
@@ -500,23 +502,23 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
                 ? <><Loader2 size={18} className="animate-spin" /> Preparing PDF…</>
                 : <><Download size={18} /> Export as PDF</>
               }
-            </button>
+            </Button>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button
-                className="btn-primary"
-                style={{ width: '100%', padding: '12px', fontSize: '13.5px', gap: '8px' }}
+              <Button
+                variant="default"
+                className="w-full h-11 text-[13.5px] font-semibold gap-2 bg-[var(--color-ui-accent)] text-white shadow-md active:scale-[0.98] transition-all"
                 onClick={handleDownloadTxt}
               >
                 <FileTextIcon size={16} /> Download Plain Text (.txt)
-              </button>
-              <button
-                className="btn-secondary"
-                style={{ width: '100%', padding: '12px', fontSize: '13.5px', gap: '8px', borderStyle: 'dashed' }}
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full h-11 text-[13.5px] font-semibold gap-2 border-dashed border-[var(--color-ui-border)] text-[var(--color-ui-text-muted)] hover:text-[var(--color-ui-text)] hover:bg-[var(--color-ui-surface-2)] active:scale-[0.98] transition-all"
                 onClick={() => alert('PDF Export requires a Basic, Pro, or Ultimate plan. Please upgrade to download as PDF.')}
               >
                 <Download size={16} /> Export PDF (Locked)
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -548,40 +550,37 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
 
       {/* Mobile Actions: Style and Download */}
       {isMobile && (
-        <div style={{
-          position: 'fixed', bottom: '24px', left: '0', right: '0',
-          display: 'flex', justifyContent: 'center', gap: '12px', padding: '0 20px',
-          zIndex: 80,
-        }}>
-          <button
+        <div 
+          className="no-print"
+          style={{
+            position: 'fixed', bottom: '0', left: '0', right: '0',
+            display: 'flex', justifyContent: 'center', gap: '12px', padding: '10px 16px 16px',
+            zIndex: 80,
+            background: 'rgba(var(--color-ui-bg-rgb, 13, 17, 23), 0.65)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            borderTop: '1px solid var(--color-ui-border)',
+            boxShadow: '0 -10px 40px rgba(0,0,0,0.2)'
+          }}
+        >
+          <Button
+            variant="outline"
             onClick={() => setShowMobileSettings(true)}
-            style={{
-              flex: 1, maxWidth: '160px', padding: '12px', borderRadius: '100px',
-              background: 'var(--color-ui-surface)', color: 'var(--color-ui-text)',
-              fontSize: '14px', fontWeight: 800, gap: '8px', display: 'flex',
-              alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
-              border: '1px solid var(--color-ui-border)', cursor: 'pointer'
-            }}
+            className="flex-1 max-w-[160px] h-10 rounded-full font-bold gap-2 bg-[var(--color-ui-surface)] border-[var(--color-ui-border)] text-[var(--color-ui-text)] shadow-lg active:scale-95 transition-all"
           >
-            <Palette size={18} />
+            <Palette size={16} />
             Style
-          </button>
+          </Button>
 
-          <button
-            className="btn-primary"
+          <Button
+            variant="default"
             disabled={isDownloading}
             onClick={canAccess('download-pdf') ? handlePrint : handleDownloadTxt}
-            style={{
-              flex: 1, maxWidth: '200px', padding: '12px', borderRadius: '100px',
-              background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', color: 'white',
-              fontSize: '14px', fontWeight: 800, gap: '8px', display: 'flex',
-              alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(99,102,241,0.4)',
-              border: 'none', cursor: 'pointer'
-            }}
+            className="flex-1 max-w-[200px] h-10 rounded-full font-bold gap-2 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white border-none shadow-[0_8px_24px_rgba(99,102,241,0.4)] active:scale-95 transition-all hover:opacity-90"
           >
-            {isDownloading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
+            {isDownloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
             {canAccess('download-pdf') ? 'Export PDF' : 'Download TXT'}
-          </button>
+          </Button>
         </div>
       )}
 

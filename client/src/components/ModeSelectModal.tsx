@@ -68,10 +68,24 @@ export default function ModeSelectModal({ onSelect, onBack, onUpgradeNeeded }: P
     }
   };
 
+  const [isMobile] = useState(window.innerWidth < 1024);
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <header style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-ui-border)', display: 'flex', alignItems: 'center', gap: '20px' }}>
+      <header style={{ 
+        padding: '16px 24px', 
+        borderBottom: '1px solid var(--color-ui-border)', 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '20px',
+        position: isMobile ? 'fixed' : 'sticky',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        background: 'var(--color-ui-bg)'
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer' }} onClick={onBack}>
           <div style={{ width: '26px', height: '26px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Zap size={13} color="white" fill="white" />
@@ -83,6 +97,7 @@ export default function ModeSelectModal({ onSelect, onBack, onUpgradeNeeded }: P
         <div style={{ width: '1px', height: '18px', background: 'var(--color-ui-border)' }} />
         <BreadcrumbNav view="mode-select" onNavigate={(v) => { if (v === 'landing') onBack(); }} />
       </header>
+      {isMobile && <div style={{ height: '60px' }} />}
 
       {/* Content */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>

@@ -48,9 +48,11 @@ interface Props {
   resume: Resume;
   config: TemplateConfig;
   isPaged?: boolean;
+  isMeasurement?: boolean;
+  minHeight?: string | number;
 }
 
-const TemplateRenderer: React.FC<Props> = ({ resume, config, isPaged = false }) => {
+const TemplateRenderer: React.FC<Props> = ({ resume, config, isPaged = false, isMeasurement = false, minHeight }) => {
   const templateProps = { resume, config };
 
   const fontSizeFactor = (config.settings?.fontSize || 100) / 100;
@@ -64,6 +66,12 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config, isPaged = false }) 
           font-size: calc(16px * var(--font-scale));
           width: 100%;
           background: white;
+          display: flex;
+          flex-direction: column;
+        }
+        .template-container > div {
+            flex: 1;
+            width: 100% !important;
         }
         .resume-paper {
             padding: 0 !important;
@@ -79,6 +87,14 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config, isPaged = false }) 
           padding: 0;
           box-sizing: border-box;
         }
+
+        /* Override hardcoded min-height from individual templates ONLY during measurement to prevent blank pages.
+           In the actual preview, we want the min-height to allow sidebars to reach the bottom. */
+        ${isMeasurement ? `
+        .template-container.paged-mode > div {
+          min-height: auto !important;
+        }
+        ` : ''}
 
         /* Essential print safety for the container itself */
         @media print {
@@ -96,7 +112,10 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config, isPaged = false }) 
           }
         }
       `}} />
-      <div className={`template-container ${isPaged ? 'paged-mode' : ''}`}>
+      <div 
+        className={`template-container ${isPaged ? 'paged-mode' : ''}`}
+        style={minHeight ? { minHeight } : undefined}
+      >
         {(() => {
           switch (config.id) {
             case 'classic': return <ClassicTemplate {...templateProps} />;

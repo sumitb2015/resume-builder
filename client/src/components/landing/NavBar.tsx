@@ -23,9 +23,9 @@ const PLAN_BADGE_CONFIG = {
 } as const;
 
 const NAV_LINKS = [
-  { label: 'Templates', id: 'templates', icon: <Layout size={18} /> },
-  { label: 'AI Features', id: 'ai-features', icon: <Sparkles size={18} /> },
-  { label: 'Pricing', id: 'pricing', icon: <CreditCard size={18} /> },
+  { label: 'Templates', id: 'templates', icon: <Layout size={16} /> },
+  { label: 'AI Features', id: 'ai-features', icon: <Sparkles size={16} /> },
+  { label: 'Pricing', id: 'pricing', icon: <CreditCard size={16} /> },
 ];
 
 const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog, currentLabel }) => {
@@ -51,14 +51,24 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
 
   useEffect(() => {
     const el = document.querySelector('.landing-page') as HTMLElement | null;
-    if (!el) return;
     const handler = () => {
-      setScrollY(el.scrollTop);
-      const max = el.scrollHeight - el.clientHeight;
-      setScrollPct(max > 0 ? (el.scrollTop / max) * 100 : 0);
+      const scrollPos = el ? el.scrollTop : window.scrollY;
+      setScrollY(scrollPos);
+      const scrollHeight = el ? el.scrollHeight : document.documentElement.scrollHeight;
+      const clientHeight = el ? el.clientHeight : window.innerHeight;
+      const max = scrollHeight - clientHeight;
+      setScrollPct(max > 0 ? (scrollPos / max) * 100 : 0);
     };
-    el.addEventListener('scroll', handler, { passive: true });
-    return () => el.removeEventListener('scroll', handler);
+    
+    if (el) el.addEventListener('scroll', handler, { passive: true });
+    window.addEventListener('scroll', handler, { passive: true });
+    
+    handler();
+    
+    return () => {
+      if (el) el.removeEventListener('scroll', handler);
+      window.removeEventListener('scroll', handler);
+    };
   }, []);
 
   const badge = plan ? PLAN_BADGE_CONFIG[plan] : null;
@@ -97,7 +107,7 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
   return (
     <>
       <nav style={{
-        position: 'sticky', top: 0, zIndex: 100,
+        position: 'sticky', top: 0, zIndex: 1000,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: isSmallMobile ? '0 12px' : (isMobile ? '0 16px' : '0 40px'), height: '72px',
         backgroundColor: (scrollY > 40 || mobileMenuOpen) ? 'var(--color-ui-nav-scroll)' : 'transparent',
@@ -313,138 +323,142 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
         </div>
       </nav>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu Dropdown Overlay */}
       {isMobile && mobileMenuOpen && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'var(--color-ui-bg)',
-          zIndex: 999, padding: '80px 20px 40px',
-          display: 'flex', flexDirection: 'column',
-          animation: 'fadeSlideIn 0.3s ease-out forwards',
-          overflowY: 'auto',
-        }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {/* Nav Links */}
-            {NAV_LINKS.map(link => (
-              <button
-                key={link.id}
-                onClick={() => handleNavClick(link.id)}
-                style={{
-                  ...linkBtnStyle, width: '100%', padding: '16px 20px',
-                  background: 'var(--color-ui-surface)', borderRadius: '14px',
-                  border: '1px solid var(--color-ui-border)', justifyContent: 'flex-start',
-                  fontSize: '16px', fontWeight: 700, color: 'var(--color-ui-text)',
-                  display: 'flex', alignItems: 'center', gap: '12px'
-                }}
-              >
-                <span style={{ color: 'var(--color-ui-accent)', display: 'flex' }}>{link.icon}</span>
-                {link.label}
-              </button>
-            ))}
-            
-            {/* Blog Link */}
-            <button
-              onClick={() => { onOpenBlog?.(); setMobileMenuOpen(false); }}
-              style={{
-                ...linkBtnStyle, width: '100%', padding: '16px 20px',
-                background: 'var(--color-ui-surface)', borderRadius: '14px',
-                border: '1px solid var(--color-ui-border)', justifyContent: 'flex-start',
-                fontSize: '16px', fontWeight: 700, color: 'var(--color-ui-text)',
-                display: 'flex', alignItems: 'center', gap: '12px'
-              }}
-            >
-              <span style={{ color: 'var(--color-ui-accent)', display: 'flex' }}><BookOpen size={18} /></span>
-              Blog
-            </button>
-          </div>
-
-          <div style={{ height: '1px', background: 'var(--color-ui-border)', margin: '20px 0' }} />
+        <>
+          {/* Backdrop to close menu */}
+          <div 
+            onClick={() => setMobileMenuOpen(false)}
+            style={{ position: 'fixed', inset: 0, zIndex: 998, background: 'transparent' }} 
+          />
           
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-            <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-ui-text-muted)' }}>Appearance</span>
-            <button
-              onClick={toggleTheme}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px',
-                borderRadius: '10px', background: 'var(--color-ui-surface-2)',
-                border: '1px solid var(--color-ui-border)', color: 'var(--color-ui-text)',
-                fontSize: '14px', fontWeight: 700,
-              }}
-            >
-              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-              {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-            </button>
-          </div>
-
-          {!currentUser ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: 'auto', paddingTop: '20px' }}>
-              <button
-                onClick={onStart}
-                style={{
-                  padding: '16px', borderRadius: '14px',
-                  background: 'var(--color-ui-surface-2)',
-                  border: '1px solid var(--color-ui-border)', color: 'var(--color-ui-text)',
-                  fontSize: '15px', fontWeight: 700, cursor: 'pointer',
-                }}
-              >
-                Sign In
-              </button>
-              <button
-                onClick={onStart}
-                style={{
-                  padding: '16px', borderRadius: '14px',
-                  background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-                  border: 'none', color: 'white',
-                  fontSize: '15px', fontWeight: 800, cursor: 'pointer',
-                  boxShadow: '0 4px 15px rgba(99,102,241,0.3)',
-                }}
-              >
-                Get Started Free
-              </button>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: 'auto', paddingTop: '20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', background: 'var(--color-ui-surface)', borderRadius: '16px', border: '1px solid var(--color-ui-border)' }}>
-                {currentUser.photoURL ? (
-                  <img
-                    src={currentUser.photoURL}
-                    alt={currentUser.displayName ?? 'User'}
-                    style={{ width: '44px', height: '44px', borderRadius: '12px' }}
-                  />
-                ) : (
-                  <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: 700, color: 'white' }}>
-                    {(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}
-                  </div>
-                )}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-ui-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentUser.displayName || 'User'}</div>
-                  <div style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentUser.email}</div>
-                </div>
-                {badge && (
-                  <div style={{
-                    padding: '4px 8px', borderRadius: '6px',
-                    background: badge.bg, border: `1px solid ${badge.color}30`,
-                  }}>
-                    <span style={{ color: badge.color, display: 'flex' }}>{badge.icon(14)}</span>
-                  </div>
-                )}
-              </div>
+          <div style={{
+            position: 'fixed', top: '80px', right: '16px',
+            width: isSmallMobile ? 'calc(100% - 32px)' : '320px',
+            background: 'var(--color-ui-surface)',
+            border: '1px solid var(--color-ui-border)',
+            borderRadius: '20px',
+            zIndex: 999, padding: '16px',
+            display: 'flex', flexDirection: 'column',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
+            animation: 'fadeSlideIn 0.2s ease-out forwards',
+          }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {/* Nav Links */}
+              {!isBlogPage && NAV_LINKS.map(link => (
+                <button
+                  key={link.id}
+                  onClick={() => handleNavClick(link.id)}
+                  style={{
+                    ...linkBtnStyle, width: '100%', padding: '12px 16px',
+                    background: 'var(--color-ui-surface-2)', borderRadius: '12px',
+                    border: '1px solid var(--color-ui-border)', justifyContent: 'flex-start',
+                    fontSize: '14px', fontWeight: 700, color: 'var(--color-ui-text)',
+                    display: 'flex', alignItems: 'center', gap: '10px'
+                  }}
+                >
+                  <span style={{ color: 'var(--color-ui-accent)', display: 'flex' }}>{link.icon}</span>
+                  {link.label}
+                </button>
+              ))}
               
+              {/* Blog Link */}
               <button
-                onClick={() => { signOut(); setMobileMenuOpen(false); }}
+                onClick={() => { onOpenBlog?.(); setMobileMenuOpen(false); }}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: '10px',
-                  padding: '16px', borderRadius: '14px',
-                  background: 'rgba(248, 81, 73, 0.05)', border: '1px solid rgba(248, 81, 73, 0.1)',
-                  color: 'var(--color-danger)', fontSize: '15px', fontWeight: 700, justifyContent: 'center',
+                  ...linkBtnStyle, width: '100%', padding: '12px 16px',
+                  background: 'var(--color-ui-surface-2)', borderRadius: '12px',
+                  border: '1px solid var(--color-ui-border)', justifyContent: 'flex-start',
+                  fontSize: '14px', fontWeight: 700, color: 'var(--color-ui-text)',
+                  display: 'flex', alignItems: 'center', gap: '10px'
                 }}
               >
-                <LogOut size={18} />
-                Sign Out
+                <span style={{ color: 'var(--color-ui-accent)', display: 'flex' }}><BookOpen size={16} /></span>
+                Blog
               </button>
             </div>
-          )}
-        </div>
+
+            <div style={{ height: '1px', background: 'var(--color-ui-border)', margin: '12px 0' }} />
+            
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', padding: '0 4px' }}>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text-muted)' }}>Appearance</span>
+              <button
+                onClick={toggleTheme}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px',
+                  borderRadius: '10px', background: 'var(--color-ui-surface-2)',
+                  border: '1px solid var(--color-ui-border)', color: 'var(--color-ui-text)',
+                  fontSize: '13px', fontWeight: 700,
+                }}
+              >
+                {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+                {theme === 'dark' ? 'Light' : 'Dark'}
+              </button>
+            </div>
+
+            {currentUser ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
+                <div style={{ height: '1px', background: 'var(--color-ui-border)', margin: '4px 0' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: 'var(--color-ui-surface-2)', borderRadius: '14px', border: '1px solid var(--color-ui-border)' }}>
+                  {currentUser.photoURL ? (
+                    <img
+                      src={currentUser.photoURL}
+                      alt={currentUser.displayName ?? 'User'}
+                      style={{ width: '36px', height: '36px', borderRadius: '10px' }}
+                    />
+                  ) : (
+                    <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 700, color: 'white' }}>
+                      {(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}
+                    </div>
+                  )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-ui-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentUser.displayName || 'User'}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentUser.email}</div>
+                  </div>
+                </div>
+                
+                <button
+                  onClick={() => { signOut(); setMobileMenuOpen(false); }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                    padding: '12px', borderRadius: '12px',
+                    background: 'rgba(248, 81, 73, 0.05)', border: '1px solid rgba(248, 81, 73, 0.1)',
+                    color: 'var(--color-danger)', fontSize: '14px', fontWeight: 700, justifyContent: 'center',
+                  }}
+                >
+                  <LogOut size={16} />
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+                <button
+                  onClick={onStart}
+                  style={{
+                    padding: '12px', borderRadius: '12px',
+                    background: 'var(--color-ui-surface-2)',
+                    border: '1px solid var(--color-ui-border)', color: 'var(--color-ui-text)',
+                    fontSize: '14px', fontWeight: 700, cursor: 'pointer',
+                  }}
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={onStart}
+                  style={{
+                    padding: '12px', borderRadius: '12px',
+                    background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+                    border: 'none', color: 'white',
+                    fontSize: '14px', fontWeight: 800, cursor: 'pointer',
+                    boxShadow: '0 4px 15px rgba(99,102,241,0.3)',
+                  }}
+                >
+                  Get Started
+                </button>
+              </div>
+            )}
+          </div>
+        </>
       )}
     </>
   );
