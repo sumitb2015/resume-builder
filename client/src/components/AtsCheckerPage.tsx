@@ -135,7 +135,7 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', background: 'var(--color-ui-bg)' }}>
-      <div style={{ maxWidth: '860px', margin: '0 auto', padding: '40px 24px 80px' }}>
+      <div className="w-full max-w-[860px] mx-auto px-4 md:px-6 py-4 md:py-6 pb-20 md:pb-24">
 
         {/* Back + title */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>

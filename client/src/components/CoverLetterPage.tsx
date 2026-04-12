@@ -109,7 +109,7 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', background: 'var(--color-ui-bg)' }}>
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 24px 100px' }}>
+      <div className="w-full max-w-[800px] mx-auto px-4 md:px-6 py-4 md:py-6 pb-24 md:pb-28">
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
           <button
