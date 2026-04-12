@@ -4,7 +4,7 @@ import { auth } from './firebase';
 const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
 
 // Helper to get authorization headers including the Firebase ID token
-async function getAuthHeaders() {
+async function getAuthHeaders(): Promise<Record<string, string>> {
   const user = auth.currentUser;
   if (!user) return {};
   try {
