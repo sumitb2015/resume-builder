@@ -1,6 +1,7 @@
 import { useState, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
+import { Toaster } from 'react-hot-toast';
 
 // Layout & UI
 import DashboardLayout from './components/DashboardLayout';
@@ -10,6 +11,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 // Standalone Pages
 import LandingPage from './components/LandingPage';
 const LoginPage = lazy(() => import('./components/LoginPage'));
+const MainMenuPage = lazy(() => import('./components/MainMenuPage'));
 const BlogPage = lazy(() => import('./components/landing/BlogPage'));
 const CheckoutPage = lazy(() => import('./components/CheckoutPage'));
 
@@ -116,7 +118,7 @@ function LandingPageWrapper() {
   const navigate = useNavigate();
   return (
     <LandingPage 
-      onStart={() => navigate('/dashboard')} 
+      onStart={() => navigate('/hub')} 
       onOpenBlog={() => navigate('/blog')} 
       onCheckout={(p, a) => navigate('/checkout', { state: { plan: p, annual: a } })}
       onShowProfile={() => {}}
@@ -126,12 +128,12 @@ function LandingPageWrapper() {
 
 function BlogPageWrapper() {
   const navigate = useNavigate();
-  return <BlogPage onBack={() => navigate('/')} onStart={() => navigate('/dashboard')} onShowProfile={() => {}} />;
+  return <BlogPage onBack={() => navigate('/')} onStart={() => navigate('/hub')} onShowProfile={() => {}} />;
 }
 
 function LoginPageWrapper() {
   const navigate = useNavigate();
-  return <LoginPage onLoginSuccess={() => navigate('/dashboard')} />;
+  return <LoginPage onLoginSuccess={() => navigate('/hub')} />;
 }
 
 function CheckoutPageWrapper() {
@@ -143,7 +145,7 @@ function CheckoutPageWrapper() {
       planTier={state?.plan || 'pro'}
       isAnnual={state?.annual || false}
       onBack={() => navigate('/plans')}
-      onSuccess={() => navigate('/dashboard')}
+      onSuccess={() => navigate('/hub')}
       onShowProfile={() => {}}
     />
   );
@@ -264,7 +266,7 @@ export function PlanSelectPage() {
   const handleSelect = (planId: 'free' | 'basic' | 'pro' | 'ultimate') => {
     if (planId === 'free') {
       setPlan('free');
-      navigate('/dashboard');
+      navigate('/hub');
     } else {
       navigate('/checkout', { state: { plan: planId, annual: false } });
     }
@@ -381,6 +383,7 @@ function AppRoutes() {
         
         <Route path="/plans" element={<ProtectedRoute><PlanSelectPage /></ProtectedRoute>} />
         <Route path="/checkout" element={<ProtectedRoute><CheckoutPageWrapper /></ProtectedRoute>} />
+        <Route path="/hub" element={<ProtectedRoute><MainMenuPage /></ProtectedRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><ModeSelectPageWrapper /></ProtectedRoute>} />
         <Route path="/ai-writer" element={<ProtectedRoute><AiWriterPageWrapper /></ProtectedRoute>} />
         
@@ -406,6 +409,7 @@ function App() {
           <PlanProvider>
             <ResumeProvider>
               <AppRoutes />
+              <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
             </ResumeProvider>
           </PlanProvider>
         </AuthProvider>

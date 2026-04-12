@@ -3,6 +3,7 @@ import {
   FileText, Upload, ArrowLeft, Loader2,
   CheckCircle2, Copy,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import type { Resume } from '../shared/types';
 import type { Feature } from '../shared/constants';
@@ -75,7 +76,7 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
       const res = await api.generateCoverLetter(activeResume, jobText);
       setResult(res.text);
     } catch (err: any) {
-      alert(err.message || 'Generation failed. Please try again.');
+      toast.error(err.message || 'Generation failed. Please try again.');
       setStep(2);
     } finally {
       setLoading(false);

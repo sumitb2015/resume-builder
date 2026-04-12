@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X, CheckCircle2, MessageSquare, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 
 interface Props {
@@ -20,7 +21,7 @@ export default function ExpertReviewModal({ userId, resumeId, resumeData, onClos
       await api.requestExpertReview(userId, resumeId, resumeData, comments);
       setSuccess(true);
     } catch (err) {
-      alert('Failed to submit request. Please try again.');
+      toast.error('Failed to submit request. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -24,19 +24,21 @@ const PLAN_PRICES: Record<string, { monthly: number; annualMonthly: number }> = 
 };
 
 // Helper to validate and return discount percentage
+// Fix 5: Clamp parsed value to [0, 100] — a value >100 would produce a negative charge amount.
 const getDiscountPercentage = (code?: string): number => {
   if (!code) return 0;
-  
+
   const discountCodesEnv = process.env.DISCOUNT_CODES || ""; // Format: SUMMER20:20,WELCOME50:50
   const pairs = discountCodesEnv.split(",").map(p => p.trim());
-  
+
   for (const pair of pairs) {
     const [name, percent] = pair.split(":");
     if (name && percent && name.toUpperCase() === code.toUpperCase()) {
-      return parseInt(percent, 10) || 0;
+      const parsed = parseInt(percent, 10) || 0;
+      return Math.max(0, Math.min(100, parsed));
     }
   }
-  
+
   return 0;
 };
 
@@ -201,20 +203,29 @@ router.post('/verify', authenticate, async (req: AuthRequest, res: Response) => 
 });
 
 // Webhook (Asynchronous)
+// Fix 4: Webhook secret is now MANDATORY. Previously `if (secret && signature)` silently
+// skipped verification when RAZORPAY_WEBHOOK_SECRET was unset — a critical payment fraud vector.
 router.post('/webhook', async (req, res) => {
   const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+  if (!secret) {
+    console.error('[Webhook] RAZORPAY_WEBHOOK_SECRET is not configured. Rejecting all webhook requests.');
+    return res.status(500).send('Webhook secret not configured on server.');
+  }
+
   const signature = req.headers['x-razorpay-signature'] as string;
+  if (!signature) {
+    console.error('[Webhook] Missing x-razorpay-signature header');
+    return res.status(400).send('Missing signature');
+  }
 
-  if (secret && signature) {
-    const expectedSignature = crypto
-      .createHmac('sha256', secret)
-      .update(JSON.stringify(req.body))
-      .digest('hex');
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(req.body))
+    .digest('hex');
 
-    if (expectedSignature !== signature) {
-      console.error('[Webhook] Signature mismatch');
-      return res.status(400).send('Invalid signature');
-    }
+  if (expectedSignature !== signature) {
+    console.error('[Webhook] Signature mismatch — possible spoofed request');
+    return res.status(400).send('Invalid signature');
   }
 
   try {
@@ -223,7 +234,7 @@ router.post('/webhook', async (req, res) => {
 
     if (event.event === 'payment.captured' || event.event === 'order.paid') {
       const entity = event.payload.payment ? event.payload.payment.entity : event.payload.order.entity;
-      
+
       // Notes are stored in different places depending on whether it's a payment or order entity
       const notes = entity.notes || {};
       const userId = notes.userId;
@@ -235,13 +246,13 @@ router.post('/webhook', async (req, res) => {
         expiresAt.setDate(expiresAt.getDate() + (isAnnual ? 365 : 30));
 
         console.log(`[Webhook] Updating plan for user ${userId} to ${planTier}`);
-        
+
         await db.collection('users').doc(userId).set({
           plan: planTier,
           updatedAt: new Date(),
           expiresAt: expiresAt
         }, { merge: true });
-        
+
         console.log(`[Webhook] Success for user ${userId}`);
       } else {
         console.warn('[Webhook] Missing userId, planTier or database initialization in event payload');
@@ -251,7 +262,7 @@ router.post('/webhook', async (req, res) => {
     res.status(200).send('OK');
   } catch (error: any) {
     console.error('[Webhook] Error:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).send('Internal server error');
   }
 });
 

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import PagedPreview from './PagedPreview';
 import TemplateRenderer from '../templates/TemplateRenderer';
+import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import { buildPdfHtml } from '../lib/buildPdfHtml';
 import { Download, Type, Move, Palette, Sparkles, Loader2, Undo2, Redo2, FileText as FileTextIcon } from 'lucide-react';
@@ -543,7 +544,7 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
                 <Button
                   variant="outline"
                   className="w-full h-11 text-[13.5px] font-semibold gap-2 border-dashed border-[var(--color-ui-border)] text-[var(--color-ui-text-muted)] hover:text-[var(--color-ui-text)] hover:bg-[var(--color-ui-surface-2)] active:scale-[0.98] transition-all"
-                  onClick={() => alert('PDF Export requires a Basic, Pro, or Ultimate plan. Please upgrade to download as PDF.')}
+                  onClick={() => toast.error('PDF Export requires a Basic, Pro, or Ultimate plan. Please upgrade to download as PDF.')}
                 >
                   <Download size={16} /> Export PDF (Locked)
                 </Button>

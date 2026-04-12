@@ -1,3 +1,5 @@
+import toast from 'react-hot-toast';
+
 let cachedPromise: Promise<boolean> | null = null;
 
 export const loadRazorpay = () => {
@@ -46,7 +48,7 @@ interface RazorpayOptions {
 export const openRazorpay = async (options: RazorpayOptions) => {
   const isLoaded = await loadRazorpay();
   if (!isLoaded) {
-    alert('Razorpay SDK failed to load. Are you online?');
+    toast.error('Razorpay SDK failed to load. Are you online?');
     return;
   }
 

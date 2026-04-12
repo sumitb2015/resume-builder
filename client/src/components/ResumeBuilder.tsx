@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Resume, ExperienceEntry, SkillEntry, EducationEntry, ProjectEntry, CertificationEntry, LanguageEntry } from '../shared/types';
+import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import {
   User, Briefcase, GraduationCap, Wrench, FolderOpen,
@@ -203,7 +204,7 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
   const handleAIBullets = async (exp: ExperienceEntry) => {
     if (!exp.role && !exp.company) return;
     if (remainingBullets <= 0) {
-      alert('Daily limit reached (3/day on Basic plan). Upgrade to Pro for unlimited AI bullets.');
+      toast.error('Daily limit reached (3/day on Basic plan). Upgrade to Pro for unlimited AI bullets.');
       return;
     }
     setLoadingBullets(exp.id);
@@ -212,7 +213,7 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
       setBulletSuggestions({ expId: exp.id, bullets: data.bullets });
       incrementBulletUsage();
     } catch {
-      alert('AI unavailable. Check server is running with OPENAI_API_KEY set.');
+      toast.error('AI unavailable. Check server is running with OPENAI_API_KEY set.');
     } finally { setLoadingBullets(null); }
   };
 
@@ -233,7 +234,7 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
       const data = await api.findSkills(skillJobTitle);
       setSkillSuggestions(data);
     } catch {
-      alert('AI unavailable. Check server is running with OPENAI_API_KEY set.');
+      toast.error('AI unavailable. Check server is running with OPENAI_API_KEY set.');
     } finally { setLoadingSkills(false); }
   };
 
@@ -258,7 +259,7 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
       up('summary', plainTextToHtml(summaryText));
       setSummaryCustomPrompt('');
     } catch {
-      alert('AI unavailable. Check server is running with OPENAI_API_KEY set.');
+      toast.error('AI unavailable. Check server is running with OPENAI_API_KEY set.');
     } finally { setLoadingSummary(false); }
   };
 
@@ -274,7 +275,7 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
       const { text } = await api.rephrase(resume.personal.summary);
       up('summary', plainTextToHtml(text));
     } catch {
-      alert('AI unavailable. Check server is running with OPENAI_API_KEY set.');
+      toast.error('AI unavailable. Check server is running with OPENAI_API_KEY set.');
     } finally { setLoadingSummary(false); }
   };
 
@@ -317,8 +318,8 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
     if (!file) return;
 
     // Basic validation
-    if (!file.type.startsWith('image/')) { alert('Please upload an image file.'); return; }
-    if (file.size > 2 * 1024 * 1024) { alert('File too large (max 2MB).'); return; }
+    if (!file.type.startsWith('image/')) { toast.error('Please upload an image file.'); return; }
+    if (file.size > 2 * 1024 * 1024) { toast.error('File too large (max 2MB).'); return; }
 
     setUploadingPhoto(true);
     const reader = new FileReader();
@@ -328,7 +329,7 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
       setUploadingPhoto(false);
     };
     reader.onerror = () => {
-      alert('Failed to read file.');
+      toast.error('Failed to read file.');
       setUploadingPhoto(false);
     };
     reader.readAsDataURL(file);

@@ -14,6 +14,20 @@ const firecrawl = process.env.FIRECRAWL_API_KEY
 
 const MODEL = 'gpt-4o-mini';
 
+/**
+ * Fix 9: Prompt injection sanitizer.
+ * Strips characters and patterns commonly used to hijack AI instructions.
+ * Applied to all user-controlled string inputs before embedding in prompts.
+ */
+function sanitizeForPrompt(input: string, maxLength = 4000): string {
+  return input
+    .replace(/[<>]/g, '')                      // strip HTML angle brackets
+    .replace(/\[INST\]|\[\/INST\]/gi, '')      // strip LLaMA instruction markers
+    .replace(/###\s*(System|Instruction|Prompt)/gi, '') // strip common jailbreak headers
+    .replace(/#{4,}/g, '###')                  // collapse excessive markdown headings
+    .slice(0, maxLength);
+}
+
 async function ask(prompt: string, jsonMode = false): Promise<string> {
   const res = await openai.chat.completions.create({
     model: MODEL,
@@ -71,15 +85,15 @@ export const generateSmartTailoredResume = async (params: {
   }
 
   const prompt = `You are an expert AI resume strategist. Your task is to generate a complete, highly professional, and modern resume in JSON format.
-  
+
   User Details:
-  - Target Role: ${params.targetRole}
-  - Industry: ${params.industry}
-  - Current Role: ${params.currentRole || 'N/A'}
-  - Years of Experience: ${params.experience}
-  - Education: ${params.education || 'N/A'}
-  - Key Achievements: ${params.achievements || 'N/A'}
-  - Additional Context: ${params.context || 'N/A'}
+  - Target Role: ${sanitizeForPrompt(params.targetRole, 200)}
+  - Industry: ${sanitizeForPrompt(params.industry, 200)}
+  - Current Role: ${sanitizeForPrompt(params.currentRole || 'N/A', 200)}
+  - Years of Experience: ${sanitizeForPrompt(params.experience, 100)}
+  - Education: ${sanitizeForPrompt(params.education || 'N/A', 500)}
+  - Key Achievements: ${sanitizeForPrompt(params.achievements || 'N/A', 2000)}
+  - Additional Context: ${sanitizeForPrompt(params.context || 'N/A', 2000)}
 
   Latest Market Data (via Web Search):
   ${marketTech}
@@ -121,8 +135,11 @@ export const generateSmartTailoredResume = async (params: {
 };
 
 export const generateBulletPoints = async (role: string, company: string, industry: string): Promise<string[]> => {
+  const safeRole = sanitizeForPrompt(role, 200);
+  const safeCompany = sanitizeForPrompt(company, 200);
+  const safeIndustry = sanitizeForPrompt(industry, 200);
   const prompt = `You are a professional resume writer specializing in high-impact, quantified bullet points.
-Write 3 strong, results-oriented bullet points for a ${role} at ${company} in the ${industry} industry.
+Write 3 strong, results-oriented bullet points for a ${safeRole} at ${safeCompany} in the ${safeIndustry} industry.
 
 Guidelines:
 1. Start with strong action verbs (e.g., "Spearheaded", "Architected", "Optimized").
@@ -144,19 +161,25 @@ Return ONLY valid JSON in this format:
 };
 
 export const generateSummary = async (name: string, title: string, experience: string, skills: string[]): Promise<string> => {
-  const prompt = `Write a 2-3 sentence professional resume summary for ${name || 'this professional'}, a ${title} with ${experience} years of experience.
-Key skills to weave in naturally: ${skills.filter(Boolean).join(', ') || 'leadership, problem-solving, communication'}.
+  const safeName = sanitizeForPrompt(name, 200);
+  const safeTitle = sanitizeForPrompt(title, 200);
+  const safeExperience = sanitizeForPrompt(experience, 500);
+  const safeSkills = skills.map(s => sanitizeForPrompt(s, 100)).filter(Boolean).slice(0, 30);
+  const prompt = `Write a 2-3 sentence professional resume summary for ${safeName || 'this professional'}, a ${safeTitle} with ${safeExperience} years of experience.
+Key skills to weave in naturally: ${safeSkills.join(', ') || 'leadership, problem-solving, communication'}.
 Make it compelling, first-person, and achievement-oriented. Return ONLY the summary text.`;
 
   return (await ask(prompt)).trim();
 };
 
 export const tailorResume = async (resumeData: any, jobDescription: string) => {
+  const resumeStr = JSON.stringify(resumeData, null, 2).slice(0, 8000);
+  const safeJobDesc = sanitizeForPrompt(jobDescription, 3000);
   const prompt = `You are an expert resume consultant. Compare this resume to the job description and provide specific improvements.
 
-Resume: ${JSON.stringify(resumeData, null, 2)}
+Resume: ${resumeStr}
 
-Job Description: ${jobDescription}
+Job Description: ${safeJobDesc}
 
 Analyze carefully and return ONLY valid JSON with this exact structure:
 {
@@ -172,17 +195,27 @@ Analyze carefully and return ONLY valid JSON with this exact structure:
   return extractJSON(text);
 };
 
-export const atsTailor = async (resumeData: any, jobDescription: string, atsResult: { score: number; missingKeywords: string[]; weakSections: string[]; feedback: string }) => {
-  const prompt = `You are an expert resume consultant. An ATS scan of this resume against the job description returned a score of ${atsResult.score}/100.
+export const atsTailor = async (resumeData: any, jobDescription: string, atsResult: any) => {
+  const resumeStr = JSON.stringify(resumeData, null, 2).slice(0, 8000);
+  const safeJobDesc = sanitizeForPrompt(jobDescription, 3000);
+  const score = Number(atsResult?.score) || 0;
+  const missingKeywords = Array.isArray(atsResult?.missingKeywords)
+    ? atsResult.missingKeywords.map((k: string) => sanitizeForPrompt(String(k), 100)).slice(0, 15).join(', ')
+    : 'none identified';
+  const weakSections = Array.isArray(atsResult?.weakSections)
+    ? atsResult.weakSections.map((s: string) => sanitizeForPrompt(String(s), 100)).slice(0, 10).join(', ')
+    : 'none identified';
+  const feedback = sanitizeForPrompt(String(atsResult?.feedback || ''), 500);
+  const prompt = `You are an expert resume consultant. An ATS scan of this resume against the job description returned a score of ${score}/100.
 
 ATS Findings:
-- Missing keywords: ${atsResult.missingKeywords.join(', ') || 'none identified'}
-- Weak sections: ${atsResult.weakSections.join(', ') || 'none identified'}
-- Feedback: ${atsResult.feedback}
+- Missing keywords: ${missingKeywords}
+- Weak sections: ${weakSections}
+- Feedback: ${feedback}
 
-Resume: ${JSON.stringify(resumeData, null, 2)}
+Resume: ${resumeStr}
 
-Job Description: ${jobDescription}
+Job Description: ${safeJobDesc}
 
 Using the ATS findings as your guide, produce specific, actionable resume fixes. Focus on the weak sections and missing keywords identified above.
 Return ONLY valid JSON with this exact structure:
@@ -200,11 +233,13 @@ Return ONLY valid JSON with this exact structure:
 };
 
 export const analyzeAtsScore = async (resumeData: any, jobDescription: string) => {
+  const resumeStr = JSON.stringify(resumeData, null, 2).slice(0, 8000);
+  const safeJobDesc = sanitizeForPrompt(jobDescription, 3000);
   const prompt = `You are an ATS (Applicant Tracking System) expert. Analyze this resume against the job description.
 
-Resume: ${JSON.stringify(resumeData, null, 2)}
+Resume: ${resumeStr}
 
-Job Description: ${jobDescription}
+Job Description: ${safeJobDesc}
 
 Score the resume from 0-100 based on: keyword match (40%), required skills coverage (30%), formatting/completeness (30%).
 Return ONLY valid JSON:
@@ -220,7 +255,8 @@ Return ONLY valid JSON:
 };
 
 export const findSkills = async (jobTitle: string) => {
-  const prompt = `List the 20 most important skills for a ${jobTitle} role in today's job market.
+  const safeJobTitle = sanitizeForPrompt(jobTitle, 200);
+  const prompt = `List the 20 most important skills for a ${safeJobTitle} role in today's job market.
 Split into technical and soft skills. Return ONLY valid JSON:
 {
   "technical": ["10 technical skills"],
@@ -231,16 +267,19 @@ Split into technical and soft skills. Return ONLY valid JSON:
   return extractJSON(text);
 };
 
-export const smartFit = async (resumeData: any, config: any, targetPages: number, userPrompt: string) => {
-  const isMinorRephrase = !userPrompt.trim();
-  const goal = isMinorRephrase 
+export const smartFit = async (resumeData: any, config: any, targetPages: number, userPrompt?: string) => {
+  const safeUserPrompt = userPrompt ? sanitizeForPrompt(userPrompt, 1000) : '';
+  const isMinorRephrase = !safeUserPrompt.trim();
+  const goal = isMinorRephrase
     ? `perform minor rephrasing to fit exactly ${targetPages} page(s) while keeping the context identical`
-    : `strictly follow this instruction: "${userPrompt}" to fit exactly ${targetPages} page(s)`;
+    : `strictly follow this instruction: "${safeUserPrompt}" to fit exactly ${targetPages} page(s)`;
+  const resumeStr = JSON.stringify(resumeData, null, 2).slice(0, 8000);
+  const configStr = JSON.stringify(config?.settings ?? {}, null, 2).slice(0, 1000);
 
   const prompt = `You are a professional resume designer and expert copywriter. Your goal is to ${goal}.
 
-  Current Resume Data: ${JSON.stringify(resumeData, null, 2)}
-  Current Styling: ${JSON.stringify(config.settings, null, 2)}
+  Current Resume Data: ${resumeStr}
+  Current Styling: ${configStr}
   Target Page Count: ${targetPages}
 
   Instructions:
@@ -285,11 +324,11 @@ export const smartFit = async (resumeData: any, config: any, targetPages: number
 export const generateFullResume = async (params: { currentRole?: string; targetRole: string; industry: string; experience: string; context?: string }) => {
   const prompt = `You are an expert AI resume writer. Your task is to generate a complete, highly professional, and realistic resume in JSON format.
 The user provided the following details:
-- Target Role: ${params.targetRole}
-- Current/Previous Role: ${params.currentRole || 'Not specified'}
-- Industry: ${params.industry}
-- Years of Experience: ${params.experience}
-- Additional Context / Skills / Achievements: ${params.context || 'Not specified'}
+- Target Role: ${sanitizeForPrompt(params.targetRole, 200)}
+- Current/Previous Role: ${sanitizeForPrompt(params.currentRole || 'Not specified', 200)}
+- Industry: ${sanitizeForPrompt(params.industry, 200)}
+- Years of Experience: ${sanitizeForPrompt(params.experience, 100)}
+- Additional Context / Skills / Achievements: ${sanitizeForPrompt(params.context || 'Not specified', 2000)}
 
 Based on this, generate a FULL resume. Extrapolate realistic, quantified achievements, plausible companies, dates, and educational background to make the resume look complete and impressive. Use strong action verbs and industry-standard keywords. 
 
@@ -322,13 +361,15 @@ return extractJSON(text);
 };
 
 export const rephrase = async (text: string, instruction?: string): Promise<string> => {
+const safeText = sanitizeForPrompt(text, 5000);
+const safeInstruction = instruction ? sanitizeForPrompt(instruction, 500) : undefined;
 let fullPrompt = `Rephrase the following resume content to be more professional, impactful, and concise:
-"${text}"
+"${safeText}"
 Return ONLY the rephrased text.`;
 
-if (instruction) {
-  fullPrompt = `Modify the following resume content based on this instruction: "${instruction}"
-Current content: "${text}"
+if (safeInstruction) {
+  fullPrompt = `Modify the following resume content based on this instruction: "${safeInstruction}"
+Current content: "${safeText}"
 Ensure the result is professional, achievement-oriented, and suitable for a high-end resume. Return ONLY the modified text.`;
 }
 
@@ -336,11 +377,13 @@ return (await ask(fullPrompt)).trim();
 };
 
 export const generateCoverLetter = async (resumeData: any, jobDescription: string) => {
+  const resumeStr = JSON.stringify(resumeData, null, 2).slice(0, 8000);
+  const safeJobDesc = sanitizeForPrompt(jobDescription, 3000);
   const prompt = `You are an expert career coach and professional writer. Write a highly persuasive, modern cover letter for a candidate based on their resume and the job description.
 
-Resume: ${JSON.stringify(resumeData, null, 2)}
+Resume: ${resumeStr}
 
-Job Description: ${jobDescription}
+Job Description: ${safeJobDesc}
 
 Instructions:
 1. Use a professional but engaging tone.
@@ -355,11 +398,13 @@ Return the cover letter text only.`;
 };
 
 export const generateInterviewPrep = async (resumeData: any, jobDescription: string) => {
+  const resumeStr = JSON.stringify(resumeData, null, 2).slice(0, 8000);
+  const safeJobDesc = sanitizeForPrompt(jobDescription, 3000);
   const prompt = `You are an expert interviewer. Analyze this resume against the job description and prepare the candidate for an interview.
 
-Resume: ${JSON.stringify(resumeData, null, 2)}
+Resume: ${resumeStr}
 
-Job Description: ${jobDescription}
+Job Description: ${safeJobDesc}
 
 Identify:
 1. Potential gaps or weak points in the candidate's profile relative to the JD.
