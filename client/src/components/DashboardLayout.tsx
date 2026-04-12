@@ -117,8 +117,8 @@ export default function DashboardLayout({ children, rightPanel, showRightPanel, 
 
   const handleLogout = async () => {
     setShowProfile(false);
-    await signOut();
     navigate('/');
+    await signOut();
   };
 
   const sidebar = (
