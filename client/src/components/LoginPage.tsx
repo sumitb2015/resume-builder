@@ -5,7 +5,6 @@ import BreadcrumbNav from './BreadcrumbNav';
 
 interface Props {
   onLoginSuccess: () => void;
-  onBack?: () => void;
 }
 
 const GoogleIcon = () => (
@@ -40,7 +39,7 @@ function firebaseErrorToField(code: string): { field: keyof FieldErrors; msg: st
   }
 }
 
-export default function LoginPage({ onLoginSuccess, onBack }: Props) {
+export default function LoginPage({ onLoginSuccess }: Props) {
   const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
 
   const [mode, setMode] = useState<Mode>('signin');
@@ -152,7 +151,7 @@ export default function LoginPage({ onLoginSuccess, onBack }: Props) {
       padding: '24px',
     }}>
       <div style={{ position: 'absolute', top: '24px', left: '24px' }}>
-        <BreadcrumbNav view="login" onNavigate={(v) => { if (v === 'landing') onBack?.(); }} />
+        <BreadcrumbNav view="login" />
       </div>
 
       <div style={{

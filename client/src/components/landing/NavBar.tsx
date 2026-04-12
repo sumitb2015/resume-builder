@@ -147,10 +147,8 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
             {isBlogPage ? (
               <BreadcrumbNav 
                 view="blog" 
-                onNavigate={(v) => { if (v === 'landing') onBackToHome?.(); else if (v === 'blog') onOpenBlog?.(); }} 
-                currentLabel={currentLabel}
-              />
-            ) : (
+                currentLabel={currentLabel} 
+              />            ) : (
               <>
                 {NAV_LINKS.map(link => (
                   <button

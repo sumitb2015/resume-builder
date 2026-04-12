@@ -295,7 +295,7 @@ export default function AiWriterFlow({ onComplete, onBack, onShowProfile }: Prop
             </span>
           </div>
           <div style={{ width: '1px', height: '18px', background: 'var(--color-ui-border)' }} />
-          <BreadcrumbNav view="ai-writer" onNavigate={(v) => { if (v === 'landing' || v === 'mode-select') onBack(); }} />
+          <BreadcrumbNav view="ai-writer" />
         </div>
 
         <UserAvatar onClick={onShowProfile} showBadge={!isMobile} />

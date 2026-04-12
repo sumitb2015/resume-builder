@@ -98,7 +98,7 @@ export default function ModeSelectModal({ onSelect, onBack, onUpgradeNeeded, onS
             </span>
           </div>
           <div style={{ width: '1px', height: '18px', background: 'var(--color-ui-border)' }} />
-          <BreadcrumbNav view="mode-select" onNavigate={(v) => { if (v === 'landing') onBack(); }} />
+          <BreadcrumbNav view="mode-select" />
         </div>
 
         <UserAvatar onClick={onShowProfile} showBadge={!isMobile} />

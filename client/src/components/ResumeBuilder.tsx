@@ -1,20 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { Resume, ExperienceEntry, SkillEntry, EducationEntry, ProjectEntry, CertificationEntry, LanguageEntry, ImprovementSuggestions } from '../shared/types';
+import type { Resume, ExperienceEntry, SkillEntry, EducationEntry, ProjectEntry, CertificationEntry, LanguageEntry } from '../shared/types';
 import { api } from '../lib/api';
 import {
   User, Briefcase, GraduationCap, Wrench, FolderOpen,
   Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Check, X, GripVertical, Lock, FileText, PenLine, Camera
 } from 'lucide-react';
 import { usePlan } from '../contexts/PlanContext';
+import { useResume } from '../contexts/ResumeContext';
 import type { Feature } from '../shared/constants';
 import RichEditor from './RichEditor';
 import { stripHtml, plainTextToHtml, htmlCharCount } from '../lib/htmlUtils';
 
 interface Props {
-  resume: Resume;
-  onChange: (resume: Resume) => void;
-  improvements?: ImprovementSuggestions | null;
-  onDismissImprovements?: () => void;
   onUpgradeNeeded: (feature: Feature) => void;
 }
 
@@ -82,7 +79,8 @@ const EmptyState: React.FC<{ icon: React.ReactNode; text: string }> = ({ icon, t
 );
 
 // ── Main component ────────────────────────────────────────────────────────────
-const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDismissImprovements, onUpgradeNeeded }) => {
+const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
+  const { resume, setResume: onChange, improvements, setImprovements: onDismissImprovements } = useResume();
   const { canAccess, remainingBullets, incrementBulletUsage } = usePlan();
   const [activeTab, setActiveTab] = useState<TabId>('personal');
   const [editorTab, setEditorTab] = useState<'builder' | 'suggestions'>('suggestions');
@@ -128,7 +126,7 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
 
   const handleDrop = (section: 'experience' | 'education' | 'projects' | 'skills', targetId: string) => {
     if (!dragId || dragId === targetId) { setDragId(null); setDragOverId(null); return; }
-    onChange({ ...resume, [section]: reorder(resume[section] as { id: string }[], dragId, targetId) });
+    onChange({ ...resume, [section]: reorder((resume as any)[section], dragId, targetId) });
     setDragId(null); setDragOverId(null);
   };
 
@@ -295,7 +293,7 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
 
   const getCount = (tab: typeof TABS[0]): number => {
     if (!tab.countKey) return 0;
-    const val = resume[tab.countKey];
+    const val = (resume as any)[tab.countKey];
     return Array.isArray(val) ? val.length : 0;
   };
 
@@ -381,7 +379,7 @@ const ResumeBuilder: React.FC<Props> = ({ resume, onChange, improvements, onDism
             );
           })}
           <button
-            onClick={onDismissImprovements}
+            onClick={() => onDismissImprovements(null)}
             title="Dismiss AI suggestions"
             style={{
               background: 'transparent', border: 'none', borderBottom: '2px solid transparent',

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -6,29 +7,29 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+} from "./ui/breadcrumb";
 import { House } from "lucide-react";
 
-type View = 'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder' | 'preview' | 'ats-checker' | 'job-tailor' | 'ai-writer' | 'blog' | 'cover-letter' | 'interview-prep';
+type View = 'landing' | 'login' | 'plan-select' | 'mode-select' | 'builder' | 'preview' | 'ats-checker' | 'job-tailor' | 'ai-writer' | 'blog' | 'cover-letter' | 'interview-prep' | 'checkout' | 'plans';
 
 interface BreadcrumbNavProps {
   view: View;
-  onNavigate: (view: View) => void;
   className?: string;
   currentLabel?: string;
 }
 
-const BreadcrumbNav: React.FC<BreadcrumbNavProps> = ({ view, onNavigate, className, currentLabel }) => {
+const BreadcrumbNav: React.FC<BreadcrumbNavProps> = ({ view, className, currentLabel }) => {
+  const navigate = useNavigate();
   if (view === 'landing') return null;
 
   const renderBreadcrumbs = () => {
-    const items = [];
+    const items: React.ReactNode[] = [];
 
     // All pages start with Home (unless it's landing itself, but we handle that above)
     items.push(
       <BreadcrumbItem key="home">
         <BreadcrumbLink 
-          onClick={() => onNavigate('landing')}
+          onClick={() => navigate('/')}
           className="cursor-pointer flex items-center gap-1.5"
         >
           <House className="h-3.5 w-3.5" />
@@ -42,7 +43,7 @@ const BreadcrumbNav: React.FC<BreadcrumbNavProps> = ({ view, onNavigate, classNa
       if (currentLabel) {
         items.push(
           <BreadcrumbItem key="blog">
-            <BreadcrumbLink onClick={() => onNavigate('blog')} className="cursor-pointer">
+            <BreadcrumbLink onClick={() => navigate('/blog')} className="cursor-pointer">
               Blog
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -55,9 +56,12 @@ const BreadcrumbNav: React.FC<BreadcrumbNavProps> = ({ view, onNavigate, classNa
     } else if (view === 'login') {
       items.push(<BreadcrumbSeparator key="sep-login" />);
       items.push(<BreadcrumbItem key="login"><BreadcrumbPage>Login</BreadcrumbPage></BreadcrumbItem>);
-    } else if (view === 'plan-select') {
+    } else if (view === 'plan-select' || view === 'plans') {
       items.push(<BreadcrumbSeparator key="sep-plans" />);
       items.push(<BreadcrumbItem key="plans"><BreadcrumbPage>Plans</BreadcrumbPage></BreadcrumbItem>);
+    } else if (view === 'checkout') {
+      items.push(<BreadcrumbSeparator key="sep-checkout" />);
+      items.push(<BreadcrumbItem key="checkout"><BreadcrumbPage>Checkout</BreadcrumbPage></BreadcrumbItem>);
     } else {
       // Dashboard/Flow hierarchy
       items.push(<BreadcrumbSeparator key="sep-dash" />);
@@ -67,7 +71,7 @@ const BreadcrumbNav: React.FC<BreadcrumbNavProps> = ({ view, onNavigate, classNa
       } else {
         items.push(
           <BreadcrumbItem key="dash">
-            <BreadcrumbLink onClick={() => onNavigate('mode-select')} className="cursor-pointer">
+            <BreadcrumbLink onClick={() => navigate('/dashboard')} className="cursor-pointer">
               Dashboard
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -80,7 +84,7 @@ const BreadcrumbNav: React.FC<BreadcrumbNavProps> = ({ view, onNavigate, classNa
         } else {
           items.push(
             <BreadcrumbItem key="builder">
-              <BreadcrumbLink onClick={() => onNavigate('builder')} className="cursor-pointer">
+              <BreadcrumbLink onClick={() => navigate('/builder')} className="cursor-pointer">
                 Resume Builder
               </BreadcrumbLink>
             </BreadcrumbItem>
@@ -96,6 +100,10 @@ const BreadcrumbNav: React.FC<BreadcrumbNavProps> = ({ view, onNavigate, classNa
             items.push(<BreadcrumbItem key="tailor"><BreadcrumbPage>Job Tailor</BreadcrumbPage></BreadcrumbItem>);
           } else if (view === 'ai-writer') {
             items.push(<BreadcrumbItem key="writer"><BreadcrumbPage>AI Writer</BreadcrumbPage></BreadcrumbItem>);
+          } else if (view === 'cover-letter') {
+            items.push(<BreadcrumbItem key="cover-letter"><BreadcrumbPage>Cover Letter</BreadcrumbPage></BreadcrumbItem>);
+          } else if (view === 'interview-prep') {
+            items.push(<BreadcrumbItem key="interview-prep"><BreadcrumbPage>Interview Prep</BreadcrumbPage></BreadcrumbItem>);
           }
         }
       }
