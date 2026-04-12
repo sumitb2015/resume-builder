@@ -232,37 +232,56 @@ Split into technical and soft skills. Return ONLY valid JSON:
 };
 
 export const smartFit = async (resumeData: any, config: any, targetPages: number, userPrompt: string) => {
-  const prompt = `You are a professional resume designer and copywriter. Your goal is to refactor the resume content and suggest styling parameters to fit the resume into exactly ${targetPages} page(s), while strictly following this user request: "${userPrompt}".
+  const isMinorRephrase = !userPrompt.trim();
+  const goal = isMinorRephrase 
+    ? `perform minor rephrasing to fit exactly ${targetPages} page(s) while keeping the context identical`
+    : `strictly follow this instruction: "${userPrompt}" to fit exactly ${targetPages} page(s)`;
 
-Current Resume Data: ${JSON.stringify(resumeData, null, 2)}
-Current Styling: ${JSON.stringify(config.settings, null, 2)}
+  const prompt = `You are a professional resume designer and expert copywriter. Your goal is to ${goal}.
 
-Instructions:
-1. Shorten or expand the professional summary.
-2. Reword experience bullet points to be more concise (to save space) or more descriptive (to fill space), depending on the goal.
-3. Suggest optimal values for:
-   - fontSize (80 to 120, where 100 is default)
-   - margin (5 to 30 mm)
-   - lineHeight (1.2 to 2.0)
+  Current Resume Data: ${JSON.stringify(resumeData, null, 2)}
+  Current Styling: ${JSON.stringify(config.settings, null, 2)}
+  Target Page Count: ${targetPages}
 
-Return ONLY valid JSON with this exact structure:
-{
-  "refactoredResume": {
-     "personal": { "summary": "..." },
-     "experience": [ { "id": "1", "bullets": ["...", "..."] } ],
-     "projects": [ { "id": "1", "description": "..." } ]
-  },
-  "suggestedSettings": {
-     "fontSize": 95,
-     "margin": 12,
-     "lineHeight": 1.4
-  }
-}`;
+  Instructions:
+  1. Shorten or expand the professional summary to meet the target page count.
+  2. Reword experience bullet points and project descriptions to be more concise (to save space) or more descriptive (to fill space) as needed.
+  3. ${isMinorRephrase ? "Maintain the original context and meaning perfectly. Only change the phrasing and length." : "Execute the user's specific refinement request while optimizing for space."}
+  4. Suggest optimal values for styling parameters:
+     - fontSize (80 to 120, where 100 is default)
+     - margin (5 to 30 mm)
+     - lineHeight (1.2 to 2.0)
+
+  Few-Shot Example (Shortening):
+  Original: "Successfully spearheaded a cross-functional team of 15 engineers to design, develop, and deploy a mission-critical cloud-based inventory management system that resulted in a 30% reduction in operational overhead and significantly improved supply chain transparency."
+  Rewritten: "Led 15-engineer team to deploy a cloud inventory system, reducing overhead by 30% and improving supply chain visibility."
+
+  Few-Shot Example (Expanding):
+  Original: "Managed customer database and resolved technical issues."
+  Rewritten: "Overseaw a comprehensive SQL-based customer database of 50k+ entries, proactively identifying and resolving complex technical issues to maintain 99.9% system uptime."
+
+  Return ONLY valid JSON with this exact structure:
+  {
+    "refactoredResume": {
+       "personal": { "summary": "..." },
+       "experience": [ { "id": "uuid", "bullets": ["...", "..."] } ],
+       "projects": [ { "id": "uuid", "description": "..." } ]
+    },
+    "suggestedSettings": {
+       "fontSize": 95,
+       "margin": 12,
+       "lineHeight": 1.4
+    },
+    "modifiedFields": [
+       "personal.summary", 
+       "experience.[id].bullets.[index]",
+       "projects.[id].description"
+    ]
+  }`;
 
   const text = await ask(prompt, true);
   return extractJSON(text);
 };
-
 export const generateFullResume = async (params: { currentRole?: string; targetRole: string; industry: string; experience: string; context?: string }) => {
   const prompt = `You are an expert AI resume writer. Your task is to generate a complete, highly professional, and realistic resume in JSON format.
 The user provided the following details:

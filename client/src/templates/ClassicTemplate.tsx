@@ -59,7 +59,11 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
       {/* PROFESSIONAL SUMMARY */}
       {personal.summary && (
         <Section title="Professional Summary" config={config}>
-          <RichContent html={personal.summary} style={{ fontSize: '0.8125em', lineHeight: 1.75, textAlign: 'justify', color: '#2a2a2a' }} />
+          <RichContent 
+            html={personal.summary} 
+            isModified={config.modifiedFields?.includes('personal.summary')}
+            style={{ fontSize: '0.8125em', lineHeight: 1.75, textAlign: 'justify', color: '#2a2a2a' }} 
+          />
         </Section>
       )}
 
@@ -86,7 +90,12 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
                 {exp.bullets.filter(b => b).length > 0 && (
                   <ul style={{ marginTop: '6px', paddingLeft: '18px', listStyleType: 'disc' }}>
                     {exp.bullets.filter(b => b).map((bullet, i) => (
-                      <li key={i} style={{ fontSize: '0.7813em', lineHeight: 1.7, color: '#333', marginBottom: '3px' }}><RichContent html={bullet} /></li>
+                      <li key={i} style={{ fontSize: '0.7813em', lineHeight: 1.7, color: '#333', marginBottom: '3px' }}>
+                        <RichContent 
+                          html={bullet} 
+                          isModified={config.modifiedFields?.includes(`experience.${exp.id}.bullets.${i}`)}
+                        />
+                      </li>
                     ))}
                   </ul>
                 )}
@@ -169,7 +178,13 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
                   <span style={{ fontSize: '0.8438em', fontWeight: 700 }}>{p.title}</span>
                   {p.url && <span style={{ fontSize: '0.6875em', color: '#777' }}>{p.url}</span>}
                 </div>
-                {p.description && <RichContent html={p.description} style={{ fontSize: '0.7813em', color: '#444', marginTop: '3px', lineHeight: 1.6 }} />}
+                {p.description && (
+                  <RichContent 
+                    html={p.description} 
+                    isModified={config.modifiedFields?.includes(`projects.${p.id}.description`)}
+                    style={{ fontSize: '0.7813em', color: '#444', marginTop: '3px', lineHeight: 1.6 }} 
+                  />
+                )}
                 {p.tech.length > 0 && (
                   <div style={{ marginTop: '4px', fontSize: '0.7188em', color: '#666', fontStyle: 'italic' }}>
                     {p.tech.join(' · ')}

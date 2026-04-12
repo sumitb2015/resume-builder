@@ -50,7 +50,7 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
   const [targetPages, setTargetPages] = useState(1);
   const [userPrompt, setUserPrompt] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
-  const [showMobileSettings, setShowMobileSettings] = useState(false);
+  const [mobileSettingsView, setMobileSettingsView] = useState<'styles' | 'smartfit' | null>(null);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
@@ -134,6 +134,7 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
     const newConfig = {
       ...config,
       settings: { ...settings, ...updates },
+      modifiedFields: [], // Clear on manual change
     };
     pushToHistory(resume, newConfig);
   };
@@ -142,49 +143,46 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
     setIsOptimizing(true);
     
     try {
-      if (userPrompt.trim() || targetPages !== pageCount) {
-        const sanitizedResume = {
-          ...resume,
-          personal: { ...resume.personal, summary: resume.personal.summary.replace(/<[^>]*>?/gm, '') },
-          experience: resume.experience.map(exp => ({
-            ...exp,
-            bullets: exp.bullets.map(b => b.replace(/<[^>]*>?/gm, ''))
-          })),
-          projects: resume.projects.map(p => ({
-            ...p,
-            description: p.description.replace(/<[^>]*>?/gm, '')
-          }))
-        };
+      const sanitizedResume = {
+        ...resume,
+        personal: { ...resume.personal, summary: resume.personal.summary.replace(/<[^>]*>?/gm, '') },
+        experience: resume.experience.map(exp => ({
+          ...exp,
+          bullets: exp.bullets.map(b => b.replace(/<[^>]*>?/gm, ''))
+        })),
+        projects: resume.projects.map(p => ({
+          ...p,
+          description: p.description.replace(/<[^>]*>?/gm, '')
+        }))
+      };
 
-        const result = await api.smartFit(sanitizedResume, config, targetPages, userPrompt);
-        
-        const newConfig = {
-          ...config,
-          settings: { ...settings, ...result.suggestedSettings },
-        };
+      const result = await api.smartFit(sanitizedResume, config, targetPages, userPrompt);
+      
+      const newConfig = {
+        ...config,
+        settings: { ...settings, ...result.suggestedSettings },
+        modifiedFields: result.modifiedFields || [],
+      };
 
-        const newResume = { ...resume };
-        if (result.refactoredResume.personal?.summary) {
-          newResume.personal = { ...newResume.personal, summary: result.refactoredResume.personal.summary };
-        }
-        if (result.refactoredResume.experience) {
-          newResume.experience = newResume.experience.map(exp => {
-            const refactored = result.refactoredResume.experience?.find((r: any) => r.id === exp.id);
-            return refactored ? { ...exp, bullets: refactored.bullets } : exp;
-          });
-        }
-        if (result.refactoredResume.projects) {
-          newResume.projects = newResume.projects.map(p => {
-            const refactored = result.refactoredResume.projects?.find((r: any) => r.id === p.id);
-            return refactored ? { ...p, description: refactored.description } : p;
-          });
-        }
-        
-        pushToHistory(newResume, newConfig);
-        setUserPrompt('');
-      } else {
-        applyHeuristicFit();
+      const newResume = { ...resume };
+      if (result.refactoredResume.personal?.summary) {
+        newResume.personal = { ...newResume.personal, summary: result.refactoredResume.personal.summary };
       }
+      if (result.refactoredResume.experience) {
+        newResume.experience = newResume.experience.map(exp => {
+          const refactored = result.refactoredResume.experience?.find((r: any) => r.id === exp.id);
+          return refactored ? { ...exp, bullets: refactored.bullets } : exp;
+        });
+      }
+      if (result.refactoredResume.projects) {
+        newResume.projects = newResume.projects.map(p => {
+          const refactored = result.refactoredResume.projects?.find((r: any) => r.id === p.id);
+          return refactored ? { ...p, description: refactored.description } : p;
+        });
+      }
+      
+      pushToHistory(newResume, newConfig);
+      setUserPrompt('');
     } catch (error) {
       console.error('Smart Fit error:', error);
       applyHeuristicFit();
@@ -210,18 +208,19 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
 
     const newConfig = {
       ...config,
-      settings: { fontSize: newFontSize, margin: newMargin, lineHeight: newLineHeight }
+      settings: { fontSize: newFontSize, margin: newMargin, lineHeight: newLineHeight },
+      modifiedFields: [],
     };
     pushToHistory(resume, newConfig);
   };
 
   const updateFont = (key: 'heading' | 'body', value: string) => {
-    const newConfig = { ...config, fonts: { ...config.fonts, [key]: value } };
+    const newConfig = { ...config, fonts: { ...config.fonts, [key]: value }, modifiedFields: [] };
     pushToHistory(resume, newConfig);
   };
 
   const updateColor = (key: keyof typeof config.colors, value: string) => {
-    const newConfig = { ...config, colors: { ...config.colors, [key]: value } };
+    const newConfig = { ...config, colors: { ...config.colors, [key]: value }, modifiedFields: [] };
     pushToHistory(resume, newConfig);
   };
 
@@ -257,6 +256,9 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
 
   const mobileScale = Math.min(0.8, (window.innerWidth - 32) / 794);
 
+  // Calculate target page options: [1 ... pageCount+1]
+  const targetPageOptions = Array.from({ length: Math.max(2, pageCount + 1) }, (_, i) => i + 1);
+
   return (
     <div style={{
       display: 'flex',
@@ -284,233 +286,249 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
           bottom: 0,
           left: 0,
           right: 0,
-          height: '75vh',
-          transform: showMobileSettings ? 'translateY(0)' : 'translateY(100%)',
+          height: 'auto',
+          maxHeight: '85vh',
+          transform: mobileSettingsView ? 'translateY(0)' : 'translateY(100%)',
           transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-          boxShadow: '0 -8px 32px rgba(0,0,0,0.2)',
+          boxShadow: '0 -10px 40px rgba(0,0,0,0.3)',
           borderTop: '1px solid var(--color-ui-border)',
           borderRadius: '24px 24px 0 0',
+          paddingBottom: 'env(safe-area-inset-bottom, 20px)',
         } : {})
       }}>
         {/* Mobile handle */}
         {isMobile && (
           <div 
-            onClick={() => setShowMobileSettings(false)}
-            style={{ width: '100%', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+            onClick={() => setMobileSettingsView(null)}
+            style={{ width: '100%', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
           >
             <div style={{ width: '40px', height: '4px', background: 'var(--color-ui-border)', borderRadius: '2px' }} />
           </div>
         )}
 
         {/* Tab bar */}
-        <div style={{ display: 'flex', padding: '12px', gap: '4px', flexShrink: 0, borderBottom: '1px solid var(--color-ui-border)' }}>
-          {([
-            { id: 'layout', icon: <Move size={14} />, label: 'Layout' },
-            { id: 'fonts',  icon: <Type size={14} />, label: 'Type' },
-            { id: 'colors', icon: <Palette size={14} />, label: 'Color' },
-          ] as const).map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                padding: '10px 4px',
-                fontSize: '12px',
-                fontWeight: 700,
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-                background: activeTab === tab.id ? 'var(--color-ui-accent)' : 'transparent',
-                color: activeTab === tab.id ? '#fff' : 'var(--color-ui-text-muted)',
-              }}
-            >
-              {tab.icon} {tab.label}
-            </button>
-          ))}
-        </div>
+        {(!isMobile || mobileSettingsView === 'styles') && (
+          <div style={{ display: 'flex', padding: isMobile ? '0 12px 12px' : '12px', gap: '4px', flexShrink: 0, borderBottom: '1px solid var(--color-ui-border)' }}>
+            {([
+              { id: 'layout', icon: <Move size={14} />, label: 'Layout' },
+              { id: 'fonts',  icon: <Type size={14} />, label: 'Type' },
+              { id: 'colors', icon: <Palette size={14} />, label: 'Color' },
+            ] as const).map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  padding: '10px 4px',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
+                  background: activeTab === tab.id ? 'var(--color-ui-accent)' : 'transparent',
+                  color: activeTab === tab.id ? '#fff' : 'var(--color-ui-text-muted)',
+                }}
+              >
+                {tab.icon} {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Tab content area */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
+        <div style={{ 
+          flex: isMobile ? '0 1 auto' : 1, 
+          overflowY: 'auto', 
+          padding: isMobile ? '16px 20px 24px' : '20px' 
+        }}>
           
           {/* ── AI SMART FIT ── */}
-          <div style={{ marginBottom: '28px', padding: '18px', borderRadius: '14px', background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Sparkles size={15} color="#818CF8" />
-                <span style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#6366F1' }}>AI Smart Fit</span>
-              </div>
-              
-              <div style={{ display: 'flex', gap: '4px' }}>
-                <button
-                  onClick={handleUndo}
-                  disabled={past.length === 0}
-                  title="Undo change"
-                  style={{ 
-                    padding: '6px', background: 'transparent', border: 'none', cursor: past.length === 0 ? 'default' : 'pointer',
-                    color: past.length === 0 ? 'var(--color-ui-text-dim)' : 'var(--color-ui-text-muted)',
-                    display: 'flex', alignItems: 'center'
-                  }}
-                >
-                  <Undo2 size={15} />
-                </button>
-                <button
-                  onClick={handleRedo}
-                  disabled={future.length === 0}
-                  title="Redo change"
-                  style={{ 
-                    padding: '6px', background: 'transparent', border: 'none', cursor: future.length === 0 ? 'default' : 'pointer',
-                    color: future.length === 0 ? 'var(--color-ui-text-dim)' : 'var(--color-ui-text-muted)',
-                    display: 'flex', alignItems: 'center'
-                  }}
-                >
-                  <Redo2 size={15} />
-                </button>
-              </div>
-            </div>
-
-            <div style={{ marginBottom: '14px' }}>
-              <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-ui-text-dim)', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Target Pages</label>
-              <div style={{ display: 'flex', gap: '6px' }}>
-                {[1, 2].map(p => (
+          {(!isMobile || mobileSettingsView === 'smartfit') && (
+            <div style={{ marginBottom: isMobile ? '4px' : '28px', padding: '18px', borderRadius: '14px', background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Sparkles size={15} color="#818CF8" />
+                  <span style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#6366F1' }}>AI Smart Fit</span>
+                </div>
+                
+                <div style={{ display: 'flex', gap: '4px' }}>
                   <button
-                    key={p}
-                    onClick={() => setTargetPages(p)}
-                    style={{
-                      flex: 1, padding: '8px', fontSize: '12.5px', fontWeight: 700, borderRadius: '8px', border: '1px solid var(--color-ui-border)',
-                      background: targetPages === p ? 'var(--color-ui-accent)' : 'var(--color-ui-surface)',
-                      color: targetPages === p ? 'white' : 'var(--color-ui-text)',
-                      cursor: 'pointer', transition: 'all 0.2s'
+                    onClick={handleUndo}
+                    disabled={past.length === 0}
+                    title="Undo change"
+                    style={{ 
+                      padding: '6px', background: 'transparent', border: 'none', cursor: past.length === 0 ? 'default' : 'pointer',
+                      color: past.length === 0 ? 'var(--color-ui-text-dim)' : 'var(--color-ui-text-muted)',
+                      display: 'flex', alignItems: 'center'
                     }}
                   >
-                    {p} {p === 1 ? 'Page' : 'Pages'}
+                    <Undo2 size={15} />
                   </button>
-                ))}
+                  <button
+                    onClick={handleRedo}
+                    disabled={future.length === 0}
+                    title="Redo change"
+                    style={{ 
+                      padding: '6px', background: 'transparent', border: 'none', cursor: future.length === 0 ? 'default' : 'pointer',
+                      color: future.length === 0 ? 'var(--color-ui-text-dim)' : 'var(--color-ui-text-muted)',
+                      display: 'flex', alignItems: 'center'
+                    }}
+                  >
+                    <Redo2 size={15} />
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <div style={{ marginBottom: '14px' }}>
-              <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-ui-text-dim)', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Refinement Instructions</label>
-              <textarea
-                value={userPrompt}
-                onChange={e => setUserPrompt(e.target.value)}
-                placeholder="e.g. 'Shorten bullets to fit', 'Expand to fill space'"
-                className="field-textarea"
-                style={{ fontSize: '12px', minHeight: '60px', background: 'var(--color-ui-bg)' }}
-              />
-            </div>
+              <div style={{ marginBottom: '14px' }}>
+                <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-ui-text-dim)', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Target Pages</label>
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                  {targetPageOptions.map(p => (
+                    <button
+                      key={p}
+                      onClick={() => setTargetPages(p)}
+                      style={{
+                        minWidth: '40px', flex: 1, padding: '8px', fontSize: '12.5px', fontWeight: 700, borderRadius: '8px', border: '1px solid var(--color-ui-border)',
+                        background: targetPages === p ? 'var(--color-ui-accent)' : 'var(--color-ui-surface)',
+                        color: targetPages === p ? 'white' : 'var(--color-ui-text)',
+                        cursor: 'pointer', transition: 'all 0.2s'
+                      }}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-            <button
-              className="btn-primary"
-              disabled={isOptimizing}
-              onClick={handleSmartFit}
-              style={{
-                width: '100%',
-                padding: '12px',
-                fontSize: '13px',
-                fontWeight: 700,
-                gap: '8px',
-                background: 'linear-gradient(135deg, #6366F1, #A855F7)',
-                border: 'none',
-                boxShadow: '0 4px 12px rgba(99,102,241,0.2)'
-              }}
-            >
-              {isOptimizing ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
-              {isOptimizing ? 'Optimizing...' : 'Apply AI Smart Fit'}
-            </button>
-          </div>
+              <div style={{ marginBottom: '14px' }}>
+                <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-ui-text-dim)', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Refinement Instructions</label>
+                <textarea
+                  value={userPrompt}
+                  onChange={e => setUserPrompt(e.target.value)}
+                  placeholder="e.g. 'Shorten bullets to fit', 'Expand to fill space'"
+                  className="field-textarea"
+                  style={{ fontSize: '12px', minHeight: '60px', background: 'var(--color-ui-bg)' }}
+                />
+              </div>
+
+              <button
+                className="btn-primary"
+                disabled={isOptimizing}
+                onClick={handleSmartFit}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  gap: '8px',
+                  background: 'linear-gradient(135deg, #6366F1, #A855F7)',
+                  border: 'none',
+                  boxShadow: '0 4px 12px rgba(99,102,241,0.2)'
+                }}
+              >
+                {isOptimizing ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                {isOptimizing ? 'Optimizing...' : 'Apply AI Smart Fit'}
+              </button>
+            </div>
+          )}
 
           {/* ── TAB SPECIFIC CONTENT ── */}
-          {activeTab === 'layout' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              <SliderControl
-                label="Page Margins"
-                value={settings.margin}
-                display={`${settings.margin} mm`}
-                min={5} max={30} step={1}
-                onChange={v => updateSettings({ margin: v })}
-              />
+          {(!isMobile || mobileSettingsView === 'styles') && (
+            <>
+              {activeTab === 'layout' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                  <SliderControl
+                    label="Page Margins"
+                    value={settings.margin}
+                    display={`${settings.margin} mm`}
+                    min={5} max={30} step={1}
+                    onChange={v => updateSettings({ margin: v })}
+                  />
 
-              <SliderControl
-                label="Font Size"
-                value={settings.fontSize}
-                display={`${settings.fontSize}%`}
-                min={80} max={120} step={1}
-                onChange={v => updateSettings({ fontSize: v })}
-              />
+                  <SliderControl
+                    label="Font Size"
+                    value={settings.fontSize}
+                    display={`${settings.fontSize}%`}
+                    min={80} max={120} step={1}
+                    onChange={v => updateSettings({ fontSize: v })}
+                  />
 
-              <SliderControl
-                label="Line Spacing"
-                value={settings.lineHeight}
-                display={`${settings.lineHeight.toFixed(2)}×`}
-                min={1.2} max={2.0} step={0.05}
-                onChange={v => updateSettings({ lineHeight: v })}
-              />
-            </div>
-          )}
-
-          {activeTab === 'fonts' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              <FontSelect label="Heading Font" value={config.fonts.heading} options={FONT_OPTIONS} onChange={v => updateFont('heading', v)} />
-              <FontSelect label="Body Font" value={config.fonts.body} options={FONT_OPTIONS} onChange={v => updateFont('body', v)} />
-            </div>
-          )}
-
-          {activeTab === 'colors' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <ColorControl label="Primary Brand Color" value={config.colors.primary} onChange={v => updateColor('primary', v)} />
-              <ColorControl label="Accent / Highlights"  value={config.colors.accent}  onChange={v => updateColor('accent', v)} />
-              <ColorControl label="Page Background" value={config.colors.background} onChange={v => updateColor('background', v)} />
-              {config.colors.sidebar !== undefined && (
-                <ColorControl label="Sidebar Background" value={config.colors.sidebar!} onChange={v => updateColor('sidebar', v)} />
+                  <SliderControl
+                    label="Line Spacing"
+                    value={settings.lineHeight}
+                    display={`${settings.lineHeight.toFixed(2)}×`}
+                    min={1.2} max={2.0} step={0.05}
+                    onChange={v => updateSettings({ lineHeight: v })}
+                  />
+                </div>
               )}
-            </div>
+
+              {activeTab === 'fonts' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                  <FontSelect label="Heading Font" value={config.fonts.heading} options={FONT_OPTIONS} onChange={v => updateFont('heading', v)} />
+                  <FontSelect label="Body Font" value={config.fonts.body} options={FONT_OPTIONS} onChange={v => updateFont('body', v)} />
+                </div>
+              )}
+
+              {activeTab === 'colors' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  <ColorControl label="Primary Brand Color" value={config.colors.primary} onChange={v => updateColor('primary', v)} />
+                  <ColorControl label="Accent / Highlights"  value={config.colors.accent}  onChange={v => updateColor('accent', v)} />
+                  <ColorControl label="Page Background" value={config.colors.background} onChange={v => updateColor('background', v)} />
+                  {config.colors.sidebar !== undefined && (
+                    <ColorControl label="Sidebar Background" value={config.colors.sidebar!} onChange={v => updateColor('sidebar', v)} />
+                  )}
+                </div>
+              )}
+            </>
           )}
         </div>
 
         {/* Download action area */}
-        <div style={{ padding: '20px', borderTop: '1px solid var(--color-ui-border)', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '12px', background: 'var(--color-ui-bg)' }}>
-          {canAccess('download-pdf') ? (
-            <Button
-              variant="default"
-              className="w-full h-12 text-[14px] font-bold gap-2.5 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white shadow-[0_4px_15px_rgba(99,102,241,0.3)] hover:opacity-90 border-none transition-all"
-              onClick={handlePrint}
-              disabled={isDownloading}
-            >
-              {isDownloading
-                ? <><Loader2 size={18} className="animate-spin" /> Preparing PDF…</>
-                : <><Download size={18} /> Export as PDF</>
-              }
-            </Button>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {!isMobile && (
+          <div style={{ padding: '20px', borderTop: '1px solid var(--color-ui-border)', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '12px', background: 'var(--color-ui-bg)' }}>
+            {canAccess('download-pdf') ? (
               <Button
                 variant="default"
-                className="w-full h-11 text-[13.5px] font-semibold gap-2 bg-[var(--color-ui-accent)] text-white shadow-md active:scale-[0.98] transition-all"
-                onClick={handleDownloadTxt}
+                className="w-full h-12 text-[14px] font-bold gap-2.5 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white shadow-[0_4px_15px_rgba(99,102,241,0.3)] hover:opacity-90 border-none transition-all"
+                onClick={handlePrint}
+                disabled={isDownloading}
               >
-                <FileTextIcon size={16} /> Download Plain Text (.txt)
+                {isDownloading
+                  ? <><Loader2 size={18} className="animate-spin" /> Preparing PDF…</>
+                  : <><Download size={18} /> Export as PDF</>
+                }
               </Button>
-              <Button
-                variant="outline"
-                className="w-full h-11 text-[13.5px] font-semibold gap-2 border-dashed border-[var(--color-ui-border)] text-[var(--color-ui-text-muted)] hover:text-[var(--color-ui-text)] hover:bg-[var(--color-ui-surface-2)] active:scale-[0.98] transition-all"
-                onClick={() => alert('PDF Export requires a Basic, Pro, or Ultimate plan. Please upgrade to download as PDF.')}
-              >
-                <Download size={16} /> Export PDF (Locked)
-              </Button>
-            </div>
-          )}
-        </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <Button
+                  variant="default"
+                  className="w-full h-11 text-[13.5px] font-semibold gap-2 bg-[var(--color-ui-accent)] text-white shadow-md active:scale-[0.98] transition-all"
+                  onClick={handleDownloadTxt}
+                >
+                  <FileTextIcon size={16} /> Download Plain Text (.txt)
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full h-11 text-[13.5px] font-semibold gap-2 border-dashed border-[var(--color-ui-border)] text-[var(--color-ui-text-muted)] hover:text-[var(--color-ui-text)] hover:bg-[var(--color-ui-surface-2)] active:scale-[0.98] transition-all"
+                  onClick={() => alert('PDF Export requires a Basic, Pro, or Ultimate plan. Please upgrade to download as PDF.')}
+                >
+                  <Download size={16} /> Export PDF (Locked)
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
       </aside>
 
       {/* Mobile Settings Toggle Overlay */}
-      {isMobile && showMobileSettings && (
+      {isMobile && mobileSettingsView !== null && (
         <div 
-          onClick={() => setShowMobileSettings(false)}
+          onClick={() => setMobileSettingsView(null)}
           style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 90, backdropFilter: 'blur(2px)' }} 
         />
       )}
@@ -548,7 +566,7 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
         >
           <Button
             variant="outline"
-            onClick={() => setShowMobileSettings(true)}
+            onClick={() => setMobileSettingsView('styles')}
             className="flex-1 max-w-[100px] h-10 rounded-full font-bold gap-2 bg-[var(--color-ui-surface)] border-[var(--color-ui-border)] text-[var(--color-ui-text)] shadow-lg active:scale-95 transition-all"
           >
             <Palette size={16} />
@@ -558,7 +576,7 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
           <Button
             variant="outline"
             disabled={isOptimizing}
-            onClick={handleSmartFit}
+            onClick={() => setMobileSettingsView('smartfit')}
             className="flex-1 max-w-[140px] h-10 rounded-full font-bold gap-2 bg-[var(--color-ui-surface)] border-[var(--color-ui-border)] text-[#6366F1] shadow-lg active:scale-95 transition-all"
           >
             {isOptimizing ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
