@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Zap, LogOut, Sun, Moon, Layout, Sparkles, CreditCard, BookOpen, Menu, X as CloseIcon } from 'lucide-react';
 import { scrollToSection } from '../../lib/scroll';
 import { useAuth } from '../../contexts/AuthContext';
-import { usePlan } from '../../contexts/PlanContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import BreadcrumbNav from '../BreadcrumbNav';
 import UserAvatar from '../UserAvatar';
