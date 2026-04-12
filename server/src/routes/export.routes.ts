@@ -1,4 +1,5 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
+import { AuthRequest } from '../middleware/auth.middleware';
 import puppeteer, { type Browser } from 'puppeteer';
 
 const router = Router();
@@ -43,7 +44,7 @@ async function getBrowser(): Promise<Browser> {
   return browserInstance;
 }
 
-router.post('/pdf', async (req: any, res: any) => {
+router.post('/pdf', async (req: AuthRequest, res: Response) => {
   const { html, filename = 'resume', metadata = {} } = req.body;
 
   if (!html || typeof html !== 'string') {

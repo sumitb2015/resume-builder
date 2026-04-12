@@ -15,6 +15,10 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
   const token = authHeader.split('Bearer ')[1];
 
   try {
+    if (!admin.apps.length) {
+      console.error('Firebase Admin not initialized. Skipping token verification.');
+      return res.status(503).json({ error: 'Authentication service unavailable' });
+    }
     const decodedToken = await admin.auth().verifyIdToken(token);
     req.user = decodedToken;
     next();

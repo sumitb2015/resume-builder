@@ -89,7 +89,7 @@ const generateFullResumeSchema = z.object({
 });
 
 // AI Routes
-app.post('/api/ai/generate-bullets', async (req, res) => {
+app.post('/api/ai/generate-bullets', async (req: AuthRequest, res: Response) => {
   try {
     const { role, company, industry } = generateBulletsSchema.parse(req.body);
     const bullets = await aiService.generateBulletPoints(role, company, industry);
@@ -100,7 +100,7 @@ app.post('/api/ai/generate-bullets', async (req, res) => {
   }
 });
 
-app.post('/api/ai/generate-summary', async (req, res) => {
+app.post('/api/ai/generate-summary', async (req: AuthRequest, res: Response) => {
   try {
     const { name, title, experience, skills } = generateSummarySchema.parse(req.body);
     const summary = await aiService.generateSummary(name || '', title, experience, skills || []);
@@ -111,7 +111,7 @@ app.post('/api/ai/generate-summary', async (req, res) => {
   }
 });
 
-app.post('/api/ai/tailor-resume', async (req, res) => {
+app.post('/api/ai/tailor-resume', async (req: AuthRequest, res: Response) => {
   try {
     const { resume, jobDescription } = tailorResumeSchema.parse(req.body);
     const result = await aiService.tailorResume(resume, jobDescription);
@@ -122,7 +122,7 @@ app.post('/api/ai/tailor-resume', async (req, res) => {
   }
 });
 
-app.post('/api/ai/generate-cover-letter', async (req, res) => {
+app.post('/api/ai/generate-cover-letter', async (req: AuthRequest, res: Response) => {
   try {
     const { resume, jobDescription } = tailorResumeSchema.parse(req.body);
     const result = await aiService.generateCoverLetter(resume, jobDescription);
@@ -133,7 +133,7 @@ app.post('/api/ai/generate-cover-letter', async (req, res) => {
   }
 });
 
-app.post('/api/ai/generate-interview-prep', async (req, res) => {
+app.post('/api/ai/generate-interview-prep', async (req: AuthRequest, res: Response) => {
   try {
     const { resume, jobDescription } = tailorResumeSchema.parse(req.body);
     const result = await aiService.generateInterviewPrep(resume, jobDescription);
@@ -144,7 +144,7 @@ app.post('/api/ai/generate-interview-prep', async (req, res) => {
   }
 });
 
-app.post('/api/ai/ats-score', async (req, res) => {
+app.post('/api/ai/ats-score', async (req: AuthRequest, res: Response) => {
   try {
     const { resume, jobDescription } = atsScoreSchema.parse(req.body);
     const result = await aiService.analyzeAtsScore(resume, jobDescription);
@@ -155,7 +155,7 @@ app.post('/api/ai/ats-score', async (req, res) => {
   }
 });
 
-app.post('/api/ai/generate-full-resume', async (req, res) => {
+app.post('/api/ai/generate-full-resume', async (req: AuthRequest, res: Response) => {
   try {
     const params = generateFullResumeSchema.parse(req.body);
     const result = await aiService.generateFullResume(params);
@@ -166,7 +166,7 @@ app.post('/api/ai/generate-full-resume', async (req, res) => {
   }
 });
 
-app.post('/api/ai/generate-smart-resume', async (req, res) => {
+app.post('/api/ai/generate-smart-resume', async (req: AuthRequest, res: Response) => {
   try {
     const params = generateFullResumeSchema.parse(req.body); // Shares same schema
     const result = await aiService.generateSmartTailoredResume(params);
@@ -177,7 +177,7 @@ app.post('/api/ai/generate-smart-resume', async (req, res) => {
   }
 });
 
-app.post('/api/ai/ats-tailor', async (req, res) => {
+app.post('/api/ai/ats-tailor', async (req: AuthRequest, res: Response) => {
   try {
     const { resume, jobDescription, atsResult } = req.body;
     const result = await aiService.atsTailor(resume, jobDescription, atsResult);
@@ -187,7 +187,7 @@ app.post('/api/ai/ats-tailor', async (req, res) => {
   }
 });
 
-app.post('/api/ai/find-skills', async (req, res) => {
+app.post('/api/ai/find-skills', async (req: AuthRequest, res: Response) => {
   try {
     const { jobTitle } = req.body;
     const skills = await aiService.findSkills(jobTitle);
@@ -197,7 +197,7 @@ app.post('/api/ai/find-skills', async (req, res) => {
   }
 });
 
-app.post('/api/ai/smart-fit', async (req, res) => {
+app.post('/api/ai/smart-fit', async (req: AuthRequest, res: Response) => {
   try {
     const { resume, config, targetPages, userPrompt } = req.body;
     const result = await aiService.smartFit(resume, config, targetPages, userPrompt);
@@ -207,7 +207,7 @@ app.post('/api/ai/smart-fit', async (req, res) => {
   }
 });
 
-app.post('/api/ai/rephrase', async (req, res) => {
+app.post('/api/ai/rephrase', async (req: AuthRequest, res: Response) => {
   try {
     const { text, instruction } = req.body;
     const rephrased = await aiService.rephrase(text, instruction);
@@ -217,7 +217,7 @@ app.post('/api/ai/rephrase', async (req, res) => {
   }
 });
 
-app.post('/api/fetch-job-url', async (req, res) => {
+app.post('/api/fetch-job-url', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const { url } = req.body;
     if (!url || typeof url !== 'string') {
