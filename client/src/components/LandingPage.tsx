@@ -19,9 +19,10 @@ interface Props {
   onStart: () => void;
   onOpenBlog: () => void;
   onCheckout: (plan: Exclude<Plan, 'free'>, isAnnual: boolean) => void;
+  onShowProfile: () => void;
 }
 
-const LandingPage: React.FC<Props> = ({ onStart, onOpenBlog, onCheckout }) => {
+const LandingPage: React.FC<Props> = ({ onStart, onOpenBlog, onCheckout, onShowProfile }) => {
   const [tosOpen, setTosOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -30,7 +31,7 @@ const LandingPage: React.FC<Props> = ({ onStart, onOpenBlog, onCheckout }) => {
 
   return (
     <div className="landing-page">
-      <NavBar onStart={onStart} onOpenBlog={onOpenBlog} />
+      <NavBar onStart={onStart} onOpenBlog={onOpenBlog} onShowProfile={onShowProfile} />
       <HeroSection onStart={onStart} />
       <StatsSection />
       <TemplateShowcase onStart={onStart} />

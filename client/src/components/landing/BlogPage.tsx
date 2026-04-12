@@ -9,9 +9,10 @@ import { ARTICLES, tagColors, type Article } from './blogData';
 interface Props {
   onBack: () => void;
   onStart: () => void;
+  onShowProfile: () => void;
 }
 
-const BlogPage: React.FC<Props> = ({ onBack, onStart }) => {
+const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile }) => {
   const [activeArticle, setActiveArticle] = useState<Article | null>(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
@@ -180,6 +181,7 @@ return (
       isBlogPage={true} 
       onBackToHome={onBack} 
       onOpenBlog={() => setActiveArticle(null)}
+      onShowProfile={onShowProfile}
       currentLabel={activeArticle?.title}
     />
 

@@ -20,6 +20,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import StylePanel from './components/StylePanel';
 import ExportPreview from './components/ExportPreview';
 import BreadcrumbNav from './components/BreadcrumbNav';
+import UserAvatar from './components/UserAvatar';
 import { templates } from './templates';
 import type { Resume, TemplateConfig, ImprovementSuggestions } from './shared/types';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -181,7 +182,7 @@ function PlanBadge({ size = 'md' }: { size?: 'sm' | 'md' }) {
   );
 }
 
-function PlanSelectPage({ onSelected, onBack, onCheckout }: { onSelected: () => void; onBack: () => void; onCheckout: (planId: Exclude<Plan, 'free'>) => void }) {
+function PlanSelectPage({ onSelected, onBack, onCheckout, onShowProfile }: { onSelected: () => void; onBack: () => void; onCheckout: (planId: Exclude<Plan, 'free'>) => void; onShowProfile: () => void }) {
   const { setPlan } = usePlan();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
@@ -213,6 +214,15 @@ function PlanSelectPage({ onSelected, onBack, onCheckout }: { onSelected: () => 
         zIndex: 100
       }}>
         <BreadcrumbNav view="plan-select" onNavigate={(v) => { if (v === 'landing') onBack(); }} />
+      </div>
+
+      <div style={{ 
+        position: 'fixed', 
+        top: isMobile ? '16px' : '20px', 
+        right: isMobile ? '16px' : '24px',
+        zIndex: 100
+      }}>
+        <UserAvatar onClick={onShowProfile} showBadge={!isMobile} />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: isMobile ? '32px' : '48px' }}>
@@ -542,9 +552,10 @@ function AppContent() {
         onStart={handleStart} 
         onOpenBlog={() => setView('blog')} 
         onCheckout={(p, a) => { setCheckoutPlan(p); setCheckoutAnnual(a); setView('checkout'); }}
+        onShowProfile={() => setShowProfile(true)}
       />
     );
-    if (view === 'blog') return <BlogPage onBack={() => setView('landing')} onStart={handleStart} />;
+    if (view === 'blog') return <BlogPage onBack={() => setView('landing')} onStart={handleStart} onShowProfile={() => setShowProfile(true)} />;
     
     if (view === 'login') {
       return (
@@ -564,6 +575,7 @@ function AppContent() {
         onSelected={() => setView('mode-select')} 
         onBack={() => setView('landing')} 
         onCheckout={(p) => { setCheckoutPlan(p); setCheckoutAnnual(false); setView('checkout'); }}
+        onShowProfile={() => setShowProfile(true)}
       />
     );
 
@@ -574,6 +586,7 @@ function AppContent() {
           isAnnual={checkoutAnnual}
           onBack={() => setView('plan-select')}
           onSuccess={() => setView('mode-select')}
+          onShowProfile={() => setShowProfile(true)}
         />
       );
     }
@@ -581,7 +594,12 @@ function AppContent() {
     if (view === 'mode-select') {
       return (
         <>
-          <ModeSelectModal onSelect={handleModeSelect} onBack={() => setView('landing')} onUpgradeNeeded={showUpgrade} />
+          <ModeSelectModal 
+            onSelect={handleModeSelect} 
+            onBack={() => setView('landing')} 
+            onUpgradeNeeded={showUpgrade} 
+            onShowProfile={() => setShowProfile(true)}
+          />
           {upgradePrompt && <UpgradeModal requiredPlan={upgradePrompt.requiredPlan as any} featureLabel={upgradePrompt.featureLabel} onClose={() => setUpgradePrompt(null)} onUpgrade={(p) => { setCheckoutPlan(p); setCheckoutAnnual(false); setView('checkout'); }} />}
         </>
       );
@@ -596,6 +614,7 @@ function AppContent() {
             setView('builder');
           }}
           onBack={() => setView('mode-select')} 
+          onShowProfile={() => setShowProfile(true)}
         />
       );
     }
@@ -759,14 +778,7 @@ function AppContent() {
               </>
             )}
 
-            {currentUser && (
-              <div 
-                onClick={() => setShowProfile(true)}
-                style={{ width: '30px', height: '30px', borderRadius: '8px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 800, color: 'white', cursor: 'pointer' }}
-              >
-                {(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}
-              </div>
-            )}
+            <UserAvatar onClick={() => setShowProfile(true)} showBadge={!isMobile} />
           </div>
         </header>
       </>

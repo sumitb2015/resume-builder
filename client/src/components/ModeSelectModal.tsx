@@ -6,16 +6,18 @@ import { usePlan } from '../contexts/PlanContext';
 import type { Feature } from '../shared/constants';
 import BreadcrumbNav from './BreadcrumbNav';
 import LoadingSpinner from './LoadingSpinner';
+import UserAvatar from './UserAvatar';
 
 interface Props {
   onSelect: (mode: 'manual' | 'enhance' | 'linkedin' | 'ai-writer', resume?: Resume, improvements?: ImprovementSuggestions) => void;
   onBack: () => void;
   onUpgradeNeeded: (feature: Feature) => void;
+  onShowProfile: () => void;
 }
 
 type Step = 'pick' | 'enhance' | 'linkedin' | 'loading';
 
-export default function ModeSelectModal({ onSelect, onBack, onUpgradeNeeded }: Props) {
+export default function ModeSelectModal({ onSelect, onBack, onUpgradeNeeded, onShowProfile }: Props) {
   const { canAccess } = usePlan();
   const [step, setStep] = useState<Step>('pick');
   const [file, setFile] = useState<File | null>(null);
@@ -78,7 +80,7 @@ export default function ModeSelectModal({ onSelect, onBack, onUpgradeNeeded }: P
         borderBottom: '1px solid var(--color-ui-border)', 
         display: 'flex', 
         alignItems: 'center', 
-        gap: '20px',
+        justifyContent: 'space-between',
         position: isMobile ? 'fixed' : 'sticky',
         top: 0,
         left: 0,
@@ -86,16 +88,20 @@ export default function ModeSelectModal({ onSelect, onBack, onUpgradeNeeded }: P
         zIndex: 100,
         background: 'var(--color-ui-bg)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer' }} onClick={onBack}>
-          <div style={{ width: '26px', height: '26px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Zap size={13} color="white" fill="white" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer' }} onClick={onBack}>
+            <div style={{ width: '26px', height: '26px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Zap size={13} color="white" fill="white" />
+            </div>
+            <span style={{ fontSize: '15px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)' }}>
+              Bespoke<span style={{ color: '#818CF8' }}>CV</span>
+            </span>
           </div>
-          <span style={{ fontSize: '15px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)' }}>
-            Bespoke<span style={{ color: '#818CF8' }}>CV</span>
-          </span>
+          <div style={{ width: '1px', height: '18px', background: 'var(--color-ui-border)' }} />
+          <BreadcrumbNav view="mode-select" onNavigate={(v) => { if (v === 'landing') onBack(); }} />
         </div>
-        <div style={{ width: '1px', height: '18px', background: 'var(--color-ui-border)' }} />
-        <BreadcrumbNav view="mode-select" onNavigate={(v) => { if (v === 'landing') onBack(); }} />
+
+        <UserAvatar onClick={onShowProfile} showBadge={!isMobile} />
       </header>
       {isMobile && <div style={{ height: '60px' }} />}
 

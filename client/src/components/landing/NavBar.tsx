@@ -1,26 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Zap, LogOut, Shield, Crown, Sun, Moon, Layout, Sparkles, CreditCard, BookOpen, Menu, X as CloseIcon } from 'lucide-react';
+import { Zap, LogOut, Sun, Moon, Layout, Sparkles, CreditCard, BookOpen, Menu, X as CloseIcon } from 'lucide-react';
 import { scrollToSection } from '../../lib/scroll';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePlan } from '../../contexts/PlanContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import BreadcrumbNav from '../BreadcrumbNav';
+import UserAvatar from '../UserAvatar';
 
 interface Props { 
   onStart: () => void;
   isBlogPage?: boolean;
   onBackToHome?: () => void;
   onOpenBlog?: () => void;
+  onShowProfile?: () => void;
   view?: any;
   currentLabel?: string;
 }
-
-const PLAN_BADGE_CONFIG = {
-  free:    { label: 'Free',     color: '#94A3B8', bg: 'rgba(148,163,184,0.15)', icon: (size: number) => <Shield size={size} /> },
-  basic:   { label: 'Basic',    color: '#FCD34D', bg: 'rgba(245,158,11,0.15)', icon: (size: number) => <Shield size={size} /> },
-  pro:     { label: 'Pro',      color: '#818CF8', bg: 'rgba(99,102,241,0.15)', icon: (size: number) => <Zap size={size} /> },
-  ultimate:{ label: 'Ultimate', color: '#C084FC', bg: 'rgba(168,85,247,0.15)', icon: (size: number) => <Crown size={size} /> },
-} as const;
 
 const NAV_LINKS = [
   { label: 'Templates', id: 'templates', icon: <Layout size={16} /> },
@@ -28,7 +23,7 @@ const NAV_LINKS = [
   { label: 'Pricing', id: 'pricing', icon: <CreditCard size={16} /> },
 ];
 
-const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog, currentLabel }) => {
+const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog, onShowProfile, currentLabel }) => {
   const [scrollY, setScrollY] = useState(0);
   const [scrollPct, setScrollPct] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -231,35 +226,14 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
 
           {currentUser ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: isSmallMobile ? '6px' : (isMobile ? '8px' : '12px') }}>
-              {!isMobile && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px', borderRadius: '12px', background: 'var(--color-ui-surface-2)', border: '1px solid var(--color-ui-border)' }}>
-                  {currentUser.photoURL ? (
-                    <img
-                      src={currentUser.photoURL}
-                      alt={currentUser.displayName ?? 'User'}
-                      style={{ width: '28px', height: '28px', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}
-                    />
-                  ) : (
-                    <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: 'white' }}>
-                      {(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}
-                    </div>
-                  )}
-                  
-                  {badge && (
-                    <div style={{
-                      display: 'inline-flex', alignItems: 'center', gap: '4px',
-                      padding: '2px 8px', borderRadius: '6px',
-                      background: badge.bg, border: `1px solid ${badge.color}30`,
-                    }}>
-                      <span style={{ color: badge.color, display: 'flex', alignItems: 'center' }}>{badge.icon(10)}</span>
-                      <span style={{ fontSize: '10px', fontWeight: 800, color: badge.color, letterSpacing: '0.02em', textTransform: 'uppercase' }}>{badge.label}</span>
-                    </div>
-                  )}
-                </div>
-              )}
+              <UserAvatar 
+                onClick={onShowProfile || (() => {})} 
+                showBadge={!isMobile} 
+              />
 
-              <button
-                onClick={onStart}
+              {!isMobile && (
+                <button
+                  onClick={onStart}
                 style={{
                   padding: isSmallMobile ? '8px 12px' : (isMobile ? '8px 16px' : '10px 24px'), borderRadius: '12px',
                   background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',

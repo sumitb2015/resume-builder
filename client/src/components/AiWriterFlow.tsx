@@ -6,6 +6,7 @@ import type { Resume, TemplateConfig, SmartResumeResponse } from '../shared/type
 import { templates } from '../templates';
 import TemplateRenderer from '../templates/TemplateRenderer';
 import BreadcrumbNav from './BreadcrumbNav';
+import UserAvatar from './UserAvatar';
 
 const SAMPLE_RESUME: Resume = {
   personal: {
@@ -91,11 +92,12 @@ const TemplatePreview = ({ t }: { t: TemplateConfig }) => {
 interface Props {
   onComplete: (resume: Resume, template: TemplateConfig) => void;
   onBack: () => void;
+  onShowProfile: () => void;
 }
 
 type Step = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
-export default function AiWriterFlow({ onComplete, onBack }: Props) {
+export default function AiWriterFlow({ onComplete, onBack, onShowProfile }: Props) {
   const [step, setStep] = useState<Step>(0);
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateConfig>(templates[1]!);
   const [loadingMsg, setLoadingMsg] = useState('');
@@ -269,7 +271,7 @@ export default function AiWriterFlow({ onComplete, onBack }: Props) {
         borderBottom: '1px solid var(--color-ui-border)', 
         display: 'flex', 
         alignItems: 'center', 
-        gap: '20px',
+        justifyContent: 'space-between',
         position: isMobile ? 'fixed' : 'sticky',
         top: 0,
         left: 0,
@@ -277,22 +279,26 @@ export default function AiWriterFlow({ onComplete, onBack }: Props) {
         zIndex: 100,
         background: 'var(--color-ui-bg)'
       }}>
-        <div 
-          style={{ display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer' }} 
-          onClick={() => {
-            if (step > 0) setStep((step - 1) as Step);
-            else onBack();
-          }}
-        >
-          <div style={{ width: '26px', height: '26px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Wand2 size={13} color="white" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div 
+            style={{ display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer' }} 
+            onClick={() => {
+              if (step > 0) setStep((step - 1) as Step);
+              else onBack();
+            }}
+          >
+            <div style={{ width: '26px', height: '26px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Wand2 size={13} color="white" />
+            </div>
+            <span style={{ fontSize: '15px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)' }}>
+              AI Resume <span style={{ color: '#818CF8' }}>Writer</span>
+            </span>
           </div>
-          <span style={{ fontSize: '15px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)' }}>
-            AI Resume <span style={{ color: '#818CF8' }}>Writer</span>
-          </span>
+          <div style={{ width: '1px', height: '18px', background: 'var(--color-ui-border)' }} />
+          <BreadcrumbNav view="ai-writer" onNavigate={(v) => { if (v === 'landing' || v === 'mode-select') onBack(); }} />
         </div>
-        <div style={{ width: '1px', height: '18px', background: 'var(--color-ui-border)' }} />
-        <BreadcrumbNav view="ai-writer" onNavigate={(v) => { if (v === 'landing' || v === 'mode-select') onBack(); }} />
+
+        <UserAvatar onClick={onShowProfile} showBadge={!isMobile} />
       </header>
       {isMobile && <div style={{ height: '60px' }} />}
 

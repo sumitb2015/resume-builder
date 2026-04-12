@@ -6,15 +6,17 @@ import { useAuth } from '../contexts/AuthContext';
 import { usePlan } from '../contexts/PlanContext';
 import { PLAN_PRICES } from '../shared/constants';
 import type { Plan } from '../shared/constants';
+import UserAvatar from './UserAvatar';
 
 interface Props {
   planTier: Exclude<Plan, 'free'>;
   isAnnual: boolean;
   onBack: () => void;
   onSuccess: () => void;
+  onShowProfile: () => void;
 }
 
-const CheckoutPage: React.FC<Props> = ({ planTier, isAnnual, onBack, onSuccess }) => {
+const CheckoutPage: React.FC<Props> = ({ planTier, isAnnual, onBack, onSuccess, onShowProfile }) => {
   const { currentUser } = useAuth();
   const { updatePlan } = usePlan();
   const [discountCode, setDiscountCode] = useState('');
@@ -122,7 +124,17 @@ const CheckoutPage: React.FC<Props> = ({ planTier, isAnnual, onBack, onSuccess }
       minHeight: '100vh', background: 'var(--color-ui-bg)',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       padding: isMobile ? '24px 16px' : '40px 24px',
+      position: 'relative'
     }}>
+      <div style={{ 
+        position: 'fixed', 
+        top: isMobile ? '16px' : '20px', 
+        right: isMobile ? '16px' : '24px',
+        zIndex: 100
+      }}>
+        <UserAvatar onClick={onShowProfile} showBadge={!isMobile} />
+      </div>
+
       <div style={{ maxWidth: '800px', width: '100%', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1fr', gap: isMobile ? '24px' : '32px' }}>
         {/* Left Side: Summary */}
         <div>
