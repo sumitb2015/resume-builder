@@ -2,6 +2,14 @@ import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
+// Font imports for this template
+import "@fontsource/poppins";
+import "@fontsource/poppins/300.css";
+import "@fontsource/poppins/500.css";
+import "@fontsource/poppins/600.css";
+import "@fontsource/poppins/700.css";
+import "@fontsource/poppins/800.css";
+
 const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
   const primary = config.colors.primary;

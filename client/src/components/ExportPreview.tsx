@@ -8,6 +8,34 @@ import { Download, Type, Move, Palette, Sparkles, Loader2, Undo2, Redo2, FileTex
 import { usePlan } from '../contexts/PlanContext';
 import { Button } from './ui/button';
 
+// Resume Fonts - loaded only when Export view is active
+import "@fontsource/playfair-display";
+import "@fontsource/playfair-display/700.css";
+import "@fontsource/eb-garamond";
+import "@fontsource/eb-garamond/700.css";
+import "@fontsource/dm-sans";
+import "@fontsource/dm-sans/700.css";
+import "@fontsource/poppins";
+import "@fontsource/poppins/700.css";
+import "@fontsource/cormorant-garamond";
+import "@fontsource/cormorant-garamond/700.css";
+import "@fontsource/lato";
+import "@fontsource/lato/700.css";
+import "@fontsource/merriweather";
+import "@fontsource/merriweather/700.css";
+import "@fontsource/libre-baskerville";
+import "@fontsource/libre-baskerville/700.css";
+import "@fontsource/montserrat";
+import "@fontsource/montserrat/700.css";
+import "@fontsource/raleway";
+import "@fontsource/raleway/700.css";
+import "@fontsource/josefin-sans";
+import "@fontsource/josefin-sans/700.css";
+import "@fontsource/crimson-pro";
+import "@fontsource/crimson-pro/700.css";
+import "@fontsource/source-sans-3";
+import "@fontsource/source-sans-3/700.css";
+
 interface Props {
   resume: Resume;
   config: TemplateConfig;

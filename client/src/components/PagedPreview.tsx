@@ -53,25 +53,29 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount, forcePageC
       container.querySelectorAll('p, li, h1, h2, h3, h4, h5, h6, tr')
     );
 
-    // Divs / sections that have break-inside:avoid inline (resume entry wrappers),
-    // filtered to those that are small enough to actually be "atomic" entries
-    // (large section containers are intentionally excluded).
+    // Divs / sections that have break-inside:avoid inline (resume entry wrappers)
     const noBreakDivs = Array.from(
       container.querySelectorAll('div, section')
-    ).filter(el => {
-      const htmlEl = el as HTMLElement;
-      if (htmlEl.style.breakInside !== 'avoid') return false;
-      const h = el.getBoundingClientRect().height;
-      return h > 0 && h < USABLE_PAGE_H * 0.75;
-    });
+    ).filter(el => (el as HTMLElement).style.breakInside === 'avoid');
 
-    // Deduplicate and drop zero-height elements
+    // Batch read geometry to avoid forced reflows in loops
+    const candidateData = [...semanticEls, ...noBreakDivs].map(el => {
+      const rect = el.getBoundingClientRect();
+      return {
+        el,
+        top: rect.top - containerRect.top,
+        bottom: rect.bottom - containerRect.top,
+        height: rect.height
+      };
+    }).filter(c => c.height > 0 && c.height < USABLE_PAGE_H * 0.75);
+
+    // Deduplicate (some elements might be both semantic and no-break)
     const seen = new Set<Element>();
-    const candidates: Element[] = [];
-    for (const el of [...semanticEls, ...noBreakDivs]) {
-      if (!seen.has(el) && el.getBoundingClientRect().height > 0) {
-        seen.add(el);
-        candidates.push(el);
+    const candidates: typeof candidateData = [];
+    for (const c of candidateData) {
+      if (!seen.has(c.el)) {
+        seen.add(c.el);
+        candidates.push(c);
       }
     }
 
@@ -87,22 +91,17 @@ const PagedPreview: React.FC<Props> = ({ resume, config, onPageCount, forcePageC
       let bestBreak = idealEnd;
       let foundSmartBreak = false;
 
-      for (const el of candidates) {
-        const rect = el.getBoundingClientRect();
-        // Position relative to the top of the measurement container
-        const elTop = rect.top - containerRect.top;
-        const elBottom = rect.bottom - containerRect.top;
-
+      for (const c of candidates) {
         // Element straddles the page boundary AND has meaningful content above it
         if (
-          elTop < idealEnd &&
-          elBottom > idealEnd &&
-          elTop > pageStart + MIN_PAGE_CONTENT_PX
+          c.top < idealEnd &&
+          c.bottom > idealEnd &&
+          c.top > pageStart + MIN_PAGE_CONTENT_PX
         ) {
           // Among all straddling elements, take the one that starts LATEST
           // (keeps maximum content on this page while avoiding the clip).
-          if (!foundSmartBreak || elTop > bestBreak) {
-            bestBreak = elTop;
+          if (!foundSmartBreak || c.top > bestBreak) {
+            bestBreak = c.top;
             foundSmartBreak = true;
           }
         }

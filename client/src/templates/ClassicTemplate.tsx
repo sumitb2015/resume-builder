@@ -2,6 +2,13 @@ import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
+// Font imports for this template
+import "@fontsource/eb-garamond";
+import "@fontsource/eb-garamond/500.css";
+import "@fontsource/eb-garamond/600.css";
+import "@fontsource/eb-garamond/700.css";
+import "@fontsource/eb-garamond/800.css";
+
 const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
   const { personal, experience, education, skills, certifications, languages, projects } = resume;
   const primary = config.colors.primary;

@@ -1,48 +1,5 @@
-import React from 'react';
+import React, { Suspense, useMemo } from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
-import ClassicTemplate from './ClassicTemplate';
-import ModernTemplate from './ModernTemplate';
-import CreativeTemplate from './CreativeTemplate';
-import MinimalTemplate from './MinimalTemplate';
-import ExecutiveTemplate from './ExecutiveTemplate';
-import HorizonTemplate from './HorizonTemplate';
-import CompactTemplate from './CompactTemplate';
-import ElegantTemplate from './ElegantTemplate';
-import DeveloperTemplate from './DeveloperTemplate';
-import MagazineTemplate from './MagazineTemplate';
-import WarmTemplate from './WarmTemplate';
-import SlateTemplate from './SlateTemplate';
-import BoldTemplate from './BoldTemplate';
-import LineaTemplate from './LineaTemplate';
-import AcademicTemplate from './AcademicTemplate';
-import ForestTemplate from './ForestTemplate';
-import OceanTemplate from './OceanTemplate';
-import NightTemplate from './NightTemplate';
-import RiverTemplate from './RiverTemplate';
-import UniverseTemplate from './UniverseTemplate';
-import ProfessionalTemplate from './ProfessionalTemplate';
-import StartupTemplate from './StartupTemplate';
-import LeadershipTemplate from './LeadershipTemplate';
-import AtsTemplate from './AtsTemplate';
-import TimelineTemplate from './TimelineTemplate';
-import GridTemplate from './GridTemplate';
-import ContrastTemplate from './ContrastTemplate';
-import MatrixTemplate from './MatrixTemplate';
-import SwissTemplate from './SwissTemplate';
-import BoldSidebarTemplate from './BoldSidebarTemplate';
-import CentricTemplate from './CentricTemplate';
-import LinearTemplate from './LinearTemplate';
-import BronzorTemplate from './BronzorTemplate';
-import OnyxTemplate from './OnyxTemplate';
-import PikachuTemplate from './PikachuTemplate';
-import GengarTemplate from './GengarTemplate';
-import CasteliaTemplate from './CasteliaTemplate';
-import GlalieTemplate from './GlalieTemplate';
-import CharizardTemplate from './CharizardTemplate';
-import SnorlaxTemplate from './SnorlaxTemplate';
-import EeveeTemplate from './EeveeTemplate';
-import MewtwoTemplate from './MewtwoTemplate';
-import LucarioTemplate from './LucarioTemplate';
 
 interface Props {
   resume: Resume;
@@ -52,11 +9,62 @@ interface Props {
   minHeight?: string | number;
 }
 
+// Lazy load templates for better performance and code splitting
+const templates = {
+  classic: React.lazy(() => import('./ClassicTemplate')),
+  modern: React.lazy(() => import('./ModernTemplate')),
+  creative: React.lazy(() => import('./CreativeTemplate')),
+  minimal: React.lazy(() => import('./MinimalTemplate')),
+  executive: React.lazy(() => import('./ExecutiveTemplate')),
+  horizon: React.lazy(() => import('./HorizonTemplate')),
+  compact: React.lazy(() => import('./CompactTemplate')),
+  elegant: React.lazy(() => import('./ElegantTemplate')),
+  developer: React.lazy(() => import('./DeveloperTemplate')),
+  magazine: React.lazy(() => import('./MagazineTemplate')),
+  warm: React.lazy(() => import('./WarmTemplate')),
+  slate: React.lazy(() => import('./SlateTemplate')),
+  bold: React.lazy(() => import('./BoldTemplate')),
+  linea: React.lazy(() => import('./LineaTemplate')),
+  academic: React.lazy(() => import('./AcademicTemplate')),
+  forest: React.lazy(() => import('./ForestTemplate')),
+  ocean: React.lazy(() => import('./OceanTemplate')),
+  night: React.lazy(() => import('./NightTemplate')),
+  river: React.lazy(() => import('./RiverTemplate')),
+  universe: React.lazy(() => import('./UniverseTemplate')),
+  professional: React.lazy(() => import('./ProfessionalTemplate')),
+  startup: React.lazy(() => import('./StartupTemplate')),
+  leadership: React.lazy(() => import('./LeadershipTemplate')),
+  'ats-opt': React.lazy(() => import('./AtsTemplate')),
+  timeline: React.lazy(() => import('./TimelineTemplate')),
+  'grid-bento': React.lazy(() => import('./GridTemplate')),
+  contrast: React.lazy(() => import('./ContrastTemplate')),
+  matrix: React.lazy(() => import('./MatrixTemplate')),
+  swiss: React.lazy(() => import('./SwissTemplate')),
+  'bold-sidebar': React.lazy(() => import('./BoldSidebarTemplate')),
+  centric: React.lazy(() => import('./CentricTemplate')),
+  linear: React.lazy(() => import('./LinearTemplate')),
+  bronzor: React.lazy(() => import('./BronzorTemplate')),
+  onyx: React.lazy(() => import('./OnyxTemplate')),
+  pikachu: React.lazy(() => import('./PikachuTemplate')),
+  gengar: React.lazy(() => import('./GengarTemplate')),
+  castelia: React.lazy(() => import('./CasteliaTemplate')),
+  glalie: React.lazy(() => import('./GlalieTemplate')),
+  charizard: React.lazy(() => import('./CharizardTemplate')),
+  snorlax: React.lazy(() => import('./SnorlaxTemplate')),
+  eevee: React.lazy(() => import('./EeveeTemplate')),
+  mewtwo: React.lazy(() => import('./MewtwoTemplate')),
+  lucario: React.lazy(() => import('./LucarioTemplate')),
+};
+
 const TemplateRenderer: React.FC<Props> = ({ resume, config, isPaged = false, isMeasurement = false, minHeight }) => {
   const templateProps = { resume, config };
 
   const fontSizeFactor = (config.settings?.fontSize || 100) / 100;
   const lineHeight = config.settings?.lineHeight;
+
+  const TemplateComponent = useMemo(() => {
+    return templates[config.id as keyof typeof templates] || templates.classic;
+  }, [config.id]);
 
   return (
     <>
@@ -116,54 +124,9 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config, isPaged = false, is
         className={`template-container ${isPaged ? 'paged-mode' : ''}`}
         style={minHeight ? { minHeight } : undefined}
       >
-        {(() => {
-          switch (config.id) {
-            case 'classic': return <ClassicTemplate {...templateProps} />;
-            case 'modern': return <ModernTemplate {...templateProps} />;
-            case 'creative': return <CreativeTemplate {...templateProps} />;
-            case 'minimal': return <MinimalTemplate {...templateProps} />;
-            case 'executive': return <ExecutiveTemplate {...templateProps} />;
-            case 'horizon': return <HorizonTemplate {...templateProps} />;
-            case 'compact': return <CompactTemplate {...templateProps} />;
-            case 'elegant': return <ElegantTemplate {...templateProps} />;
-            case 'developer': return <DeveloperTemplate {...templateProps} />;
-            case 'magazine': return <MagazineTemplate {...templateProps} />;
-            case 'warm': return <WarmTemplate {...templateProps} />;
-            case 'slate': return <SlateTemplate {...templateProps} />;
-            case 'bold': return <BoldTemplate {...templateProps} />;
-            case 'linea': return <LineaTemplate {...templateProps} />;
-            case 'academic': return <AcademicTemplate {...templateProps} />;
-            case 'forest': return <ForestTemplate {...templateProps} />;
-            case 'ocean': return <OceanTemplate {...templateProps} />;
-            case 'night': return <NightTemplate {...templateProps} />;
-            case 'river': return <RiverTemplate {...templateProps} />;
-            case 'universe': return <UniverseTemplate {...templateProps} />;
-            case 'professional': return <ProfessionalTemplate {...templateProps} />;
-            case 'startup': return <StartupTemplate {...templateProps} />;
-            case 'leadership': return <LeadershipTemplate {...templateProps} />;
-            case 'ats-opt': return <AtsTemplate {...templateProps} />;
-            case 'timeline': return <TimelineTemplate {...templateProps} />;
-            case 'grid-bento': return <GridTemplate {...templateProps} />;
-            case 'contrast': return <ContrastTemplate {...templateProps} />;
-            case 'matrix': return <MatrixTemplate {...templateProps} />;
-            case 'swiss': return <SwissTemplate {...templateProps} />;
-            case 'bold-sidebar': return <BoldSidebarTemplate {...templateProps} />;
-            case 'centric': return <CentricTemplate {...templateProps} />;
-            case 'linear': return <LinearTemplate {...templateProps} />;
-            case 'bronzor': return <BronzorTemplate {...templateProps} />;
-            case 'onyx': return <OnyxTemplate {...templateProps} />;
-            case 'pikachu': return <PikachuTemplate {...templateProps} />;
-            case 'gengar': return <GengarTemplate {...templateProps} />;
-            case 'castelia': return <CasteliaTemplate {...templateProps} />;
-            case 'glalie': return <GlalieTemplate {...templateProps} />;
-            case 'charizard': return <CharizardTemplate {...templateProps} />;
-            case 'snorlax': return <SnorlaxTemplate {...templateProps} />;
-            case 'eevee': return <EeveeTemplate {...templateProps} />;
-            case 'mewtwo': return <MewtwoTemplate {...templateProps} />;
-            case 'lucario': return <LucarioTemplate {...templateProps} />;
-            default: return <ClassicTemplate {...templateProps} />;
-          }
-        })()}
+        <Suspense fallback={<div style={{ height: '100%', background: 'white' }} />}>
+          <TemplateComponent {...templateProps} />
+        </Suspense>
       </div>
     </>
   );

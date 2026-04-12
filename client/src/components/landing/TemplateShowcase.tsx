@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { templates } from '../../templates';
 import type { TemplateConfig, Resume } from '../../shared/types';
 import TemplateRenderer from '../../templates/TemplateRenderer';
@@ -116,11 +116,30 @@ const TemplatePreview: React.FC<{ t: TemplateConfig }> = ({ t }) => (
 
 const TemplateCard: React.FC<{ t: TemplateConfig; onStart: () => void }> = ({ t, onStart }) => {
   const [hovered, setHovered] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  
   const badgeColor = getAtsBadgeColor(t.atsScore);
   const badgeBg = getAtsBadgeBg(t.atsScore);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setIsVisible(true);
+        observer.disconnect();
+      }
+    }, { rootMargin: '400px' }); // Load when within 400px of viewport
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div
+      ref={cardRef}
       onClick={onStart}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -132,6 +151,7 @@ const TemplateCard: React.FC<{ t: TemplateConfig; onStart: () => void }> = ({ t,
         transform: hovered ? 'translateY(-6px)' : 'translateY(0)',
         boxShadow: hovered ? '0 20px 48px rgba(0,0,0,0.2)' : 'none',
         transition: 'all 0.25s cubic-bezier(0.16,1,0.3,1)',
+        minHeight: `${TEMPLATE_H * SCALE + 80}px`, // Placeholder height
       }}
     >
       {/* Preview area */}
@@ -141,22 +161,39 @@ const TemplateCard: React.FC<{ t: TemplateConfig; onStart: () => void }> = ({ t,
         display: 'flex',
         justifyContent: 'center',
         padding: '10px',
+        minHeight: `${TEMPLATE_H * SCALE + 20}px`
       }}>
-        <TemplatePreview t={t} />
-        {hovered && (
-          <div style={{
-            position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)',
+        {isVisible ? (
+          <>
+            <TemplatePreview t={t} />
+            {hovered && (
+              <div style={{
+                position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)',
+                borderRadius: '4px',
+              }}>
+                <span style={{
+                  padding: '8px 18px', borderRadius: '8px',
+                  background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+                  color: 'white', fontSize: '13px', fontWeight: 600,
+                  boxShadow: '0 4px 16px rgba(99,102,241,0.4)',
+                }}>
+                  Use Template →
+                </span>
+              </div>
+            )}
+          </>
+        ) : (
+          <div style={{ 
+            width: `${TEMPLATE_W * SCALE}px`, 
+            height: `${TEMPLATE_H * SCALE}px`,
+            background: 'var(--color-ui-surface-2)',
             borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}>
-            <span style={{
-              padding: '8px 18px', borderRadius: '8px',
-              background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-              color: 'white', fontSize: '13px', fontWeight: 600,
-              boxShadow: '0 4px 16px rgba(99,102,241,0.4)',
-            }}>
-              Use Template →
-            </span>
+            <div className="spin" style={{ width: '20px', height: '20px', border: '2px solid var(--color-ui-border)', borderTopColor: 'var(--color-ui-accent)', borderRadius: '50%' }} />
           </div>
         )}
       </div>

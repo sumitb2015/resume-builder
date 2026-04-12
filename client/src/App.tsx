@@ -1,26 +1,30 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, lazy, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import LandingPage from './components/LandingPage';
-import LoginPage from './components/LoginPage';
 import ResumeBuilder from './components/ResumeBuilder';
-import AtsCheckerPage from './components/AtsCheckerPage';
-import JobTailorPage from './components/JobTailorPage';
-import CoverLetterPage from './components/CoverLetterPage';
-import InterviewPrepPage from './components/InterviewPrepPage';
-import ExpertReviewModal from './components/ExpertReviewModal';
 import ModeSelectModal from './components/ModeSelectModal';
 import AiWriterFlow from './components/AiWriterFlow';
-import BlogPage from './components/landing/BlogPage';
 import UpgradeModal from './components/UpgradeModal';
 import ProfileModal from './components/ProfileModal';
 import SavedResumesPanel from './components/SavedResumesPanel';
-import CheckoutPage from './components/CheckoutPage';
 import PagedPreview from './components/PagedPreview';
 import ErrorBoundary from './components/ErrorBoundary';
 import StylePanel from './components/StylePanel';
-import ExportPreview from './components/ExportPreview';
 import BreadcrumbNav from './components/BreadcrumbNav';
 import UserAvatar from './components/UserAvatar';
+import LoadingSpinner from './components/LoadingSpinner';
+
+// Lazy load larger components
+const LoginPage = lazy(() => import('./components/LoginPage'));
+const AtsCheckerPage = lazy(() => import('./components/AtsCheckerPage'));
+const JobTailorPage = lazy(() => import('./components/JobTailorPage'));
+const CoverLetterPage = lazy(() => import('./components/CoverLetterPage'));
+const InterviewPrepPage = lazy(() => import('./components/InterviewPrepPage'));
+const ExpertReviewModal = lazy(() => import('./components/ExpertReviewModal'));
+const BlogPage = lazy(() => import('./components/landing/BlogPage'));
+const CheckoutPage = lazy(() => import('./components/CheckoutPage'));
+const ExportPreview = lazy(() => import('./components/ExportPreview'));
+
 import { templates } from './templates';
 import type { Resume, TemplateConfig, ImprovementSuggestions } from './shared/types';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -547,413 +551,419 @@ function AppContent() {
   const formWidth = isMobile ? '100%' : (formExpanded ? '48%' : '40%');
 
   const mainContent = (() => {
-    if (view === 'landing') return (
-      <LandingPage 
-        onStart={handleStart} 
-        onOpenBlog={() => setView('blog')} 
-        onCheckout={(p, a) => { setCheckoutPlan(p); setCheckoutAnnual(a); setView('checkout'); }}
-        onShowProfile={() => setShowProfile(true)}
-      />
-    );
-    if (view === 'blog') return <BlogPage onBack={() => setView('landing')} onStart={handleStart} onShowProfile={() => setShowProfile(true)} />;
-    
-    if (view === 'login') {
-      return (
-        <LoginPage 
-          onLoginSuccess={() => {
-            setTimeout(() => {
-              setView('mode-select');
-            }, 100);
-          }}
-          onBack={() => setView('landing')} 
-        />
-      );
-    }
-
-    if (view === 'plan-select') return (
-      <PlanSelectPage 
-        onSelected={() => setView('mode-select')} 
-        onBack={() => setView('landing')} 
-        onCheckout={(p) => { setCheckoutPlan(p); setCheckoutAnnual(false); setView('checkout'); }}
-        onShowProfile={() => setShowProfile(true)}
-      />
-    );
-
-    if (view === 'checkout') {
-      return (
-        <CheckoutPage
-          planTier={checkoutPlan}
-          isAnnual={checkoutAnnual}
-          onBack={() => setView('plan-select')}
-          onSuccess={() => setView('mode-select')}
-          onShowProfile={() => setShowProfile(true)}
-        />
-      );
-    }
-
-    if (view === 'mode-select') {
-      return (
-        <>
-          <ModeSelectModal 
-            onSelect={handleModeSelect} 
-            onBack={() => setView('landing')} 
-            onUpgradeNeeded={showUpgrade} 
-            onShowProfile={() => setShowProfile(true)}
-          />
-          {upgradePrompt && <UpgradeModal requiredPlan={upgradePrompt.requiredPlan as any} featureLabel={upgradePrompt.featureLabel} onClose={() => setUpgradePrompt(null)} onUpgrade={(p) => { setCheckoutPlan(p); setCheckoutAnnual(false); setView('checkout'); }} />}
-        </>
-      );
-    }
-
-    if (view === 'ai-writer') {
-      return (
-        <AiWriterFlow 
-          onComplete={(generatedResume, selectedTemplate) => {
-            setResume(generatedResume);
-            setActiveTemplate(selectedTemplate);
-            setView('builder');
-          }}
-          onBack={() => setView('mode-select')} 
-          onShowProfile={() => setShowProfile(true)}
-        />
-      );
-    }
-
-    const isToolView = ['builder', 'ats-checker', 'job-tailor', 'cover-letter', 'interview-prep', 'preview'].includes(view);
-    const atsLocked = !canAccess('dynamic-ats');
-    const tailorLocked = !canAccess('job-tailor');
-    const coverLetterLocked = !canAccess('cover-letter');
-    const interviewLocked = !canAccess('interview-prep');
-    const expertLocked = !canAccess('expert-review');
-
-    const sidebar = isToolView ? (
-      <aside className={`app-sidebar no-print ${showMobileSidebar ? 'show-mobile' : ''}`} style={isMobile ? { position: 'fixed', left: 0, top: 0, bottom: 0, width: '240px', zIndex: 1100 } : { zIndex: 1100 }}>
-        <div className="sidebar-logo" onClick={() => { setView('landing'); setShowMobileSidebar(false); }} style={{ cursor: 'pointer' }}>
-          <div className="sidebar-logo-icon">
-            <Zap size={18} color="white" fill="white" />
-          </div>
-          <span className="sidebar-logo-text" style={isMobile ? { opacity: 1 } : {}}>Bespoke<span style={{ color: '#818CF8' }}>CV</span></span>
-        </div>
-
-        <div style={{ flex: 1, width: '100%', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-          {[
-            { id: 'builder' as const, label: 'Resume Builder', Icon: FileText, locked: false, plan: '' },
-            ...(isMobile ? [{ id: 'my-resumes' as const, label: 'My Resumes', Icon: FolderOpen, locked: false, plan: '' }] : []),
-            { id: 'ats-checker' as const, label: 'ATS Checker', Icon: Award, locked: atsLocked, plan: 'Pro' },
-            { id: 'job-tailor' as const, label: 'Job Tailor', Icon: Zap, locked: tailorLocked, plan: 'Ultimate' },
-            { id: 'cover-letter' as const, label: 'Cover Letter', Icon: FileText, locked: coverLetterLocked, plan: 'Pro' },
-            { id: 'interview-prep' as const, label: 'Interview Prep', Icon: HelpCircle, locked: interviewLocked, plan: 'Ultimate' },
-          ].map(tab => {
-            const isActive = view === tab.id;
-            return (
-              <button
-                key={tab.id}
-                className={`sidebar-item ${isActive ? 'active' : ''}`}
-                title={tab.locked ? `Requires ${tab.plan} plan` : tab.label}
-                style={isMobile ? { width: 'calc(100% - 24px)', justifyContent: 'flex-start' } : {}}
-                onClick={() => {
-                  setShowMobileSidebar(false);
-                  if (tab.id === 'builder') setView('builder');
-                  else if (tab.id === 'my-resumes') setShowSavedPanel(true);
-                  else if (tab.id === 'ats-checker') handleGoAtsChecker();
-                  else if (tab.id === 'job-tailor') handleGoJobTailor();
-                  else if (tab.id === 'cover-letter') {
-                    if (coverLetterLocked) showUpgrade('cover-letter');
-                    else setView('cover-letter');
-                  }
-                  else if (tab.id === 'interview-prep') {
-                    if (interviewLocked) showUpgrade('interview-prep');
-                    else setView('interview-prep');
-                  }
-                }}
-              >
-                <div className="sidebar-icon">
-                  <tab.Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
-                  {tab.locked && <Lock size={10} style={{ position: 'absolute', bottom: -2, right: -2, background: 'var(--color-ui-surface)', borderRadius: '50%', padding: '1px' }} />}
-                </div>
-                <span className="sidebar-label" style={isMobile ? { opacity: 1 } : {}}>{tab.label}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center', paddingBottom: '10px' }}>
-          <button 
-            className="sidebar-item" 
-            style={isMobile ? { width: 'calc(100% - 24px)', justifyContent: 'flex-start' } : {}}
-            onClick={() => { setShowMobileSidebar(false); if (expertLocked) showUpgrade('expert-review' as any); else setShowExpertReview(true); }}
-            title="Expert Review"
-          >
-            <div className="sidebar-icon"><MessageSquare size={20} /></div>
-            <span className="sidebar-label" style={isMobile ? { opacity: 1 } : {}}>Expert Review</span>
-          </button>
-          <button 
-            className="sidebar-item" 
-            style={isMobile ? { width: 'calc(100% - 24px)', justifyContent: 'flex-start' } : {}}
-            onClick={toggleTheme} 
-            title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-          >
-            <div className="sidebar-icon">{theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}</div>
-            <span className="sidebar-label" style={isMobile ? { opacity: 1 } : {}}>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
-          </button>
-          <div style={{ height: '1px', width: '40%', background: 'var(--color-ui-border)', marginTop: '8px', marginBottom: '8px' }} />
-          <button 
-            className="sidebar-item" 
-            style={isMobile ? { width: 'calc(100% - 24px)', justifyContent: 'flex-start' } : {}}
-            onClick={handleLogout} 
-            title="Sign Out"
-          >
-            <div className="sidebar-icon"><LogOut size={20} /></div>
-            <span className="sidebar-label" style={isMobile ? { opacity: 1 } : {}}>Sign Out</span>
-          </button>
-        </div>
-      </aside>
-    ) : null;
-
-    const topBar = isToolView ? (
-      <>
-        <header className="top-bar no-print" style={{ 
-          borderBottom: '1px solid var(--color-ui-border)', 
-          background: 'var(--color-ui-bg)',
-          height: isMobile ? '52px' : '56px',
-          padding: isMobile ? '0 12px' : '0 20px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          position: 'sticky',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 1000,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '16px' }}>
-            {isMobile && (
-              <button className="btn-ghost" style={{ padding: '6px' }} onClick={() => setShowMobileSidebar(true)}>
-                <Menu size={20} />
-              </button>
-            )}
-            <BreadcrumbNav view={view} onNavigate={setView} />
-            {!isMobile && (
-              <>
-                <div style={{ width: '1px', height: '16px', background: 'var(--color-ui-border)' }} />
-                <PlanBadge size="sm" />
-              </>
-            )}
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '12px' }}>
-            {view === 'preview' && (
-              <button 
-                className="btn-secondary" 
-                style={{ gap: '4px', fontSize: isMobile ? '12px' : '13px', padding: isMobile ? '5px 10px' : '8px 16px' }} 
-                onClick={() => setView('builder')}
-              >
-                <ArrowLeft size={14} />
-                {isMobile ? 'Edit' : 'Back to Editor'}
-              </button>
-            )}
-
-            {view === 'builder' && (
-              <>
-                <button className={rightPanelOpen ? 'btn-primary' : 'btn-secondary'} style={{ gap: '6px', fontSize: '12.5px', padding: isMobile ? '6px' : '7px 14px' }} onClick={() => setRightPanelOpen(v => !v)}>
-                  <Palette size={isMobile ? 18 : 14} /> 
-                  {isMobile ? '' : 'Style'}
-                </button>
-
-                {!isMobile && (
-                  <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }} onClick={() => setShowSavedPanel(true)}>
-                    <FolderOpen size={14} /> 
-                    My Resumes
-                    {savedResumes.length > 0 && <span style={{ position: 'absolute', top: '-5px', right: '-5px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-ui-accent)', fontSize: '9px', fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>{savedResumes.length}</span>}
-                  </button>
-                )}
-
-                <button className="btn-primary" style={{ gap: '6px', fontSize: isMobile ? '12px' : '13px', padding: isMobile ? '6px 12px' : '8px 18px' }} onClick={() => {
-                  setActiveTemplate(t => ({ ...t, settings: t.settings ?? { margin: 15, fontSize: 100, lineHeight: 1.5 } }));
-                  setView('preview');
-                }}>
-                  <FileText size={isMobile ? 14 : 15} /> 
-                  {isMobile ? 'Preview' : 'Preview & Export'}
-                </button>
-              </>
-            )}
-
-            <UserAvatar onClick={() => setShowProfile(true)} showBadge={!isMobile} />
-          </div>
-        </header>
-      </>
-    ) : null;
-
-    if (view === 'preview') {
-      return (
-        <div className="app-layout-root" style={isMobile ? { height: '100vh', overflow: 'hidden' } : {}}>
-          {sidebar}
-          <div className="app-main-content" style={isMobile ? { height: '100vh', overflow: 'hidden' } : {}}>
-            {topBar}
-            <ExportPreview resume={resume} config={activeTemplate} onUpdateConfig={setActiveTemplate} onUpdateResume={setResume} pageCount={pageCount} onPageCount={setPageCount} />
-          </div>
-        </div>
-      );
-    }
-    if (view === 'ats-checker') {
-      return (
-        <div className="app-layout-root">
-          {sidebar}
-          <div className="app-main-content">
-            {topBar}
-            <AtsCheckerPage resume={resume} onBack={() => setView('builder')} onUpgradeNeeded={showUpgrade} />
-          </div>
-        </div>
-      );
-    }
-
-    if (view === 'job-tailor') {
-      return (
-        <div className="app-layout-root">
-          {sidebar}
-          <div className="app-main-content">
-            {topBar}
-            <JobTailorPage
-              resume={resume}
-              onApplyChanges={(updated) => { setResume(updated); setView('builder'); }}
-              onBack={() => setView('builder')}
-              onUpgradeNeeded={showUpgrade}
-            />
-          </div>
-        </div>
-      );
-    }
-
-    if (view === 'cover-letter') {
-      return (
-        <div className="app-layout-root">
-          {sidebar}
-          <div className="app-main-content">
-            {topBar}
-            <CoverLetterPage
-              resume={resume}
-              onBack={() => setView('builder')}
-              onUpgradeNeeded={showUpgrade}
-            />
-          </div>
-        </div>
-      );
-    }
-
-    if (view === 'interview-prep') {
-      return (
-        <div className="app-layout-root">
-          {sidebar}
-          <div className="app-main-content">
-            {topBar}
-            <InterviewPrepPage
-              resume={resume}
-              onBack={() => setView('builder')}
-              onUpgradeNeeded={showUpgrade}
-            />
-          </div>
-        </div>
-      );
-    }
-
     return (
-      <div className="app-layout-root" style={{ flexDirection: isMobile ? 'column' : 'row' }}>
-        {sidebar}
-        <div className="app-main-content">
-          {topBar}
+      <Suspense fallback={<LoadingSpinner />}>
+        {(() => {
+          if (view === 'landing') return (
+            <LandingPage 
+              onStart={handleStart} 
+              onOpenBlog={() => setView('blog')} 
+              onCheckout={(p, a) => { setCheckoutPlan(p); setCheckoutAnnual(a); setView('checkout'); }}
+              onShowProfile={() => setShowProfile(true)}
+            />
+          );
+          if (view === 'blog') return <BlogPage onBack={() => setView('landing')} onStart={handleStart} onShowProfile={() => setShowProfile(true)} />;
+          
+          if (view === 'login') {
+            return (
+              <LoginPage 
+                onLoginSuccess={() => {
+                  setTimeout(() => {
+                    setView('mode-select');
+                  }, 100);
+                }}
+                onBack={() => setView('landing')} 
+              />
+            );
+          }
 
-          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', overflow: isMobile ? 'visible' : 'hidden', height: isMobile ? 'auto' : '100%' }}>
-            <div style={{ width: formWidth, flexShrink: 0, transition: 'width 0.25s', position: 'relative', height: isMobile ? 'auto' : '100%', overflow: isMobile ? 'visible' : 'hidden' }} className="no-print">
+          if (view === 'plan-select') return (
+            <PlanSelectPage 
+              onSelected={() => setView('mode-select')} 
+              onBack={() => setView('landing')} 
+              onCheckout={(p) => { setCheckoutPlan(p); setCheckoutAnnual(false); setView('checkout'); }}
+              onShowProfile={() => setShowProfile(true)}
+            />
+          );
 
-              <ErrorBoundary componentName="ResumeBuilder">
-                <ResumeBuilder resume={resume} onChange={setResumeWithHistory} improvements={improvements} onDismissImprovements={() => setImprovements(null)} onUpgradeNeeded={showUpgrade} />
-              </ErrorBoundary>
-              {!isMobile && <button onClick={() => setFormExpanded(v => !v)} style={{ position: 'absolute', top: '50%', right: '-11px', transform: 'translateY(-50%)', width: '22px', height: '44px', borderRadius: '0 8px 8px 0', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderLeft: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-ui-text-muted)', zIndex: 10 }}>{formExpanded ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}</button>}
-            </div>
+          if (view === 'checkout') {
+            return (
+              <CheckoutPage
+                planTier={checkoutPlan}
+                isAnnual={checkoutAnnual}
+                onBack={() => setView('plan-select')}
+                onSuccess={() => setView('mode-select')}
+                onShowProfile={() => setShowProfile(true)}
+              />
+            );
+          }
 
-            {!isMobile && (
-              <main className="preview-viewport" style={{ flex: 1, minWidth: 0, padding: isMobile ? '16px 8px' : '32px 24px 64px' }}>
-                {/* Preview toolbar */}
-                <div className="no-print" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, width: '100%', maxWidth: '1000px', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '12px' : '0' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '12px', flexWrap: 'wrap', justifyContent: isMobile ? 'center' : 'flex-start' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', background: 'var(--color-ui-surface)', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}>
-                      <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-ui-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                        {activeTemplate.name}
-                      </span>
-                    </div>
-                    <div style={{
-                      display: 'inline-flex', alignItems: 'center', gap: '6px',
-                      fontSize: '11px', fontWeight: 800, padding: '4px 12px', borderRadius: '8px',
-                      ...(activeTemplate.atsScore >= 85
-                        ? { background: 'rgba(63,185,80,0.12)', color: 'var(--color-success)', border: '1px solid rgba(63,185,80,0.2)' }
-                        : activeTemplate.atsScore >= 70
-                        ? { background: 'rgba(210,153,34,0.12)', color: 'var(--color-warning)', border: '1px solid rgba(210,153,34,0.2)' }
-                        : { background: 'rgba(248,81,73,0.12)', color: 'var(--color-danger)', border: '1px solid rgba(248,81,73,0.2)' }),
-                    }}>
-                      <Award size={12} />
-                      ATS SCORE: {activeTemplate.atsScore}%
-                    </div>
-                    {!isMobile && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', background: 'var(--color-ui-surface)', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}>
-                        <FileText size={12} color="var(--color-ui-text-muted)" />
-                        <span style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', fontWeight: 600 }}>
-                          A4 · {pageCount} {pageCount === 1 ? 'PAGE' : 'PAGES'}
-                        </span>
-                      </div>
-                    )}
-                  </div>
+          if (view === 'mode-select') {
+            return (
+              <>
+                <ModeSelectModal 
+                  onSelect={handleModeSelect} 
+                  onBack={() => setView('landing')} 
+                  onUpgradeNeeded={showUpgrade} 
+                  onShowProfile={() => setShowProfile(true)}
+                />
+                {upgradePrompt && <UpgradeModal requiredPlan={upgradePrompt.requiredPlan as any} featureLabel={upgradePrompt.featureLabel} onClose={() => setUpgradePrompt(null)} onUpgrade={(p) => { setCheckoutPlan(p); setCheckoutAnnual(false); setView('checkout'); }} />}
+              </>
+            );
+          }
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderRadius: '10px' }}>
-                    <button className="btn-ghost" style={{ width: '28px', height: '28px', padding: 0, borderRadius: '6px', fontSize: '16px' }} onClick={() => setZoom(z => Math.max(0.3, +(z - 0.1).toFixed(1)))}>−</button>
-                    <button onClick={() => setZoom(isMobile ? 0.4 : 0.75)} style={{ minWidth: '40px', textAlign: 'center', fontSize: '12px', fontWeight: 800, color: 'var(--color-ui-accent)', background: 'transparent', border: 'none', cursor: 'pointer' }}>
-                      {Math.round(zoom * 100)}%
-                    </button>
-                    <button className="btn-ghost" style={{ width: '28px', height: '28px', padding: 0, borderRadius: '6px', fontSize: '16px' }} onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(1)))}>+</button>
-                    {!isMobile && (
-                      <>
-                        <div style={{ width: '1px', height: '16px', background: 'var(--color-ui-border)', marginLeft: '4px', marginRight: '4px' }} />
-                        {[50, 75, 100].map(v => (
-                          <button
-                            key={v}
-                            onClick={() => setZoom(v / 100)}
-                            style={{
-                              padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700,
-                              border: 'none', cursor: 'pointer',
-                              background: Math.round(zoom * 100) === v ? 'var(--color-ui-accent-subtle)' : 'transparent',
-                              color: Math.round(zoom * 100) === v ? 'var(--color-ui-accent)' : 'var(--color-ui-text-dim)',
-                              transition: 'all 0.15s',
-                            }}
-                          >
-                            {v}%
-                          </button>
-                        ))}
-                      </>
-                    )}
-                  </div>
+          if (view === 'ai-writer') {
+            return (
+              <AiWriterFlow 
+                onComplete={(generatedResume, selectedTemplate) => {
+                  setResume(generatedResume);
+                  setActiveTemplate(selectedTemplate);
+                  setView('builder');
+                }}
+                onBack={() => setView('mode-select')} 
+                onShowProfile={() => setShowProfile(true)}
+              />
+            );
+          }
+
+          const isToolView = ['builder', 'ats-checker', 'job-tailor', 'cover-letter', 'interview-prep', 'preview'].includes(view);
+          const atsLocked = !canAccess('dynamic-ats');
+          const tailorLocked = !canAccess('job-tailor');
+          const coverLetterLocked = !canAccess('cover-letter');
+          const interviewLocked = !canAccess('interview-prep');
+          const expertLocked = !canAccess('expert-review');
+
+          const sidebar = isToolView ? (
+            <aside className={`app-sidebar no-print ${showMobileSidebar ? 'show-mobile' : ''}`} style={isMobile ? { position: 'fixed', left: 0, top: 0, bottom: 0, width: '240px', zIndex: 1100 } : { zIndex: 1100 }}>
+              <div className="sidebar-logo" onClick={() => { setView('landing'); setShowMobileSidebar(false); }} style={{ cursor: 'pointer' }}>
+                <div className="sidebar-logo-icon">
+                  <Zap size={18} color="white" fill="white" />
                 </div>
-
-                <div className="preview-scaler" style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
-                  <ErrorBoundary componentName="PagedPreview">
-                    <PagedPreview resume={resume} config={activeTemplate} onPageCount={setPageCount} />
-                  </ErrorBoundary>
-                </div>
-              </main>
-            )}
-
-            {(!isMobile || rightPanelOpen) && (
-              <div style={{ 
-                width: rightPanelOpen ? (isMobile ? '100%' : '320px') : '0', 
-                flexShrink: 0, 
-                overflow: 'hidden', 
-                transition: 'width 0.25s',
-                ...(isMobile ? { position: 'fixed', top: 0, right: 0, bottom: 0, zIndex: 1150, background: 'var(--color-ui-bg)' } : {})
-              }} className="no-print">
-                {rightPanelOpen && <StylePanel templates={templates} activeTemplate={activeTemplate} onTemplateChange={setActiveTemplate} onColorChange={handleColorChange} onClose={() => setRightPanelOpen(false)} zoom={zoom} onZoomChange={setZoom} onUpgradeNeeded={showUpgrade} />}
+                <span className="sidebar-logo-text" style={isMobile ? { opacity: 1 } : {}}>Bespoke<span style={{ color: '#818CF8' }}>CV</span></span>
               </div>
-            )}
-          </div>
-        </div>
-      </div>
+
+              <div style={{ flex: 1, width: '100%', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+                {[
+                  { id: 'builder' as const, label: 'Resume Builder', Icon: FileText, locked: false, plan: '' },
+                  ...(isMobile ? [{ id: 'my-resumes' as const, label: 'My Resumes', Icon: FolderOpen, locked: false, plan: '' }] : []),
+                  { id: 'ats-checker' as const, label: 'ATS Checker', Icon: Award, locked: atsLocked, plan: 'Pro' },
+                  { id: 'job-tailor' as const, label: 'Job Tailor', Icon: Zap, locked: tailorLocked, plan: 'Ultimate' },
+                  { id: 'cover-letter' as const, label: 'Cover Letter', Icon: FileText, locked: coverLetterLocked, plan: 'Pro' },
+                  { id: 'interview-prep' as const, label: 'Interview Prep', Icon: HelpCircle, locked: interviewLocked, plan: 'Ultimate' },
+                ].map(tab => {
+                  const isActive = view === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      className={`sidebar-item ${isActive ? 'active' : ''}`}
+                      title={tab.locked ? `Requires ${tab.plan} plan` : tab.label}
+                      style={isMobile ? { width: 'calc(100% - 24px)', justifyContent: 'flex-start' } : {}}
+                      onClick={() => {
+                        setShowMobileSidebar(false);
+                        if (tab.id === 'builder') setView('builder');
+                        else if (tab.id === 'my-resumes') setShowSavedPanel(true);
+                        else if (tab.id === 'ats-checker') handleGoAtsChecker();
+                        else if (tab.id === 'job-tailor') handleGoJobTailor();
+                        else if (tab.id === 'cover-letter') {
+                          if (coverLetterLocked) showUpgrade('cover-letter');
+                          else setView('cover-letter');
+                        }
+                        else if (tab.id === 'interview-prep') {
+                          if (interviewLocked) showUpgrade('interview-prep');
+                          else setView('interview-prep');
+                        }
+                      }}
+                    >
+                      <div className="sidebar-icon">
+                        <tab.Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+                        {tab.locked && <Lock size={10} style={{ position: 'absolute', bottom: -2, right: -2, background: 'var(--color-ui-surface)', borderRadius: '50%', padding: '1px' }} />}
+                      </div>
+                      <span className="sidebar-label" style={isMobile ? { opacity: 1 } : {}}>{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center', paddingBottom: '10px' }}>
+                <button 
+                  className="sidebar-item" 
+                  style={isMobile ? { width: 'calc(100% - 24px)', justifyContent: 'flex-start' } : {}}
+                  onClick={() => { setShowMobileSidebar(false); if (expertLocked) showUpgrade('expert-review' as any); else setShowExpertReview(true); }}
+                  title="Expert Review"
+                >
+                  <div className="sidebar-icon"><MessageSquare size={20} /></div>
+                  <span className="sidebar-label" style={isMobile ? { opacity: 1 } : {}}>Expert Review</span>
+                </button>
+                <button 
+                  className="sidebar-item" 
+                  style={isMobile ? { width: 'calc(100% - 24px)', justifyContent: 'flex-start' } : {}}
+                  onClick={toggleTheme} 
+                  title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                >
+                  <div className="sidebar-icon">{theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}</div>
+                  <span className="sidebar-label" style={isMobile ? { opacity: 1 } : {}}>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+                </button>
+                <div style={{ height: '1px', width: '40%', background: 'var(--color-ui-border)', marginTop: '8px', marginBottom: '8px' }} />
+                <button 
+                  className="sidebar-item" 
+                  style={isMobile ? { width: 'calc(100% - 24px)', justifyContent: 'flex-start' } : {}}
+                  onClick={handleLogout} 
+                  title="Sign Out"
+                >
+                  <div className="sidebar-icon"><LogOut size={20} /></div>
+                  <span className="sidebar-label" style={isMobile ? { opacity: 1 } : {}}>Sign Out</span>
+                </button>
+              </div>
+            </aside>
+          ) : null;
+
+          const topBar = isToolView ? (
+            <>
+              <header className="top-bar no-print" style={{ 
+                borderBottom: '1px solid var(--color-ui-border)', 
+                background: 'var(--color-ui-bg)',
+                height: isMobile ? '52px' : '56px',
+                padding: isMobile ? '0 12px' : '0 20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                position: 'sticky',
+                top: 0,
+                left: 0,
+                right: 0,
+                zIndex: 1000,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '16px' }}>
+                  {isMobile && (
+                    <button className="btn-ghost" style={{ padding: '6px' }} onClick={() => setShowMobileSidebar(true)}>
+                      <Menu size={20} />
+                    </button>
+                  )}
+                  <BreadcrumbNav view={view} onNavigate={setView} />
+                  {!isMobile && (
+                    <>
+                      <div style={{ width: '1px', height: '16px', background: 'var(--color-ui-border)' }} />
+                      <PlanBadge size="sm" />
+                    </>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '12px' }}>
+                  {view === 'preview' && (
+                    <button 
+                      className="btn-secondary" 
+                      style={{ gap: '4px', fontSize: isMobile ? '12px' : '13px', padding: isMobile ? '5px 10px' : '8px 16px' }} 
+                      onClick={() => setView('builder')}
+                    >
+                      <ArrowLeft size={14} />
+                      {isMobile ? 'Edit' : 'Back to Editor'}
+                    </button>
+                  )}
+
+                  {view === 'builder' && (
+                    <>
+                      <button className={rightPanelOpen ? 'btn-primary' : 'btn-secondary'} style={{ gap: '6px', fontSize: '12.5px', padding: isMobile ? '6px' : '7px 14px' }} onClick={() => setRightPanelOpen(v => !v)}>
+                        <Palette size={isMobile ? 18 : 14} /> 
+                        {isMobile ? '' : 'Style'}
+                      </button>
+
+                      {!isMobile && (
+                        <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px', position: 'relative' }} onClick={() => setShowSavedPanel(true)}>
+                          <FolderOpen size={14} /> 
+                          My Resumes
+                          {savedResumes.length > 0 && <span style={{ position: 'absolute', top: '-5px', right: '-5px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-ui-accent)', fontSize: '9px', fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>{savedResumes.length}</span>}
+                        </button>
+                      )}
+
+                      <button className="btn-primary" style={{ gap: '6px', fontSize: isMobile ? '12px' : '13px', padding: isMobile ? '6px 12px' : '8px 18px' }} onClick={() => {
+                        setActiveTemplate(t => ({ ...t, settings: t.settings ?? { margin: 15, fontSize: 100, lineHeight: 1.5 } }));
+                        setView('preview');
+                      }}>
+                        <FileText size={isMobile ? 14 : 15} /> 
+                        {isMobile ? 'Preview' : 'Preview & Export'}
+                      </button>
+                    </>
+                  )}
+
+                  <UserAvatar onClick={() => setShowProfile(true)} showBadge={!isMobile} />
+                </div>
+              </header>
+            </>
+          ) : null;
+
+          if (view === 'preview') {
+            return (
+              <div className="app-layout-root" style={isMobile ? { height: '100vh', overflow: 'hidden' } : {}}>
+                {sidebar}
+                <div className="app-main-content" style={isMobile ? { height: '100vh', overflow: 'hidden' } : {}}>
+                  {topBar}
+                  <ExportPreview resume={resume} config={activeTemplate} onUpdateConfig={setActiveTemplate} onUpdateResume={setResume} pageCount={pageCount} onPageCount={setPageCount} />
+                </div>
+              </div>
+            );
+          }
+          if (view === 'ats-checker') {
+            return (
+              <div className="app-layout-root">
+                {sidebar}
+                <div className="app-main-content">
+                  {topBar}
+                  <AtsCheckerPage resume={resume} onBack={() => setView('builder')} onUpgradeNeeded={showUpgrade} />
+                </div>
+              </div>
+            );
+          }
+
+          if (view === 'job-tailor') {
+            return (
+              <div className="app-layout-root">
+                {sidebar}
+                <div className="app-main-content">
+                  {topBar}
+                  <JobTailorPage
+                    resume={resume}
+                    onApplyChanges={(updated) => { setResume(updated); setView('builder'); }}
+                    onBack={() => setView('builder')}
+                    onUpgradeNeeded={showUpgrade}
+                  />
+                </div>
+              </div>
+            );
+          }
+
+          if (view === 'cover-letter') {
+            return (
+              <div className="app-layout-root">
+                {sidebar}
+                <div className="app-main-content">
+                  {topBar}
+                  <CoverLetterPage
+                    resume={resume}
+                    onBack={() => setView('builder')}
+                    onUpgradeNeeded={showUpgrade}
+                  />
+                </div>
+              </div>
+            );
+          }
+
+          if (view === 'interview-prep') {
+            return (
+              <div className="app-layout-root">
+                {sidebar}
+                <div className="app-main-content">
+                  {topBar}
+                  <InterviewPrepPage
+                    resume={resume}
+                    onBack={() => setView('builder')}
+                    onUpgradeNeeded={showUpgrade}
+                  />
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <div className="app-layout-root" style={{ flexDirection: isMobile ? 'column' : 'row' }}>
+              {sidebar}
+              <div className="app-main-content">
+                {topBar}
+
+                <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', overflow: isMobile ? 'visible' : 'hidden', height: isMobile ? 'auto' : '100%' }}>
+                  <div style={{ width: formWidth, flexShrink: 0, transition: 'width 0.25s', position: 'relative', height: isMobile ? 'auto' : '100%', overflow: isMobile ? 'visible' : 'hidden' }} className="no-print">
+
+                    <ErrorBoundary componentName="ResumeBuilder">
+                      <ResumeBuilder resume={resume} onChange={setResumeWithHistory} improvements={improvements} onDismissImprovements={() => setImprovements(null)} onUpgradeNeeded={showUpgrade} />
+                    </ErrorBoundary>
+                    {!isMobile && <button onClick={() => setFormExpanded(v => !v)} style={{ position: 'absolute', top: '50%', right: '-11px', transform: 'translateY(-50%)', width: '22px', height: '44px', borderRadius: '0 8px 8px 0', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderLeft: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-ui-text-muted)', zIndex: 10 }}>{formExpanded ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}</button>}
+                  </div>
+
+                  {!isMobile && (
+                    <main className="preview-viewport" style={{ flex: 1, minWidth: 0, padding: isMobile ? '16px 8px' : '32px 24px 64px' }}>
+                      {/* Preview toolbar */}
+                      <div className="no-print" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, width: '100%', maxWidth: '1000px', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '12px' : '0' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '12px', flexWrap: 'wrap', justifyContent: isMobile ? 'center' : 'flex-start' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', background: 'var(--color-ui-surface)', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}>
+                            <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-ui-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                              {activeTemplate.name}
+                            </span>
+                          </div>
+                          <div style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '6px',
+                            fontSize: '11px', fontWeight: 800, padding: '4px 12px', borderRadius: '8px',
+                            ...(activeTemplate.atsScore >= 85
+                              ? { background: 'rgba(63,185,80,0.12)', color: 'var(--color-success)', border: '1px solid rgba(63,185,80,0.2)' }
+                              : activeTemplate.atsScore >= 70
+                              ? { background: 'rgba(210,153,34,0.12)', color: 'var(--color-warning)', border: '1px solid rgba(210,153,34,0.2)' }
+                              : { background: 'rgba(248,81,73,0.12)', color: 'var(--color-danger)', border: '1px solid rgba(248,81,73,0.2)' }),
+                          }}>
+                            <Award size={12} />
+                            ATS SCORE: {activeTemplate.atsScore}%
+                          </div>
+                          {!isMobile && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', background: 'var(--color-ui-surface)', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}>
+                              <FileText size={12} color="var(--color-ui-text-muted)" />
+                              <span style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', fontWeight: 600 }}>
+                                A4 · {pageCount} {pageCount === 1 ? 'PAGE' : 'PAGES'}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px', background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderRadius: '100px' }}>
+                          <button className="btn-ghost" style={{ width: '28px', height: '28px', padding: 0, borderRadius: '6px', fontSize: '16px' }} onClick={() => setZoom(z => Math.max(0.3, +(z - 0.1).toFixed(1)))}>−</button>
+                          <button onClick={() => setZoom(isMobile ? 0.4 : 0.75)} style={{ minWidth: '40px', textAlign: 'center', fontSize: '12px', fontWeight: 800, color: 'var(--color-ui-accent)', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                            {Math.round(zoom * 100)}%
+                          </button>
+                          <button className="btn-ghost" style={{ width: '28px', height: '28px', padding: 0, borderRadius: '6px', fontSize: '16px' }} onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(1)))}>+</button>
+                          {!isMobile && (
+                            <>
+                              <div style={{ width: '1px', height: '16px', background: 'var(--color-ui-border)', marginLeft: '4px', marginRight: '4px' }} />
+                              {[50, 75, 100].map(v => (
+                                <button
+                                  key={v}
+                                  onClick={() => setZoom(v / 100)}
+                                  style={{
+                                    padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700,
+                                    border: 'none', cursor: 'pointer',
+                                    background: Math.round(zoom * 100) === v ? 'var(--color-ui-accent-subtle)' : 'transparent',
+                                    color: Math.round(zoom * 100) === v ? 'var(--color-ui-accent)' : 'var(--color-ui-text-dim)',
+                                    transition: 'all 0.15s',
+                                  }}
+                                >
+                                  {v}%
+                                </button>
+                              ))}
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="preview-scaler" style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
+                        <ErrorBoundary componentName="PagedPreview">
+                          <PagedPreview resume={resume} config={activeTemplate} onPageCount={setPageCount} />
+                        </ErrorBoundary>
+                      </div>
+                    </main>
+                  )}
+
+                  {(!isMobile || rightPanelOpen) && (
+                    <div style={{ 
+                      width: rightPanelOpen ? (isMobile ? '100%' : '320px') : '0', 
+                      flexShrink: 0, 
+                      overflow: 'hidden', 
+                      transition: 'width 0.25s',
+                      ...(isMobile ? { position: 'fixed', top: 0, right: 0, bottom: 0, zIndex: 1150, background: 'var(--color-ui-bg)' } : {})
+                    }} className="no-print">
+                      {rightPanelOpen && <StylePanel templates={templates} activeTemplate={activeTemplate} onTemplateChange={setActiveTemplate} onColorChange={handleColorChange} onClose={() => setRightPanelOpen(false)} zoom={zoom} onZoomChange={setZoom} onUpgradeNeeded={showUpgrade} />}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+      </Suspense>
     );
   })();
 
