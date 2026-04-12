@@ -28,11 +28,14 @@ if (process.env.FIREBASE_SERVICE_ACCOUNT) {
 // Fallback: check if the local serviceAccountKey.json file exists
 else if (fs.existsSync(serviceAccountPath)) {
   try {
+    console.log('Using local serviceAccountKey.json file for initialization.');
     const fileContent = fs.readFileSync(serviceAccountPath, 'utf8');
     serviceAccount = JSON.parse(fileContent);
   } catch (error) {
     console.error('Failed to read or parse serviceAccountKey.json:', error);
   }
+} else {
+  console.warn('Neither FIREBASE_SERVICE_ACCOUNT env var nor serviceAccountKey.json file was found.');
 }
 
 // Initialize Firebase Admin if credentials are found and it hasn't been initialized yet
