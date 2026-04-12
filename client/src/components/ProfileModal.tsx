@@ -77,7 +77,7 @@ const ProfileModal: React.FC<Props> = ({ user, onClose, onLogout }) => {
   const config = PLAN_CONFIG[planKey] || PLAN_CONFIG.free;
 
   return (
-    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()} style={{ zIndex: 1000 }}>
+    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()} style={{ zIndex: 9000 }}>
       <div className="modal-content" style={{ maxWidth: '450px', width: 'min(450px, 95%)', padding: '0', overflow: 'hidden', border: '1px solid var(--color-ui-border)' }}>
         
         {/* Header (Shared for all views) */}

@@ -130,7 +130,7 @@ body {
   align-items: center;
   padding: 20px 0;
   gap: 12px;
-  z-index: 100;
+  z-index: 1100;
   flex-shrink: 0;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -1062,7 +1062,7 @@ button:focus:not(:focus-visible) { outline: none; }
   .top-bar {
     position: sticky;
     top: 0;
-    z-index: 150;
+    z-index: 1000;
     flex-wrap: wrap;
     height: auto !important;
     padding: 10px 16px !important;

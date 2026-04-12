@@ -627,7 +627,7 @@ function AppContent() {
     const expertLocked = !canAccess('expert-review');
 
     const sidebar = isToolView ? (
-      <aside className={`app-sidebar no-print ${showMobileSidebar ? 'show-mobile' : ''}`} style={isMobile ? { position: 'fixed', left: 0, top: 0, bottom: 0, width: '240px', zIndex: 200 } : {}}>
+      <aside className={`app-sidebar no-print ${showMobileSidebar ? 'show-mobile' : ''}`} style={isMobile ? { position: 'fixed', left: 0, top: 0, bottom: 0, width: '240px', zIndex: 1100 } : { zIndex: 1100 }}>
         <div className="sidebar-logo" onClick={() => { setView('landing'); setShowMobileSidebar(false); }} style={{ cursor: 'pointer' }}>
           <div className="sidebar-logo-icon">
             <Zap size={18} color="white" fill="white" />
@@ -946,7 +946,7 @@ function AppContent() {
                 flexShrink: 0, 
                 overflow: 'hidden', 
                 transition: 'width 0.25s',
-                ...(isMobile ? { position: 'fixed', top: 0, right: 0, bottom: 0, zIndex: 300, background: 'var(--color-ui-bg)' } : {})
+                ...(isMobile ? { position: 'fixed', top: 0, right: 0, bottom: 0, zIndex: 1150, background: 'var(--color-ui-bg)' } : {})
               }} className="no-print">
                 {rightPanelOpen && <StylePanel templates={templates} activeTemplate={activeTemplate} onTemplateChange={setActiveTemplate} onColorChange={handleColorChange} onClose={() => setRightPanelOpen(false)} zoom={zoom} onZoomChange={setZoom} onUpgradeNeeded={showUpgrade} />}
               </div>
@@ -963,7 +963,7 @@ function AppContent() {
       {showMobileSidebar && isMobile && (
         <div 
           className="modal-overlay no-print" 
-          style={{ zIndex: 190, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(2px)' }} 
+          style={{ zIndex: 1050, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(2px)' }} 
           onClick={() => setShowMobileSidebar(false)} 
         />
       )}
