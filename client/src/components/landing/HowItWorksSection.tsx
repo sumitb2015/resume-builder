@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react';
 const STEPS = [
   {
     number: '01',
-    icon: '📝',
-    title: 'Fill in your details',
-    desc: 'Add your work experience, education, and skills using our guided editor. Import from LinkedIn or start from scratch.',
+    icon: '⚡',
+    title: 'Build or Import Instantly',
+    desc: 'Use AI to build your resume from scratch, import from LinkedIn, or upload an existing PDF. No manual typing needed.',
   },
   {
     number: '02',

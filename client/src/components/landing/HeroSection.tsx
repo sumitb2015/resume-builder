@@ -79,7 +79,7 @@ const HeroSection: React.FC<Props> = ({ onStart }) => {
         maxWidth: '640px', 
         margin: '0 auto 44px' 
       }}>
-        Build ATS-optimized resumes with AI-powered writing, tailored cover letters, and interview prep. {templates.length}+ professional templates with real-time live preview.
+        Build ATS-optimized resumes in minutes. Start from scratch with AI, import your LinkedIn, or upload a PDF. {templates.length}+ professional templates with real-time live preview.
       </p>
 
       {/* CTAs */}

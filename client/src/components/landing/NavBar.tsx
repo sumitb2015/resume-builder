@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Zap, LogOut, Sun, Moon, Layout, Sparkles, CreditCard, BookOpen, Menu, X as CloseIcon } from 'lucide-react';
+import { Zap, LogOut, Sun, Moon, Layout, Sparkles, CreditCard, BookOpen, Menu, X as CloseIcon, Monitor } from 'lucide-react';
 import { scrollToSection } from '../../lib/scroll';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -18,7 +18,8 @@ interface Props {
 
 const NAV_LINKS = [
   { label: 'Templates', id: 'templates', icon: <Layout size={16} /> },
-  { label: 'AI Features', id: 'ai-features', icon: <Sparkles size={16} /> },
+  { label: 'AI Tools', id: 'ai-features', icon: <Sparkles size={16} /> },
+  { label: 'Capabilities', id: 'advanced-features', icon: <Monitor size={16} /> },
   { label: 'Pricing', id: 'pricing', icon: <CreditCard size={16} /> },
 ];
 

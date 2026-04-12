@@ -4,9 +4,11 @@ import HeroSection from './landing/HeroSection';
 import StatsSection from './landing/StatsSection';
 import TemplateShowcase from './landing/TemplateShowcase';
 import AiFeaturesSection from './landing/AiFeaturesSection';
+import AdvancedFeaturesSection from './landing/AdvancedFeaturesSection';
 import HowItWorksSection from './landing/HowItWorksSection';
 import PricingSection from './landing/PricingSection';
 import TestimonialsSection from './landing/TestimonialsSection';
+import BlogPreviewSection from './landing/BlogPreviewSection';
 import FaqSection from './landing/FaqSection';
 import SeoContentSection from './landing/SeoContentSection';
 import CtaSection from './landing/CtaSection';
@@ -36,9 +38,11 @@ const LandingPage: React.FC<Props> = ({ onStart, onOpenBlog, onCheckout, onShowP
       <StatsSection />
       <TemplateShowcase onStart={onStart} />
       <AiFeaturesSection />
+      <AdvancedFeaturesSection />
       <HowItWorksSection />
       <PricingSection onStart={onStart} onCheckout={onCheckout} />
       <TestimonialsSection />
+      <BlogPreviewSection onOpenBlog={onOpenBlog} />
       <FaqSection />
       <SeoContentSection />
       <CtaSection onStart={onStart} />
