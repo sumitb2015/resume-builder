@@ -66,8 +66,6 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
     };
   }, []);
 
-  const badge = plan ? PLAN_BADGE_CONFIG[plan] : null;
-
   const iconBtnStyle: React.CSSProperties = {
     padding: isSmallMobile ? '6px' : '8px', borderRadius: '10px',
     border: '1px solid var(--color-ui-border)',
@@ -247,6 +245,7 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
               >
                 {isMobile ? (isSmallMobile ? 'Build' : 'Builder') : 'Open Builder'}
               </button>
+              )}
               
               {!isMobile && (
                 <button
