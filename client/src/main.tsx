@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 
 // Self-hosted fonts
+import "@fontsource-variable/geist";
 import "@fontsource/inter";
 import "@fontsource/inter/300.css";
 import "@fontsource/inter/500.css";

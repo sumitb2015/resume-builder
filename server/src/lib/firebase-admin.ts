@@ -29,18 +29,24 @@ else if (fs.existsSync(serviceAccountPath)) {
 }
 
 // Initialize Firebase Admin if credentials are found and it hasn't been initialized yet
-if (!admin.apps.length && serviceAccount) {
-  try {
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount)
-    });
-    console.log('Firebase Admin initialized successfully.');
-  } catch (error) {
-    console.error('Error initializing Firebase Admin:', error);
+if (!admin.apps.length) {
+  if (serviceAccount) {
+    try {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+      });
+      console.log('Firebase Admin initialized successfully.');
+    } catch (error) {
+      console.error('Error initializing Firebase Admin:', error);
+    }
+  } else {
+    console.warn('Firebase Admin skipped: No service account credentials found. Check FIREBASE_SERVICE_ACCOUNT env var or serviceAccountKey.json.');
   }
-} else if (!serviceAccount) {
-  console.warn('Firebase Admin skipped: No service account credentials found.');
 }
 
 // Export the Firestore database instance
 export const db = admin.apps.length ? admin.firestore() : null;
+
+if (!db) {
+  console.error('CRITICAL: Firestore database could not be initialized. Some features will be disabled.');
+}

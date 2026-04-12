@@ -1,3 +1,4 @@
+declare module "@fontsource-variable/geist";
 declare module "@fontsource/inter";
 declare module "@fontsource/inter/*.css";
 declare module "@fontsource/playfair-display";

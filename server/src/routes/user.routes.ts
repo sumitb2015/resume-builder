@@ -8,8 +8,11 @@ router.post('/sync', async (req, res) => {
   try {
     const { uid, email, displayName } = req.body;
     
-    if (!uid || !db) {
-      return res.status(400).json({ error: 'UID and database initialization required' });
+    if (!uid) {
+      return res.status(400).json({ error: 'UID is required' });
+    }
+    if (!db) {
+      return res.status(503).json({ error: 'Database not initialized. Please ensure FIREBASE_SERVICE_ACCOUNT is set.' });
     }
 
     const userRef = db.collection('users').doc(uid);
@@ -43,8 +46,11 @@ router.post('/sync', async (req, res) => {
 router.get('/me/:uid', async (req, res) => {
   try {
     const { uid } = req.params;
-    if (!uid || !db) {
-      return res.status(400).json({ error: 'UID required' });
+    if (!uid) {
+      return res.status(400).json({ error: 'UID is required' });
+    }
+    if (!db) {
+      return res.status(503).json({ error: 'Database not initialized.' });
     }
 
     const doc = await db.collection('users').doc(uid).get();
@@ -63,8 +69,11 @@ router.post('/request-review', async (req, res) => {
   try {
     const { userId, resumeId, resumeData, comments } = req.body;
     
-    if (!userId || !db) {
-      return res.status(400).json({ error: 'User ID and database initialization required' });
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+    if (!db) {
+      return res.status(503).json({ error: 'Database not initialized.' });
     }
 
     const reviewRequest = {
@@ -97,8 +106,11 @@ router.post('/ats-history', async (req, res) => {
   try {
     const { userId, resumeId, score, jobTitle, company } = req.body;
     
-    if (!userId || !db) {
-      return res.status(400).json({ error: 'User ID and database initialization required' });
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+    if (!db) {
+      return res.status(503).json({ error: 'Database not initialized.' });
     }
 
     const historyEntry = {
