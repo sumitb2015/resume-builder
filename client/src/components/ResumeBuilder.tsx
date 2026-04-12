@@ -212,8 +212,8 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
       const data = await api.generateBullets(exp.role, exp.company, 'Technology');
       setBulletSuggestions({ expId: exp.id, bullets: data.bullets });
       incrementBulletUsage();
-    } catch {
-      toast.error('AI unavailable. Check server is running with OPENAI_API_KEY set.');
+    } catch (err: any) {
+      toast.error(err?.message || 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
     } finally { setLoadingBullets(null); }
   };
 
@@ -233,8 +233,8 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
     try {
       const data = await api.findSkills(skillJobTitle);
       setSkillSuggestions(data);
-    } catch {
-      toast.error('AI unavailable. Check server is running with OPENAI_API_KEY set.');
+    } catch (err: any) {
+      toast.error(err?.message || 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
     } finally { setLoadingSkills(false); }
   };
 
@@ -258,8 +258,8 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
       
       up('summary', plainTextToHtml(summaryText));
       setSummaryCustomPrompt('');
-    } catch {
-      toast.error('AI unavailable. Check server is running with OPENAI_API_KEY set.');
+    } catch (err: any) {
+      toast.error(err?.message || 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
     } finally { setLoadingSummary(false); }
   };
 
@@ -274,8 +274,8 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
     try {
       const { text } = await api.rephrase(resume.personal.summary);
       up('summary', plainTextToHtml(text));
-    } catch {
-      toast.error('AI unavailable. Check server is running with OPENAI_API_KEY set.');
+    } catch (err: any) {
+      toast.error(err?.message || 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
     } finally { setLoadingSummary(false); }
   };
 

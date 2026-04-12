@@ -20,13 +20,19 @@ async function post<T>(path: string, body: unknown): Promise<T> {
   const authHeaders = await getAuthHeaders();
   const res = await fetch(`${BASE}${path}`, {
     method: 'POST',
-    headers: { 
+    headers: {
       'Content-Type': 'application/json',
       ...authHeaders
     },
     body: JSON.stringify(body),
   });
   if (!res.ok) {
+    // Surface rate-limit errors with a countdown so the user knows exactly what to do.
+    if (res.status === 429) {
+      const retryAfter = res.headers.get('Retry-After');
+      const seconds = retryAfter ? parseInt(retryAfter, 10) : 60;
+      throw new Error(`Rate limit reached — too many AI requests. Please wait ${seconds} second${seconds !== 1 ? 's' : ''} and try again.`);
+    }
     const err = await res.json().catch(() => ({ error: 'Request failed' }));
     throw new Error(err.error || `HTTP ${res.status}`);
   }
