@@ -1,7 +1,7 @@
 import express, { Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import * as aiService from './services/ai.service';
 import parseRoutes from './routes/parse.routes';
 import exportRoutes from './routes/export.routes';
@@ -60,7 +60,7 @@ app.use('/api/ai', authenticate);
 const aiRateLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 20,
-  keyGenerator: (req: any) => req.user?.uid || req.ip || 'unknown',
+  keyGenerator: (req: any) => req.user?.uid || ipKeyGenerator(req),
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests. Please wait a moment and try again.' },
