@@ -7,7 +7,6 @@ import { buildPdfHtml } from '../lib/buildPdfHtml';
 import { Download, Type, Move, Palette, Sparkles, Loader2, Undo2, Redo2, FileText as FileTextIcon } from 'lucide-react';
 import { usePlan } from '../contexts/PlanContext';
 import { Button } from './ui/button';
-import { cn } from '@/lib/utils';
 
 interface Props {
   resume: Resume;
@@ -335,13 +334,99 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
           ))}
         </div>
 
-        {/* Tab content */}
+        {/* Tab content area */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
+          
+          {/* ── AI SMART FIT ── */}
+          <div style={{ marginBottom: '28px', padding: '18px', borderRadius: '14px', background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Sparkles size={15} color="#818CF8" />
+                <span style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#6366F1' }}>AI Smart Fit</span>
+              </div>
+              
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <button
+                  onClick={handleUndo}
+                  disabled={past.length === 0}
+                  title="Undo change"
+                  style={{ 
+                    padding: '6px', background: 'transparent', border: 'none', cursor: past.length === 0 ? 'default' : 'pointer',
+                    color: past.length === 0 ? 'var(--color-ui-text-dim)' : 'var(--color-ui-text-muted)',
+                    display: 'flex', alignItems: 'center'
+                  }}
+                >
+                  <Undo2 size={15} />
+                </button>
+                <button
+                  onClick={handleRedo}
+                  disabled={future.length === 0}
+                  title="Redo change"
+                  style={{ 
+                    padding: '6px', background: 'transparent', border: 'none', cursor: future.length === 0 ? 'default' : 'pointer',
+                    color: future.length === 0 ? 'var(--color-ui-text-dim)' : 'var(--color-ui-text-muted)',
+                    display: 'flex', alignItems: 'center'
+                  }}
+                >
+                  <Redo2 size={15} />
+                </button>
+              </div>
+            </div>
 
-          {/* ── LAYOUT TAB ── */}
+            <div style={{ marginBottom: '14px' }}>
+              <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-ui-text-dim)', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Target Pages</label>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                {[1, 2].map(p => (
+                  <button
+                    key={p}
+                    onClick={() => setTargetPages(p)}
+                    style={{
+                      flex: 1, padding: '8px', fontSize: '12.5px', fontWeight: 700, borderRadius: '8px', border: '1px solid var(--color-ui-border)',
+                      background: targetPages === p ? 'var(--color-ui-accent)' : 'var(--color-ui-surface)',
+                      color: targetPages === p ? 'white' : 'var(--color-ui-text)',
+                      cursor: 'pointer', transition: 'all 0.2s'
+                    }}
+                  >
+                    {p} {p === 1 ? 'Page' : 'Pages'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '14px' }}>
+              <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-ui-text-dim)', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Refinement Instructions</label>
+              <textarea
+                value={userPrompt}
+                onChange={e => setUserPrompt(e.target.value)}
+                placeholder="e.g. 'Shorten bullets to fit', 'Expand to fill space'"
+                className="field-textarea"
+                style={{ fontSize: '12px', minHeight: '60px', background: 'var(--color-ui-bg)' }}
+              />
+            </div>
+
+            <button
+              className="btn-primary"
+              disabled={isOptimizing}
+              onClick={handleSmartFit}
+              style={{
+                width: '100%',
+                padding: '12px',
+                fontSize: '13px',
+                fontWeight: 700,
+                gap: '8px',
+                background: 'linear-gradient(135deg, #6366F1, #A855F7)',
+                border: 'none',
+                boxShadow: '0 4px 12px rgba(99,102,241,0.2)'
+              }}
+            >
+              {isOptimizing ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
+              {isOptimizing ? 'Optimizing...' : 'Apply AI Smart Fit'}
+            </button>
+          </div>
+
+          {/* ── TAB SPECIFIC CONTENT ── */}
           {activeTab === 'layout' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-
               <SliderControl
                 label="Page Margins"
                 value={settings.margin}
@@ -365,118 +450,16 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
                 min={1.2} max={2.0} step={0.05}
                 onChange={v => updateSettings({ lineHeight: v })}
               />
-
-              {/* ── AI SMART FIT ── */}
-              <div style={{ marginTop: '8px', padding: '18px', borderRadius: '14px', background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Sparkles size={15} color="#818CF8" />
-                    <span style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#6366F1' }}>AI Smart Fit</span>
-                  </div>
-                  
-                  {/* UNDO / REDO BUTTONS */}
-                  <div style={{ display: 'flex', gap: '4px' }}>
-                    <button
-                      onClick={handleUndo}
-                      disabled={past.length === 0}
-                      title="Undo change"
-                      style={{ 
-                        padding: '6px', background: 'transparent', border: 'none', cursor: past.length === 0 ? 'default' : 'pointer',
-                        color: past.length === 0 ? 'var(--color-ui-text-dim)' : 'var(--color-ui-text-muted)',
-                        display: 'flex', alignItems: 'center'
-                      }}
-                    >
-                      <Undo2 size={15} />
-                    </button>
-                    <button
-                      onClick={handleRedo}
-                      disabled={future.length === 0}
-                      title="Redo change"
-                      style={{ 
-                        padding: '6px', background: 'transparent', border: 'none', cursor: future.length === 0 ? 'default' : 'pointer',
-                        color: future.length === 0 ? 'var(--color-ui-text-dim)' : 'var(--color-ui-text-muted)',
-                        display: 'flex', alignItems: 'center'
-                      }}
-                    >
-                      <Redo2 size={15} />
-                    </button>
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: '14px' }}>
-                  <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-ui-text-dim)', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Target Pages</label>
-                  <div style={{ display: 'flex', gap: '6px' }}>
-                    {[1, 2].map(p => (
-                      <button
-                        key={p}
-                        onClick={() => setTargetPages(p)}
-                        style={{
-                          flex: 1, padding: '8px', fontSize: '12.5px', fontWeight: 700, borderRadius: '8px', border: '1px solid var(--color-ui-border)',
-                          background: targetPages === p ? 'var(--color-ui-accent)' : 'var(--color-ui-surface)',
-                          color: targetPages === p ? 'white' : 'var(--color-ui-text)',
-                          cursor: 'pointer', transition: 'all 0.2s'
-                        }}
-                      >
-                        {p} {p === 1 ? 'Page' : 'Pages'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: '14px' }}>
-                  <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-ui-text-dim)', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Refinement Instructions</label>
-                  <textarea
-                    value={userPrompt}
-                    onChange={e => setUserPrompt(e.target.value)}
-                    placeholder="e.g. 'Shorten bullets to fit', 'Expand to fill space'"
-                    className="field-textarea"
-                    style={{ fontSize: '12px', minHeight: '80px', background: 'var(--color-ui-bg)' }}
-                  />
-                </div>
-
-                <button
-                  className="btn-primary"
-                  disabled={isOptimizing}
-                  onClick={handleSmartFit}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    gap: '8px',
-                    background: 'linear-gradient(135deg, #6366F1, #A855F7)',
-                    border: 'none',
-                    boxShadow: '0 4px 12px rgba(99,102,241,0.2)'
-                  }}
-                >
-                  {isOptimizing ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
-                  Apply AI Optimization
-                </button>
-              </div>
             </div>
           )}
 
-          {/* ── FONTS TAB ── */}
           {activeTab === 'fonts' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-
-              <FontSelect
-                label="Heading Font"
-                value={config.fonts.heading}
-                options={FONT_OPTIONS}
-                onChange={v => updateFont('heading', v)}
-              />
-
-              <FontSelect
-                label="Body Font"
-                value={config.fonts.body}
-                options={FONT_OPTIONS}
-                onChange={v => updateFont('body', v)}
-              />
+              <FontSelect label="Heading Font" value={config.fonts.heading} options={FONT_OPTIONS} onChange={v => updateFont('heading', v)} />
+              <FontSelect label="Body Font" value={config.fonts.body} options={FONT_OPTIONS} onChange={v => updateFont('body', v)} />
             </div>
           )}
 
-          {/* ── COLORS TAB ── */}
           {activeTab === 'colors' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <ColorControl label="Primary Brand Color" value={config.colors.primary} onChange={v => updateColor('primary', v)} />
@@ -566,20 +549,30 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
           <Button
             variant="outline"
             onClick={() => setShowMobileSettings(true)}
-            className="flex-1 max-w-[160px] h-10 rounded-full font-bold gap-2 bg-[var(--color-ui-surface)] border-[var(--color-ui-border)] text-[var(--color-ui-text)] shadow-lg active:scale-95 transition-all"
+            className="flex-1 max-w-[100px] h-10 rounded-full font-bold gap-2 bg-[var(--color-ui-surface)] border-[var(--color-ui-border)] text-[var(--color-ui-text)] shadow-lg active:scale-95 transition-all"
           >
             <Palette size={16} />
             Style
           </Button>
 
           <Button
+            variant="outline"
+            disabled={isOptimizing}
+            onClick={handleSmartFit}
+            className="flex-1 max-w-[140px] h-10 rounded-full font-bold gap-2 bg-[var(--color-ui-surface)] border-[var(--color-ui-border)] text-[#6366F1] shadow-lg active:scale-95 transition-all"
+          >
+            {isOptimizing ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+            Smart Fit
+          </Button>
+
+          <Button
             variant="default"
             disabled={isDownloading}
             onClick={canAccess('download-pdf') ? handlePrint : handleDownloadTxt}
-            className="flex-1 max-w-[200px] h-10 rounded-full font-bold gap-2 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white border-none shadow-[0_8px_24px_rgba(99,102,241,0.4)] active:scale-95 transition-all hover:opacity-90"
+            className="flex-1 max-w-[160px] h-10 rounded-full font-bold gap-2 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white border-none shadow-[0_8px_24px_rgba(99,102,241,0.4)] active:scale-95 transition-all hover:opacity-90"
           >
             {isDownloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
-            {canAccess('download-pdf') ? 'Export PDF' : 'Download TXT'}
+            {canAccess('download-pdf') ? 'Export' : 'TXT'}
           </Button>
         </div>
       )}

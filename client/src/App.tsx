@@ -31,7 +31,7 @@ import { useSavedResumes } from './hooks/useSavedResumes';
 import { legacyMarkdownToHtml } from './lib/htmlUtils';
 import {
   Zap, Palette, Check, ChevronLeft, ChevronRight, FileText, LogOut, Crown, Shield,
-  Save, FolderOpen, Sun, Moon, Award, Lock, HelpCircle, MessageSquare, Menu, ArrowLeft
+  FolderOpen, Sun, Moon, Award, Lock, HelpCircle, MessageSquare, Menu, ArrowLeft
 } from 'lucide-react';
 
 // Initial dummy resume data
@@ -369,14 +369,11 @@ function AppContent() {
   const [savePrompt, setSavePrompt] = useState(false);
   const [saveNameValue, setSaveNameValue] = useState('');
   const [savedToast, setSavedToast] = useState(false);
-  const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
   // ── UNDO/REDO ─────────────────────────────────────────────
   const historyRef = useRef<Resume[]>([]);
   const historyIndexRef = useRef(-1);
   const isUndoingRef = useRef(false);
-  const [canUndo, setCanUndo] = useState(false);
-  const [canRedo, setCanRedo] = useState(false);
 
   const pushHistory = (r: Resume) => {
     if (isUndoingRef.current) return;
@@ -385,8 +382,6 @@ function AppContent() {
     historyRef.current.push(JSON.parse(JSON.stringify(r)));
     if (historyRef.current.length > 40) historyRef.current.shift();
     historyIndexRef.current = historyRef.current.length - 1;
-    setCanUndo(historyIndexRef.current > 0);
-    setCanRedo(false);
   };
 
   const undo = () => {
@@ -395,8 +390,6 @@ function AppContent() {
     isUndoingRef.current = true;
     setResume(JSON.parse(JSON.stringify(historyRef.current[historyIndexRef.current]!)));
     isUndoingRef.current = false;
-    setCanUndo(historyIndexRef.current > 0);
-    setCanRedo(true);
   };
 
   const redo = () => {
@@ -405,8 +398,6 @@ function AppContent() {
     isUndoingRef.current = true;
     setResume(JSON.parse(JSON.stringify(historyRef.current[historyIndexRef.current]!)));
     isUndoingRef.current = false;
-    setCanUndo(true);
-    setCanRedo(historyIndexRef.current < historyRef.current.length - 1);
   };
 
   // Keyboard shortcut handler
@@ -439,14 +430,11 @@ function AppContent() {
   useEffect(() => {
     if (view !== 'builder') return;
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
-    setAutoSaveStatus('saving');
     autoSaveTimerRef.current = setTimeout(() => {
       try {
         localStorage.setItem('bespokecv_autosave', JSON.stringify({ resume, templateId: activeTemplate.id, savedAt: new Date().toISOString() }));
-        setAutoSaveStatus('saved');
-        setTimeout(() => setAutoSaveStatus('idle'), 3000);
       } catch {
-        setAutoSaveStatus('idle');
+        // Ignore
       }
     }, 1500);
     return () => { if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current); };
@@ -473,16 +461,6 @@ function AppContent() {
   const showSavedToast = () => {
     setSavedToast(true);
     setTimeout(() => setSavedToast(false), 2500);
-  };
-
-  const handleSave = () => {
-    if (currentResumeId) {
-      saveResume(savedResumes.find(r => r.id === currentResumeId)?.name ?? 'My Resume', resume, activeTemplate, currentResumeId);
-      showSavedToast();
-    } else {
-      setSaveNameValue(resume.personal.name ? `${resume.personal.name.split(' ')[0]}'s Resume` : 'My Resume');
-      setSavePrompt(true);
-    }
   };
 
   const handleSaveConfirm = () => {
