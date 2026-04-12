@@ -30,7 +30,6 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [isSmallMobile, setIsSmallMobile] = useState(window.innerWidth < 480);
   const { currentUser, signOut } = useAuth();
-  const { plan } = usePlan();
   const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
