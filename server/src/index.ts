@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import * as aiService from './services/ai.service';
@@ -6,7 +6,7 @@ import parseRoutes from './routes/parse.routes';
 import exportRoutes from './routes/export.routes';
 import paymentRoutes from './routes/payment.routes';
 import userRoutes from './routes/user.routes';
-import { authenticate } from './middleware/auth.middleware';
+import { authenticate, AuthRequest } from './middleware/auth.middleware';
 
 dotenv.config();
 
@@ -95,7 +95,7 @@ app.post('/api/ai/generate-bullets', async (req: AuthRequest, res: Response) => 
     const bullets = await aiService.generateBulletPoints(role, company, industry);
     res.json({ bullets });
   } catch (error: any) {
-    if (error instanceof z.ZodError) return res.status(400).json({ error: error.errors });
+    if (error instanceof z.ZodError) return res.status(400).json({ error: error.issues });
     res.status(500).json({ error: error.message });
   }
 });
@@ -106,7 +106,7 @@ app.post('/api/ai/generate-summary', async (req: AuthRequest, res: Response) => 
     const summary = await aiService.generateSummary(name || '', title, experience, skills || []);
     res.json({ summary });
   } catch (error: any) {
-    if (error instanceof z.ZodError) return res.status(400).json({ error: error.errors });
+    if (error instanceof z.ZodError) return res.status(400).json({ error: error.issues });
     res.status(500).json({ error: error.message });
   }
 });
@@ -117,7 +117,7 @@ app.post('/api/ai/tailor-resume', async (req: AuthRequest, res: Response) => {
     const result = await aiService.tailorResume(resume, jobDescription);
     res.json(result);
   } catch (error: any) {
-    if (error instanceof z.ZodError) return res.status(400).json({ error: error.errors });
+    if (error instanceof z.ZodError) return res.status(400).json({ error: error.issues });
     res.status(500).json({ error: error.message });
   }
 });
@@ -128,7 +128,7 @@ app.post('/api/ai/generate-cover-letter', async (req: AuthRequest, res: Response
     const result = await aiService.generateCoverLetter(resume, jobDescription);
     res.json({ text: result });
   } catch (error: any) {
-    if (error instanceof z.ZodError) return res.status(400).json({ error: error.errors });
+    if (error instanceof z.ZodError) return res.status(400).json({ error: error.issues });
     res.status(500).json({ error: error.message });
   }
 });
@@ -139,7 +139,7 @@ app.post('/api/ai/generate-interview-prep', async (req: AuthRequest, res: Respon
     const result = await aiService.generateInterviewPrep(resume, jobDescription);
     res.json(result);
   } catch (error: any) {
-    if (error instanceof z.ZodError) return res.status(400).json({ error: error.errors });
+    if (error instanceof z.ZodError) return res.status(400).json({ error: error.issues });
     res.status(500).json({ error: error.message });
   }
 });
@@ -150,7 +150,7 @@ app.post('/api/ai/ats-score', async (req: AuthRequest, res: Response) => {
     const result = await aiService.analyzeAtsScore(resume, jobDescription);
     res.json(result);
   } catch (error: any) {
-    if (error instanceof z.ZodError) return res.status(400).json({ error: error.errors });
+    if (error instanceof z.ZodError) return res.status(400).json({ error: error.issues });
     res.status(500).json({ error: error.message });
   }
 });
@@ -161,7 +161,7 @@ app.post('/api/ai/generate-full-resume', async (req: AuthRequest, res: Response)
     const result = await aiService.generateFullResume(params);
     res.json(result);
   } catch (error: any) {
-    if (error instanceof z.ZodError) return res.status(400).json({ error: error.errors });
+    if (error instanceof z.ZodError) return res.status(400).json({ error: error.issues });
     res.status(500).json({ error: error.message });
   }
 });
@@ -172,7 +172,7 @@ app.post('/api/ai/generate-smart-resume', async (req: AuthRequest, res: Response
     const result = await aiService.generateSmartTailoredResume(params);
     res.json(result);
   } catch (error: any) {
-    if (error instanceof z.ZodError) return res.status(400).json({ error: error.errors });
+    if (error instanceof z.ZodError) return res.status(400).json({ error: error.issues });
     res.status(500).json({ error: error.message });
   }
 });
