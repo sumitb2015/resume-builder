@@ -59,6 +59,7 @@ interface Props {
 
 export default function StylePanel({ templates, activeTemplate, onTemplateChange, onColorChange, onClose, zoom, onZoomChange, onUpgradeNeeded }: Props) {
   const { canAccess } = usePlan();
+  const [isMobile] = useState(window.innerWidth < 1024);
   const [tplOpen, setTplOpen] = useState(true);
   const [colorOpen, setColorOpen] = useState(true);
   const [zoomOpen, setZoomOpen] = useState(true);
@@ -74,23 +75,27 @@ export default function StylePanel({ templates, activeTemplate, onTemplateChange
 
   return (
     <div style={{
-      width: '300px', flexShrink: 0,
+      width: isMobile ? '100%' : '300px', flexShrink: 0,
       background: 'var(--color-ui-surface)',
-      borderLeft: '1px solid var(--color-ui-border)',
+      borderLeft: isMobile ? 'none' : '1px solid var(--color-ui-border)',
       display: 'flex', flexDirection: 'column',
       height: '100%', overflow: 'hidden',
     }}>
       {/* Header */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 16px', height: '44px', flexShrink: 0,
+        padding: '0 16px', height: isMobile ? '60px' : '44px', flexShrink: 0,
         borderBottom: '1px solid var(--color-ui-border)',
       }}>
-        <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-ui-text)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+        <span style={{ fontSize: isMobile ? '14px' : '12px', fontWeight: 700, color: 'var(--color-ui-text)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
           Style
         </span>
-        <button className="btn-ghost" style={{ padding: '4px' }} onClick={onClose}>
-          <X size={14} />
+        <button 
+          className="btn-ghost" 
+          style={{ padding: isMobile ? '12px' : '4px', borderRadius: '50%' }} 
+          onClick={onClose}
+        >
+          <X size={isMobile ? 24 : 14} />
         </button>
       </div>
 

@@ -546,21 +546,43 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
         </div>
       </main>
 
-      {/* Mobile FAB to toggle settings */}
+      {/* Mobile Actions: Style and Download */}
       {isMobile && (
-        <button
-          onClick={() => setShowMobileSettings(true)}
-          style={{
-            position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)',
-            padding: '12px 24px', borderRadius: '100px', background: 'var(--color-ui-accent)',
-            color: 'white', fontSize: '14px', fontWeight: 800, gap: '8px', display: 'flex',
-            alignItems: 'center', boxShadow: '0 8px 24px rgba(99,102,241,0.4)', zIndex: 80,
-            border: 'none', cursor: 'pointer'
-          }}
-        >
-          <Palette size={18} />
-          Edit Style
-        </button>
+        <div style={{
+          position: 'fixed', bottom: '24px', left: '0', right: '0',
+          display: 'flex', justifyContent: 'center', gap: '12px', padding: '0 20px',
+          zIndex: 80,
+        }}>
+          <button
+            onClick={() => setShowMobileSettings(true)}
+            style={{
+              flex: 1, maxWidth: '160px', padding: '12px', borderRadius: '100px',
+              background: 'var(--color-ui-surface)', color: 'var(--color-ui-text)',
+              fontSize: '14px', fontWeight: 800, gap: '8px', display: 'flex',
+              alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+              border: '1px solid var(--color-ui-border)', cursor: 'pointer'
+            }}
+          >
+            <Palette size={18} />
+            Style
+          </button>
+
+          <button
+            className="btn-primary"
+            disabled={isDownloading}
+            onClick={canAccess('download-pdf') ? handlePrint : handleDownloadTxt}
+            style={{
+              flex: 1, maxWidth: '200px', padding: '12px', borderRadius: '100px',
+              background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', color: 'white',
+              fontSize: '14px', fontWeight: 800, gap: '8px', display: 'flex',
+              alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(99,102,241,0.4)',
+              border: 'none', cursor: 'pointer'
+            }}
+          >
+            {isDownloading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
+            {canAccess('download-pdf') ? 'Export PDF' : 'Download TXT'}
+          </button>
+        </div>
       )}
 
       {/* Hidden off-screen render for Puppeteer PDF export */}

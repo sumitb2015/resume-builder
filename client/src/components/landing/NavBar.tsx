@@ -27,6 +27,7 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
   const [scrollPct, setScrollPct] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [isSmallMobile, setIsSmallMobile] = useState(window.innerWidth < 480);
   const { currentUser, signOut } = useAuth();
   const { plan } = usePlan();
   const { theme, toggleTheme } = useTheme();
@@ -34,6 +35,7 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 1024);
+      setIsSmallMobile(window.innerWidth < 480);
       if (window.innerWidth >= 1024) setMobileMenuOpen(false);
     };
     window.addEventListener('resize', handleResize);
@@ -61,7 +63,7 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
   const badge = plan ? PLAN_BADGE_CONFIG[plan] : null;
 
   const iconBtnStyle: React.CSSProperties = {
-    padding: '8px', borderRadius: '10px',
+    padding: isSmallMobile ? '6px' : '8px', borderRadius: '10px',
     border: '1px solid var(--color-ui-border)',
     background: 'transparent', color: 'var(--color-ui-text-muted)',
     cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -95,7 +97,7 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
     <nav style={{
       position: 'sticky', top: 0, zIndex: 100,
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: isMobile ? '0 16px' : '0 40px', height: '72px',
+      padding: isSmallMobile ? '0 12px' : (isMobile ? '0 16px' : '0 40px'), height: '72px',
       backgroundColor: (scrollY > 40 || mobileMenuOpen) ? 'var(--color-ui-nav-scroll)' : 'transparent',
       borderBottom: (scrollY > 40 || mobileMenuOpen) ? '1px solid var(--color-ui-border)' : '1px solid transparent',
       backdropFilter: (scrollY > 40 || mobileMenuOpen) ? 'blur(20px)' : 'none',
@@ -116,16 +118,16 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
         </div>
       )}
       {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', zIndex: 101 }} onClick={handleLogoClick}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: isSmallMobile ? '6px' : '10px', cursor: 'pointer', zIndex: 101 }} onClick={handleLogoClick}>
         <div style={{ 
-          width: '34px', height: '34px', 
+          width: isSmallMobile ? '28px' : '34px', height: isSmallMobile ? '28px' : '34px', 
           background: 'linear-gradient(135deg, #6366F1, #A855F7)', 
-          borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          borderRadius: isSmallMobile ? '8px' : '10px', display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxShadow: '0 4px 12px rgba(99,102,241,0.3)',
         }}>
-          <Zap size={18} color="white" fill="white" />
+          <Zap size={isSmallMobile ? 15 : 18} color="white" fill="white" />
         </div>
-        <span style={{ fontSize: '19px', fontWeight: 800, letterSpacing: '-0.04em', color: 'var(--color-ui-text)' }}>
+        <span style={{ fontSize: isSmallMobile ? '16px' : '19px', fontWeight: 800, letterSpacing: '-0.04em', color: 'var(--color-ui-text)' }}>
           Bespoke<span style={{ color: '#818CF8' }}>CV</span>
         </span>
       </div>
@@ -193,7 +195,7 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
       )}
 
       {/* Right side: theme toggle + CTA / User section */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', zIndex: 101 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: isSmallMobile ? '8px' : '12px', zIndex: 101 }}>
         {/* Theme toggle */}
         {!isMobile && (
           <button
@@ -216,7 +218,7 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
         )}
 
         {currentUser ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isSmallMobile ? '6px' : (isMobile ? '8px' : '12px') }}>
             {!isMobile && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px', borderRadius: '12px', background: 'var(--color-ui-surface-2)', border: '1px solid var(--color-ui-border)' }}>
                 {currentUser.photoURL ? (
@@ -247,9 +249,9 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
             <button
               onClick={onStart}
               style={{
-                padding: isMobile ? '8px 16px' : '10px 24px', borderRadius: '12px',
+                padding: isSmallMobile ? '8px 12px' : (isMobile ? '8px 16px' : '10px 24px'), borderRadius: '12px',
                 background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-                border: 'none', color: 'white', fontSize: isMobile ? '13px' : '14px', fontWeight: 700,
+                border: 'none', color: 'white', fontSize: isSmallMobile ? '12px' : (isMobile ? '13px' : '14px'), fontWeight: 700,
                 cursor: 'pointer', letterSpacing: '-0.01em',
                 boxShadow: '0 4px 15px rgba(99,102,241,0.35)',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -257,7 +259,7 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
               onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(99,102,241,0.45)'; }}
               onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 15px rgba(99,102,241,0.35)'; }}
             >
-              {isMobile ? 'Builder' : 'Open Builder'}
+              {isMobile ? (isSmallMobile ? 'Build' : 'Builder') : 'Open Builder'}
             </button>
             
             {!isMobile && (
@@ -284,9 +286,9 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
           <button
             onClick={onStart}
             style={{
-              padding: isMobile ? '8px 16px' : '10px 24px', borderRadius: '12px',
+              padding: isSmallMobile ? '8px 12px' : (isMobile ? '8px 16px' : '10px 24px'), borderRadius: '12px',
               background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-              border: 'none', color: 'white', fontSize: isMobile ? '13px' : '14px', fontWeight: 700,
+              border: 'none', color: 'white', fontSize: isSmallMobile ? '12px' : (isMobile ? '13px' : '14px'), fontWeight: 700,
               cursor: 'pointer', letterSpacing: '-0.01em',
               boxShadow: '0 4px 15px rgba(99,102,241,0.35)',
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -294,7 +296,7 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
             onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(99,102,241,0.45)'; }}
             onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 15px rgba(99,102,241,0.35)'; }}
           >
-            {isMobile ? 'Get Started' : 'Get Started Free'}
+            {isMobile ? (isSmallMobile ? 'Start' : 'Get Started') : 'Get Started Free'}
           </button>
         )}
 
@@ -303,7 +305,7 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             style={{ ...iconBtnStyle, border: 'none', background: 'var(--color-ui-surface-2)', color: 'var(--color-ui-text)' }}
           >
-            {mobileMenuOpen ? <CloseIcon size={20} /> : <Menu size={20} />}
+            {mobileMenuOpen ? <CloseIcon size={isSmallMobile ? 18 : 20} /> : <Menu size={isSmallMobile ? 18 : 20} />}
           </button>
         )}
       </div>

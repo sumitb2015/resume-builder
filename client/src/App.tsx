@@ -183,6 +183,13 @@ function PlanBadge({ size = 'md' }: { size?: 'sm' | 'md' }) {
 
 function PlanSelectPage({ onSelected, onBack, onCheckout }: { onSelected: () => void; onBack: () => void; onCheckout: (planId: Exclude<Plan, 'free'>) => void }) {
   const { setPlan } = usePlan();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleSelect = (planId: 'free' | 'basic' | 'pro' | 'ultimate') => {
     if (planId === 'free') {
@@ -197,23 +204,28 @@ function PlanSelectPage({ onSelected, onBack, onCheckout }: { onSelected: () => 
     <div style={{
       minHeight: '100vh', background: 'var(--color-ui-bg)',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      padding: '40px 24px',
+      padding: isMobile ? '80px 20px 40px' : '40px 24px',
     }}>
-      <div style={{ position: 'absolute', top: '24px', left: '24px' }}>
+      <div style={{ 
+        position: 'absolute', 
+        top: isMobile ? '16px' : '24px', 
+        left: isMobile ? '16px' : '24px',
+        zIndex: 10
+      }}>
         <BreadcrumbNav view="plan-select" onNavigate={(v) => { if (v === 'landing') onBack(); }} />
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '48px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: isMobile ? '32px' : '48px' }}>
         <div style={{ width: '32px', height: '32px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Zap size={16} color="white" fill="white" />
         </div>
-        <span style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)' }}>
+        <span style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.04em', color: 'var(--color-ui-text)' }}>
           Bespoke<span style={{ color: '#818CF8' }}>CV</span>
         </span>
       </div>
 
-      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em', marginBottom: '10px' }}>
+      <div style={{ textAlign: 'center', marginBottom: isMobile ? '32px' : '40px' }}>
+        <h1 style={{ fontSize: isMobile ? '24px' : '28px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em', marginBottom: '10px' }}>
           Choose your plan
         </h1>
         <p style={{ fontSize: '15px', color: 'var(--color-ui-text-muted)' }}>
@@ -221,7 +233,13 @@ function PlanSelectPage({ onSelected, onBack, onCheckout }: { onSelected: () => 
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', maxWidth: '1100px', width: '100%' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)', 
+        gap: '16px', 
+        maxWidth: '1100px', 
+        width: '100%' 
+      }}>
         {PLAN_OPTIONS.map((plan, i) => (
           <div
             key={plan.id}
