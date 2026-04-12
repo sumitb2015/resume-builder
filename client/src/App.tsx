@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { Toaster } from 'react-hot-toast';
@@ -133,7 +133,15 @@ function BlogPageWrapper() {
 
 function LoginPageWrapper() {
   const navigate = useNavigate();
-  return <LoginPage onLoginSuccess={() => navigate('/hub')} />;
+  const { currentUser, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && currentUser) {
+      navigate('/hub', { replace: true });
+    }
+  }, [currentUser, loading, navigate]);
+
+  return <LoginPage onLoginSuccess={() => {}} />;
 }
 
 function CheckoutPageWrapper() {
