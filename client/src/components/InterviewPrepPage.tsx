@@ -39,11 +39,13 @@ export default function InterviewPrepPage({ resume, onBack }: Props) {
   };
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto', background: 'var(--color-ui-bg)' }}>
-      <div className="w-full max-w-[800px] mx-auto px-4 md:px-6 py-4 md:py-6 pb-24 md:pb-28">
-        <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-ui-text-muted)', marginBottom: '32px' }}>
-          <ArrowLeft size={14} /> Back to Builder
-        </button>
+    <div style={{ flex: 1, overflowY: 'auto', background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div className="w-full max-w-[800px] px-4 md:px-6 py-4 md:py-6 pb-24 md:pb-28">
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '32px' }}>
+          <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-ui-text-muted)' }}>
+            <ArrowLeft size={14} /> Back to Builder
+          </button>
+        </div>
 
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <div style={{ width: '48px', height: '48px', background: 'rgba(168,85,247,0.12)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>

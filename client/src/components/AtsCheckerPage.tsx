@@ -134,11 +134,11 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
   const scoreArc = (score: number) => CIRCUMFERENCE - (score / 100) * CIRCUMFERENCE;
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto', background: 'var(--color-ui-bg)' }}>
-      <div className="w-full max-w-[860px] mx-auto px-4 md:px-6 py-4 md:py-6 pb-20 md:pb-24">
+    <div style={{ flex: 1, overflowY: 'auto', background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div className="w-full max-w-[860px] px-4 md:px-6 py-4 md:py-6 pb-20 md:pb-24">
 
         {/* Back + title */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '32px' }}>
           <button
             onClick={onBack}
             style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-ui-text-muted)', fontSize: '13px', padding: '6px 10px', borderRadius: '8px' }}
