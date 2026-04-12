@@ -1,8 +1,9 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
 import { db } from '../lib/firebase-admin';
+import { authenticate, AuthRequest } from '../middleware/auth.middleware';
 
 dotenv.config();
 
@@ -40,7 +41,7 @@ const getDiscountPercentage = (code?: string): number => {
 };
 
 // Validate Discount Code Endpoint
-router.post('/validate-discount', (req, res) => {
+router.post('/validate-discount', authenticate, (req: AuthRequest, res: Response) => {
   const { code } = req.body;
   const discount = getDiscountPercentage(code);
   
@@ -52,13 +53,22 @@ router.post('/validate-discount', (req, res) => {
 });
 
 // Create Order
-router.post('/create-order', async (req, res) => {
+router.post('/create-order', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     if (!razorpay) {
       return res.status(500).json({ error: 'Razorpay is not configured on the server. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET.' });
     }
     
     const { currency, receipt, notes, userId, planTier, isAnnual, discountCode } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+
+    // Verify User ID matches the authenticated user
+    if (req.user?.uid !== userId) {
+      return res.status(403).json({ error: 'Forbidden: User ID mismatch' });
+    }
 
     if (!planTier || !PLAN_PRICES[planTier.toLowerCase()]) {
       return res.status(400).json({ error: 'Invalid plan tier selected.' });
@@ -111,7 +121,7 @@ router.post('/create-order', async (req, res) => {
 });
 
 // Verify Signature (Synchronous)
-router.post('/verify', async (req, res) => {
+router.post('/verify', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const { 
       razorpay_order_id, 
@@ -127,6 +137,11 @@ router.post('/verify', async (req, res) => {
     if (!userId || !planTier) {
       console.error('[Payment Verify] Missing userId or planTier in request body');
       return res.status(400).json({ success: false, message: 'Missing userId or planTier' });
+    }
+
+    // Verify User ID matches the authenticated user
+    if (req.user?.uid !== userId) {
+      return res.status(403).json({ success: false, message: 'Forbidden: User ID mismatch' });
     }
 
     const secret = process.env.RAZORPAY_KEY_SECRET || '';

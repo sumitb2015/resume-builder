@@ -1,16 +1,26 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { db } from '../lib/firebase-admin';
+import { authenticate, AuthRequest } from '../middleware/auth.middleware';
 
 const router = Router();
 
+// Apply authentication middleware to all routes in this router
+router.use(authenticate);
+
 // Sync user profile with Firestore (create if doesn't exist)
-router.post('/sync', async (req, res) => {
+router.post('/sync', async (req: AuthRequest, res: Response) => {
   try {
     const { uid, email, displayName } = req.body;
     
     if (!uid) {
       return res.status(400).json({ error: 'UID is required' });
     }
+
+    // Verify UID matches the authenticated user
+    if (req.user?.uid !== uid) {
+      return res.status(403).json({ error: 'Forbidden: UID mismatch' });
+    }
+
     if (!db) {
       return res.status(503).json({ error: 'Database not initialized. Please ensure FIREBASE_SERVICE_ACCOUNT is set.' });
     }
@@ -43,12 +53,18 @@ router.post('/sync', async (req, res) => {
 });
 
 // Fetch user profile from Firestore
-router.get('/me/:uid', async (req, res) => {
+router.get('/me/:uid', async (req: AuthRequest, res: Response) => {
   try {
     const { uid } = req.params;
     if (!uid) {
       return res.status(400).json({ error: 'UID is required' });
     }
+
+    // Verify UID matches the authenticated user
+    if (req.user?.uid !== uid) {
+      return res.status(403).json({ error: 'Forbidden: UID mismatch' });
+    }
+
     if (!db) {
       return res.status(503).json({ error: 'Database not initialized.' });
     }
@@ -65,13 +81,19 @@ router.get('/me/:uid', async (req, res) => {
 });
 
 // Request Expert Review
-router.post('/request-review', async (req, res) => {
+router.post('/request-review', async (req: AuthRequest, res: Response) => {
   try {
     const { userId, resumeId, resumeData, comments } = req.body;
     
     if (!userId) {
       return res.status(400).json({ error: 'User ID is required' });
     }
+
+    // Verify User ID matches the authenticated user
+    if (req.user?.uid !== userId) {
+      return res.status(403).json({ error: 'Forbidden: User ID mismatch' });
+    }
+
     if (!db) {
       return res.status(503).json({ error: 'Database not initialized.' });
     }
@@ -102,13 +124,19 @@ router.post('/request-review', async (req, res) => {
 });
 
 // Save ATS Score History (Point 6)
-router.post('/ats-history', async (req, res) => {
+router.post('/ats-history', async (req: AuthRequest, res: Response) => {
   try {
     const { userId, resumeId, score, jobTitle, company } = req.body;
     
     if (!userId) {
       return res.status(400).json({ error: 'User ID is required' });
     }
+
+    // Verify User ID matches the authenticated user
+    if (req.user?.uid !== userId) {
+      return res.status(403).json({ error: 'Forbidden: User ID mismatch' });
+    }
+
     if (!db) {
       return res.status(503).json({ error: 'Database not initialized.' });
     }
@@ -131,3 +159,4 @@ router.post('/ats-history', async (req, res) => {
 });
 
 export default router;
+

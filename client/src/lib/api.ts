@@ -1,11 +1,29 @@
 import type { Resume, ImprovementSuggestions, SmartResumeResponse } from '../shared/types';
+import { auth } from './firebase';
 
 const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
 
+// Helper to get authorization headers including the Firebase ID token
+async function getAuthHeaders() {
+  const user = auth.currentUser;
+  if (!user) return {};
+  try {
+    const token = await user.getIdToken();
+    return { 'Authorization': `Bearer ${token}` };
+  } catch (err) {
+    console.error('Failed to get auth token:', err);
+    return {};
+  }
+}
+
 async function post<T>(path: string, body: unknown): Promise<T> {
+  const authHeaders = await getAuthHeaders();
   const res = await fetch(`${BASE}${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      ...authHeaders
+    },
     body: JSON.stringify(body),
   });
   if (!res.ok) {
@@ -16,6 +34,7 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 }
 
 export const api = {
+  // ... (rest of the methods)
   generateBullets: (role: string, company: string, industry: string) =>
     post<{ bullets: string[] }>('/api/ai/generate-bullets', { role, company, industry }),
 
@@ -62,7 +81,12 @@ export const api = {
   uploadResume: async (file: File): Promise<{ resume: Resume; improvements: ImprovementSuggestions }> => {
     const formData = new FormData();
     formData.append('file', file);
-    const res = await fetch(`${BASE}/api/parse/upload`, { method: 'POST', body: formData });
+    const authHeaders = await getAuthHeaders();
+    const res = await fetch(`${BASE}/api/parse/upload`, { 
+      method: 'POST', 
+      headers: { ...authHeaders },
+      body: formData 
+    });
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: 'Upload failed' }));
       throw new Error((err as any).error || `HTTP ${res.status}`);
@@ -124,9 +148,13 @@ export const api = {
     post<{ plan: string }>('/api/user/sync', { uid, email, displayName }),
 
   getUserProfile: async (uid: string) => {
+    const authHeaders = await getAuthHeaders();
     const res = await fetch(`${BASE}/api/user/me/${uid}`, {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        ...authHeaders
+      },
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: 'Fetch profile failed' }));
@@ -139,9 +167,13 @@ export const api = {
     post<{ success: boolean; id: string }>('/api/user/ats-history', data),
 
   exportPdf: async (html: string, filename: string): Promise<Blob> => {
+    const authHeaders = await getAuthHeaders();
     const res = await fetch(`${BASE}/api/export/pdf`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        ...authHeaders
+      },
       body: JSON.stringify({ html, filename }),
     });
     if (!res.ok) {

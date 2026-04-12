@@ -6,6 +6,7 @@ import parseRoutes from './routes/parse.routes';
 import exportRoutes from './routes/export.routes';
 import paymentRoutes from './routes/payment.routes';
 import userRoutes from './routes/user.routes';
+import { authenticate } from './middleware/auth.middleware';
 
 dotenv.config();
 
@@ -35,10 +36,11 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json({ limit: '50mb' }));
-app.use('/api/parse', parseRoutes);
-app.use('/api/export', exportRoutes);
-app.use('/api/payment', paymentRoutes);
+app.use('/api/parse', authenticate, parseRoutes);
+app.use('/api/export', authenticate, exportRoutes);
+app.use('/api/payment', paymentRoutes); // authentication handled inside payment router to exclude webhook
 app.use('/api/user', userRoutes);
+app.use('/api/ai', authenticate);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
