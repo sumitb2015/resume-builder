@@ -13,9 +13,16 @@ let serviceAccount: any = null;
 // First, check if credentials are provided via an environment variable (e.g., in production)
 if (process.env.FIREBASE_SERVICE_ACCOUNT) {
   try {
+    console.log('Attempting to parse FIREBASE_SERVICE_ACCOUNT from environment...');
     serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-  } catch (error) {
-    console.error('Failed to parse FIREBASE_SERVICE_ACCOUNT from environment variables:', error);
+    
+    // Ensure private key newlines are handled correctly if they are escaped literal \n strings
+    if (serviceAccount && typeof serviceAccount.private_key === 'string') {
+      serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+    }
+    console.log('Successfully parsed FIREBASE_SERVICE_ACCOUNT JSON.');
+  } catch (error: any) {
+    console.error('Failed to parse FIREBASE_SERVICE_ACCOUNT from environment variables:', error.message);
   }
 } 
 // Fallback: check if the local serviceAccountKey.json file exists
