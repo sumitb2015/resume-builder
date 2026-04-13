@@ -371,7 +371,7 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
             <div style={{ maxWidth: '700px', margin: '0 auto' }}>
               <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', textAlign: 'center', marginBottom: '24px' }}>
                 <Loader2 size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', animation: 'spin 1s linear infinite', color: '#A855F7' }} />
-                AI is rewriting your bullets — this takes 15–30 seconds…
+                AI is rewriting your bullets — this takes 15–60 seconds…
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {[100, 85, 95, 75, 90].map((w, i) => (

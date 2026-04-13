@@ -23,9 +23,8 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
 
 const sleep = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
 
-async function post<T>(path: string, body: unknown, options: { retryable?: boolean } = {}): Promise<T> {
-  const { retryable = true } = options;
-  const TIMEOUT_MS = 30_000;
+async function post<T>(path: string, body: unknown, options: { retryable?: boolean; timeout?: number } = {}): Promise<T> {
+  const { retryable = true, timeout = 60_000 } = options;
   const delays = [1000, 2000];
   const maxRetries = retryable ? 2 : 0;
   let lastError: Error = new Error('Request failed');
@@ -34,7 +33,7 @@ async function post<T>(path: string, body: unknown, options: { retryable?: boole
     if (attempt > 0) await sleep(delays[attempt - 1]!);
 
     const controller = new AbortController();
-    const tid = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    const tid = setTimeout(() => controller.abort(), timeout);
     try {
       const authHeaders = await getAuthHeaders();
       const res = await fetch(`${BASE}${path}`, {
@@ -82,16 +81,16 @@ export const api = {
       missingKeywords: string[];
       rewrittenBullets: { original: string; suggested: string }[];
       suggestedSummary: string;
-    }>('/api/ai/tailor-resume', { resume, jobDescription }),
+    }>('/api/ai/tailor-resume', { resume, jobDescription }, { timeout: 90_000 }),
 
   generateCoverLetter: (resume: unknown, jobDescription: string) =>
-    post<{ text: string }>('/api/ai/generate-cover-letter', { resume, jobDescription }),
+    post<{ text: string }>('/api/ai/generate-cover-letter', { resume, jobDescription }, { timeout: 60_000 }),
 
   generateInterviewPrep: (resume: unknown, jobDescription: string) =>
     post<{
       analysis: string;
       questions: { question: string; type: string; strategy: string; sampleAnswer: string }[];
-    }>('/api/ai/generate-interview-prep', { resume, jobDescription }),
+    }>('/api/ai/generate-interview-prep', { resume, jobDescription }, { timeout: 90_000 }),
 
   requestExpertReview: (userId: string, resumeId: string | null, resumeData: any, comments: string) =>
     post<{ success: boolean; id: string }>('/api/user/request-review', { userId, resumeId, resumeData, comments }),
@@ -102,14 +101,14 @@ export const api = {
       missingKeywords: string[];
       weakSections: string[];
       feedback: string;
-    }>('/api/ai/ats-score', { resume, jobDescription }),
+    }>('/api/ai/ats-score', { resume, jobDescription }, { timeout: 90_000 }),
 
   atsTailor: (resume: unknown, jobDescription: string, atsResult: { score: number; missingKeywords: string[]; weakSections: string[]; feedback: string }) =>
     post<{
       missingKeywords: string[];
       rewrittenBullets: { original: string; suggested: string }[];
       suggestedSummary: string;
-    }>('/api/ai/ats-tailor', { resume, jobDescription, atsResult }),
+    }>('/api/ai/ats-tailor', { resume, jobDescription, atsResult }, { timeout: 90_000 }),
 
   findSkills: (jobTitle: string) =>
     post<{ technical: string[]; soft: string[] }>('/api/ai/find-skills', { jobTitle }),
@@ -119,7 +118,7 @@ export const api = {
     formData.append('file', file);
     const authHeaders = await getAuthHeaders();
     const controller = new AbortController();
-    const tid = setTimeout(() => controller.abort(), 30_000);
+    const tid = setTimeout(() => controller.abort(), 60_000);
     try {
       const res = await fetch(`${BASE}/api/parse/upload`, {
         method: 'POST',
@@ -151,10 +150,10 @@ export const api = {
       refactoredResume: Partial<Resume>;
       suggestedSettings: { fontSize: number; margin: number; lineHeight: number };
       modifiedFields?: string[];
-    }>('/api/ai/smart-fit', { resume, config, targetPages, userPrompt }),
+    }>('/api/ai/smart-fit', { resume, config, targetPages, userPrompt }, { timeout: 60_000 }),
 
   generateFullResume: (params: { currentRole?: string; targetRole: string; industry: string; experience: string; context?: string }) =>
-    post<Resume>('/api/ai/generate-full-resume', params),
+    post<Resume>('/api/ai/generate-full-resume', params, { timeout: 90_000 }),
 
   generateSmartResume: async (params: {
     targetRole: string;
@@ -165,7 +164,7 @@ export const api = {
     education?: string;
     achievements?: string;
   }): Promise<SmartResumeResponse> => {
-    const raw = await post<SmartResumeResponse>('/api/ai/generate-smart-resume', params);
+    const raw = await post<SmartResumeResponse>('/api/ai/generate-smart-resume', params, { timeout: 90_000 });
     return SmartResumeResponseSchema.parse(raw);
   },
 
@@ -221,7 +220,7 @@ export const api = {
   exportPdf: async (html: string, filename: string): Promise<Blob> => {
     const authHeaders = await getAuthHeaders();
     const controller = new AbortController();
-    const tid = setTimeout(() => controller.abort(), 30_000);
+    const tid = setTimeout(() => controller.abort(), 60_000);
     try {
       const res = await fetch(`${BASE}/api/export/pdf`, {
         method: 'POST',
