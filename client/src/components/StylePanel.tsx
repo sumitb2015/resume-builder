@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useIsMobile } from '../hooks/useIsMobile';
-import { X, ChevronDown, ChevronUp, Lock, Type } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, Lock } from 'lucide-react';
 import type { TemplateConfig, Resume } from '../shared/types';
 import { colorPalettes } from '../templates';
 import { usePlan } from '../contexts/PlanContext';

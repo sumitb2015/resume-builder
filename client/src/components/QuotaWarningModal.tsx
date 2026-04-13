@@ -52,7 +52,7 @@ export default function QuotaWarningModal({ feature, resetAt, onClose }: Props) 
       >
         {/* Close button */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           style={{
             position: 'absolute',
             top: 16,
@@ -63,7 +63,6 @@ export default function QuotaWarningModal({ feature, resetAt, onClose }: Props) 
             color: '#888',
             padding: 4,
           }}
-          onClick={handleClose}
         >
           <X size={18} />
         </button>
