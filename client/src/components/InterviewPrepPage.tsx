@@ -131,7 +131,7 @@ export default function InterviewPrepPage({ resume, onBack }: Props) {
                   </div>
                 ))}
               </div>
-              <button className="btn-ghost" style={{ fontSize: isMobile ? '12px' : '13px' }} onClick={() => { setStep(1); setResult(null); }} style={{ alignSelf: 'center' }}>{isMobile ? 'Try Another' : 'Try another job'}</button>
+              <button className="btn-ghost" style={{ fontSize: isMobile ? '12px' : '13px', alignSelf: 'center' }} onClick={() => { setStep(1); setResult(null); }}>{isMobile ? 'Try Another' : 'Try another job'}</button>
             </div>
           ) : <p>Error occurred.</p>
         )}
