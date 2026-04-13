@@ -17,6 +17,14 @@ const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
   React.useEffect(() => {
+    // Handle deep linking via ?article=id
+    const params = new URLSearchParams(window.location.search);
+    const articleId = params.get('article');
+    if (articleId) {
+      const article = ARTICLES.find(a => a.id === articleId);
+      if (article) setActiveArticle(article);
+    }
+
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -104,25 +112,90 @@ const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile }) => {
         ))}
       </div>
     </>
-  );
+  import { ArrowLeft, Clock, Tag, ChevronRight, BookOpen, Share2, Check } from 'lucide-react';
+  ...
+    const renderFullArticle = () => {
+      if (!activeArticle) return null;
 
-  const renderFullArticle = () => {
-    if (!activeArticle) return null;
-    return (
-      <div style={{ maxWidth: '720px', margin: '0 auto', padding: '40px 24px 80px' }}>
-        <button
-          onClick={() => setActiveArticle(null)}
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: '6px',
-            background: 'transparent', border: 'none', color: 'var(--color-ui-text-muted)',
-            fontSize: '14px', fontWeight: 600, cursor: 'pointer', padding: '8px 0', marginBottom: '32px',
-            transition: 'color 0.2s'
-          }}
-          onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-ui-text)')}
-          onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-ui-text-muted)')}
-        >
-          <ArrowLeft size={16} /> Back to Blog
-        </button>
+      const shareArticle = () => {
+        const url = `https://bespokecv.in/blog?article=${activeArticle.id}`;
+        if (navigator.share) {
+          navigator.share({
+            title: activeArticle.title,
+            text: activeArticle.excerpt,
+            url: url,
+          }).catch(() => {});
+        } else {
+          navigator.clipboard.writeText(url);
+          toast.success('Link copied to clipboard!');
+        }
+      };
+
+      return (
+        <div style={{ maxWidth: '720px', margin: '0 auto', padding: '40px 24px 80px' }}>
+          {/* Structured Data for BlogPosting */}
+          <script type="application/ld+json">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BlogPosting",
+              "headline": activeArticle.title,
+              "description": activeArticle.excerpt,
+              "datePublished": new Date(activeArticle.date).toISOString(),
+              "author": {
+                "@type": "Organization",
+                "name": "BespokeCV"
+              },
+              "publisher": {
+                "@type": "Organization",
+                "name": "BespokeCV",
+                "logo": {
+                  "@type": "ImageObject",
+                  "url": "https://bespokecv.in/favicon.svg"
+                }
+              },
+              "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": `https://bespokecv.in/blog?article=${activeArticle.id}`
+              }
+            })}
+          </script>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
+            <button
+              onClick={() => setActiveArticle(null)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                background: 'transparent', border: 'none', color: 'var(--color-ui-text-muted)',
+                fontSize: '14px', fontWeight: 600, cursor: 'pointer', padding: '8px 0',
+                transition: 'color 0.2s'
+              }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-ui-text)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-ui-text-muted)')}
+            >
+              <ArrowLeft size={16} /> Back to Blog
+            </button>
+
+            <button
+              onClick={shareArticle}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                padding: '8px 16px', borderRadius: '100px',
+                background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)',
+                color: '#818CF8', fontSize: '13px', fontWeight: 700, cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(99, 102, 241, 0.15)';
+                e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.3)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
+                e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.2)';
+              }}
+            >
+              <Share2 size={14} /> Share Article
+            </button>
+          </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
           <span style={{

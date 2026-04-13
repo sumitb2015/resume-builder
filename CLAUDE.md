@@ -15,57 +15,80 @@ cd server && npm run dev    # tsx watch — restarts on change
 cd server && npm start      # single run
 ```
 
-No test runner is configured. There is no monorepo root dev script — run client and server separately.
+No test runner configured. Run client and server separately — no monorepo root script.
 
 ## Environment
 
-Server requires `server/.env`:
+**`server/.env`** (required):
 ```
 OPENAI_API_KEY=...
+RAZORPAY_KEY_ID=...
+RAZORPAY_KEY_SECRET=...
+# Firebase Admin (service account JSON or individual fields)
+FIREBASE_PROJECT_ID=...
 ```
-(`FIRECRAWL_API_KEY` is no longer needed — LinkedIn import was changed to paste-text.)
+
+**`client/.env`** (optional, defaults to localhost):
+```
+VITE_API_URL=https://your-backend.com   # omit in dev — defaults to http://localhost:3001
+```
 
 ## Architecture
 
-### State-based routing (no React Router)
-`client/src/App.tsx` owns all top-level state. View transitions are driven by a `view` state variable:
-```
-'landing' → 'mode-select' → 'builder'
-```
-The `Resume` object, selected `TemplateConfig`, and `ImprovementSuggestions` all live in App-level `useState` and are passed down as props.
+### Routing
+Uses **React Router** (`BrowserRouter`). Routes defined in `App.tsx`:
+- `/` — LandingPage (public)
+- `/login` — LoginPage (public)
+- `/hub` — MainMenuPage (protected)
+- `/dashboard` — ModeSelectModal (protected)
+- `/builder` — ResumeBuilder + live preview (protected)
+- `/ai-writer` — AiWriterFlow (protected)
+- `/ats`, `/tailor`, `/cover-letter`, `/interview-prep`, `/preview` — tool pages (protected)
+- `/plans`, `/checkout` — plan selection & payment (protected)
 
-### Resume data model
-Defined in `client/src/shared/types.ts`. The `Resume` type is used everywhere — frontend state, AI prompts, template rendering, and API responses all share the exact same shape.
+All protected routes use `<ProtectedRoute>` which redirects to `/login` if unauthenticated.
 
-### Template system
+### State / Contexts
+Global state lives in React contexts (not App-level props):
+- **`ResumeContext`** — `resume`, `activeTemplate`, `improvements`, undo/redo (40-step), autosave to localStorage keyed by Firebase UID (`bespokecv_draft_<uid>`)
+- **`AuthContext`** — Firebase auth (Google OAuth + email/password); server sync on login via `POST /api/user/sync`
+- **`PlanContext`** — user plan tier (`free` | `basic` | `pro` | `ultimate`)
+- **`ThemeContext`** — dark/light theme
 
-- 40+ templates in `client/src/templates/`, each accepting `{ resume: Resume, config: TemplateConfig }`.
-- `TemplateRenderer.tsx` switches on `config.id` to pick the right template.
-- `templates/index.ts` exports the `templates` array (TemplateConfig definitions) and `colorPalettes`.
-- All templates use inline styles. A4 print sizing is handled via the `.resume-paper` CSS class in `index.css`.
-- Print layout: `@page { size: A4; margin: 0 }` — zero margin suppresses browser-generated headers/footers. Visual margins come from template padding (single-column: `44px 52px`, two-column headers: `48px`).
-- Use `breakInside: 'avoid', pageBreakInside: 'avoid'` on section wrapper divs to prevent mid-section page breaks.
+### Resume Data Model
+`client/src/shared/types.ts` defines `Resume` — shared by frontend state, AI prompts, templates, and API responses.
 
-### AI services (server)
-- `server/src/services/ai.service.ts` — handles all builder AI features (bullet generation, summary, ATS score, job tailoring, and smart resume generation). Uses **OpenAI (gpt-4o-mini)** and **Firecrawl**.
-- `server/src/services/parse.service.ts` — handles resume parsing from uploaded files and LinkedIn text.
-- Both use `gpt-4o-mini`. **Never upgrade to gpt-4o** unless explicitly asked — user preference for token cost.
-- `parse.service.ts` uses `response_format: { type: 'json_object' }` to get structured Resume output.
+### Template System
+- 40+ templates in `client/src/templates/`, each accepts `{ resume: Resume, config: TemplateConfig }`
+- `TemplateRenderer.tsx` switches on `config.id`; `templates/index.ts` exports the `templates` array
+- All templates use inline styles; A4 print via `.resume-paper` in `index.css`
+- Print layout: `@page { size: A4; margin: 0 }` — visual margins come from template padding
+- Use `breakInside: 'avoid'` on section wrappers to prevent mid-section page breaks
 
-### API routes
-All routes are in `server/src/index.ts` (AI routes inlined) and `server/src/routes/parse.routes.ts`:
-- `POST /api/ai/*` — bullet gen, summary, tailor, ATS score, find-skills
-- `POST /api/parse/upload` — multer memoryStorage, pdf-parse or mammoth → GPT → `{ resume, improvements }`
-- `POST /api/parse/linkedin` — accepts `{ text }` (pasted LinkedIn profile) → GPT → `{ resume }`
-- `POST /api/export/pdf` — puppeteer renders HTML to A4 PDF
+### AI Services (server)
+- `ai.service.ts` — bullet gen, summary, ATS score, tailoring, cover letter, interview prep, smart-fit, rephrase, URL scraping
+- `parse.service.ts` — resume parsing from PDF/DOCX and LinkedIn text paste
+- Both use **`gpt-4o-mini`**. **Never upgrade to `gpt-4o`** — cost preference.
+- `parse.service.ts` uses `response_format: { type: 'json_object' }` for structured output
 
-### Frontend API client
-`client/src/lib/api.ts` — thin wrapper around `fetch`. `post<T>()` helper for JSON, `uploadResume` uses `FormData`. All calls target `http://localhost:3001`.
+### API Routes
+All require Firebase Bearer token (via `auth.middleware.ts`) except `/api/payment/webhook`:
+- `POST /api/ai/*` — generate-bullets, generate-summary, tailor-resume, ats-score, ats-tailor, find-skills, smart-fit, rephrase, generate-full-resume, generate-smart-resume, generate-cover-letter, generate-interview-prep
+- `POST /api/fetch-job-url` — SSRF-protected URL scrape for job descriptions
+- `POST /api/parse/upload` — PDF/DOCX → GPT → `{ resume, improvements }`
+- `POST /api/parse/linkedin` — pasted text → GPT → `{ resume }`
+- `POST /api/export/pdf` — Puppeteer renders HTML to A4 PDF
+- `POST /api/payment/*` — Razorpay order creation, verification, discount validation
+- `POST /api/user/sync` — upsert user on login; `GET /api/user/me/:uid`
 
-### Mode selection flow
-`ModeSelectModal.tsx` sits between landing and builder. Three paths:
-1. **Manual** — goes straight to builder with sample data
-2. **Enhance** — upload PDF/DOCX → parse → pre-fill `Resume` + show `ImprovementSuggestions` panel in builder
-3. **LinkedIn** — paste profile text → parse → pre-fill `Resume`
+### Frontend API Client
+`client/src/lib/api.ts` — `post<T>()` with 30s timeout, 2 retries on network error, 429 rate-limit message. All endpoints require auth token injected via `getAuthHeaders()`.
 
-The improvements panel is rendered in `ResumeBuilder.tsx` above the section nav when `improvements` prop is non-null. "Apply" matches `original` text against summary or experience bullets and swaps it.
+### Mode Selection Flow (`/dashboard`)
+`ModeSelectModal.tsx` offers three paths into the builder:
+1. **Manual** — sample data, go to `/builder`
+2. **Enhance** — upload PDF/DOCX → parse → set resume + improvements → `/builder`
+3. **LinkedIn** — paste profile text → parse → set resume → `/builder`
+4. **AI Writer** — navigates to `/ai-writer` (multi-step wizard, outputs `Resume` + `TemplateConfig`)
+
+Improvements panel renders in `ResumeBuilder.tsx` when `improvements` is non-null; "Apply" swaps matching original text in summary/bullets.
