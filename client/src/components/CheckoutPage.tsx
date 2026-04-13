@@ -101,9 +101,9 @@ const CheckoutPage: React.FC<Props> = ({ planTier, isAnnual, onBack, onSuccess, 
           color: '#6366F1',
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Payment initiation failed:', error);
-      toast.error(`Payment initiation failed: ${error.message}`);
+      toast.error(`Payment initiation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }

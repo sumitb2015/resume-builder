@@ -34,7 +34,7 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
   const [uploadError, setUploadError] = useState('');
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const isMobile = useIsMobile(768);
+  const isMobile = useIsMobile();
 
   const [jdTab, setJdTab] = useState<JdTab>('paste');
   const [jobText, setJobText] = useState('');
@@ -68,8 +68,8 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
     try {
       const res = await api.uploadResume(f);
       setUploadedResume(res.resume);
-    } catch (err: any) {
-      setUploadError(err.message || 'Failed to parse resume. Please try again.');
+    } catch (err: unknown) {
+      setUploadError(err instanceof Error ? err.message : 'Failed to parse resume. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -90,8 +90,8 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
       const res = await api.fetchJobUrl(jobUrl.trim());
       setJobText(res.text);
       setJdTab('paste');
-    } catch (err: any) {
-      setUrlError(err.message || 'Failed to fetch job URL. Try pasting the text directly.');
+    } catch (err: unknown) {
+      setUrlError(err instanceof Error ? err.message : 'Failed to fetch job URL. Try pasting the text directly.');
     } finally {
       setFetchingUrl(false);
     }
@@ -107,8 +107,8 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
     try {
       const res = await api.tailorResume(activeResume, jobText);
       setResult(res);
-    } catch (err: any) {
-      setError(err.message || 'Tailoring failed. Please try again.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Tailoring failed. Please try again.');
       setStep(2);
     } finally {
       setLoading(false);
@@ -150,10 +150,17 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <div className="w-full max-w-[800px] px-4 md:px-6 py-4 md:py-6 pb-24 md:pb-28">
+      <div 
+        style={{ 
+          width: '100%', 
+          maxWidth: '800px', 
+          padding: isMobile ? '12px 16px' : '24px 40px',
+          paddingBottom: isMobile ? '80px' : '100px'
+        }}
+      >
 
         {/* Back + title */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '32px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: isMobile ? '16px' : '32px' }}>
           <button
             onClick={onBack}
             style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-ui-text-muted)', fontSize: '13px', padding: '6px 10px', borderRadius: '8px' }}
@@ -164,14 +171,14 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
           </button>
         </div>
 
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <div style={{ width: '48px', height: '48px', background: 'rgba(168,85,247,0.12)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-            <Zap size={24} style={{ color: '#A855F7' }} />
+        <div style={{ textAlign: 'center', marginBottom: isMobile ? '12px' : '40px' }}>
+          <div style={{ width: isMobile ? '36px' : '48px', height: isMobile ? '36px' : '48px', background: 'rgba(168,85,247,0.12)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 'auto', marginRight: 'auto', marginBottom: isMobile ? '10px' : '16px' }}>
+            <Zap size={isMobile ? 18 : 24} style={{ color: '#A855F7' }} />
           </div>
-          <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em', marginBottom: '8px' }}>
+          <h1 style={{ fontSize: isMobile ? '20px' : '26px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em', marginBottom: '4px' }}>
             Job Tailor
           </h1>
-          <p style={{ fontSize: '14px', color: 'var(--color-ui-text-muted)' }}>
+          <p style={{ fontSize: isMobile ? '12.5px' : '14px', color: 'var(--color-ui-text-muted)', lineHeight: 1.4 }}>
             AI rewrites your bullets and summary to match the job description
           </p>
         </div>
@@ -182,23 +189,23 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
         {/* ── STEP 1: Resume source ── */}
         {step === 1 && (
           <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '8px' }}>
+            <h2 style={{ fontSize: isMobile ? '15px' : '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '4px' }}>
               Which resume should we tailor?
             </h2>
-            <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', marginBottom: '24px' }}>
+            <p style={{ fontSize: '12.5px', color: 'var(--color-ui-text-muted)', marginBottom: isMobile ? '14px' : '24px' }}>
               Use your current resume from the builder, or upload a different one.
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '8px' : '12px', marginBottom: '16px' }}>
               <SourceCard
-                icon={<FileText size={22} style={{ color: '#A855F7' }} />}
+                icon={<FileText size={isMobile ? 16 : 22} style={{ color: '#A855F7' }} />}
                 title="Current resume"
                 description={resume.personal.name || 'Your active resume'}
                 selected={resumeSource === 'current'}
                 onClick={() => { setResumeSource('current'); setUploadedResume(null); setUploadError(''); }}
               />
               <SourceCard
-                icon={<Upload size={22} style={{ color: '#F59E0B' }} />}
+                icon={<Upload size={isMobile ? 16 : 22} style={{ color: '#F59E0B' }} />}
                 title="Upload a resume"
                 description="PDF or Word (.docx)"
                 selected={resumeSource === 'upload'}
@@ -207,7 +214,7 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
             </div>
 
             {resumeSource === 'upload' && (
-              <div style={{ marginBottom: '20px' }}>
+              <div style={{ marginBottom: '16px' }}>
                 <div
                   onClick={() => fileInputRef.current?.click()}
                   onDragOver={e => { e.preventDefault(); setDragOver(true); }}
@@ -215,7 +222,7 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
                   onDrop={handleDrop}
                   style={{
                     border: `2px dashed ${dragOver ? '#F59E0B' : uploadedResume ? '#4ADE80' : 'var(--color-ui-border)'}`,
-                    borderRadius: '12px', padding: '32px 24px', textAlign: 'center', cursor: 'pointer',
+                    borderRadius: '12px', padding: isMobile ? '20px 16px' : '32px 24px', textAlign: 'center', cursor: 'pointer',
                     background: dragOver ? 'rgba(245,158,11,0.04)' : uploadedResume ? 'rgba(74,222,128,0.04)' : 'var(--color-ui-surface)',
                     transition: 'all 0.2s',
                   }}
@@ -228,24 +235,24 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
                   />
                   {uploading ? (
                     <div>
-                      <Loader2 size={28} style={{ color: '#818CF8', animation: 'spin 1s linear infinite', marginBottom: '8px' }} />
-                      <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)' }}>Parsing resume…</p>
+                      <Loader2 size={isMobile ? 22 : 28} style={{ color: '#818CF8', animation: 'spin 1s linear infinite', marginBottom: '8px' }} />
+                      <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>Parsing resume…</p>
                     </div>
                   ) : uploadedResume ? (
                     <div>
-                      <CheckCircle2 size={28} style={{ color: '#4ADE80', marginBottom: '8px' }} />
-                      <p style={{ fontSize: '14px', fontWeight: 600, color: '#4ADE80' }}>
+                      <CheckCircle2 size={isMobile ? 22 : 28} style={{ color: '#4ADE80', marginBottom: '8px' }} />
+                      <p style={{ fontSize: '13.5px', fontWeight: 600, color: '#4ADE80' }}>
                         {uploadedResume.personal.name || 'Resume parsed'}
                       </p>
-                      <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)', marginTop: '4px' }}>Click to change</p>
+                      <p style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', marginTop: '4px' }}>Click to change</p>
                     </div>
                   ) : (
                     <div>
-                      <Upload size={28} style={{ color: 'var(--color-ui-text-muted)', marginBottom: '10px' }} />
-                      <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ui-text)', marginBottom: '4px' }}>
+                      <Upload size={isMobile ? 22 : 28} style={{ color: 'var(--color-ui-text-muted)', marginBottom: '10px' }} />
+                      <p style={{ fontSize: '13.5px', fontWeight: 600, color: 'var(--color-ui-text)', marginBottom: '4px' }}>
                         Drop your resume here, or click to browse
                       </p>
-                      <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>PDF or Word (.docx) · Max 10MB</p>
+                      <p style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)' }}>PDF or Word (.docx) · Max 10MB</p>
                     </div>
                   )}
                 </div>
@@ -256,11 +263,11 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <button
                 className="btn-primary"
-                style={{ gap: '6px', fontSize: '13.5px', padding: '9px 20px', background: 'linear-gradient(135deg, #A855F7, #7C3AED)' }}
+                style={{ gap: '6px', fontSize: '13px', padding: '9px 20px', background: 'linear-gradient(135deg, #A855F7, #7C3AED)' }}
                 disabled={!canProceedStep1}
                 onClick={() => setStep(2)}
               >
-                Next: Job Description →
+                {isMobile ? 'Next →' : 'Next: Job Description →'}
               </button>
             </div>
           </div>
@@ -269,10 +276,10 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
         {/* ── STEP 2: Job description ── */}
         {step === 2 && (
           <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '8px' }}>
+            <h2 style={{ fontSize: isMobile ? '15px' : '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '4px' }}>
               Paste the job description
             </h2>
-            <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', marginBottom: '24px' }}>
+            <p style={{ fontSize: '12.5px', color: 'var(--color-ui-text-muted)', marginBottom: isMobile ? '14px' : '24px' }}>
               AI will rewrite your experience bullets and summary to match this role.
             </p>
 
@@ -283,14 +290,14 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
                   key={t}
                   onClick={() => setJdTab(t)}
                   style={{
-                    padding: '5px 14px', borderRadius: '7px', border: 'none', cursor: 'pointer',
+                    padding: isMobile ? '4px 10px' : '5px 14px', borderRadius: '7px', border: 'none', cursor: 'pointer',
                     background: jdTab === t ? 'var(--color-ui-accent)' : 'transparent',
                     color: jdTab === t ? '#fff' : 'var(--color-ui-text-muted)',
-                    fontSize: '12px', fontWeight: jdTab === t ? 600 : 400, transition: 'all 0.15s',
+                    fontSize: isMobile ? '11px' : '12px', fontWeight: jdTab === t ? 600 : 400, transition: 'all 0.15s',
                     display: 'flex', alignItems: 'center', gap: '5px',
                   }}
                 >
-                  {t === 'paste' ? <FileText size={11} /> : <Link2 size={11} />}
+                  {t === 'paste' ? <FileText size={isMobile ? 10 : 11} /> : <Link2 size={isMobile ? 10 : 11} />}
                   {t === 'paste' ? 'Paste Text' : 'Fetch from URL'}
                 </button>
               ))}
@@ -299,11 +306,11 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
             {jdTab === 'paste' ? (
               <textarea
                 className="field-textarea"
-                rows={10}
+                rows={isMobile ? 8 : 10}
                 placeholder="Paste the full job posting here…"
                 value={jobText}
                 onChange={e => setJobText(e.target.value)}
-                style={{ marginBottom: '8px', fontSize: '13px', resize: 'vertical' }}
+                style={{ marginBottom: '8px', fontSize: '12.5px', resize: 'vertical' }}
               />
             ) : (
               <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
@@ -312,17 +319,17 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
                   placeholder="https://company.com/jobs/123"
                   value={jobUrl}
                   onChange={e => setJobUrl(e.target.value)}
-                  style={{ flex: 1, fontSize: '13px' }}
+                  style={{ flex: 1, fontSize: '12.5px' }}
                   onKeyDown={e => e.key === 'Enter' && handleFetchUrl()}
                 />
                 <button
                   className="btn-secondary"
-                  style={{ gap: '6px', fontSize: '12.5px', padding: '8px 14px', whiteSpace: 'nowrap' }}
+                  style={{ gap: '6px', fontSize: '12px', padding: isMobile ? '8px 12px' : '8px 14px', whiteSpace: 'nowrap' }}
                   onClick={handleFetchUrl}
                   disabled={fetchingUrl || !jobUrl.trim()}
                 >
                   {fetchingUrl ? <Loader2 size={13} style={{ animation: 'spin 1s linear infinite' }} /> : <Link2 size={13} />}
-                  {fetchingUrl ? 'Fetching…' : 'Fetch'}
+                  {fetchingUrl ? (isMobile ? '' : 'Fetching…') : (isMobile ? 'Fetch' : 'Fetch')}
                 </button>
               </div>
             )}
@@ -330,29 +337,29 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
             {urlError && <ErrorBox message={urlError} />}
 
             {jdTab === 'paste' && (
-              <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)', marginBottom: '20px' }}>
+              <p style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', marginBottom: isMobile ? '14px' : '20px' }}>
                 {jobText.trim().length} characters {jobText.trim().length < 50 ? '(need at least 50)' : ''}
               </p>
             )}
             {jdTab === 'url' && (
-              <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)', marginBottom: '20px' }}>
+              <p style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', marginBottom: isMobile ? '14px' : '20px' }}>
                 We'll extract the job description text from the URL.
               </p>
             )}
 
             {error && <ErrorBox message={error} />}
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <button className="btn-ghost" style={{ gap: '6px', fontSize: '13px' }} onClick={() => setStep(1)}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: isMobile ? '10px' : '0' }}>
+              <button className="btn-ghost" style={{ gap: '6px', fontSize: '12.5px' }} onClick={() => setStep(1)}>
                 <ArrowLeft size={13} /> Back
               </button>
               <button
                 className="btn-primary"
-                style={{ gap: '6px', fontSize: '13.5px', padding: '9px 20px', background: 'linear-gradient(135deg, #A855F7, #7C3AED)' }}
+                style={{ gap: '6px', fontSize: '13px', padding: '9px 20px', background: 'linear-gradient(135deg, #A855F7, #7C3AED)' }}
                 disabled={!canProceedStep2}
                 onClick={handleTailor}
               >
-                <Zap size={14} /> Tailor My Resume
+                <Zap size={14} /> Tailor Resume
               </button>
             </div>
           </div>
@@ -384,6 +391,7 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
               summaryApplied={summaryApplied}
               totalChanges={totalChanges}
               totalAvailable={totalAvailable}
+              isMobile={isMobile}
               onToggleBullet={toggleBullet}
               onToggleSummary={() => setSummaryApplied(v => !v)}
               onApplyAll={applyAll}
@@ -406,8 +414,9 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
 // ── Sub-components ──────────────────────────────────────────────────────────
 
 function StepIndicator({ currentStep, labels, loading }: { currentStep: number; labels: string[]; loading: boolean }) {
+  const isMobile = useIsMobile();
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0', marginBottom: '48px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0', marginBottom: isMobile ? '16px' : '48px' }}>
       {labels.map((label, i) => {
         const step = i + 1;
         const isDone = currentStep > step || (currentStep === step && !loading && step === 3);
@@ -415,23 +424,23 @@ function StepIndicator({ currentStep, labels, loading }: { currentStep: number; 
         const isLast = i === labels.length - 1;
         return (
           <div key={i} style={{ display: 'flex', alignItems: 'center' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
               <div style={{
-                width: '32px', height: '32px', borderRadius: '50%',
+                width: isMobile ? '24px' : '32px', height: isMobile ? '24px' : '32px', borderRadius: '50%',
                 background: isDone ? '#4ADE80' : isActive ? '#A855F7' : 'var(--color-ui-surface)',
                 border: `2px solid ${isDone ? '#4ADE80' : isActive ? '#A855F7' : 'var(--color-ui-border)'}`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: isDone || isActive ? '#fff' : 'var(--color-ui-text-muted)',
-                fontSize: '13px', fontWeight: 700, transition: 'all 0.3s',
+                fontSize: isMobile ? '10px' : '13px', fontWeight: 700, transition: 'all 0.3s',
               }}>
                 {isDone ? '✓' : step}
               </div>
-              <span style={{ fontSize: '11px', fontWeight: isActive ? 600 : 400, color: isActive ? 'var(--color-ui-text)' : 'var(--color-ui-text-muted)', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: isMobile ? '9px' : '11px', fontWeight: isActive ? 600 : 400, color: isActive ? 'var(--color-ui-text)' : 'var(--color-ui-text-muted)', whiteSpace: 'nowrap' }}>
                 {label}
               </span>
             </div>
             {!isLast && (
-              <div style={{ width: '80px', height: '2px', background: currentStep > step ? '#4ADE80' : 'var(--color-ui-border)', margin: '0 8px 20px', transition: 'background 0.3s' }} />
+              <div style={{ width: isMobile ? '16px' : '80px', height: '2px', background: currentStep > step ? '#4ADE80' : 'var(--color-ui-border)', marginTop: 0, marginRight: isMobile ? '4px' : '8px', marginBottom: isMobile ? '14px' : '20px', marginLeft: isMobile ? '4px' : '8px', transition: 'background 0.3s' }} />
             )}
           </div>
         );
@@ -441,19 +450,20 @@ function StepIndicator({ currentStep, labels, loading }: { currentStep: number; 
 }
 
 function SourceCard({ icon, title, description, selected, onClick }: { icon: React.ReactNode; title: string; description: string; selected: boolean; onClick: () => void }) {
+  const isMobile = useIsMobile();
   return (
     <button
       onClick={onClick}
       style={{
-        padding: '20px', borderRadius: '12px', textAlign: 'left', cursor: 'pointer',
+        padding: isMobile ? '12px 14px' : '20px', borderRadius: '12px', textAlign: 'left', cursor: 'pointer',
         background: selected ? 'rgba(168,85,247,0.08)' : 'var(--color-ui-surface)',
         border: `2px solid ${selected ? '#A855F7' : 'var(--color-ui-border)'}`,
         transition: 'all 0.15s', width: '100%',
       }}
     >
-      <div style={{ marginBottom: '10px' }}>{icon}</div>
-      <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ui-text)', marginBottom: '4px' }}>{title}</div>
-      <div style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>{description}</div>
+      <div style={{ marginBottom: isMobile ? '4px' : '10px' }}>{icon}</div>
+      <div style={{ fontSize: isMobile ? '12.5px' : '14px', fontWeight: 600, color: 'var(--color-ui-text)', marginBottom: '2px' }}>{title}</div>
+      <div style={{ fontSize: isMobile ? '10.5px' : '12px', color: 'var(--color-ui-text-muted)', lineHeight: 1.3 }}>{description}</div>
     </button>
   );
 }
@@ -468,7 +478,7 @@ function ErrorBox({ message }: { message: string }) {
 }
 
 function TailorResults({
-  result, appliedBullets, summaryApplied, totalChanges, totalAvailable,
+  result, appliedBullets, summaryApplied, totalChanges, totalAvailable, isMobile,
   onToggleBullet, onToggleSummary, onApplyAll, onApplyToResume, onRedo, onBack,
 }: {
   result: TailorResult;
@@ -476,6 +486,7 @@ function TailorResults({
   summaryApplied: boolean;
   totalChanges: number;
   totalAvailable: number;
+  isMobile: boolean;
   onToggleBullet: (i: number) => void;
   onToggleSummary: () => void;
   onApplyAll: () => void;
@@ -488,30 +499,30 @@ function TailorResults({
       {/* Header bar */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        marginBottom: '28px', padding: '14px 18px',
+        marginBottom: isMobile ? '16px' : '28px', padding: isMobile ? '10px 14px' : '14px 18px',
         background: 'var(--color-ui-surface)', borderRadius: '12px',
         border: '1px solid var(--color-ui-border)',
       }}>
-        <div>
-          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '2px' }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: isMobile ? '13px' : '14px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '2px' }}>
             {totalAvailable} suggestions ready
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>
-            Select the changes you want to apply to your resume
+          <div style={{ fontSize: isMobile ? '11px' : '12px', color: 'var(--color-ui-text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            Select changes to apply
           </div>
         </div>
         <button
           className="btn-secondary"
-          style={{ fontSize: '12.5px', gap: '5px' }}
+          style={{ fontSize: isMobile ? '11.5px' : '12.5px', gap: '5px', padding: isMobile ? '6px 10px' : undefined }}
           onClick={onApplyAll}
         >
-          <Check size={12} /> Select All
+          <Check size={isMobile ? 11 : 12} /> {isMobile ? 'All' : 'Select All'}
         </button>
       </div>
 
       {/* Missing keywords */}
       {result.missingKeywords.length > 0 && (
-        <div style={{ marginBottom: '24px' }}>
+        <div style={{ marginBottom: isMobile ? '16px' : '24px' }}>
           <h3 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             Missing Keywords
             <span style={{ padding: '2px 8px', borderRadius: '100px', background: 'rgba(248,113,113,0.1)', fontSize: '11px', fontWeight: 700, color: '#F87171' }}>
@@ -520,7 +531,7 @@ function TailorResults({
           </h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {result.missingKeywords.map((kw, i) => (
-              <span key={i} className="chip">{kw}</span>
+              <span key={i} className="chip" style={{ fontSize: isMobile ? '11px' : '12px', padding: isMobile ? '3px 8px' : '4px 10px' }}>{kw}</span>
             ))}
           </div>
         </div>
@@ -528,17 +539,17 @@ function TailorResults({
 
       {/* Suggested summary */}
       {result.suggestedSummary && (
-        <div style={{ marginBottom: '16px' }}>
-          <h3 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '12px' }}>
+        <div style={{ marginBottom: isMobile ? '12px' : '16px' }}>
+          <h3 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: isMobile ? '8px' : '12px' }}>
             Professional Summary
           </h3>
           <div style={{
-            background: 'var(--color-ui-surface)', borderRadius: '12px', padding: '18px',
+            background: 'var(--color-ui-surface)', borderRadius: '12px', padding: isMobile ? '14px' : '18px',
             border: `1px solid ${summaryApplied ? '#4ADE80' : 'var(--color-ui-border)'}`,
             transition: 'border-color 0.2s',
           }}>
             <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-ui-text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '8px' }}>Suggested</div>
-            <p style={{ fontSize: '13px', color: 'var(--color-ui-text)', lineHeight: 1.7, margin: '0 0 14px' }}>
+            <p style={{ fontSize: isMobile ? '12.5px' : '13px', color: 'var(--color-ui-text)', lineHeight: 1.7, marginTop: 0, marginBottom: '14px' }}>
               {result.suggestedSummary}
             </p>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -561,8 +572,8 @@ function TailorResults({
 
       {/* Rewritten bullets */}
       {result.rewrittenBullets.length > 0 && (
-        <div style={{ marginBottom: '32px' }}>
-          <h3 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '12px' }}>
+        <div style={{ marginBottom: isMobile ? '20px' : '32px' }}>
+          <h3 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: isMobile ? '8px' : '12px' }}>
             Rewritten Bullets ({result.rewrittenBullets.length})
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -572,7 +583,7 @@ function TailorResults({
                 <div
                   key={i}
                   style={{
-                    background: 'var(--color-ui-surface)', borderRadius: '12px', padding: '16px 18px',
+                    background: 'var(--color-ui-surface)', borderRadius: '12px', padding: isMobile ? '14px' : '16px 18px',
                     border: `1px solid ${applied ? '#4ADE80' : 'var(--color-ui-border)'}`,
                     transition: 'border-color 0.2s',
                   }}
@@ -580,7 +591,7 @@ function TailorResults({
                   <div style={{ marginBottom: '10px' }}>
                     <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-ui-text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '5px' }}>Before</div>
                     <p style={{
-                      fontSize: '13px', lineHeight: 1.6, margin: 0,
+                      fontSize: isMobile ? '12.5px' : '13px', lineHeight: 1.6, margin: 0,
                       color: 'var(--color-ui-text-muted)',
                       textDecoration: applied ? 'line-through' : 'none',
                       opacity: applied ? 0.5 : 0.8,
@@ -591,7 +602,7 @@ function TailorResults({
                   <div style={{ width: '100%', height: '1px', background: 'var(--color-ui-border)', margin: '10px 0' }} />
                   <div style={{ marginBottom: '12px' }}>
                     <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-success)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '5px' }}>After</div>
-                    <p style={{ fontSize: '13px', lineHeight: 1.6, margin: 0, color: applied ? '#4ADE80' : 'var(--color-ui-text)' }}>
+                    <p style={{ fontSize: isMobile ? '12.5px' : '13px', lineHeight: 1.6, margin: 0, color: applied ? '#4ADE80' : 'var(--color-ui-text)' }}>
                       {rw.suggested}
                     </p>
                   </div>
@@ -619,32 +630,33 @@ function TailorResults({
       {/* Bottom action bar */}
       <div style={{
         position: 'sticky', bottom: '0',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '16px 20px',
+        display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', justifyContent: 'space-between',
+        gap: isMobile ? '8px' : '0',
+        padding: isMobile ? '10px 14px' : '16px 20px',
         background: 'var(--color-ui-bg)',
         borderTop: '1px solid var(--color-ui-border)',
         marginTop: '8px',
       }}>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button className="btn-ghost" style={{ fontSize: '13px', gap: '5px' }} onClick={onRedo}>
-            Try another job
+        <div style={{ display: 'flex', gap: '10px', justifyContent: isMobile ? 'space-between' : undefined }}>
+          <button className="btn-ghost" style={{ fontSize: isMobile ? '12px' : '13px', gap: '5px', padding: isMobile ? '6px' : undefined }} onClick={onRedo}>
+            {isMobile ? 'Try Another' : 'Try another job'}
           </button>
-          <button className="btn-secondary" style={{ fontSize: '13px' }} onClick={onBack}>
-            Back to Builder
+          <button className="btn-secondary" style={{ fontSize: isMobile ? '12px' : '13px', padding: isMobile ? '6px 10px' : undefined }} onClick={onBack}>
+            {isMobile ? 'Back' : 'Back to Builder'}
           </button>
         </div>
         <button
           className="btn-primary"
           style={{
-            gap: '6px', fontSize: '13.5px', padding: '10px 22px',
+            gap: '6px', fontSize: isMobile ? '12.5px' : '13.5px', padding: isMobile ? '10px 16px' : '10px 22px',
             background: totalChanges > 0 ? 'linear-gradient(135deg, #A855F7, #7C3AED)' : undefined,
             opacity: totalChanges === 0 ? 0.5 : 1,
           }}
           disabled={totalChanges === 0}
           onClick={onApplyToResume}
         >
-          <CheckCircle2 size={14} />
-          Apply {totalChanges > 0 ? `${totalChanges} change${totalChanges !== 1 ? 's' : ''}` : 'changes'} to resume
+          <CheckCircle2 size={isMobile ? 13 : 14} />
+          Apply {totalChanges > 0 ? `${totalChanges} change${totalChanges !== 1 ? 's' : ''}` : 'changes'}
         </button>
       </div>
     </div>

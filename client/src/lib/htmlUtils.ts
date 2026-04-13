@@ -40,8 +40,6 @@ export function htmlCharCount(html: string): number {
 /** Wrap AI plain-text output in a <p> tag, preserving line breaks as <br> */
 export function plainTextToHtml(text: string): string {
   if (!text) return '';
-  // If already HTML, return as-is
-  if (text.includes('<')) return text;
   const escaped = text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')

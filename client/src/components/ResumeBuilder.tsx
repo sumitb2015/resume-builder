@@ -208,8 +208,8 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
       setBulletSuggestions({ expId: exp.id, bullets: data.bullets });
       incrementBulletUsage();
       toast.success('Bullet suggestions ready — click one to apply.');
-    } catch (err: any) {
-      toast.error(err?.message || 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
     } finally { setLoadingBullets(null); }
   };
 
@@ -230,8 +230,8 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
       const data = await api.findSkills(skillJobTitle);
       setSkillSuggestions(data);
       toast.success('Skill suggestions ready — click to add.');
-    } catch (err: any) {
-      toast.error(err?.message || 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
     } finally { setLoadingSkills(false); }
   };
 
@@ -256,8 +256,8 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
       up('summary', plainTextToHtml(summaryText));
       setSummaryCustomPrompt('');
       toast.success('Summary updated.');
-    } catch (err: any) {
-      toast.error(err?.message || 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
     } finally { setLoadingSummary(false); }
   };
 
@@ -273,8 +273,8 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
       const { text } = await api.rephrase(resume.personal.summary);
       up('summary', plainTextToHtml(text));
       toast.success('Summary rephrased.');
-    } catch (err: any) {
-      toast.error(err?.message || 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
     } finally { setLoadingSummary(false); }
   };
 
@@ -402,7 +402,7 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
           {improvements.suggestions.map((s, i) => {
             const applied = appliedSuggestions.has(i);
             return (
-              <div key={i} style={{ padding: '10px 12px', background: 'var(--color-ui-surface)', border: `1px solid ${applied ? 'var(--color-success-border)' : 'var(--color-ui-border)'}`, borderRadius: '8px', transition: 'border-color 0.2s, opacity 0.2s', opacity: applied ? 0.6 : 1 }}>
+              <div key={s.original || i} style={{ padding: '10px 12px', background: 'var(--color-ui-surface)', border: `1px solid ${applied ? 'var(--color-success-border)' : 'var(--color-ui-border)'}`, borderRadius: '8px', transition: 'border-color 0.2s, opacity 0.2s', opacity: applied ? 0.6 : 1 }}>
                 <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#818CF8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '5px' }}>{s.section}</div>
                 <p style={{ fontSize: '11.5px', color: 'var(--color-ui-text-muted)', lineHeight: 1.5, marginBottom: '5px' }}><span style={{ fontWeight: 600 }}>Before:</span> {s.original}</p>
                 <p style={{ fontSize: '11.5px', color: 'var(--color-ui-text)', lineHeight: 1.5, marginBottom: '8px' }}><span style={{ fontWeight: 600, color: 'var(--color-success)' }}>After:</span> {s.suggested}</p>
@@ -482,7 +482,7 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
                   {resume.personal.photoUrl ? (
                     <img src={resume.personal.photoUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
-                    <User size={32} style={{ color: 'var(--color-ui-text-dim)' }} />
+                    <User size={32} style={{ color: 'var(--color-ui-text-muted)', opacity: 0.5 }} />
                   )}
                   {uploadingPhoto && (
                     <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -776,8 +776,8 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
                       {bulletSuggestions?.expId === exp.id && (
                         <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '10px', padding: '12px' }}>
                           <div style={{ fontSize: '11px', fontWeight: 600, color: '#A78BFA', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>✨ AI Suggestions — Click to add</div>
-                          {bulletSuggestions.bullets.map((b, i) => (
-                            <div key={i} onClick={() => applyBullet(exp.id, b)}
+                          {bulletSuggestions.bullets.map((b) => (
+                            <div key={b} onClick={() => applyBullet(exp.id, b)}
                               style={{ fontSize: '12px', lineHeight: 1.6, color: 'var(--color-ui-text)', padding: '8px 10px', marginBottom: '6px', borderRadius: '6px', backgroundColor: 'rgba(99,102,241,0.06)', cursor: 'pointer', border: '1px solid transparent', transition: 'all 0.15s' }}
                               onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)')}
                               onMouseLeave={e => (e.currentTarget.style.borderColor = 'transparent')}>
@@ -879,14 +879,14 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
                 <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div className="skeleton" style={{ height: '10px', width: '40%' }} />
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                    {[80, 60, 90, 70, 50].map((w, i) => (
-                      <div key={i} className="skeleton" style={{ height: '24px', width: `${w}px`, borderRadius: '100px' }} />
+                    {[80, 60, 90, 70, 50].map((w) => (
+                      <div key={w} className="skeleton" style={{ height: '24px', width: `${w}px`, borderRadius: '100px' }} />
                     ))}
                   </div>
                   <div className="skeleton" style={{ height: '10px', width: '30%', marginTop: '4px' }} />
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                    {[65, 85, 55].map((w, i) => (
-                      <div key={i} className="skeleton" style={{ height: '24px', width: `${w}px`, borderRadius: '100px' }} />
+                    {[65, 85, 55].map((w) => (
+                      <div key={w} className="skeleton" style={{ height: '24px', width: `${w}px`, borderRadius: '100px' }} />
                     ))}
                   </div>
                 </div>

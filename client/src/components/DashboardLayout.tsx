@@ -220,16 +220,16 @@ export default function DashboardLayout({ children, rightPanel, showRightPanel, 
       right: 0,
       zIndex: 1000,
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '16px', minWidth: 0, flex: 1 }}>
         {isMobile && (
-          <button className="btn-ghost" style={{ padding: '6px' }} onClick={() => setShowMobileSidebar(true)}>
+          <button className="btn-ghost" style={{ padding: '6px', flexShrink: 0 }} onClick={() => setShowMobileSidebar(true)}>
             <Menu size={20} />
           </button>
         )}
-        <BreadcrumbNav view={view as any} />
+        <BreadcrumbNav view={view as any} className="min-w-0 flex-1" />
         {!isMobile && (
           <>
-            <div style={{ width: '1px', height: '16px', background: 'var(--color-ui-border)' }} />
+            <div style={{ width: '1px', height: '16px', background: 'var(--color-ui-border)', flexShrink: 0 }} />
             <PlanBadge size="sm" />
           </>
         )}

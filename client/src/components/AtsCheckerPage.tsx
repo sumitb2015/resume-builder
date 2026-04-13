@@ -35,7 +35,7 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
   const [uploadError, setUploadError] = useState('');
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const isMobile = useIsMobile(768);
+  const isMobile = useIsMobile();
 
   const [jdTab, setJdTab] = useState<JdTab>('paste');
   const [jobText, setJobText] = useState('');
@@ -62,8 +62,8 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
     try {
       const result = await api.uploadResume(f);
       setUploadedResume(result.resume);
-    } catch (err: any) {
-      setUploadError(err.message || 'Failed to parse resume. Please try again.');
+    } catch (err: unknown) {
+      setUploadError(err instanceof Error ? err.message : 'Failed to parse resume. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -84,8 +84,8 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
       const res = await api.fetchJobUrl(jobUrl.trim());
       setJobText(res.text);
       setJdTab('paste');
-    } catch (err: any) {
-      setUrlError(err.message || 'Failed to fetch job URL. Try pasting the text directly.');
+    } catch (err: unknown) {
+      setUrlError(err instanceof Error ? err.message : 'Failed to fetch job URL. Try pasting the text directly.');
     } finally {
       setFetchingUrl(false);
     }
@@ -109,8 +109,8 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
           jobTitle: activeResume.personal.title || 'Unknown Position',
         }).catch(err => console.error('Failed to save ATS history:', err));
       }
-    } catch (err: any) {
-      setError(err.message || 'Analysis failed. Please try again.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Analysis failed. Please try again.');
       setStep(2);
     } finally {
       setLoading(false);
@@ -130,10 +130,17 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <div className="w-full max-w-[860px] px-4 md:px-6 py-4 md:py-6 pb-20 md:pb-24">
+      <div 
+        style={{ 
+          width: '100%', 
+          maxWidth: '860px', 
+          padding: isMobile ? '12px 16px' : '24px 40px',
+          paddingBottom: isMobile ? '80px' : '100px'
+        }}
+      >
 
         {/* Back + title */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '32px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: isMobile ? '16px' : '32px' }}>
           <button
             onClick={onBack}
             style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-ui-text-muted)', fontSize: '13px', padding: '6px 10px', borderRadius: '8px' }}
@@ -144,14 +151,14 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
           </button>
         </div>
 
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <div style={{ width: '48px', height: '48px', background: 'rgba(99,102,241,0.12)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-            <Award size={24} style={{ color: '#818CF8' }} />
+        <div style={{ textAlign: 'center', marginBottom: isMobile ? '12px' : '40px' }}>
+          <div style={{ width: isMobile ? '36px' : '48px', height: isMobile ? '36px' : '48px', background: 'rgba(99,102,241,0.12)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 'auto', marginRight: 'auto', marginBottom: isMobile ? '10px' : '16px' }}>
+            <Award size={isMobile ? 18 : 24} style={{ color: '#818CF8' }} />
           </div>
-          <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em', marginBottom: '8px' }}>
+          <h1 style={{ fontSize: isMobile ? '20px' : '26px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em', marginBottom: '4px' }}>
             ATS Score Checker
           </h1>
-          <p style={{ fontSize: '14px', color: 'var(--color-ui-text-muted)' }}>
+          <p style={{ fontSize: isMobile ? '12.5px' : '14px', color: 'var(--color-ui-text-muted)', lineHeight: 1.4 }}>
             See how well your resume matches a job description
           </p>
         </div>
@@ -162,17 +169,17 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
         {/* ── STEP 1: Resume source ── */}
         {step === 1 && (
           <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '8px' }}>
+            <h2 style={{ fontSize: isMobile ? '15px' : '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '4px' }}>
               Which resume should we analyze?
             </h2>
-            <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', marginBottom: '24px' }}>
+            <p style={{ fontSize: '12.5px', color: 'var(--color-ui-text-muted)', marginBottom: isMobile ? '14px' : '24px' }}>
               Use your current resume from the builder, or upload a different one.
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '8px' : '12px', marginBottom: '16px' }}>
               {/* Current resume card */}
               <SourceCard
-                icon={<FileText size={22} style={{ color: '#818CF8' }} />}
+                icon={<FileText size={isMobile ? 16 : 22} style={{ color: '#818CF8' }} />}
                 title="Current resume"
                 description={resume.personal.name || 'Your active resume'}
                 selected={resumeSource === 'current'}
@@ -180,7 +187,7 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
               />
               {/* Upload card */}
               <SourceCard
-                icon={<Upload size={22} style={{ color: '#F59E0B' }} />}
+                icon={<Upload size={isMobile ? 16 : 22} style={{ color: '#F59E0B' }} />}
                 title="Upload a resume"
                 description="PDF or Word (.docx)"
                 selected={resumeSource === 'upload'}
@@ -190,7 +197,7 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
 
             {/* File drop zone */}
             {resumeSource === 'upload' && (
-              <div style={{ marginBottom: '20px' }}>
+              <div style={{ marginBottom: '16px' }}>
                 <div
                   onClick={() => fileInputRef.current?.click()}
                   onDragOver={e => { e.preventDefault(); setDragOver(true); }}
@@ -198,7 +205,7 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
                   onDrop={handleDrop}
                   style={{
                     border: `2px dashed ${dragOver ? '#F59E0B' : uploadedResume ? '#4ADE80' : 'var(--color-ui-border)'}`,
-                    borderRadius: '12px', padding: '32px 24px', textAlign: 'center', cursor: 'pointer',
+                    borderRadius: '12px', padding: isMobile ? '20px 16px' : '32px 24px', textAlign: 'center', cursor: 'pointer',
                     background: dragOver ? 'rgba(245,158,11,0.04)' : uploadedResume ? 'rgba(74,222,128,0.04)' : 'var(--color-ui-surface)',
                     transition: 'all 0.2s',
                   }}
@@ -211,24 +218,24 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
                   />
                   {uploading ? (
                     <div>
-                      <Loader2 size={28} style={{ color: '#818CF8', animation: 'spin 1s linear infinite', marginBottom: '8px' }} />
-                      <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)' }}>Parsing resume…</p>
+                      <Loader2 size={isMobile ? 22 : 28} style={{ color: '#818CF8', animation: 'spin 1s linear infinite', marginBottom: '8px' }} />
+                      <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>Parsing resume…</p>
                     </div>
                   ) : uploadedResume ? (
                     <div>
-                      <CheckCircle2 size={28} style={{ color: '#4ADE80', marginBottom: '8px' }} />
-                      <p style={{ fontSize: '14px', fontWeight: 600, color: '#4ADE80' }}>
+                      <CheckCircle2 size={isMobile ? 22 : 28} style={{ color: '#4ADE80', marginBottom: '8px' }} />
+                      <p style={{ fontSize: '13.5px', fontWeight: 600, color: '#4ADE80' }}>
                         {uploadedResume.personal.name || 'Resume parsed'}
                       </p>
-                      <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)', marginTop: '4px' }}>Click to change</p>
+                      <p style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', marginTop: '4px' }}>Click to change</p>
                     </div>
                   ) : (
                     <div>
-                      <Upload size={28} style={{ color: 'var(--color-ui-text-muted)', marginBottom: '10px' }} />
-                      <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ui-text)', marginBottom: '4px' }}>
+                      <Upload size={isMobile ? 22 : 28} style={{ color: 'var(--color-ui-text-muted)', marginBottom: '10px' }} />
+                      <p style={{ fontSize: '13.5px', fontWeight: 600, color: 'var(--color-ui-text)', marginBottom: '4px' }}>
                         Drop your resume here, or click to browse
                       </p>
-                      <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>PDF or Word (.docx) · Max 10MB</p>
+                      <p style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)' }}>PDF or Word (.docx) · Max 10MB</p>
                     </div>
                   )}
                 </div>
@@ -240,11 +247,11 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <button
                 className="btn-primary"
-                style={{ gap: '6px', fontSize: '13.5px', padding: '9px 20px' }}
+                style={{ gap: '6px', fontSize: '13px', padding: '9px 20px' }}
                 disabled={!canProceedStep1}
                 onClick={() => setStep(2)}
               >
-                Next: Job Description →
+                {isMobile ? 'Next →' : 'Next: Job Description →'}
               </button>
             </div>
           </div>
@@ -253,10 +260,10 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
         {/* ── STEP 2: Job description ── */}
         {step === 2 && (
           <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '8px' }}>
+            <h2 style={{ fontSize: isMobile ? '15px' : '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '4px' }}>
               Paste the job description
             </h2>
-            <p style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', marginBottom: '24px' }}>
+            <p style={{ fontSize: '12.5px', color: 'var(--color-ui-text-muted)', marginBottom: isMobile ? '14px' : '24px' }}>
               The more complete the job posting, the more accurate your ATS score will be.
             </p>
 
@@ -267,14 +274,14 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
                   key={t}
                   onClick={() => setJdTab(t)}
                   style={{
-                    padding: '5px 14px', borderRadius: '7px', border: 'none', cursor: 'pointer',
+                    padding: isMobile ? '4px 10px' : '5px 14px', borderRadius: '7px', border: 'none', cursor: 'pointer',
                     background: jdTab === t ? 'var(--color-ui-accent)' : 'transparent',
                     color: jdTab === t ? '#fff' : 'var(--color-ui-text-muted)',
-                    fontSize: '12px', fontWeight: jdTab === t ? 600 : 400, transition: 'all 0.15s',
+                    fontSize: isMobile ? '11px' : '12px', fontWeight: jdTab === t ? 600 : 400, transition: 'all 0.15s',
                     display: 'flex', alignItems: 'center', gap: '5px',
                   }}
                 >
-                  {t === 'paste' ? <FileText size={11} /> : <Link2 size={11} />}
+                  {t === 'paste' ? <FileText size={isMobile ? 10 : 11} /> : <Link2 size={isMobile ? 10 : 11} />}
                   {t === 'paste' ? 'Paste Text' : 'Fetch from URL'}
                 </button>
               ))}
@@ -283,11 +290,11 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
             {jdTab === 'paste' ? (
               <textarea
                 className="field-textarea"
-                rows={10}
+                rows={isMobile ? 8 : 10}
                 placeholder="Paste the full job posting here…"
                 value={jobText}
                 onChange={e => setJobText(e.target.value)}
-                style={{ marginBottom: '8px', fontSize: '13px', resize: 'vertical' }}
+                style={{ marginBottom: '8px', fontSize: '12.5px', resize: 'vertical' }}
               />
             ) : (
               <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
@@ -296,17 +303,17 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
                   placeholder="https://company.com/jobs/123"
                   value={jobUrl}
                   onChange={e => setJobUrl(e.target.value)}
-                  style={{ flex: 1, fontSize: '13px' }}
+                  style={{ flex: 1, fontSize: '12.5px' }}
                   onKeyDown={e => e.key === 'Enter' && handleFetchUrl()}
                 />
                 <button
                   className="btn-secondary"
-                  style={{ gap: '6px', fontSize: '12.5px', padding: '8px 14px', whiteSpace: 'nowrap' }}
+                  style={{ gap: '6px', fontSize: '12px', padding: isMobile ? '8px 12px' : '8px 14px', whiteSpace: 'nowrap' }}
                   onClick={handleFetchUrl}
                   disabled={fetchingUrl || !jobUrl.trim()}
                 >
                   {fetchingUrl ? <Loader2 size={13} style={{ animation: 'spin 1s linear infinite' }} /> : <Link2 size={13} />}
-                  {fetchingUrl ? 'Fetching…' : 'Fetch'}
+                  {fetchingUrl ? (isMobile ? '' : 'Fetching…') : (isMobile ? 'Fetch' : 'Fetch')}
                 </button>
               </div>
             )}
@@ -314,29 +321,29 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
             {urlError && <ErrorBox message={urlError} />}
 
             {jdTab === 'paste' && (
-              <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)', marginBottom: '20px' }}>
+              <p style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', marginBottom: isMobile ? '14px' : '20px' }}>
                 {jobText.trim().length} characters {jobText.trim().length < 50 ? '(need at least 50)' : ''}
               </p>
             )}
             {jdTab === 'url' && (
-              <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)', marginBottom: '20px' }}>
+              <p style={{ fontSize: '11px', color: 'var(--color-ui-text-muted)', marginBottom: isMobile ? '14px' : '20px' }}>
                 We'll extract the job description text from the URL.
               </p>
             )}
 
             {error && <ErrorBox message={error} />}
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: isMobile ? '10px' : '0' }}>
               <button
                 className="btn-ghost"
-                style={{ gap: '6px', fontSize: '13px' }}
+                style={{ gap: '6px', fontSize: '12.5px' }}
                 onClick={() => setStep(1)}
               >
                 <ArrowLeft size={13} /> Back
               </button>
               <button
                 className="btn-primary"
-                style={{ gap: '6px', fontSize: '13.5px', padding: '9px 20px' }}
+                style={{ gap: '6px', fontSize: '13px', padding: '9px 20px' }}
                 disabled={!canProceedStep2}
                 onClick={handleAnalyze}
               >
@@ -372,7 +379,7 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
                   <div style={{ background: 'var(--color-ui-surface)', borderRadius: '14px', padding: '20px', border: '1px solid var(--color-ui-border)', flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <div className="skeleton" style={{ height: '13px', width: '120px' }} />
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                      {[70, 90, 60, 80, 50].map((w, i) => <div key={i} className="skeleton" style={{ height: '24px', width: `${w}px`, borderRadius: '100px' }} />)}
+                      {[70, 90, 60, 80, 50].map((w) => <div key={w} className="skeleton" style={{ height: '24px', width: `${w}px`, borderRadius: '100px' }} />)}
                     </div>
                   </div>
                   <div style={{ background: 'var(--color-ui-surface)', borderRadius: '14px', padding: '20px', border: '1px solid var(--color-ui-border)', flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -400,32 +407,33 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
 // ── Sub-components ──────────────────────────────────────────────────────────
 
 function StepIndicator({ currentStep, labels, loading }: { currentStep: number; labels: string[]; loading: boolean }) {
+  const isMobile = useIsMobile();
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0', marginBottom: '48px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0', marginBottom: isMobile ? '16px' : '48px' }}>
       {labels.map((label, i) => {
         const step = i + 1;
         const isDone = currentStep > step || (currentStep === step && !loading && step === 3);
         const isActive = currentStep === step;
         const isLast = i === labels.length - 1;
         return (
-          <div key={i} style={{ display: 'flex', alignItems: 'center' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+          <div key={label} style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
               <div style={{
-                width: '32px', height: '32px', borderRadius: '50%',
+                width: isMobile ? '24px' : '32px', height: isMobile ? '24px' : '32px', borderRadius: '50%',
                 background: isDone ? '#4ADE80' : isActive ? 'var(--color-ui-accent)' : 'var(--color-ui-surface)',
                 border: `2px solid ${isDone ? '#4ADE80' : isActive ? 'var(--color-ui-accent)' : 'var(--color-ui-border)'}`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: isDone || isActive ? '#fff' : 'var(--color-ui-text-muted)',
-                fontSize: '13px', fontWeight: 700, transition: 'all 0.3s',
+                fontSize: isMobile ? '10px' : '13px', fontWeight: 700, transition: 'all 0.3s',
               }}>
                 {isDone ? '✓' : step}
               </div>
-              <span style={{ fontSize: '11px', fontWeight: isActive ? 600 : 400, color: isActive ? 'var(--color-ui-text)' : 'var(--color-ui-text-muted)', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: isMobile ? '9px' : '11px', fontWeight: isActive ? 600 : 400, color: isActive ? 'var(--color-ui-text)' : 'var(--color-ui-text-muted)', whiteSpace: 'nowrap' }}>
                 {label}
               </span>
             </div>
             {!isLast && (
-              <div style={{ width: '80px', height: '2px', background: currentStep > step ? '#4ADE80' : 'var(--color-ui-border)', margin: '0 8px 20px', transition: 'background 0.3s' }} />
+              <div style={{ width: isMobile ? '16px' : '80px', height: '2px', background: currentStep > step ? '#4ADE80' : 'var(--color-ui-border)', marginTop: 0, marginRight: isMobile ? '4px' : '8px', marginBottom: isMobile ? '14px' : '20px', marginLeft: isMobile ? '4px' : '8px', transition: 'background 0.3s' }} />
             )}
           </div>
         );
@@ -435,19 +443,20 @@ function StepIndicator({ currentStep, labels, loading }: { currentStep: number; 
 }
 
 function SourceCard({ icon, title, description, selected, onClick }: { icon: React.ReactNode; title: string; description: string; selected: boolean; onClick: () => void }) {
+  const isMobile = useIsMobile();
   return (
     <button
       onClick={onClick}
       style={{
-        padding: '20px', borderRadius: '12px', textAlign: 'left', cursor: 'pointer',
+        padding: isMobile ? '12px 14px' : '20px', borderRadius: '12px', textAlign: 'left', cursor: 'pointer',
         background: selected ? 'rgba(99,102,241,0.08)' : 'var(--color-ui-surface)',
         border: `2px solid ${selected ? 'var(--color-ui-accent)' : 'var(--color-ui-border)'}`,
         transition: 'all 0.15s', width: '100%',
       }}
     >
-      <div style={{ marginBottom: '10px' }}>{icon}</div>
-      <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ui-text)', marginBottom: '4px' }}>{title}</div>
-      <div style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>{description}</div>
+      <div style={{ marginBottom: isMobile ? '4px' : '10px' }}>{icon}</div>
+      <div style={{ fontSize: isMobile ? '12.5px' : '14px', fontWeight: 600, color: 'var(--color-ui-text)', marginBottom: '2px' }}>{title}</div>
+      <div style={{ fontSize: isMobile ? '10.5px' : '12px', color: 'var(--color-ui-text-muted)', lineHeight: 1.3 }}>{description}</div>
     </button>
   );
 }
@@ -475,17 +484,17 @@ function AtsResults({
 }) {
   const color = scoreColor(result.score);
   const label = scoreLabel(result.score);
-  const isMobile = useIsMobile(768);
+  const isMobile = useIsMobile();
 
   return (
     <div>
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1fr', gap: '24px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1fr', gap: isMobile ? '16px' : '24px', marginBottom: isMobile ? '16px' : '24px' }}>
         {/* Left: score + feedback */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '16px' : '20px' }}>
           {/* Score gauge */}
-          <div style={{ background: 'var(--color-ui-surface)', borderRadius: '16px', padding: '32px 24px', textAlign: 'center', border: '1px solid var(--color-ui-border)' }}>
-            <div className="ats-ring" style={{ marginBottom: '16px' }}>
-              <svg width="140" height="140" viewBox="0 0 140 140">
+          <div style={{ background: 'var(--color-ui-surface)', borderRadius: '16px', padding: isMobile ? '24px 16px' : '32px 24px', textAlign: 'center', border: '1px solid var(--color-ui-border)' }}>
+            <div className="ats-ring" style={{ marginBottom: isMobile ? '12px' : '16px' }}>
+              <svg width={isMobile ? '120' : '140'} height={isMobile ? '120' : '140'} viewBox="0 0 140 140">
                 {/* Background circle */}
                 <circle
                   cx="70" cy="70" r={RADIUS}
@@ -511,17 +520,17 @@ function AtsResults({
                 />
               </svg>
               <div style={{ position: 'absolute', textAlign: 'center' }}>
-                <div style={{ fontSize: '36px', fontWeight: 800, color, lineHeight: 1 }}>{result.score}</div>
+                <div style={{ fontSize: isMobile ? '30px' : '36px', fontWeight: 800, color, lineHeight: 1 }}>{result.score}</div>
                 <div style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)', marginTop: '2px' }}>/100</div>
               </div>
             </div>
-            <div style={{ fontSize: '18px', fontWeight: 700, color, marginBottom: '4px' }}>{label}</div>
-            <div style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)' }}>ATS compatibility score</div>
+            <div style={{ fontSize: isMobile ? '16px' : '18px', fontWeight: 700, color, marginBottom: '4px' }}>{label}</div>
+            <div style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>ATS compatibility score</div>
           </div>
 
           {/* Feedback */}
-          <div style={{ background: 'var(--color-ui-surface)', borderRadius: '14px', padding: '20px', border: '1px solid var(--color-ui-border)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+          <div style={{ background: 'var(--color-ui-surface)', borderRadius: '14px', padding: isMobile ? '16px' : '20px', border: '1px solid var(--color-ui-border)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: isMobile ? '8px' : '12px' }}>
               <Sparkles size={15} style={{ color: '#818CF8' }} />
               <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)' }}>AI Feedback</span>
             </div>
@@ -530,9 +539,9 @@ function AtsResults({
         </div>
 
         {/* Right: keywords + weak sections */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '16px' : '20px' }}>
           {/* Missing keywords */}
-          <div style={{ background: 'var(--color-ui-surface)', borderRadius: '14px', padding: '20px', border: '1px solid var(--color-ui-border)', flex: 1 }}>
+          <div style={{ background: 'var(--color-ui-surface)', borderRadius: '14px', padding: isMobile ? '16px' : '20px', border: '1px solid var(--color-ui-border)', flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
               <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)' }}>Missing Keywords</span>
               {result.missingKeywords.length > 0 && (
@@ -545,15 +554,15 @@ function AtsResults({
               <p style={{ fontSize: '13px', color: '#4ADE80' }}>Great — no critical keywords missing!</p>
             ) : (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                {result.missingKeywords.map((kw, i) => (
-                  <span key={i} className="chip">{kw}</span>
+                {result.missingKeywords.map((kw) => (
+                  <span key={kw} className="chip" style={{ fontSize: isMobile ? '11px' : '12px' }}>{kw}</span>
                 ))}
               </div>
             )}
           </div>
 
           {/* Weak sections */}
-          <div style={{ background: 'var(--color-ui-surface)', borderRadius: '14px', padding: '20px', border: '1px solid var(--color-ui-border)', flex: 1 }}>
+          <div style={{ background: 'var(--color-ui-surface)', borderRadius: '14px', padding: isMobile ? '16px' : '20px', border: '1px solid var(--color-ui-border)', flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
               <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text)' }}>Sections to Improve</span>
               {result.weakSections.length > 0 && (
@@ -566,8 +575,8 @@ function AtsResults({
               <p style={{ fontSize: '13px', color: '#4ADE80' }}>All sections look solid!</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {result.weakSections.map((section, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {result.weakSections.map((section) => (
+                  <div key={section} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <AlertCircle size={13} style={{ color: '#FBBF24', flexShrink: 0 }} />
                     <span style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)' }}>{section}</span>
                   </div>
@@ -578,12 +587,12 @@ function AtsResults({
         </div>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px' }}>
-        <button className="btn-ghost" style={{ gap: '6px', fontSize: '13px' }} onClick={onRedo}>
-          Try another job description
+      <div style={{ display: 'flex', flexDirection: isMobile ? 'column-reverse' : 'row', justifyContent: isMobile ? 'flex-start' : 'space-between', alignItems: 'center', gap: isMobile ? '8px' : '0', paddingTop: '8px' }}>
+        <button className="btn-ghost" style={{ gap: '6px', fontSize: isMobile ? '12px' : '13px' }} onClick={onRedo}>
+          {isMobile ? 'Try Another Job' : 'Try another job description'}
         </button>
-        <button className="btn-secondary" style={{ gap: '6px', fontSize: '13px' }} onClick={onBack}>
-          Back to Builder
+        <button className="btn-secondary" style={{ gap: '6px', fontSize: isMobile ? '12px' : '13px' }} onClick={onBack}>
+          {isMobile ? 'Back' : 'Back to Builder'}
         </button>
       </div>
     </div>

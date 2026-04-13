@@ -1074,10 +1074,6 @@ button:focus:not(:focus-visible) { outline: none; }
     position: sticky;
     top: 0;
     z-index: 1000;
-    flex-wrap: wrap;
-    height: auto !important;
-    padding: 10px 16px !important;
-    gap: 8px;
   }
   .app-sidebar {
     transform: translateX(-100%);

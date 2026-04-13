@@ -75,7 +75,9 @@ router.post('/pdf', async (req: AuthRequest, res: Response) => {
         }
       </style>
     `;
-    const finalHtml = html.replace('</head>', `${cssToInject}</head>`);
+    // Strip script tags to prevent arbitrary JS execution in the Puppeteer context.
+    const sanitizedHtml = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+    const finalHtml = sanitizedHtml.replace('</head>', `${cssToInject}</head>`);
 
     // waitUntil: networkidle0 ensures Google Fonts are fully loaded before rendering.
     try {

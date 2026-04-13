@@ -1,0 +1,161 @@
+  ---
+  Production Readiness Audit — BespokeCV Resume Builder
+
+  ---
+  CRITICAL — Must fix before real users / payments
+
+  ┌─────┬───────────────────────────────────────────────────────────────────────────────────────────────┬─────────────────────────────────────────────┐
+  │  #  │                                             Issue                                             │                  Location                   │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────┤
+  │ 1   │ alert() used 16+ times for all user feedback — blocks UI, completely unprofessional           │ ResumeBuilder.tsx, CheckoutPage.tsx, others │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────┤
+  │ 2   │ No rate limiting on AI endpoints (/api/ai/*) — anyone can hammer OpenAI for free              │ server/src/index.ts                         │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────┤
+  │ 3   │ Razorpay webhook secret is optional — if env var not set, signature check is skipped entirely │ payment.routes.ts:205                       │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────┤
+  │ 4   │ 50MB JSON payload limit — trivially exploitable for denial-of-service                         │ server/src/index.ts                         │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────┤
+  │ 5   │ Prompt injection — user resume content & job descriptions embedded raw into AI prompts        │ ai.service.ts:157                           │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────┤
+  │ 6   │ SSRF via URL fetch — /api/fetch-job-url makes unauthenticated HTTP to any URL                 │ ai.service.ts:37                            │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────┤
+  │ 7   │ ResumeSchema uses z.any() and .passthrough() — schema validation provides no real protection  │ server/src/index.ts:52                      │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────┤
+  │ 8   │ Firebase Admin init failure silently skips auth — unauthenticated access possible             │ auth.middleware.ts:26                       │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────┤
+  │ 9   │ No global error handler — all catch blocks return error.message raw, exposing stack traces    │ Throughout server                           │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────┤
+  │ 10  │ Discount percent not clamped — value >100 would refund money to attacker                      │ payment.routes.ts:85                        │
+  └─────┴───────────────────────────────────────────────────────────────────────────────────────────────┴─────────────────────────────────────────────┘
+
+  ---
+  HIGH — Directly impacts user experience and trust
+
+  ┌─────┬───────────────────────────────────────────────────────────────────────────────────────────────┬──────────────────────────────────────────────┐
+  │  #  │                                             Issue                                             │                   Location                   │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+  │ 11  │ No toast/notification system — no way to give non-blocking feedback to user                   │ Whole client                                 │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+  │ 12  │ No autosave — all resume work lost if browser crashes or tab closes                           │ ResumeContext.tsx                            │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+  │ 13  │ No retry logic or timeouts on API calls — requests hang indefinitely, failures are silent     │ client/src/lib/api.ts                        │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+  │ 14  │ isMobile / viewport checks fire once at mount, never on resize — layout breaks on zoom/rotate │ DashboardLayout.tsx:71, ExportPreview.tsx:80 │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+  │ 15  │ No loading skeletons — AI features show no progress while waiting (can take 5–15s)            │ ResumeBuilder.tsx, ATS/Job pages             │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+  │ 16  │ ErrorBoundary only offers "Reload Page" — no recovery, no context preserved                   │ ErrorBoundary.tsx                            │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+  │ 17  │ No password reset flow — LoginPage has sign-in/sign-up but no "Forgot password"               │ LoginPage.tsx                                │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+  │ 18  │ Resume saved to localStorage only — lost on browser data clear, 5MB limit, no cloud sync      │ useSavedResumes.ts                           │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+  │ 19  │ Plan cache in localStorage — upgrading in another tab doesn't update current session          │ PlanContext.tsx                              │
+  ├─────┼───────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+  │ 20  │ ResumeBuilder.tsx is 63KB monolith — unmaintainable, hard to debug, slow to parse             │ ResumeBuilder.tsx                            │
+  └─────┴───────────────────────────────────────────────────────────────────────────────────────────────┴──────────────────────────────────────────────┘
+
+  ---
+  MEDIUM — Polish and quality
+
+  ┌─────┬────────────────────────────────────────────────────────────────────────────────────────┬─────────────────────┐
+  │  #  │                                         Issue                                          │      Location       │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────┤
+  │ 21  │ 162 instances of any type — TypeScript provides no protection; strict mode likely off  │ Entire codebase     │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────┤
+  │ 22  │ AtsCheckerPage and JobTailorPage are duplicate code — should share a wizard component  │ Both pages          │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────┤
+  │ 23  │ All 43 templates bundled upfront — massively inflates JS bundle; needs lazy loading    │ templates/index.ts  │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────┤
+  │ 24  │ 21 @fontsource packages loaded eagerly — adds hundreds of KB for fonts rarely used     │ ExportPreview.tsx   │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────┤
+  │ 25  │ No form validation — empty required fields submitted, no error messaging               │ All forms           │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────┤
+  │ 26  │ No request deduplication — clicking ATS check twice sends two identical API calls      │ api.ts              │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────┤
+  │ 27  │ No Ctrl+Z keyboard shortcut for undo — only via UI button                              │ ResumeContext.tsx   │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────┤
+  │ 28  │ Puppeteer zombie processes — browser hangs not killed globally, only per-page timeout  │ export.routes.ts    │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────┤
+  │ 29  │ Hardcoded ATS scores on templates — never reflect actual parsing quality               │ templates/index.ts  │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────┤
+  │ 30  │ JobTailorPage has no visual diff — user can't see what changed before/after tailoring  │ JobTailorPage.tsx   │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────┤
+  │ 31  │ Font picker in StylePanel has no search — scrolling through dozens of fonts is painful │ StylePanel.tsx      │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────┤
+  │ 32  │ Text truncated at 8000 chars during PDF parse — longer resumes lose data silently      │ parse.service.ts:19 │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────┤
+  │ 33  │ No structured logging — all errors go to console.error, nothing in production          │ Entire server       │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────┤
+  │ 34  │ No health check for DB/external APIs — /health endpoint doesn't verify dependencies    │ server/src/index.ts │
+  └─────┴────────────────────────────────────────────────────────────────────────────────────────┴─────────────────────┘
+
+  ---
+  ACCESSIBILITY — Legal risk + major UX gap
+
+  ┌─────┬────────────────────────────────────────────────────────────────────────────────────┐
+  │  #  │                                       Issue                                        │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────┤
+  │ 35  │ Only ~15 aria-* attributes in entire codebase — screen readers largely unsupported │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────┤
+  │ 36  │ Many interactive elements are <div> styled as buttons — not keyboard-focusable     │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────┤
+  │ 37  │ No focus trap in modals — Tab key escapes to background content                    │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────┤
+  │ 38  │ No scroll-lock when modals are open — background scrolls behind modal              │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────┤
+  │ 39  │ Form inputs missing associated <label> elements                                    │
+  ├─────┼────────────────────────────────────────────────────────────────────────────────────┤
+  │ 40  │ No skip-to-main-content link                                                       │
+  └─────┴────────────────────────────────────────────────────────────────────────────────────┘
+
+  ---
+  MISSING FEATURES — Expected by industry-standard SaaS
+
+  ┌─────┬────────────────────────────────────┬───────────────────────────────────────────────────────────┐
+  │  #  │              Feature               │                           Notes                           │
+  ├─────┼────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ 41  │ Resume sharing via link            │ Mentioned in UI but not implemented                       │
+  ├─────┼────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ 42  │ Resume version history             │ Can't compare or roll back to prior version               │
+  ├─────┼────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ 43  │ Email verification on signup       │ New accounts have no email ownership check                │
+  ├─────┼────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ 44  │ OpenAI cost tracking / user quotas │ No metering; power users can run up bills                 │
+  ├─────┼────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ 45  │ Payment receipt / invoice email    │ Users have no proof of purchase                           │
+  ├─────┼────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ 46  │ Refund request flow                │ No UI for users to initiate refunds                       │
+  ├─────┼────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ 47  │ Streaming AI responses             │ Large resumes timeout; streaming would show progress      │
+  ├─────┼────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ 48  │ Zero test coverage                 │ No unit, integration, or end-to-end tests exist           │
+  ├─────┼────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ 49  │ No API versioning                  │ Breaking backend changes will silently break clients      │
+  ├─────┼────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ 50  │ No OpenAPI/Swagger spec            │ API is undocumented; impossible to onboard new developers │
+  └─────┴────────────────────────────────────┴───────────────────────────────────────────────────────────┘
+
+  ---
+  Quick-win Prioritization
+
+  Do first (1–2 days, highest impact):
+  - Replace all alert() with a toast library (e.g., react-hot-toast)
+  - Add express-rate-limit to all AI endpoints
+  - Clamp discount percent 0–100, make webhook secret mandatory
+  - Reduce JSON payload limit to 1MB
+  - Implement autosave to backend every 30s
+
+  Do next (1 week):
+  - Unified API error handler (no raw error.message to client)
+  - Loading skeletons for all async AI features
+  - Toast notifications replace all remaining alerts
+  - Lazy-load templates and font packages
+  - Fix viewport/mobile checks to use ResizeObserver or CSS media queries
+
+  Do before scaling (2–3 weeks):
+  - TypeScript strict mode + eliminate any usages
+  - Split ResumeBuilder.tsx into section components
+  - Add structured logging (Winston/Pino) with request IDs
+  - Write critical-path tests (login, builder, export, payment)
+  - Add per-user AI usage quotas

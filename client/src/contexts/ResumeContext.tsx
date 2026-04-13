@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useRef, useEffect, useCallback } from 'react';
+import toast from 'react-hot-toast';
 import type { Resume, TemplateConfig, ImprovementSuggestions } from '../shared/types';
 import { templates } from '../templates';
 import { legacyMarkdownToHtml } from '../lib/htmlUtils';
@@ -152,12 +153,19 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
 
   // Debounced autosave — writes current resume+template to localStorage 1.5s after last change
   const autosaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const quotaToastShownRef = useRef(false);
   useEffect(() => {
     if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
     autosaveTimerRef.current = setTimeout(() => {
       try {
         localStorage.setItem(draftKey(uid), JSON.stringify({ resume, templateId: activeTemplate.id }));
-      } catch { /* ignore localStorage quota errors */ }
+        quotaToastShownRef.current = false;
+      } catch {
+        if (!quotaToastShownRef.current) {
+          quotaToastShownRef.current = true;
+          toast.error('Resume draft not saving — storage is full', { duration: 6000 });
+        }
+      }
     }, 1500);
     return () => { if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current); };
   }, [resume, activeTemplate, uid]);

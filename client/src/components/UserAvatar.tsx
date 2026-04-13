@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Shield, Zap, Crown } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePlan } from '../contexts/PlanContext';
@@ -18,6 +18,7 @@ interface UserAvatarProps {
 const UserAvatar: React.FC<UserAvatarProps> = ({ onClick, showBadge = true }) => {
   const { currentUser } = useAuth();
   const { plan } = usePlan();
+  const [imageError, setImageError] = useState(false);
 
   if (!currentUser) return null;
 
@@ -46,11 +47,12 @@ const UserAvatar: React.FC<UserAvatarProps> = ({ onClick, showBadge = true }) =>
         e.currentTarget.style.transform = 'translateY(0)';
       }}
     >
-      {currentUser.photoURL ? (
+      {currentUser.photoURL && !imageError ? (
         <img
           src={currentUser.photoURL}
           alt={currentUser.displayName ?? 'User'}
-          style={{ width: '28px', height: '28px', borderRadius: '8px', border: '1px solid var(--color-ui-border)' }}
+          style={{ width: '28px', height: '28px', borderRadius: '8px', border: '1px solid var(--color-ui-border)', objectFit: 'cover' }}
+          onError={() => setImageError(true)}
         />
       ) : (
         <div style={{ 
@@ -65,7 +67,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({ onClick, showBadge = true }) =>
           fontWeight: 700, 
           color: 'white' 
         }}>
-          {(currentUser.displayName ?? currentUser.email ?? '?')[0].toUpperCase()}
+          {((currentUser.displayName ?? currentUser.email ?? '') || '?')[0].toUpperCase()}
         </div>
       )}
       

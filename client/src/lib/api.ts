@@ -1,4 +1,9 @@
 import type { Resume, ImprovementSuggestions, SmartResumeResponse } from '../shared/types';
+import {
+  UploadResumeResponseSchema,
+  LinkedInResponseSchema,
+  SmartResumeResponseSchema,
+} from '../shared/schemas';
 import { auth } from './firebase';
 
 const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
@@ -127,7 +132,7 @@ export const api = {
         const err = await res.json().catch(() => ({ error: 'Upload failed' }));
         throw new Error((err as any).error || `HTTP ${res.status}`);
       }
-      return res.json();
+      return UploadResumeResponseSchema.parse(await res.json());
     } catch (err: unknown) {
       clearTimeout(tid);
       if (err instanceof DOMException && err.name === 'AbortError')
@@ -136,8 +141,10 @@ export const api = {
     }
   },
 
-  syncLinkedIn: (text: string) =>
-    post<{ resume: Resume }>('/api/parse/linkedin', { text }),
+  syncLinkedIn: async (text: string): Promise<{ resume: Resume }> => {
+    const raw = await post<{ resume: Resume }>('/api/parse/linkedin', { text });
+    return LinkedInResponseSchema.parse(raw);
+  },
 
   smartFit: (resume: Resume, config: any, targetPages: number, userPrompt: string) =>
     post<{
@@ -149,7 +156,7 @@ export const api = {
   generateFullResume: (params: { currentRole?: string; targetRole: string; industry: string; experience: string; context?: string }) =>
     post<Resume>('/api/ai/generate-full-resume', params),
 
-  generateSmartResume: (params: {
+  generateSmartResume: async (params: {
     targetRole: string;
     industry: string;
     currentRole?: string;
@@ -157,7 +164,10 @@ export const api = {
     context?: string;
     education?: string;
     achievements?: string;
-  }) => post<SmartResumeResponse>('/api/ai/generate-smart-resume', params),
+  }): Promise<SmartResumeResponse> => {
+    const raw = await post<SmartResumeResponse>('/api/ai/generate-smart-resume', params);
+    return SmartResumeResponseSchema.parse(raw);
+  },
 
   rephrase: (text: string, instruction?: string) =>
     post<{ text: string }>('/api/ai/rephrase', { text, instruction }),

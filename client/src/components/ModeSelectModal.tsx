@@ -51,9 +51,9 @@ export default function ModeSelectModal({ onSelect, onBack, onUpgradeNeeded, onS
     try {
       const result = await api.uploadResume(file);
       onSelect('enhance', result.resume, result.improvements);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStep('enhance');
-      setError(err.message || 'Failed to parse resume. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to parse resume. Please try again.');
     }
   };
 
@@ -64,9 +64,9 @@ export default function ModeSelectModal({ onSelect, onBack, onUpgradeNeeded, onS
     try {
       const result = await api.syncLinkedIn(linkedinText.trim());
       onSelect('linkedin', result.resume);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStep('linkedin');
-      setError(err.message || 'Failed to parse profile. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to parse profile. Please try again.');
     }
   };
 

@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import {
   FileText, Upload, ArrowLeft, Loader2,
   CheckCircle2, Copy,
 } from 'lucide-react';
+import { useIsMobile } from '../hooks/useIsMobile';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import type { Resume } from '../shared/types';
@@ -25,13 +26,7 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
   const [uploadError, setUploadError] = useState('');
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const isMobile = useIsMobile();
 
   const [jobText, setJobText] = useState('');
 
@@ -54,8 +49,8 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
     try {
       const res = await api.uploadResume(f);
       setUploadedResume(res.resume);
-    } catch (err: any) {
-      setUploadError(err.message || 'Failed to parse resume. Please try again.');
+    } catch (err: unknown) {
+      setUploadError(err instanceof Error ? err.message : 'Failed to parse resume. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -75,8 +70,8 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
     try {
       const res = await api.generateCoverLetter(activeResume, jobText);
       setResult(res.text);
-    } catch (err: any) {
-      toast.error(err.message || 'Generation failed. Please try again.');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Generation failed. Please try again.');
       setStep(2);
     } finally {
       setLoading(false);
@@ -99,22 +94,34 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
             "xmlns='http://www.w3.org/TR/REC-html40'>"+
             "<head><meta charset='utf-8'><title>Cover Letter</title></head><body>";
     const footer = "</body></html>";
-    const sourceHTML = header + result.replace(/\n/g, '<br>') + footer;
-    
+    const escaped = result
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\n/g, '<br>');
+    const sourceHTML = header + escaped + footer;
+
     const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
     const fileDownload = document.createElement("a");
     document.body.appendChild(fileDownload);
     fileDownload.href = source;
-    fileDownload.download = `Cover_Letter_${activeResume?.personal.name.replace(/\s+/g, '_') || 'BespokeCV'}.doc`;
+    fileDownload.download = `Cover_Letter_${activeResume?.personal?.name?.replace(/\s+/g, '_') || 'BespokeCV'}.doc`;
     fileDownload.click();
     document.body.removeChild(fileDownload);
   };
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <div className="w-full max-w-[800px] px-4 md:px-6 py-4 md:py-6 pb-24 md:pb-28">
+      <div 
+        style={{ 
+          width: '100%', 
+          maxWidth: '800px', 
+          padding: isMobile ? '12px 16px' : '24px 40px',
+          paddingBottom: isMobile ? '80px' : '100px'
+        }}
+      >
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '32px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: isMobile ? '16px' : '32px' }}>
           <button
             onClick={onBack}
             style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-ui-text-muted)', fontSize: '13px', padding: '6px 10px', borderRadius: '8px' }}
@@ -123,42 +130,42 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
           </button>
         </div>
 
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <div style={{ width: '48px', height: '48px', background: 'rgba(99,102,241,0.12)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-            <FileText size={24} style={{ color: '#818CF8' }} />
+        <div style={{ textAlign: 'center', marginBottom: isMobile ? '12px' : '40px' }}>
+          <div style={{ width: isMobile ? '36px' : '48px', height: isMobile ? '36px' : '48px', background: 'rgba(99,102,241,0.12)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 'auto', marginRight: 'auto', marginBottom: isMobile ? '10px' : '16px' }}>
+            <FileText size={isMobile ? 18 : 24} style={{ color: '#818CF8' }} />
           </div>
-          <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em', marginBottom: '8px' }}>
+          <h1 style={{ fontSize: isMobile ? '20px' : '26px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em', marginBottom: '4px' }}>
             AI Cover Letter
           </h1>
-          <p style={{ fontSize: '14px', color: 'var(--color-ui-text-muted)' }}>
+          <p style={{ fontSize: isMobile ? '12.5px' : '14px', color: 'var(--color-ui-text-muted)', lineHeight: 1.4 }}>
             Generate a persuasive, tailored cover letter in seconds
           </p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0', marginBottom: '48px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0', marginBottom: isMobile ? '16px' : '48px' }}>
           {['Resume', 'Job Description', 'Cover Letter'].map((label, i) => {
             const s = i + 1;
             const isDone = step > s || (step === s && !loading && s === 3);
             const isActive = step === s;
             return (
               <div key={i} style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                   <div style={{
-                    width: '32px', height: '32px', borderRadius: '50%',
+                    width: isMobile ? '24px' : '32px', height: isMobile ? '24px' : '32px', borderRadius: '50%',
                     background: isDone ? '#4ADE80' : isActive ? '#818CF8' : 'var(--color-ui-surface)',
                     border: `2px solid ${isDone ? '#4ADE80' : isActive ? '#818CF8' : 'var(--color-ui-border)'}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     color: isDone || isActive ? '#fff' : 'var(--color-ui-text-muted)',
-                    fontSize: '13px', fontWeight: 700,
+                    fontSize: isMobile ? '10px' : '13px', fontWeight: 700,
                   }}>
                     {isDone ? '✓' : s}
                   </div>
-                  <span style={{ fontSize: '11px', fontWeight: isActive ? 600 : 400, color: isActive ? 'var(--color-ui-text)' : 'var(--color-ui-text-muted)', whiteSpace: 'nowrap' }}>
+                  <span style={{ fontSize: isMobile ? '9px' : '11px', fontWeight: isActive ? 600 : 400, color: isActive ? 'var(--color-ui-text)' : 'var(--color-ui-text-muted)', whiteSpace: 'nowrap' }}>
                     {label}
                   </span>
                 </div>
                 {i < 2 && (
-                  <div style={{ width: '80px', height: '2px', background: step > s ? '#4ADE80' : 'var(--color-ui-border)', margin: '0 8px 20px' }} />
+                  <div style={{ width: isMobile ? '16px' : '80px', height: '2px', background: step > s ? '#4ADE80' : 'var(--color-ui-border)', marginTop: 0, marginRight: isMobile ? '4px' : '8px', marginBottom: isMobile ? '14px' : '20px', marginLeft: isMobile ? '4px' : '8px' }} />
                 )}
               </div>
             );
@@ -167,35 +174,35 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
 
         {step === 1 && (
           <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '8px' }}>
+            <h2 style={{ fontSize: isMobile ? '15px' : '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '4px' }}>
               Select your resume
             </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '8px' : '12px', marginBottom: '16px' }}>
               <button
                 onClick={() => { setResumeSource('current'); setUploadedResume(null); }}
                 style={{
-                  padding: '20px', borderRadius: '12px', textAlign: 'left', cursor: 'pointer',
+                  padding: isMobile ? '12px 14px' : '20px', borderRadius: '12px', textAlign: 'left', cursor: 'pointer',
                   background: resumeSource === 'current' ? 'rgba(99,102,241,0.08)' : 'var(--color-ui-surface)',
                   border: `2px solid ${resumeSource === 'current' ? '#818CF8' : 'var(--color-ui-border)'}`,
                   width: '100%',
                 }}
               >
-                <FileText size={22} style={{ color: '#818CF8', marginBottom: '10px' }} />
-                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ui-text)' }}>Current resume</div>
-                <div style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>{resume.personal.name}</div>
+                <FileText size={isMobile ? 16 : 22} style={{ color: '#818CF8', marginBottom: isMobile ? '4px' : '10px' }} />
+                <div style={{ fontSize: isMobile ? '12.5px' : '14px', fontWeight: 600, color: 'var(--color-ui-text)' }}>Current resume</div>
+                <div style={{ fontSize: isMobile ? '10.5px' : '12px', color: 'var(--color-ui-text-muted)' }}>{resume.personal.name}</div>
               </button>
               <button
                 onClick={() => setResumeSource('upload')}
                 style={{
-                  padding: '20px', borderRadius: '12px', textAlign: 'left', cursor: 'pointer',
+                  padding: isMobile ? '12px 14px' : '20px', borderRadius: '12px', textAlign: 'left', cursor: 'pointer',
                   background: resumeSource === 'upload' ? 'rgba(245,158,11,0.08)' : 'var(--color-ui-surface)',
                   border: `2px solid ${resumeSource === 'upload' ? '#F59E0B' : 'var(--color-ui-border)'}`,
                   width: '100%',
                 }}
               >
-                <Upload size={22} style={{ color: '#F59E0B', marginBottom: '10px' }} />
-                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ui-text)' }}>Upload PDF/DOCX</div>
-                <div style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)' }}>From your computer</div>
+                <Upload size={isMobile ? 16 : 22} style={{ color: '#F59E0B', marginBottom: isMobile ? '4px' : '10px' }} />
+                <div style={{ fontSize: isMobile ? '12.5px' : '14px', fontWeight: 600, color: 'var(--color-ui-text)' }}>Upload PDF/DOCX</div>
+                <div style={{ fontSize: isMobile ? '10.5px' : '12px', color: 'var(--color-ui-text-muted)' }}>From your computer</div>
               </button>
             </div>
 
@@ -207,37 +214,39 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
                 onDrop={handleDrop}
                 style={{
                   border: `2px dashed ${dragOver ? '#F59E0B' : uploadedResume ? '#4ADE80' : 'var(--color-ui-border)'}`,
-                  borderRadius: '12px', padding: '32px 24px', textAlign: 'center', cursor: 'pointer',
+                  borderRadius: '12px', padding: isMobile ? '20px 16px' : '32px 24px', textAlign: 'center', cursor: 'pointer',
                   background: dragOver ? 'rgba(245,158,11,0.04)' : uploadedResume ? 'rgba(74,222,128,0.04)' : 'var(--color-ui-surface)',
-                  marginBottom: '20px',
+                  marginBottom: '16px',
                 }}
               >
                 <input ref={fileInputRef} type="file" style={{ display: 'none' }} onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
-                {uploading ? <Loader2 size={24} className="spin" /> : uploadedResume ? <CheckCircle2 size={24} color="#4ADE80" /> : <Upload size={24} />}
-                <p style={{ marginTop: '8px', fontSize: '13px' }}>{uploadedResume ? uploadedResume.personal.name : 'Click to upload'}</p>
-                {uploadError && <p style={{ fontSize: '12px', color: '#EF4444', marginTop: '8px' }}>{uploadError}</p>}
+                {uploading ? <Loader2 size={isMobile ? 20 : 24} className="spin" /> : uploadedResume ? <CheckCircle2 size={isMobile ? 20 : 24} color="#4ADE80" /> : <Upload size={isMobile ? 20 : 24} />}
+                <p style={{ marginTop: '8px', fontSize: isMobile ? '12px' : '13px' }}>{uploadedResume ? uploadedResume.personal.name : 'Click to upload'}</p>
+                {uploadError && <p style={{ fontSize: '11px', color: '#EF4444', marginTop: '8px' }}>{uploadError}</p>}
               </div>
             )}
 
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button className="btn-primary" disabled={!canProceedStep1} onClick={() => setStep(2)}>Next Step →</button>
+              <button className="btn-primary" style={{ padding: isMobile ? '9px 20px' : undefined, fontSize: isMobile ? '13px' : undefined }} disabled={!canProceedStep1} onClick={() => setStep(2)}>
+                {isMobile ? 'Next Step' : 'Next Step →'}
+              </button>
             </div>
           </div>
         )}
 
         {step === 2 && (
           <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '8px' }}>
+            <h2 style={{ fontSize: isMobile ? '15px' : '18px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '4px' }}>
               Paste the job description
             </h2>
             <textarea
-              className="field-textarea" rows={10} placeholder="Paste JD here…"
+              className="field-textarea" rows={isMobile ? 8 : 10} placeholder="Paste JD here…"
               value={jobText} onChange={e => setJobText(e.target.value)}
-              style={{ marginBottom: '16px' }}
+              style={{ marginBottom: '16px', fontSize: isMobile ? '12.5px' : '13px' }}
             />
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <button className="btn-ghost" onClick={() => setStep(1)}>Back</button>
-              <button className="btn-primary" disabled={!canProceedStep2} onClick={handleGenerate}>Generate Cover Letter</button>
+              <button className="btn-ghost" style={{ fontSize: isMobile ? '12.5px' : '13px' }} onClick={() => setStep(1)}>Back</button>
+              <button className="btn-primary" style={{ padding: isMobile ? '9px 16px' : undefined, fontSize: isMobile ? '13px' : undefined }} disabled={!canProceedStep2} onClick={handleGenerate}>Generate Cover Letter</button>
             </div>
           </div>
         )}
@@ -251,14 +260,14 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
           ) : result ? (
             <div style={{ maxWidth: '700px', margin: '0 auto' }}>
               <div style={{
-                background: 'var(--color-ui-surface)', borderRadius: '16px', padding: '32px',
+                background: 'var(--color-ui-surface)', borderRadius: '16px', padding: isMobile ? '20px 16px' : '32px',
                 border: '1px solid var(--color-ui-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                 whiteSpace: 'pre-wrap', fontSize: '14px', lineHeight: 1.6, color: 'var(--color-ui-text)',
                 marginBottom: '24px',
               }}>
                 {result}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap' }}>
                 <button className="btn-secondary" onClick={handleCopy}>
                   {copied ? 'Copied!' : <><Copy size={16} /> Copy Text</>}
                 </button>

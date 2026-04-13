@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import {
   type User,
   onAuthStateChanged,
@@ -35,6 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await api.syncUser(user.uid, user.email || undefined, user.displayName || undefined);
         } catch (err) {
           console.error('Failed to sync user:', err);
+          toast.error('Account sync failed — some features may be unavailable', { duration: 5000 });
         }
       }
       setCurrentUser(user);

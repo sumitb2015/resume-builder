@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Loader2, Wand2, CheckCircle2, ChevronLeft, ChevronRight, Briefcase, GraduationCap, Trophy, Sparkles, Check, ArrowRight, Upload, MousePointer2 } from 'lucide-react';
 
 import { api } from '../lib/api';
@@ -119,6 +119,12 @@ export default function AiWriterFlow({ onComplete, onBack, onShowProfile }: Prop
   // AI Response State
   const [aiResponse, setAiResponse] = useState<SmartResumeResponse | null>(null);
 
+  // Guard against state updates after unmount
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    return () => { isMountedRef.current = false; };
+  }, []);
+
   const handleAutoFill = async () => {
     if (!targetRole || !industry) {
       setError('Please provide Target Role and Industry first.');
@@ -132,17 +138,17 @@ export default function AiWriterFlow({ onComplete, onBack, onShowProfile }: Prop
         industry,
         experience: 'Mid Level (3-5 years)',
       });
-      
+      if (!isMountedRef.current) return;
       const { resume } = result;
       setCurrentRole(resume.experience[0]?.role || '');
       setEducation(resume.education[0] ? `${resume.education[0].degree} in ${resume.education[0].field}, ${resume.education[0].school}` : '');
       setCoreSkills(resume.skills.map(s => s.name).join(', '));
       setAchievements(resume.experience.flatMap(exp => exp.bullets).slice(0, 10).join('\n'));
-      
-    } catch (err: any) {
+    } catch (err: unknown) {
+      if (!isMountedRef.current) return;
       setError('Failed to auto-fill sample details. Please enter details manually.');
     } finally {
-      setIsAutoFilling(false);
+      if (isMountedRef.current) setIsAutoFilling(false);
     }
   };
 
@@ -155,16 +161,16 @@ export default function AiWriterFlow({ onComplete, onBack, onShowProfile }: Prop
 
     try {
       const { resume } = await api.uploadResume(file);
-      
+      if (!isMountedRef.current) return;
       // Pre-fill form from parsed resume
       setTargetRole(resume.personal.title || '');
       setCurrentRole(resume.experience[0]?.role || resume.personal.title || '');
       setEducation(resume.education[0] ? `${resume.education[0].degree} in ${resume.education[0].field}, ${resume.education[0].school}` : '');
       setCoreSkills(resume.skills.map(s => s.name).slice(0, 10).join(', '));
-      
+
       const allBullets = resume.experience.flatMap(exp => exp.bullets).slice(0, 5).join('\n');
       setAchievements(allBullets);
-      
+
       // Infer experience level roughly
       const years = resume.experience.length * 2; // Very rough proxy
       if (years <= 2) setExperience('Entry Level (0-2 years)');
@@ -173,10 +179,11 @@ export default function AiWriterFlow({ onComplete, onBack, onShowProfile }: Prop
       else setExperience('Executive (10+ years)');
 
       setStep(1); // Proceed to template selection
-    } catch (err: any) {
-      setError(err.message || 'Failed to parse resume. Try the Career Wizard instead.');
+    } catch (err: unknown) {
+      if (!isMountedRef.current) return;
+      setError(err instanceof Error ? err.message : 'Failed to parse resume. Try the Career Wizard instead.');
     } finally {
-      setIsUploading(false);
+      if (isMountedRef.current) setIsUploading(false);
     }
   };
 
@@ -215,12 +222,13 @@ export default function AiWriterFlow({ onComplete, onBack, onShowProfile }: Prop
         achievements,
         context: `${coreSkills}. ${context}`,
       });
-
+      if (!isMountedRef.current) return;
       setAiResponse(result);
       setStep(6);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      if (!isMountedRef.current) return;
       setStep(4);
-      setError(err.message || 'Failed to generate resume. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to generate resume. Please try again.');
     } finally {
       clearInterval(interval);
     }
@@ -601,8 +609,8 @@ export default function AiWriterFlow({ onComplete, onBack, onShowProfile }: Prop
                   <Sparkles size={16} /> New Tech Added
                 </h3>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {aiResponse.analysis.addedTechnologies.map((tech, i) => (
-                    <span key={i} style={{ padding: '6px 12px', background: 'white', border: '1px solid var(--color-ui-border)', borderRadius: '8px', fontSize: '13px', fontWeight: 600, color: 'var(--color-ui-text)' }}>
+                  {aiResponse.analysis.addedTechnologies.map((tech) => (
+                    <span key={tech} style={{ padding: '6px 12px', background: 'white', border: '1px solid var(--color-ui-border)', borderRadius: '8px', fontSize: '13px', fontWeight: 600, color: 'var(--color-ui-text)' }}>
                       {tech}
                     </span>
                   ))}
@@ -615,7 +623,7 @@ export default function AiWriterFlow({ onComplete, onBack, onShowProfile }: Prop
                 </h3>
                 <ul style={{ padding: 0, margin: 0, listStyle: 'none' }}>
                   {aiResponse.analysis.changesMade.map((change, i) => (
-                    <li key={i} style={{ fontSize: '14px', color: 'var(--color-ui-text-muted)', marginBottom: '12px', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                    <li key={`change-${i}`} style={{ fontSize: '14px', color: 'var(--color-ui-text-muted)', marginBottom: '12px', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                       <div style={{ marginTop: '4px', width: '6px', height: '6px', borderRadius: '50%', background: '#818CF8', flexShrink: 0 }} />
                       {change}
                     </li>

@@ -70,36 +70,43 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 // ── BUILDER PAGE ──────────────────────────────────────────
 function BuilderPage() {
   const { resume, activeTemplate, setActiveTemplate } = useResume();
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
   const [showRightPanel, setShowRightPanel] = useState(window.innerWidth >= 1024);
   const [zoom, setZoom] = useState(window.innerWidth < 1024 ? 0.4 : 0.75);
   const [, setPageCount] = useState(1);
 
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
-    <DashboardLayout 
-      showRightPanel={showRightPanel} 
+    <DashboardLayout
+      showRightPanel={showRightPanel}
       setShowRightPanel={setShowRightPanel}
       rightPanel={
-        <StylePanel 
-          templates={templates} 
-          activeTemplate={activeTemplate} 
-          onTemplateChange={setActiveTemplate} 
-          onColorChange={(palette) => setActiveTemplate(prev => ({ ...prev, colors: { ...prev.colors, primary: palette.primary, accent: palette.accent } }))} 
-          onClose={() => setShowRightPanel(false)} 
-          zoom={zoom} 
-          onZoomChange={setZoom} 
-          onUpgradeNeeded={() => {}} 
+        <StylePanel
+          templates={templates}
+          activeTemplate={activeTemplate}
+          onTemplateChange={setActiveTemplate}
+          onColorChange={(palette) => setActiveTemplate(prev => ({ ...prev, colors: { ...prev.colors, primary: palette.primary, accent: palette.accent } }))}
+          onClose={() => setShowRightPanel(false)}
+          zoom={zoom}
+          onZoomChange={setZoom}
+          onUpgradeNeeded={() => {}}
         />
       }
     >
-      <div style={{ width: window.innerWidth >= 1024 ? '40%' : '100%', minWidth: window.innerWidth >= 1024 ? '450px' : 'auto', flexShrink: 0, transition: 'width 0.25s', position: 'relative', height: window.innerWidth < 1024 ? 'auto' : '100%', overflow: window.innerWidth < 1024 ? 'visible' : 'hidden' }} className="no-print">
+      <div style={{ width: isDesktop ? '40%' : '100%', minWidth: isDesktop ? '450px' : 'auto', flexShrink: 0, transition: 'width 0.25s', position: 'relative', height: isDesktop ? '100%' : 'auto', overflow: isDesktop ? 'hidden' : 'visible' }} className="no-print">
         <ErrorBoundary componentName="ResumeBuilder">
-          <ResumeBuilder 
-            onUpgradeNeeded={() => {}} 
+          <ResumeBuilder
+            onUpgradeNeeded={() => {}}
           />
         </ErrorBoundary>
       </div>
 
-      {window.innerWidth >= 1024 && (
+      {isDesktop && (
         <main className="preview-viewport" style={{ flex: 1, minWidth: 0, padding: '32px 24px 64px' }}>
           <div className="preview-scaler" style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
             <ErrorBoundary componentName="PagedPreview">
