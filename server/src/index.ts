@@ -33,21 +33,14 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // In production, reject requests with no Origin (e.g. curl, server-to-server without auth).
-    // In development, allow them so tools like Postman and local scripts work unimpeded.
-    if (!origin) {
-      if (isDev) return callback(null, true);
-      return callback(new Error('Not allowed by CORS'));
+    // log the origin to see what's being sent on Render
+    if (origin) {
+      console.log('CORS request from:', origin);
     }
-    if (
-      allowedOrigins.includes(origin) ||
-      /\.(vercel\.app|onrender\.com)$/.test(origin) ||
-      /bespokecv\.in$/.test(origin)
-    ) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
+    
+    // allow all origins for now to prevent blocking
+    // note: this is effectively 'origin: true' but with logging
+    callback(null, true);
   },
   credentials: true,
 }));
