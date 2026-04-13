@@ -41,8 +41,30 @@ async function getBrowser(): Promise<Browser> {
     ],
   });
 
+  // Ensure browser is closed on process exit
+  browserInstance.on('disconnected', () => {
+    if (browserInstance) {
+      console.log('[export] Browser disconnected');
+      browserInstance = null;
+    }
+  });
+
   return browserInstance;
 }
+
+// Global cleanup
+process.on('SIGINT', async () => {
+  if (browserInstance) {
+    await browserInstance.close();
+    process.exit(0);
+  }
+});
+process.on('SIGTERM', async () => {
+  if (browserInstance) {
+    await browserInstance.close();
+    process.exit(0);
+  }
+});
 
 router.post('/pdf', async (req: AuthRequest, res: Response) => {
   const { html, filename = 'resume', metadata = {} } = req.body;

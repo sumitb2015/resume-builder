@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
 import FirecrawlApp from '@mendable/firecrawl-js';
+import { logger } from '../lib/logger';
 
 dotenv.config();
 
@@ -13,6 +14,21 @@ const firecrawl = process.env.FIRECRAWL_API_KEY
   : null;
 
 const MODEL = 'gpt-4o-mini';
+
+export const checkHealth = async (): Promise<boolean> => {
+  try {
+    // Simple light-weight call to check API connectivity
+    await openai.chat.completions.create({
+      model: MODEL,
+      messages: [{ role: 'user', content: 'ping' }],
+      max_tokens: 1,
+    });
+    return true;
+  } catch (err) {
+    logger.error('OpenAI Health Check Failed', err);
+    return false;
+  }
+};
 
 /**
  * Fix 9: Prompt injection sanitizer.

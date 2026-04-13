@@ -92,6 +92,7 @@ function BuilderPage() {
           activeTemplate={activeTemplate}
           onTemplateChange={setActiveTemplate}
           onColorChange={(palette) => setActiveTemplate(prev => ({ ...prev, colors: { ...prev.colors, primary: palette.primary, accent: palette.accent } }))}
+          onFontChange={(key, value) => setActiveTemplate(prev => ({ ...prev, fonts: { ...prev.fonts, [key]: value } }))}
           onClose={() => setShowRightPanel(false)}
           zoom={zoom}
           onZoomChange={setZoom}

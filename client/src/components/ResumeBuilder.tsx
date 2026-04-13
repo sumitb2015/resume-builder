@@ -835,12 +835,16 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
                   </div>
                   {!isCollapsed && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      <Field label="School / University">
-                        <input className="field-input" value={edu.school} onChange={e => updateEdu(edu.id, 'school', e.target.value)} placeholder="MIT" />
+                      <Field label="School / University" error={err(`edu.${edu.id}.school`, edu.school, 'Required')}>
+                        <input className="field-input" value={edu.school} onChange={e => updateEdu(edu.id, 'school', e.target.value)} onBlur={() => touch(`edu.${edu.id}.school`)} placeholder="MIT" style={{ borderColor: err(`edu.${edu.id}.school`, edu.school, '') ? 'var(--color-danger)' : undefined }} />
                       </Field>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                        <Field label="Degree"><input className="field-input" value={edu.degree} onChange={e => updateEdu(edu.id, 'degree', e.target.value)} placeholder="B.S." /></Field>
-                        <Field label="Field of Study"><input className="field-input" value={edu.field} onChange={e => updateEdu(edu.id, 'field', e.target.value)} placeholder="Computer Science" /></Field>
+                        <Field label="Degree" error={err(`edu.${edu.id}.degree`, edu.degree, 'Required')}>
+                          <input className="field-input" value={edu.degree} onChange={e => updateEdu(edu.id, 'degree', e.target.value)} onBlur={() => touch(`edu.${edu.id}.degree`)} placeholder="B.S." style={{ borderColor: err(`edu.${edu.id}.degree`, edu.degree, '') ? 'var(--color-danger)' : undefined }} />
+                        </Field>
+                        <Field label="Field of Study" error={err(`edu.${edu.id}.field`, edu.field, 'Required')}>
+                          <input className="field-input" value={edu.field} onChange={e => updateEdu(edu.id, 'field', e.target.value)} onBlur={() => touch(`edu.${edu.id}.field`)} placeholder="Computer Science" style={{ borderColor: err(`edu.${edu.id}.field`, edu.field, '') ? 'var(--color-danger)' : undefined }} />
+                        </Field>
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
                         <Field label="Start"><input className="field-input" value={edu.startDate} onChange={e => updateEdu(edu.id, 'startDate', e.target.value)} placeholder="Sep 2018" /></Field>
@@ -967,10 +971,10 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
                   </div>
                   {!isCollapsed && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      <Field label="Project Name">
-                        <input className="field-input" value={p.title} onChange={e => updateProject(p.id, 'title', e.target.value)} placeholder="My Awesome Project" />
+                      <Field label="Project Name" error={err(`proj.${p.id}.title`, p.title, 'Required')}>
+                        <input className="field-input" value={p.title} onChange={e => updateProject(p.id, 'title', e.target.value)} onBlur={() => touch(`proj.${p.id}.title`)} placeholder="My Awesome Project" style={{ borderColor: err(`proj.${p.id}.title`, p.title, '') ? 'var(--color-danger)' : undefined }} />
                       </Field>
-                      <Field label="Description">
+                      <Field label="Description" error={err(`proj.${p.id}.desc`, stripHtml(p.description), 'Required')}>
                         <RichEditor value={p.description} onChange={v => updateProject(p.id, 'description', v)} placeholder="What does it do and what impact did it have?" maxLength={400} minHeight={80} />
                       </Field>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>

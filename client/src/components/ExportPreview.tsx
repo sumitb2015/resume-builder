@@ -38,6 +38,9 @@ import "@fontsource/crimson-pro/700.css";
 import "@fontsource/source-sans-3";
 import "@fontsource/source-sans-3/700.css";
 
+import { FONT_OPTIONS } from '../shared/constants';
+import { FontSelect } from './FontSelect';
+
 interface Props {
   resume: Resume;
   config: TemplateConfig;
@@ -53,23 +56,6 @@ interface HistoryItem {
   resume: Resume;
   config: TemplateConfig;
 }
-
-const FONT_OPTIONS = [
-  { label: 'EB Garamond — Classic Serif',        value: '"EB Garamond", Georgia, serif' },
-  { label: 'Libre Baskerville — Traditional',     value: '"Libre Baskerville", Georgia, serif' },
-  { label: 'Merriweather — Readable Serif',       value: '"Merriweather", Georgia, serif' },
-  { label: 'Crimson Pro — Editorial',             value: '"Crimson Pro", Georgia, serif' },
-  { label: 'Cormorant Garamond — Executive',      value: '"Cormorant Garamond", Georgia, serif' },
-  { label: 'Playfair Display — Elegant',          value: '"Playfair Display", Georgia, serif' },
-  { label: 'Georgia — Classic',                   value: 'Georgia, "Times New Roman", serif' },
-  { label: 'Inter — Modern Sans',                 value: '"Inter", system-ui, sans-serif' },
-  { label: 'DM Sans — Clean',                     value: '"DM Sans", system-ui, sans-serif' },
-  { label: 'Montserrat — Bold Geometric',         value: '"Montserrat", system-ui, sans-serif' },
-  { label: 'Raleway — Slim Geometric',            value: '"Raleway", system-ui, sans-serif' },
-  { label: 'Josefin Sans — Minimal',              value: '"Josefin Sans", system-ui, sans-serif' },
-  { label: 'Poppins — Friendly',                  value: '"Poppins", system-ui, sans-serif' },
-  { label: 'Source Sans 3 — Neutral',             value: '"Source Sans 3", system-ui, sans-serif' },
-];
 
 const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpdateResume, pageCount, onPageCount }) => {
   const { canAccess } = usePlan();
@@ -661,40 +647,6 @@ const SliderControl: React.FC<{
       onChange={e => onChange(parseFloat(e.target.value))}
       style={{ width: '100%', accentColor: 'var(--color-ui-accent)', cursor: 'pointer' }}
     />
-  </div>
-);
-
-const FontSelect: React.FC<{
-  label: string;
-  value: string;
-  options: { label: string; value: string }[];
-  onChange: (v: string) => void;
-}> = ({ label, value, options, onChange }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-    <label style={{ fontSize: '11px', fontWeight: 800, color: 'var(--color-ui-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</label>
-    <select
-      className="field-input"
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      style={{ fontSize: '13px', fontWeight: 600 }}
-    >
-      {options.map(opt => (
-        <option key={opt.value} value={opt.value}>{opt.label}</option>
-      ))}
-    </select>
-    {/* Sample preview */}
-    <div style={{
-      fontFamily: value,
-      fontSize: '18px',
-      color: 'var(--color-ui-text)',
-      padding: '12px',
-      background: 'var(--color-ui-bg)',
-      borderRadius: '10px',
-      border: '1px solid var(--color-ui-border)',
-      textAlign: 'center'
-    }}>
-      The quick brown fox jumps...
-    </div>
   </div>
 );
 

@@ -8,6 +8,8 @@ import exportRoutes from './routes/export.routes';
 import paymentRoutes from './routes/payment.routes';
 import userRoutes from './routes/user.routes';
 import { authenticate, AuthRequest } from './middleware/auth.middleware';
+import { logger } from './lib/logger';
+import { db } from './lib/firebase-admin';
 
 dotenv.config();
 
@@ -18,6 +20,7 @@ const isDev = process.env.NODE_ENV === 'development';
 
 // Helper: never leak raw error.message to the client in production
 function serverError(res: Response, error: any, fallback = 'An unexpected error occurred. Please try again.') {
+  logger.error(fallback, error);
   const message = isDev ? (error?.message ?? String(error)) : fallback;
   return res.status(500).json({ error: message });
 }
@@ -35,7 +38,7 @@ const allowedOrigins = [
 app.use((req, res, next) => {
   const origin = req.get('origin');
   if (origin) {
-    console.log('[DEBUG] Incoming Request Origin:', origin);
+    logger.debug('Incoming Request Origin', { origin, path: req.path });
   }
   next();
 });
@@ -67,8 +70,36 @@ const aiRateLimiter = rateLimit({
 });
 app.use('/api/ai', aiRateLimiter);
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+app.get('/health', async (req, res) => {
+  const checks: any = {
+    uptime: process.uptime(),
+    timestamp: Date.now(),
+    services: {
+      database: 'down',
+      openai: 'unknown'
+    }
+  };
+
+  try {
+    if (db) {
+      await db.collection('_health').doc('ping').set({ last_ping: Date.now() });
+      checks.services.database = 'ok';
+    }
+  } catch (err) {
+    logger.error('Health Check: Database connection failed', err);
+    checks.services.database = 'error';
+  }
+
+  try {
+    const aiCheck = await aiService.checkHealth();
+    checks.services.openai = aiCheck ? 'ok' : 'error';
+  } catch (err) {
+    logger.error('Health Check: OpenAI API failed', err);
+    checks.services.openai = 'error';
+  }
+
+  const isHealthy = checks.services.database === 'ok' && checks.services.openai === 'ok';
+  res.status(isHealthy ? 200 : 503).json(checks);
 });
 
 import { z } from 'zod';

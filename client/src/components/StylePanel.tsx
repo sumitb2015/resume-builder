@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useIsMobile } from '../hooks/useIsMobile';
-import { X, ChevronDown, ChevronUp, Lock } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, Lock, Type } from 'lucide-react';
 import type { TemplateConfig, Resume } from '../shared/types';
 import { colorPalettes } from '../templates';
 import { usePlan } from '../contexts/PlanContext';
 import type { Feature } from '../shared/constants';
+import { FONT_OPTIONS } from '../shared/constants';
 import TemplateRenderer from '../templates/TemplateRenderer';
+import { FontSelect } from './FontSelect';
 
 const SAMPLE_RESUME: Resume = {
   personal: {
@@ -53,17 +55,19 @@ interface Props {
   activeTemplate: TemplateConfig;
   onTemplateChange: (t: TemplateConfig) => void;
   onColorChange: (p: typeof colorPalettes[0]) => void;
+  onFontChange: (key: 'heading' | 'body', value: string) => void;
   onClose: () => void;
   zoom: number;
   onZoomChange: (z: number) => void;
   onUpgradeNeeded: (feature: Feature) => void;
 }
 
-export default function StylePanel({ templates, activeTemplate, onTemplateChange, onColorChange, onClose, zoom, onZoomChange, onUpgradeNeeded }: Props) {
+export default function StylePanel({ templates, activeTemplate, onTemplateChange, onColorChange, onFontChange, onClose, zoom, onZoomChange, onUpgradeNeeded }: Props) {
   const { canAccess } = usePlan();
   const isMobile = useIsMobile();
   const [tplOpen, setTplOpen] = useState(true);
   const [colorOpen, setColorOpen] = useState(true);
+  const [fontOpen, setFontOpen] = useState(true);
   const [zoomOpen, setZoomOpen] = useState(true);
 
   const categories = ['professional', 'minimal', 'creative'] as const;
@@ -74,6 +78,7 @@ export default function StylePanel({ templates, activeTemplate, onTemplateChange
   const freeTemplateIds = new Set(templates.slice(0, FREE_TEMPLATE_COUNT).map(t => t.id));
 
   const colorsLocked = !canAccess('style-colors');
+  const fontsLocked = !canAccess('style-colors'); // Using same permission for now
 
   return (
     <div style={{
@@ -242,6 +247,45 @@ export default function StylePanel({ templates, activeTemplate, onTemplateChange
                   </button>
                 );
               })}
+            </div>
+          </div>
+        )}
+
+        {/* ── TYPOGRAPHY ── */}
+        <SectionToggle label="Typography" open={fontOpen} onToggle={() => setFontOpen(v => !v)} />
+        {fontOpen && (
+          <div style={{ padding: '0 16px 16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+             {/* Pro gate banner */}
+             {fontsLocked && (
+              <div
+                onClick={() => onUpgradeNeeded('style-colors')}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '10px 12px', borderRadius: '8px', marginBottom: '0px',
+                  background: 'rgba(168,85,247,0.08)',
+                  border: '1px solid rgba(192,132,252,0.25)',
+                  cursor: 'pointer',
+                }}
+              >
+                <Lock size={12} color="#C084FC" />
+                <span style={{ fontSize: '11.5px', color: '#C084FC', fontWeight: 600 }}>
+                  Pro required — click to upgrade
+                </span>
+              </div>
+            )}
+            <div style={{ opacity: fontsLocked ? 0.45 : 1, pointerEvents: fontsLocked ? 'none' : 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <FontSelect 
+                label="Heading Font" 
+                value={activeTemplate.fonts.heading} 
+                options={FONT_OPTIONS} 
+                onChange={v => onFontChange('heading', v)} 
+              />
+              <FontSelect 
+                label="Body Font" 
+                value={activeTemplate.fonts.body} 
+                options={FONT_OPTIONS} 
+                onChange={v => onFontChange('body', v)} 
+              />
             </div>
           </div>
         )}

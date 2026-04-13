@@ -23,49 +23,71 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
 
 const sleep = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
 
-async function post<T>(path: string, body: unknown, options: { retryable?: boolean; timeout?: number } = {}): Promise<T> {
-  const { retryable = true, timeout = 60_000 } = options;
-  const delays = [1000, 2000];
-  const maxRetries = retryable ? 2 : 0;
-  let lastError: Error = new Error('Request failed');
+// Request deduplication — prevents identical API calls if one is already in flight.
+const inFlightRequests = new Map<string, Promise<any>>();
 
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    if (attempt > 0) await sleep(delays[attempt - 1]!);
-
-    const controller = new AbortController();
-    const tid = setTimeout(() => controller.abort(), timeout);
-    try {
-      const authHeaders = await getAuthHeaders();
-      const res = await fetch(`${BASE}${path}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify(body),
-        signal: controller.signal,
-      });
-      clearTimeout(tid);
-      if (!res.ok) {
-        if (res.status === 429) {
-          const retryAfter = res.headers.get('Retry-After');
-          const seconds = retryAfter ? parseInt(retryAfter, 10) : 60;
-          throw new Error(`Rate limit reached — too many AI requests. Please wait ${seconds} second${seconds !== 1 ? 's' : ''} and try again.`);
-        }
-        const err = await res.json().catch(() => ({ error: 'Request failed' }));
-        throw new Error(err.error || `HTTP ${res.status}`);
-      }
-      return res.json();
-    } catch (err: unknown) {
-      clearTimeout(tid);
-      const isAbort = err instanceof DOMException && err.name === 'AbortError';
-      const isNetwork = err instanceof TypeError;
-      if ((!isAbort && !isNetwork) || attempt >= maxRetries) {
-        if (isAbort) throw new Error('Request timed out — please try again.');
-        throw err instanceof Error ? err : new Error('Request failed');
-      }
-      lastError = err instanceof Error ? err : new Error('Request failed');
-      console.warn(`[api] Attempt ${attempt + 1} failed, retrying…`, err);
-    }
+async function post<T>(path: string, body: unknown, options: { retryable?: boolean; timeout?: number; dedupe?: boolean } = {}): Promise<T> {
+  const { retryable = true, timeout = 60_000, dedupe = true } = options;
+  
+  // Create a stable key for this request
+  const requestKey = dedupe ? `${path}:${JSON.stringify(body)}` : null;
+  
+  if (requestKey && inFlightRequests.has(requestKey)) {
+    console.log(`[api] Deduplicating request: ${path}`);
+    return inFlightRequests.get(requestKey);
   }
-  throw lastError;
+
+  const executeRequest = async (): Promise<T> => {
+    const delays = [1000, 2000];
+    const maxRetries = retryable ? 2 : 0;
+    let lastError: Error = new Error('Request failed');
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      if (attempt > 0) await sleep(delays[attempt - 1]!);
+
+      const controller = new AbortController();
+      const tid = setTimeout(() => controller.abort(), timeout);
+      try {
+        const authHeaders = await getAuthHeaders();
+        const res = await fetch(`${BASE}${path}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders },
+          body: JSON.stringify(body),
+          signal: controller.signal,
+        });
+        clearTimeout(tid);
+        if (!res.ok) {
+          if (res.status === 429) {
+            const retryAfter = res.headers.get('Retry-After');
+            const seconds = retryAfter ? parseInt(retryAfter, 10) : 60;
+            throw new Error(`Rate limit reached — too many AI requests. Please wait ${seconds} second${seconds !== 1 ? 's' : ''} and try again.`);
+          }
+          const err = await res.json().catch(() => ({ error: 'Request failed' }));
+          throw new Error(err.error || `HTTP ${res.status}`);
+        }
+        return res.json();
+      } catch (err: unknown) {
+        clearTimeout(tid);
+        const isAbort = err instanceof DOMException && err.name === 'AbortError';
+        const isNetwork = err instanceof TypeError;
+        if ((!isAbort && !isNetwork) || attempt >= maxRetries) {
+          if (isAbort) throw new Error('Request timed out — please try again.');
+          throw err instanceof Error ? err : new Error('Request failed');
+        }
+        lastError = err instanceof Error ? err : new Error('Request failed');
+        console.warn(`[api] Attempt ${attempt + 1} failed, retrying…`, err);
+      }
+    }
+    throw lastError;
+  };
+
+  if (requestKey) {
+    const promise = executeRequest().finally(() => inFlightRequests.delete(requestKey));
+    inFlightRequests.set(requestKey, promise);
+    return promise;
+  }
+
+  return executeRequest();
 }
 
 export const api = {

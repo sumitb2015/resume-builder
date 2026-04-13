@@ -76,3 +76,20 @@ export const PLAN_PRICES: Record<Exclude<Plan, 'free'>, { monthly: number; annua
 };
 
 export const BASIC_BULLET_LIMIT = 3;
+
+export const FONT_OPTIONS = [
+  { label: 'EB Garamond — Classic Serif',        value: '"EB Garamond", Georgia, serif' },
+  { label: 'Libre Baskerville — Traditional',     value: '"Libre Baskerville", Georgia, serif' },
+  { label: 'Merriweather — Readable Serif',       value: '"Merriweather", Georgia, serif' },
+  { label: 'Crimson Pro — Editorial',             value: '"Crimson Pro", Georgia, serif' },
+  { label: 'Cormorant Garamond — Executive',      value: '"Cormorant Garamond", Georgia, serif' },
+  { label: 'Playfair Display — Elegant',          value: '"Playfair Display", Georgia, serif' },
+  { label: 'Georgia — Classic',                   value: 'Georgia, "Times New Roman", serif' },
+  { label: 'Inter — Modern Sans',                 value: '"Inter", system-ui, sans-serif' },
+  { label: 'DM Sans — Clean',                     value: '"DM Sans", system-ui, sans-serif' },
+  { label: 'Montserrat — Bold Geometric',         value: '"Montserrat", system-ui, sans-serif' },
+  { label: 'Raleway — Slim Geometric',            value: '"Raleway", system-ui, sans-serif' },
+  { label: 'Josefin Sans — Minimal',              value: '"Josefin Sans", system-ui, sans-serif' },
+  { label: 'Poppins — Friendly',                  value: '"Poppins", system-ui, sans-serif' },
+  { label: 'Source Sans 3 — Neutral',             value: '"Source Sans 3", system-ui, sans-serif' },
+];
