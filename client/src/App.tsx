@@ -40,6 +40,7 @@ import {
 } from 'lucide-react';
 import BreadcrumbNav from './components/BreadcrumbNav';
 import UserAvatar from './components/UserAvatar';
+import ProfileModal from './components/ProfileModal';
 
 // ── PRINT PORTAL ──────────────────────────────────────────
 const PrintPortal = () => {
@@ -123,19 +124,49 @@ function BuilderPage() {
 
 function LandingPageWrapper() {
   const navigate = useNavigate();
+  const { currentUser, signOut } = useAuth();
+  const [showProfile, setShowProfile] = useState(false);
+
   return (
-    <LandingPage 
-      onStart={() => navigate('/hub')} 
-      onOpenBlog={() => navigate('/blog')} 
-      onCheckout={(p, a) => navigate('/checkout', { state: { plan: p, annual: a } })}
-      onShowProfile={() => {}}
-    />
+    <>
+      <LandingPage 
+        onStart={() => navigate('/hub')} 
+        onOpenBlog={() => navigate('/blog')} 
+        onCheckout={(p, a) => navigate('/checkout', { state: { plan: p, annual: a } })}
+        onShowProfile={() => setShowProfile(true)}
+      />
+      {showProfile && currentUser && (
+        <ProfileModal 
+          user={currentUser} 
+          onClose={() => setShowProfile(false)} 
+          onLogout={async () => { setShowProfile(false); await signOut(); }} 
+        />
+      )}
+    </>
   );
 }
 
 function BlogPageWrapper() {
   const navigate = useNavigate();
-  return <BlogPage onBack={() => navigate('/')} onStart={() => navigate('/hub')} onShowProfile={() => {}} />;
+  const { currentUser, signOut } = useAuth();
+  const [showProfile, setShowProfile] = useState(false);
+
+  return (
+    <>
+      <BlogPage 
+        onBack={() => navigate('/')} 
+        onStart={() => navigate('/hub')} 
+        onShowProfile={() => setShowProfile(true)} 
+      />
+      {showProfile && currentUser && (
+        <ProfileModal 
+          user={currentUser} 
+          onClose={() => setShowProfile(false)} 
+          onLogout={async () => { setShowProfile(false); await signOut(); }} 
+        />
+      )}
+    </>
+  );
 }
 
 function LoginPageWrapper() {
@@ -155,48 +186,84 @@ function CheckoutPageWrapper() {
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state as any;
+  const { currentUser, signOut } = useAuth();
+  const [showProfile, setShowProfile] = useState(false);
+
   return (
-    <CheckoutPage
-      planTier={state?.plan || 'pro'}
-      isAnnual={state?.annual || false}
-      onBack={() => navigate('/plans')}
-      onSuccess={() => navigate('/hub')}
-      onShowProfile={() => {}}
-    />
+    <>
+      <CheckoutPage
+        planTier={state?.plan || 'pro'}
+        isAnnual={state?.annual || false}
+        onBack={() => navigate('/plans')}
+        onSuccess={() => navigate('/hub')}
+        onShowProfile={() => setShowProfile(true)}
+      />
+      {showProfile && currentUser && (
+        <ProfileModal 
+          user={currentUser} 
+          onClose={() => setShowProfile(false)} 
+          onLogout={async () => { setShowProfile(false); await signOut(); }} 
+        />
+      )}
+    </>
   );
 }
 
 function ModeSelectPageWrapper() {
   const navigate = useNavigate();
   const { setResume, setImprovements } = useResume();
+  const { currentUser, signOut } = useAuth();
+  const [showProfile, setShowProfile] = useState(false);
+
   return (
-    <ModeSelectModal 
-      onSelect={(mode, res, imp) => {
-        if (mode === 'ai-writer') { navigate('/ai-writer'); return; }
-        if (res) setResume(res);
-        if (imp) setImprovements(imp);
-        navigate('/builder');
-      }} 
-      onBack={() => navigate('/')} 
-      onUpgradeNeeded={() => {}} 
-      onShowProfile={() => {}}
-    />
+    <>
+      <ModeSelectModal 
+        onSelect={(mode, res, imp) => {
+          if (mode === 'ai-writer') { navigate('/ai-writer'); return; }
+          if (res) setResume(res);
+          if (imp) setImprovements(imp);
+          navigate('/builder');
+        }} 
+        onBack={() => navigate('/')} 
+        onUpgradeNeeded={() => {}} 
+        onShowProfile={() => setShowProfile(true)}
+      />
+      {showProfile && currentUser && (
+        <ProfileModal 
+          user={currentUser} 
+          onClose={() => setShowProfile(false)} 
+          onLogout={async () => { setShowProfile(false); await signOut(); }} 
+        />
+      )}
+    </>
   );
 }
 
 function AiWriterPageWrapper() {
   const navigate = useNavigate();
   const { setResume, setActiveTemplate } = useResume();
+  const { currentUser, signOut } = useAuth();
+  const [showProfile, setShowProfile] = useState(false);
+
   return (
-    <AiWriterFlow 
-      onComplete={(res, tpl) => {
-        setResume(res);
-        setActiveTemplate(tpl);
-        navigate('/builder');
-      }}
-      onBack={() => navigate('/dashboard')} 
-      onShowProfile={() => {}}
-    />
+    <>
+      <AiWriterFlow 
+        onComplete={(res, tpl) => {
+          setResume(res);
+          setActiveTemplate(tpl);
+          navigate('/builder');
+        }}
+        onBack={() => navigate('/dashboard')} 
+        onShowProfile={() => setShowProfile(true)}
+      />
+      {showProfile && currentUser && (
+        <ProfileModal 
+          user={currentUser} 
+          onClose={() => setShowProfile(false)} 
+          onLogout={async () => { setShowProfile(false); await signOut(); }} 
+        />
+      )}
+    </>
   );
 }
 

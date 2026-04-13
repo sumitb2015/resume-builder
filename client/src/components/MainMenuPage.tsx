@@ -11,10 +11,14 @@ import {
 } from 'lucide-react';
 import UserAvatar from './UserAvatar';
 import BreadcrumbNav from './BreadcrumbNav';
+import ProfileModal from './ProfileModal';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function MainMenuPage() {
   const navigate = useNavigate();
+  const { currentUser, signOut } = useAuth();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [showProfile, setShowProfile] = useState(false);
   const isMobile = window.innerWidth < 1024;
 
   const options = [
@@ -92,8 +96,20 @@ export default function MainMenuPage() {
           <BreadcrumbNav view="hub" />
         </div>
 
-        <UserAvatar onClick={() => {}} showBadge={!isMobile} />
+        <UserAvatar onClick={() => setShowProfile(true)} showBadge={!isMobile} />
       </header>
+
+      {showProfile && currentUser && (
+        <ProfileModal 
+          user={currentUser} 
+          onClose={() => setShowProfile(false)} 
+          onLogout={async () => { 
+            setShowProfile(false); 
+            navigate('/'); 
+            await signOut(); 
+          }} 
+        />
+      )}
 
       {/* Main Content */}
       <main style={{ 
