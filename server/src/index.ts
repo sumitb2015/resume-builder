@@ -27,6 +27,7 @@ const allowedOrigins = [
   'http://localhost:4173',
   'https://bespokecv.in',
   'https://www.bespokecv.in',
+  'https://api.bespokecv.in',
   ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
 ];
 
@@ -40,7 +41,8 @@ app.use(cors({
     }
     if (
       allowedOrigins.includes(origin) ||
-      /\.vercel\.app$/.test(origin)
+      /\.(vercel\.app|onrender\.com)$/.test(origin) ||
+      /bespokecv\.in$/.test(origin)
     ) {
       callback(null, true);
     } else {
