@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Clock, Tag, ChevronRight, BookOpen } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { ArrowLeft, Clock, Tag, ChevronRight, BookOpen, Share2 } from 'lucide-react';
 import NavBar from './NavBar';
 import FooterSection from './FooterSection';
 import { TosModal, PrivacyModal } from './TosModal';
@@ -112,9 +113,9 @@ const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile }) => {
         ))}
       </div>
     </>
-  import { ArrowLeft, Clock, Tag, ChevronRight, BookOpen, Share2, Check } from 'lucide-react';
-  ...
-    const renderFullArticle = () => {
+  );
+
+  const renderFullArticle = () => {
       if (!activeArticle) return null;
 
       const shareArticle = () => {
