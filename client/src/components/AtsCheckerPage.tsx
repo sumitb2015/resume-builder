@@ -8,6 +8,10 @@ import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import type { Resume } from '../shared/types';
 import type { Feature } from '../shared/constants';
+import { usePlan } from '../contexts/PlanContext';
+import { parseQuotaError } from '../lib/api';
+import QuotaWarningModal from './QuotaWarningModal';
+import UsagePill from './UsagePill';
 
 interface AtsResult {
   score: number;
@@ -28,6 +32,8 @@ type JdTab = 'paste' | 'url';
 
 export default function AtsCheckerPage({ resume, onBack }: Props) {
   const { currentUser } = useAuth();
+  const { getRemainingUses, incrementLocalUsage } = usePlan();
+  const [quotaModal, setQuotaModal] = useState<{ resetAt?: string } | null>(null);
   const [step, setStep] = useState<WizardStep>(1);
   const [resumeSource, setResumeSource] = useState<ResumeSource>('current');
   const [uploadedResume, setUploadedResume] = useState<Resume | null>(null);
@@ -93,25 +99,36 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
 
   const handleAnalyze = async () => {
     if (!activeResume || !canProceedStep2) return;
+    if (getRemainingUses('atsScore') === 0) {
+      setQuotaModal({});
+      return;
+    }
     setLoading(true);
     setError('');
     setStep(3);
     try {
       const res = await api.atsScore(activeResume, jobText);
       setResult(res);
+      incrementLocalUsage('atsScore');
 
       // Save to history (Point 6)
       if (currentUser) {
         api.saveAtsHistory({
           userId: currentUser.uid,
-          resumeId: null, 
+          resumeId: null,
           score: res.score,
           jobTitle: activeResume.personal.title || 'Unknown Position',
         }).catch(err => console.error('Failed to save ATS history:', err));
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Analysis failed. Please try again.');
-      setStep(2);
+      const quotaErr = parseQuotaError(err);
+      if (quotaErr) {
+        setQuotaModal({ resetAt: quotaErr.resetAt });
+        setStep(2);
+      } else {
+        setError(err instanceof Error ? err.message : 'Analysis failed. Please try again.');
+        setStep(2);
+      }
     } finally {
       setLoading(false);
     }
@@ -130,6 +147,9 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {quotaModal && (
+        <QuotaWarningModal feature="atsScore" resetAt={quotaModal.resetAt} onClose={() => setQuotaModal(null)} />
+      )}
       <div 
         style={{ 
           width: '100%', 
@@ -341,14 +361,17 @@ export default function AtsCheckerPage({ resume, onBack }: Props) {
               >
                 <ArrowLeft size={13} /> Back
               </button>
-              <button
-                className="btn-primary"
-                style={{ gap: '6px', fontSize: '13px', padding: '9px 20px' }}
-                disabled={!canProceedStep2}
-                onClick={handleAnalyze}
-              >
-                <Award size={14} /> Analyze Resume
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button
+                  className="btn-primary"
+                  style={{ gap: '6px', fontSize: '13px', padding: '9px 20px' }}
+                  disabled={!canProceedStep2}
+                  onClick={handleAnalyze}
+                >
+                  <Award size={14} /> Analyze Resume
+                </button>
+                <UsagePill feature="atsScore" />
+              </div>
             </div>
           </div>
         )}

@@ -8,6 +8,10 @@ import { api } from '../lib/api';
 import { plainTextToHtml, stripHtml } from '../lib/htmlUtils';
 import type { Resume } from '../shared/types';
 import type { Feature } from '../shared/constants';
+import { usePlan } from '../contexts/PlanContext';
+import { parseQuotaError } from '../lib/api';
+import QuotaWarningModal from './QuotaWarningModal';
+import UsagePill from './UsagePill';
 
 interface TailorResult {
   missingKeywords: string[];
@@ -27,6 +31,8 @@ type ResumeSource = 'current' | 'upload';
 type JdTab = 'paste' | 'url';
 
 export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props) {
+  const { getRemainingUses, incrementLocalUsage } = usePlan();
+  const [quotaModal, setQuotaModal] = useState<{ resetAt?: string } | null>(null);
   const [step, setStep] = useState<WizardStep>(1);
   const [resumeSource, setResumeSource] = useState<ResumeSource>('current');
   const [uploadedResume, setUploadedResume] = useState<Resume | null>(null);
@@ -99,6 +105,10 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
 
   const handleTailor = async () => {
     if (!activeResume || !canProceedStep2) return;
+    if (getRemainingUses('tailorResume') === 0) {
+      setQuotaModal({});
+      return;
+    }
     setLoading(true);
     setError('');
     setStep(3);
@@ -107,9 +117,16 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
     try {
       const res = await api.tailorResume(activeResume, jobText);
       setResult(res);
+      incrementLocalUsage('tailorResume');
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Tailoring failed. Please try again.');
-      setStep(2);
+      const quotaErr = parseQuotaError(err);
+      if (quotaErr) {
+        setQuotaModal({ resetAt: quotaErr.resetAt });
+        setStep(2);
+      } else {
+        setError(err instanceof Error ? err.message : 'Tailoring failed. Please try again.');
+        setStep(2);
+      }
     } finally {
       setLoading(false);
     }
@@ -150,6 +167,9 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {quotaModal && (
+        <QuotaWarningModal feature="tailorResume" resetAt={quotaModal.resetAt} onClose={() => setQuotaModal(null)} />
+      )}
       <div 
         style={{ 
           width: '100%', 
@@ -353,14 +373,17 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
               <button className="btn-ghost" style={{ gap: '6px', fontSize: '12.5px' }} onClick={() => setStep(1)}>
                 <ArrowLeft size={13} /> Back
               </button>
-              <button
-                className="btn-primary"
-                style={{ gap: '6px', fontSize: '13px', padding: '9px 20px', background: 'linear-gradient(135deg, #A855F7, #7C3AED)' }}
-                disabled={!canProceedStep2}
-                onClick={handleTailor}
-              >
-                <Zap size={14} /> Tailor Resume
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button
+                  className="btn-primary"
+                  style={{ gap: '6px', fontSize: '13px', padding: '9px 20px', background: 'linear-gradient(135deg, #A855F7, #7C3AED)' }}
+                  disabled={!canProceedStep2}
+                  onClick={handleTailor}
+                >
+                  <Zap size={14} /> Tailor Resume
+                </button>
+                <UsagePill feature="tailorResume" />
+              </div>
             </div>
           </div>
         )}

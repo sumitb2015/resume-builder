@@ -4,10 +4,12 @@ import type { Resume, TemplateConfig } from '../shared/types';
 import PagedPreview from './PagedPreview';
 import TemplateRenderer from '../templates/TemplateRenderer';
 import toast from 'react-hot-toast';
-import { api } from '../lib/api';
+import { api, parseQuotaError } from '../lib/api';
 import { buildPdfHtml } from '../lib/buildPdfHtml';
 import { Download, Type, Move, Palette, Sparkles, Loader2, Undo2, Redo2, FileText as FileTextIcon } from 'lucide-react';
 import { usePlan } from '../contexts/PlanContext';
+import QuotaWarningModal from './QuotaWarningModal';
+import UsagePill from './UsagePill';
 import { Button } from './ui/button';
 
 // Resume Fonts - loaded only when Export view is active
@@ -58,7 +60,8 @@ interface HistoryItem {
 }
 
 const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpdateResume, pageCount, onPageCount }) => {
-  const { canAccess } = usePlan();
+  const { canAccess, getRemainingUses, incrementLocalUsage } = usePlan();
+  const [quotaModal, setQuotaModal] = useState<{ resetAt?: string } | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<'layout' | 'fonts' | 'colors'>('layout');
   const [isOptimizing, setIsOptimizing] = useState(false);
@@ -151,8 +154,12 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
   };
 
   const handleSmartFit = async () => {
+    if (getRemainingUses('smartFit') === 0) {
+      setQuotaModal({});
+      return;
+    }
     setIsOptimizing(true);
-    
+
     try {
       const sanitizedResume = {
         ...resume,
@@ -193,10 +200,16 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
       }
       
       pushToHistory(newResume, newConfig);
+      incrementLocalUsage('smartFit');
       setUserPrompt('');
     } catch (error) {
-      console.error('Smart Fit error:', error);
-      applyHeuristicFit();
+      const quotaErr = parseQuotaError(error);
+      if (quotaErr) {
+        setQuotaModal({ resetAt: quotaErr.resetAt });
+      } else {
+        console.error('Smart Fit error:', error);
+        applyHeuristicFit();
+      }
     } finally {
       setIsOptimizing(false);
     }
@@ -278,9 +291,12 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
       height: isMobile ? 'auto' : '100%',
       backgroundColor: 'var(--color-ui-bg)',
       color: 'var(--color-ui-text)',
+      position: 'relative',
       overflow: 'hidden',
-      position: 'relative'
     }}>
+      {quotaModal && (
+        <QuotaWarningModal feature="smartFit" resetAt={quotaModal.resetAt} onClose={() => setQuotaModal(null)} />
+      )}
       {/* ── LEFT CONFIG PANEL ─────────────────────────── */}
       <aside style={{
         width: isMobile ? '100%' : '320px',
@@ -444,6 +460,9 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
                 {isOptimizing ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
                 {isOptimizing ? 'Optimizing...' : 'Apply AI Smart Fit'}
               </button>
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 6 }}>
+                <UsagePill feature="smartFit" />
+              </div>
             </div>
           )}
 

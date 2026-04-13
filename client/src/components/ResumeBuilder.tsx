@@ -9,9 +9,12 @@ import {
 } from 'lucide-react';
 import { usePlan } from '../contexts/PlanContext';
 import { useResume } from '../contexts/ResumeContext';
-import type { Feature } from '../shared/constants';
+import type { Feature, QuotaFeatureKey } from '../shared/constants';
 import RichEditor from './RichEditor';
 import { stripHtml, plainTextToHtml, htmlCharCount } from '../lib/htmlUtils';
+import QuotaWarningModal from './QuotaWarningModal';
+import UsagePill from './UsagePill';
+import { parseQuotaError } from '../lib/api';
 
 interface Props {
   onUpgradeNeeded: (feature: Feature) => void;
@@ -83,7 +86,8 @@ const EmptyState: React.FC<{ icon: React.ReactNode; text: string }> = ({ icon, t
 // ── Main component ────────────────────────────────────────────────────────────
 const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
   const { resume, setResume: onChange, improvements, setImprovements: onDismissImprovements } = useResume();
-  const { canAccess, remainingBullets, incrementBulletUsage } = usePlan();
+  const { canAccess, getRemainingUses, incrementLocalUsage } = usePlan();
+  const [quotaModal, setQuotaModal] = useState<{ feature: QuotaFeatureKey; resetAt?: string } | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('personal');
   const [editorTab, setEditorTab] = useState<'builder' | 'suggestions'>('suggestions');
   const isMobile = useIsMobile(768);
@@ -198,18 +202,23 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
   // ── AI ────────────────────────────────────────────────────────────────────
   const handleAIBullets = async (exp: ExperienceEntry) => {
     if (!exp.role && !exp.company) return;
-    if (remainingBullets <= 0) {
-      toast.error('Daily limit reached (3/day on Basic plan). Upgrade to Pro for unlimited AI bullets.');
+    if (getRemainingUses('generateBullets') === 0) {
+      setQuotaModal({ feature: 'generateBullets' });
       return;
     }
     setLoadingBullets(exp.id);
     try {
       const data = await api.generateBullets(exp.role, exp.company, 'Technology');
       setBulletSuggestions({ expId: exp.id, bullets: data.bullets });
-      incrementBulletUsage();
+      incrementLocalUsage('generateBullets');
       toast.success('Bullet suggestions ready — click one to apply.');
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
+      const quotaErr = parseQuotaError(err);
+      if (quotaErr) {
+        setQuotaModal({ feature: 'generateBullets', resetAt: quotaErr.resetAt });
+      } else {
+        toast.error(err instanceof Error ? err.message : 'AI unavailable.');
+      }
     } finally { setLoadingBullets(null); }
   };
 
@@ -225,25 +234,40 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
   const handleFindSkills = async () => {
     if (!canAccess('skills-finder')) { onUpgradeNeeded('skills-finder'); return; }
     if (!skillJobTitle.trim()) return;
+    if (getRemainingUses('findSkills') === 0) {
+      setQuotaModal({ feature: 'findSkills' });
+      return;
+    }
     setLoadingSkills(true);
     try {
       const data = await api.findSkills(skillJobTitle);
       setSkillSuggestions(data);
+      incrementLocalUsage('findSkills');
       toast.success('Skill suggestions ready — click to add.');
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
+      const quotaErr = parseQuotaError(err);
+      if (quotaErr) {
+        setQuotaModal({ feature: 'findSkills', resetAt: quotaErr.resetAt });
+      } else {
+        toast.error(err instanceof Error ? err.message : 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
+      }
     } finally { setLoadingSkills(false); }
   };
 
   const handleGenerateSummary = async (customInstruction?: string) => {
     if (!canAccess('ai-summary')) { onUpgradeNeeded('ai-summary'); return; }
+    const quotaKey: QuotaFeatureKey = customInstruction ? 'rephrase' : 'generateSummary';
+    if (getRemainingUses(quotaKey) === 0) {
+      setQuotaModal({ feature: quotaKey });
+      return;
+    }
     setLoadingSummary(true);
     setSummaryMenuOpen(false);
     setSummaryPromptOpen(false);
     try {
       const skills = resume.skills.map(s => s.name).filter(Boolean);
       const yoe = resume.experience.length > 0 ? `${resume.experience.length * 2}+` : '1';
-      
+
       let summaryText = '';
       if (customInstruction) {
         const { text } = await api.rephrase(resume.personal.summary, customInstruction);
@@ -252,19 +276,31 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
         const data = await api.generateSummary(resume.personal.name, resume.personal.title, yoe, skills);
         summaryText = data.summary;
       }
-      
+
       up('summary', plainTextToHtml(summaryText));
       setSummaryCustomPrompt('');
+      incrementLocalUsage(quotaKey);
       toast.success('Summary updated.');
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
+      const quotaErr = parseQuotaError(err);
+      if (quotaErr) {
+        setQuotaModal({ feature: quotaKey, resetAt: quotaErr.resetAt });
+      } else {
+        toast.error(err instanceof Error ? err.message : 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
+      }
     } finally { setLoadingSummary(false); }
   };
 
   const handleRephraseSummary = async () => {
     if (!canAccess('ai-summary')) { onUpgradeNeeded('ai-summary'); return; }
+    // Empty summary → fall back to generate (uses generateSummary quota, not rephrase)
     if (!resume.personal.summary || stripHtml(resume.personal.summary).trim().length < 10) {
       handleGenerateSummary();
+      return;
+    }
+    // Only check rephrase quota when we're actually going to rephrase
+    if (getRemainingUses('rephrase') === 0) {
+      setQuotaModal({ feature: 'rephrase' });
       return;
     }
     setLoadingSummary(true);
@@ -272,9 +308,15 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
     try {
       const { text } = await api.rephrase(resume.personal.summary);
       up('summary', plainTextToHtml(text));
+      incrementLocalUsage('rephrase');
       toast.success('Summary rephrased.');
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
+      const quotaErr = parseQuotaError(err);
+      if (quotaErr) {
+        setQuotaModal({ feature: 'rephrase', resetAt: quotaErr.resetAt });
+      } else {
+        toast.error(err instanceof Error ? err.message : 'AI unavailable. Check server is running with OPENAI_API_KEY set.');
+      }
     } finally { setLoadingSummary(false); }
   };
 
@@ -338,6 +380,9 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="editor-panel">
+      {quotaModal && (
+        <QuotaWarningModal feature={quotaModal.feature} resetAt={quotaModal.resetAt} onClose={() => setQuotaModal(null)} />
+      )}
 
       {/* ── TOP TAB BAR (only when AI suggestions are present) ── */}
       {improvements && (
@@ -651,6 +696,9 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
                   )}
                 </div>
               </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
+                <UsagePill feature="generateSummary" />
+              </div>
             </Field>
           </div>
         )}
@@ -722,15 +770,18 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
                       <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                           <label className="field-label" style={{ margin: 0 }}>Bullet Points</label>
-                          <button
-                            className="btn-ai"
-                            onClick={() => handleAIBullets(exp)}
-                            disabled={loadingBullets === exp.id || remainingBullets <= 0}
-                            title={remainingBullets <= 0 ? 'Daily limit reached — upgrade to Pro' : `AI Bullets${remainingBullets !== Infinity ? ` (${remainingBullets} left today)` : ''}`}
-                          >
-                            {loadingBullets === exp.id ? <Loader2 size={11} className="spin" /> : remainingBullets <= 0 ? <Lock size={11} /> : <Sparkles size={11} />}
-                            {loadingBullets === exp.id ? 'Generating…' : remainingBullets !== Infinity && remainingBullets >= 0 ? `AI Bullets (${remainingBullets})` : '✨ AI Bullets'}
-                          </button>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <button
+                              className="btn-ai"
+                              onClick={() => handleAIBullets(exp)}
+                              disabled={loadingBullets === exp.id || getRemainingUses('generateBullets') === 0}
+                              title={getRemainingUses('generateBullets') === 0 ? 'Daily limit reached — upgrade plan' : 'Generate AI bullet points'}
+                            >
+                              {loadingBullets === exp.id ? <Loader2 size={11} className="spin" /> : getRemainingUses('generateBullets') === 0 ? <Lock size={11} /> : <Sparkles size={11} />}
+                              {loadingBullets === exp.id ? 'Generating…' : '✨ AI Bullets'}
+                            </button>
+                            <UsagePill feature="generateBullets" />
+                          </div>
                         </div>
                         {exp.bullets.map((bullet, bi) => (
                           <div key={bi} style={{ marginBottom: '6px' }}>
@@ -743,7 +794,7 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
                                 style={{ flex: 1 }}
                                 onAiClick={() => handleAIBullets(exp)}
                                 loadingAi={loadingBullets === exp.id}
-                                canAccessAi={remainingBullets > 0}
+                                canAccessAi={(getRemainingUses('generateBullets') ?? 1) > 0}
                                 aiTitle="Refine"
                               />
                               <button className="btn-danger" onClick={() => updateExp(exp.id, 'bullets', exp.bullets.filter((_, i) => i !== bi))} style={{ alignSelf: 'flex-start', marginTop: '28px' }}>
@@ -878,6 +929,9 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
                 <button className="btn-primary" style={{ padding: '8px 14px', fontSize: '12px', flexShrink: 0 }} onClick={handleFindSkills} disabled={loadingSkills}>
                   {loadingSkills ? <Loader2 size={13} className="spin" /> : 'Find'}
                 </button>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
+                <UsagePill feature="findSkills" />
               </div>
               {loadingSkills && !skillSuggestions && (
                 <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>

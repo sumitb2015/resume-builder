@@ -8,6 +8,19 @@ import { auth } from './firebase';
 
 const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
 
+// Parse a QUOTA_EXCEEDED error thrown by post() into its parts.
+// Format: "QUOTA_EXCEEDED:<featureKey>:<resetAt ISO string>"
+// resetAt may contain colons (e.g. timezone offset) so we can't just split(':')[2].
+export function parseQuotaError(err: unknown): { feature: string; resetAt: string } | null {
+  if (!(err instanceof Error)) return null;
+  if (!err.message.startsWith('QUOTA_EXCEEDED:')) return null;
+  const rest = err.message.slice('QUOTA_EXCEEDED:'.length); // "generateBullets:2026-04-14T00:00:00.000Z"
+  const colonIdx = rest.indexOf(':');
+  const feature = colonIdx === -1 ? rest : rest.slice(0, colonIdx);
+  const resetAt = colonIdx === -1 ? '' : rest.slice(colonIdx + 1);
+  return { feature, resetAt };
+}
+
 // Helper to get authorization headers including the Firebase ID token
 async function getAuthHeaders(): Promise<Record<string, string>> {
   const user = auth.currentUser;
@@ -58,6 +71,11 @@ async function post<T>(path: string, body: unknown, options: { retryable?: boole
         clearTimeout(tid);
         if (!res.ok) {
           if (res.status === 429) {
+            const body = await res.json().catch(() => ({}));
+            if (body.error === 'QUOTA_EXCEEDED') {
+              // Encode feature and resetAt in error message for components to parse
+              throw new Error(`QUOTA_EXCEEDED:${body.feature || ''}:${body.resetAt || ''}`);
+            }
             const retryAfter = res.headers.get('Retry-After');
             const seconds = retryAfter ? parseInt(retryAfter, 10) : 60;
             throw new Error(`Rate limit reached — too many AI requests. Please wait ${seconds} second${seconds !== 1 ? 's' : ''} and try again.`);
@@ -219,6 +237,21 @@ export const api = {
 
   syncUser: (uid: string, email?: string, displayName?: string) =>
     post<{ plan: string }>('/api/user/sync', { uid, email, displayName }),
+
+  getUserUsage: async () => {
+    const authHeaders = await getAuthHeaders();
+    const res = await fetch(`${BASE}/api/user/usage`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json', ...authHeaders },
+    });
+    if (!res.ok) throw new Error('Failed to fetch usage');
+    return res.json() as Promise<{
+      date: string;
+      plan: string;
+      usage: Record<string, number>;
+      limits: Record<string, number> | null;
+    }>;
+  },
 
   getUserProfile: async (uid: string) => {
     const authHeaders = await getAuthHeaders();

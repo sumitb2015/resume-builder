@@ -1,13 +1,15 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
 import { api } from '../lib/api';
-import { 
-  type Plan, 
-  type Feature, 
-  FEATURE_REQUIRED_PLAN, 
+import {
+  type Plan,
+  type Feature,
+  type QuotaFeatureKey,
+  FEATURE_REQUIRED_PLAN,
   PLAN_RANK,
-  MAX_RESUMES, 
-  BASIC_BULLET_LIMIT 
+  MAX_RESUMES,
+  BASIC_BULLET_LIMIT,
+  DAILY_LIMITS,
 } from '../shared/constants';
 
 interface PlanContextType {
@@ -19,6 +21,10 @@ interface PlanContextType {
   remainingBullets: number;
   incrementBulletUsage: () => void;
   maxResumes: number;
+  dailyUsage: Record<QuotaFeatureKey, number>;
+  getRemainingUses: (feature: QuotaFeatureKey) => number | null;
+  incrementLocalUsage: (feature: QuotaFeatureKey) => void;
+  refreshUsage: () => Promise<void>;
 }
 
 const PlanContext = createContext<PlanContextType | null>(null);
@@ -27,12 +33,26 @@ function todayKey() {
   return new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
 }
 
+const EMPTY_USAGE: Record<QuotaFeatureKey, number> = {
+  generateBullets: 0,
+  generateSummary: 0,
+  rephrase: 0,
+  atsScore: 0,
+  tailorResume: 0,
+  smartFit: 0,
+  coverLetter: 0,
+  interviewPrep: 0,
+  findSkills: 0,
+  generateFullResume: 0,
+};
+
 export function PlanProvider({ children }: { children: React.ReactNode }) {
   const { currentUser } = useAuth();
   const uid = currentUser?.uid ?? null;
 
   const planKey = uid ? `bespokecv_plan_${uid}` : null;
   const bulletKey = uid ? `bespokecv_bullets_${uid}` : null;
+  const usageKey = uid ? `bespokecv_usage_${uid}` : null;
 
   const [plan, setPlanState] = useState<Plan | null>(null);
   const [expiresAtState, setExpiresAtState] = useState<Date | null>(null);
@@ -40,6 +60,8 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
   const [bulletData, setBulletData] = useState<{ date: string; count: number }>(() => {
     return { date: todayKey(), count: 0 };
   });
+
+  const [dailyUsage, setDailyUsage] = useState<Record<QuotaFeatureKey, number>>(EMPTY_USAGE);
 
   const fetchPlanFromDb = async (userId: string) => {
     try {
@@ -74,12 +96,30 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // When the user changes (login/logout), reload plan and bullet data
+  const refreshUsage = async () => {
+    if (!uid) return;
+    try {
+      const data = await api.getUserUsage();
+      const today = todayKey();
+      if (data.date === today) {
+        const merged = { ...EMPTY_USAGE, ...data.usage } as Record<QuotaFeatureKey, number>;
+        setDailyUsage(merged);
+        if (usageKey) {
+          localStorage.setItem(usageKey, JSON.stringify({ date: today, usage: merged }));
+        }
+      }
+    } catch {
+      // silently ignore — localStorage values remain valid
+    }
+  };
+
+  // When the user changes (login/logout), reload plan, bullet data, and daily usage
   useEffect(() => {
     if (!uid) {
       setPlanState(null);
       setExpiresAtState(null);
       setBulletData({ date: todayKey(), count: 0 });
+      setDailyUsage(EMPTY_USAGE);
       return;
     }
 
@@ -97,11 +137,31 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
         const parsed = JSON.parse(stored);
         if (parsed.date === todayKey()) {
           setBulletData(parsed);
-          return;
         }
       }
     } catch { /* ignore */ }
-    setBulletData({ date: todayKey(), count: 0 });
+
+    // 3. Load daily usage from localStorage first (instant), then sync from server
+    const uKey = `bespokecv_usage_${uid}`;
+    try {
+      const stored = localStorage.getItem(uKey);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.date === todayKey()) {
+          setDailyUsage({ ...EMPTY_USAGE, ...parsed.usage });
+        }
+      }
+    } catch { /* ignore */ }
+
+    // Sync from Firestore in background (no await — instant localStorage already shown)
+    api.getUserUsage().then(data => {
+      const today = todayKey();
+      if (data.date === today) {
+        const merged = { ...EMPTY_USAGE, ...data.usage } as Record<QuotaFeatureKey, number>;
+        setDailyUsage(merged);
+        localStorage.setItem(uKey, JSON.stringify({ date: today, usage: merged }));
+      }
+    }).catch(() => { /* silently ignore */ });
   }, [uid]);
 
   // Cross-tab plan sync: when the user upgrades in another tab, this tab picks it up via the storage event
@@ -148,8 +208,46 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
 
   const maxResumes = plan ? MAX_RESUMES[plan] : 0;
 
+  // Returns remaining generations for a feature; null = unlimited (Ultimate plan or plan not yet loaded)
+  const getRemainingUses = (feature: QuotaFeatureKey): number | null => {
+    if (!plan) return null; // plan not yet loaded — treat as unlimited to avoid flash-locked state
+    const limits = DAILY_LIMITS[plan];
+    if (limits === null) return null; // unlimited (Ultimate)
+    const limit = limits[feature];
+    const used = dailyUsage[feature] ?? 0;
+    return Math.max(0, limit - used);
+  };
+
+  // Optimistic increment — called after a successful API call
+  const incrementLocalUsage = (feature: QuotaFeatureKey) => {
+    if (!uid || !plan) return;
+    const limits = DAILY_LIMITS[plan];
+    if (limits === null) return; // unlimited, nothing to track
+
+    setDailyUsage(prev => {
+      const next = { ...prev, [feature]: (prev[feature] ?? 0) + 1 };
+      if (usageKey) {
+        localStorage.setItem(usageKey, JSON.stringify({ date: todayKey(), usage: next }));
+      }
+      return next;
+    });
+  };
+
   return (
-    <PlanContext.Provider value={{ plan, expiresAt: expiresAtState, setPlan, updatePlan, canAccess, remainingBullets, incrementBulletUsage, maxResumes }}>
+    <PlanContext.Provider value={{
+      plan,
+      expiresAt: expiresAtState,
+      setPlan,
+      updatePlan,
+      canAccess,
+      remainingBullets,
+      incrementBulletUsage,
+      maxResumes,
+      dailyUsage,
+      getRemainingUses,
+      incrementLocalUsage,
+      refreshUsage,
+    }}>
       {children}
     </PlanContext.Provider>
   );

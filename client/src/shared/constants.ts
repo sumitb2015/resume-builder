@@ -77,6 +77,73 @@ export const PLAN_PRICES: Record<Exclude<Plan, 'free'>, { monthly: number; annua
 
 export const BASIC_BULLET_LIMIT = 3;
 
+// AI generation quota feature keys (match server-side QuotaFeatureKey)
+export type QuotaFeatureKey =
+  | 'generateBullets'
+  | 'generateSummary'
+  | 'rephrase'
+  | 'atsScore'
+  | 'tailorResume'
+  | 'smartFit'
+  | 'coverLetter'
+  | 'interviewPrep'
+  | 'findSkills'
+  | 'generateFullResume';
+
+export const QUOTA_FEATURE_LABELS: Record<QuotaFeatureKey, string> = {
+  generateBullets: 'Bullet Generator',
+  generateSummary: 'Summary Writer',
+  rephrase: 'Rephrase',
+  atsScore: 'ATS Score',
+  tailorResume: 'Resume Tailoring',
+  smartFit: 'Smart Fit',
+  coverLetter: 'Cover Letter',
+  interviewPrep: 'Interview Prep',
+  findSkills: 'Skills Finder',
+  generateFullResume: 'Resume Generator',
+};
+
+// Daily generation limits per plan (null = unlimited)
+export const DAILY_LIMITS: Record<Plan, Record<QuotaFeatureKey, number> | null> = {
+  free: {
+    generateBullets: 3,
+    generateSummary: 1,
+    rephrase: 3,
+    atsScore: 1,
+    tailorResume: 1,
+    smartFit: 1,
+    coverLetter: 1,
+    interviewPrep: 1,
+    findSkills: 2,
+    generateFullResume: 1,
+  },
+  basic: {
+    generateBullets: 10,
+    generateSummary: 5,
+    rephrase: 15,
+    atsScore: 3,
+    tailorResume: 3,
+    smartFit: 3,
+    coverLetter: 2,
+    interviewPrep: 2,
+    findSkills: 5,
+    generateFullResume: 2,
+  },
+  pro: {
+    generateBullets: 30,
+    generateSummary: 15,
+    rephrase: 50,
+    atsScore: 10,
+    tailorResume: 10,
+    smartFit: 10,
+    coverLetter: 5,
+    interviewPrep: 5,
+    findSkills: 15,
+    generateFullResume: 5,
+  },
+  ultimate: null,
+};
+
 export const FONT_OPTIONS = [
   { label: 'EB Garamond — Classic Serif',        value: '"EB Garamond", Georgia, serif' },
   { label: 'Libre Baskerville — Traditional',     value: '"Libre Baskerville", Georgia, serif' },

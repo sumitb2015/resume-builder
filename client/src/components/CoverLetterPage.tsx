@@ -8,6 +8,10 @@ import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import type { Resume } from '../shared/types';
 import type { Feature } from '../shared/constants';
+import { usePlan } from '../contexts/PlanContext';
+import { parseQuotaError } from '../lib/api';
+import QuotaWarningModal from './QuotaWarningModal';
+import UsagePill from './UsagePill';
 
 interface Props {
   resume: Resume;
@@ -27,6 +31,8 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
+  const { getRemainingUses, incrementLocalUsage } = usePlan();
+  const [quotaModal, setQuotaModal] = useState<{ resetAt?: string } | null>(null);
 
   const [jobText, setJobText] = useState('');
 
@@ -65,14 +71,25 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
 
   const handleGenerate = async () => {
     if (!activeResume || !canProceedStep2) return;
+    if (getRemainingUses('coverLetter') === 0) {
+      setQuotaModal({});
+      return;
+    }
     setLoading(true);
     setStep(3);
     try {
       const res = await api.generateCoverLetter(activeResume, jobText);
       setResult(res.text);
+      incrementLocalUsage('coverLetter');
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'Generation failed. Please try again.');
-      setStep(2);
+      const quotaErr = parseQuotaError(err);
+      if (quotaErr) {
+        setQuotaModal({ resetAt: quotaErr.resetAt });
+        setStep(2);
+      } else {
+        toast.error(err instanceof Error ? err.message : 'Generation failed. Please try again.');
+        setStep(2);
+      }
     } finally {
       setLoading(false);
     }
@@ -112,9 +129,12 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <div 
-        style={{ 
-          width: '100%', 
+      {quotaModal && (
+        <QuotaWarningModal feature="coverLetter" resetAt={quotaModal.resetAt} onClose={() => setQuotaModal(null)} />
+      )}
+      <div
+        style={{
+          width: '100%',
           maxWidth: '800px', 
           padding: isMobile ? '12px 16px' : '24px 40px',
           paddingBottom: isMobile ? '80px' : '100px'
@@ -246,7 +266,10 @@ export default function CoverLetterPage({ resume, onBack }: Props) {
             />
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <button className="btn-ghost" style={{ fontSize: isMobile ? '12.5px' : '13px' }} onClick={() => setStep(1)}>Back</button>
-              <button className="btn-primary" style={{ padding: isMobile ? '9px 16px' : undefined, fontSize: isMobile ? '13px' : undefined }} disabled={!canProceedStep2} onClick={handleGenerate}>Generate Cover Letter</button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button className="btn-primary" style={{ padding: isMobile ? '9px 16px' : undefined, fontSize: isMobile ? '13px' : undefined }} disabled={!canProceedStep2} onClick={handleGenerate}>Generate Cover Letter</button>
+                <UsagePill feature="coverLetter" />
+              </div>
             </div>
           </div>
         )}

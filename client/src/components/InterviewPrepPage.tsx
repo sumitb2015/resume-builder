@@ -7,6 +7,10 @@ import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import type { Resume } from '../shared/types';
 import type { Feature } from '../shared/constants';
+import { usePlan } from '../contexts/PlanContext';
+import { parseQuotaError } from '../lib/api';
+import QuotaWarningModal from './QuotaWarningModal';
+import UsagePill from './UsagePill';
 
 interface Props {
   resume: Resume;
@@ -25,17 +29,30 @@ export default function InterviewPrepPage({ resume, onBack }: Props) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<PrepResult | null>(null);
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [quotaModal, setQuotaModal] = useState<{ resetAt?: string } | null>(null);
   const isMobile = useIsMobile();
+  const { getRemainingUses, incrementLocalUsage } = usePlan();
 
   const handleGenerate = async () => {
+    if (getRemainingUses('interviewPrep') === 0) {
+      setQuotaModal({});
+      return;
+    }
     setLoading(true);
     setStep(3);
     try {
       const res = await api.generateInterviewPrep(resume, jobText);
       setResult(res);
+      incrementLocalUsage('interviewPrep');
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'Prep generation failed.');
-      setStep(2);
+      const quotaErr = parseQuotaError(err);
+      if (quotaErr) {
+        setQuotaModal({ resetAt: quotaErr.resetAt });
+        setStep(2);
+      } else {
+        toast.error(err instanceof Error ? err.message : 'Prep generation failed.');
+        setStep(2);
+      }
     } finally {
       setLoading(false);
     }
@@ -43,6 +60,9 @@ export default function InterviewPrepPage({ resume, onBack }: Props) {
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {quotaModal && (
+        <QuotaWarningModal feature="interviewPrep" resetAt={quotaModal.resetAt} onClose={() => setQuotaModal(null)} />
+      )}
       <div 
         style={{ 
           width: '100%', 
@@ -85,7 +105,10 @@ export default function InterviewPrepPage({ resume, onBack }: Props) {
             />
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <button className="btn-ghost" style={{ fontSize: isMobile ? '12.5px' : '13px' }} onClick={() => setStep(1)}>Back</button>
-              <button className="btn-primary" style={{ padding: isMobile ? '9px 16px' : undefined, fontSize: isMobile ? '13px' : undefined }} disabled={jobText.length < 50} onClick={handleGenerate}>Generate Questions</button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button className="btn-primary" style={{ padding: isMobile ? '9px 16px' : undefined, fontSize: isMobile ? '13px' : undefined }} disabled={jobText.length < 50} onClick={handleGenerate}>Generate Questions</button>
+                <UsagePill feature="interviewPrep" />
+              </div>
             </div>
           </div>
         )}

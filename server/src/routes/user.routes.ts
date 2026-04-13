@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { db } from '../lib/firebase-admin';
 import { authenticate, AuthRequest } from '../middleware/auth.middleware';
+import { DAILY_LIMITS, EMPTY_USAGE, PlanTier } from '../constants/quotas';
 
 const router = Router();
 
@@ -75,6 +76,40 @@ router.get('/me/:uid', async (req: AuthRequest, res: Response) => {
     }
 
     res.json(doc.data());
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get daily AI usage for the authenticated user
+router.get('/usage', async (req: AuthRequest, res: Response) => {
+  try {
+    const uid = req.user?.uid;
+    if (!uid) return res.status(401).json({ error: 'Unauthorized' });
+    if (!db) return res.status(503).json({ error: 'Database not initialized.' });
+
+    const userDoc = await db.collection('users').doc(uid).get();
+    if (!userDoc.exists) return res.status(404).json({ error: 'User not found' });
+
+    const userData = userDoc.data()!;
+    const plan = (userData.plan || 'free') as PlanTier;
+    const today = new Date().toISOString().slice(0, 10);
+
+    let dailyUsage = userData.dailyUsage as (Record<string, any> & { date?: string }) | undefined;
+    if (!dailyUsage || dailyUsage.date !== today) {
+      dailyUsage = { date: today, ...EMPTY_USAGE };
+    }
+
+    // Exclude the `date` metadata key — only return feature counts
+    const { date: _date, ...featureCounts } = dailyUsage;
+    const limits = DAILY_LIMITS[plan]; // null = unlimited
+
+    res.json({
+      date: today,
+      plan,
+      usage: { ...EMPTY_USAGE, ...featureCounts },
+      limits,
+    });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

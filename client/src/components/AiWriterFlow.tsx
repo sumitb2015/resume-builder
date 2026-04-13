@@ -1,7 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { Loader2, Wand2, CheckCircle2, ChevronLeft, ChevronRight, Briefcase, GraduationCap, Trophy, Sparkles, Check, ArrowRight, Upload, MousePointer2 } from 'lucide-react';
 
-import { api } from '../lib/api';
+import { api, parseQuotaError } from '../lib/api';
+import { usePlan } from '../contexts/PlanContext';
+import QuotaWarningModal from './QuotaWarningModal';
+import UsagePill from './UsagePill';
 import type { Resume, TemplateConfig, SmartResumeResponse } from '../shared/types';
 import { templates } from '../templates';
 import TemplateRenderer from '../templates/TemplateRenderer';
@@ -98,6 +101,8 @@ interface Props {
 type Step = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export default function AiWriterFlow({ onComplete, onBack, onShowProfile }: Props) {
+  const { getRemainingUses, incrementLocalUsage } = usePlan();
+  const [quotaModal, setQuotaModal] = useState<{ resetAt?: string } | null>(null);
   const [step, setStep] = useState<Step>(0);
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateConfig>(templates[1]!);
   const [loadingMsg, setLoadingMsg] = useState('');
@@ -195,9 +200,13 @@ export default function AiWriterFlow({ onComplete, onBack, onShowProfile }: Prop
   };
 
   const handleGenerate = async () => {
+    if (getRemainingUses('generateFullResume') === 0) {
+      setQuotaModal({});
+      return;
+    }
     setStep(5);
     setLoadingMsg('Searching for latest market trends...');
-    
+
     const messages = [
       'Searching for latest market trends...',
       'Analyzing your career details...',
@@ -223,12 +232,19 @@ export default function AiWriterFlow({ onComplete, onBack, onShowProfile }: Prop
         context: `${coreSkills}. ${context}`,
       });
       if (!isMountedRef.current) return;
+      incrementLocalUsage('generateFullResume');
       setAiResponse(result);
       setStep(6);
     } catch (err: unknown) {
       if (!isMountedRef.current) return;
-      setStep(4);
-      setError(err instanceof Error ? err.message : 'Failed to generate resume. Please try again.');
+      const quotaErr = parseQuotaError(err);
+      if (quotaErr) {
+        setQuotaModal({ resetAt: quotaErr.resetAt });
+        setStep(4);
+      } else {
+        setStep(4);
+        setError(err instanceof Error ? err.message : 'Failed to generate resume. Please try again.');
+      }
     } finally {
       clearInterval(interval);
     }
@@ -274,11 +290,14 @@ export default function AiWriterFlow({ onComplete, onBack, onShowProfile }: Prop
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column' }}>
-      <header style={{ 
-        padding: '16px 24px', 
-        borderBottom: '1px solid var(--color-ui-border)', 
-        display: 'flex', 
-        alignItems: 'center', 
+      {quotaModal && (
+        <QuotaWarningModal feature="generateFullResume" resetAt={quotaModal.resetAt} onClose={() => setQuotaModal(null)} />
+      )}
+      <header style={{
+        padding: '16px 24px',
+        borderBottom: '1px solid var(--color-ui-border)',
+        display: 'flex',
+        alignItems: 'center',
         justifyContent: 'space-between',
         position: isMobile ? 'fixed' : 'sticky',
         top: 0,
@@ -567,6 +586,9 @@ export default function AiWriterFlow({ onComplete, onBack, onShowProfile }: Prop
                   <Sparkles size={18} style={{ marginRight: '8px' }} />
                   Generate Smart Resume
                 </button>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 6 }}>
+                <UsagePill feature="generateFullResume" />
               </div>
             </div>
           </div>
