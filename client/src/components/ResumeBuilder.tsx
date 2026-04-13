@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import {
   User, Briefcase, GraduationCap, Wrench, FolderOpen,
-  Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Check, X, GripVertical, Lock, FileText, PenLine, Camera
+  Award, Globe, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Loader2, Check, X, GripVertical, Lock, FileText, PenLine, Camera, Columns2
 } from 'lucide-react';
 import { usePlan } from '../contexts/PlanContext';
 import { useResume } from '../contexts/ResumeContext';
@@ -13,6 +13,7 @@ import type { Feature, QuotaFeatureKey } from '../shared/constants';
 import RichEditor from './RichEditor';
 import { stripHtml, plainTextToHtml, htmlCharCount } from '../lib/htmlUtils';
 import QuotaWarningModal from './QuotaWarningModal';
+import ResumeComparisonModal from './ResumeComparisonModal';
 import UsagePill from './UsagePill';
 import { parseQuotaError } from '../lib/api';
 
@@ -85,7 +86,7 @@ const EmptyState: React.FC<{ icon: React.ReactNode; text: string }> = ({ icon, t
 
 // ── Main component ────────────────────────────────────────────────────────────
 const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
-  const { resume, setResume: onChange, improvements, setImprovements: onDismissImprovements } = useResume();
+  const { resume, setResume: onChange, improvements, setImprovements: onDismissImprovements, activeTemplate } = useResume();
   const { canAccess, getRemainingUses, incrementLocalUsage } = usePlan();
   const [quotaModal, setQuotaModal] = useState<{ feature: QuotaFeatureKey; resetAt?: string } | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('personal');
@@ -93,6 +94,7 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
   const isMobile = useIsMobile(768);
 
   const [appliedSuggestions, setAppliedSuggestions] = useState<Set<number>>(new Set());
+  const [showComparison, setShowComparison] = useState(false);
 
   // AI state
   const [loadingBullets, setLoadingBullets] = useState<string | null>(null);
@@ -333,6 +335,21 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
     setAppliedSuggestions(prev => new Set(prev).add(index));
   };
 
+  const buildFullyImprovedResume = () => {
+    if (!improvements) return resume;
+    const base = JSON.parse(JSON.stringify(resume)) as typeof resume;
+    improvements.suggestions.forEach(s => {
+      if (stripHtml(base.personal.summary) === s.original) {
+        base.personal = { ...base.personal, summary: plainTextToHtml(s.suggested) };
+      }
+      base.experience = base.experience.map(exp => ({
+        ...exp,
+        bullets: exp.bullets.map(b => stripHtml(b) === s.original ? plainTextToHtml(s.suggested) : b),
+      }));
+    });
+    return base;
+  };
+
   const getCount = (tab: typeof TABS[0]): number => {
     if (!tab.countKey) return 0;
     const val = (resume as any)[tab.countKey];
@@ -382,6 +399,15 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
     <div className="editor-panel">
       {quotaModal && (
         <QuotaWarningModal feature={quotaModal.feature} resetAt={quotaModal.resetAt} onClose={() => setQuotaModal(null)} />
+      )}
+      {showComparison && improvements && (
+        <ResumeComparisonModal
+          originalResume={resume}
+          tailoredResume={buildFullyImprovedResume()}
+          config={activeTemplate}
+          totalSuggestions={improvements.suggestions.length - appliedSuggestions.size}
+          onClose={() => setShowComparison(false)}
+        />
       )}
 
       {/* ── TOP TAB BAR (only when AI suggestions are present) ── */}
@@ -443,6 +469,22 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
         <div style={{ overflow: 'auto', flex: 1, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {improvements.overallFeedback && (
             <p style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)', lineHeight: 1.5, marginBottom: '4px', fontStyle: 'italic', padding: '8px 10px', background: 'rgba(99,102,241,0.06)', borderRadius: '6px', border: '1px solid rgba(99,102,241,0.12)' }}>{improvements.overallFeedback}</p>
+          )}
+          {improvements.suggestions.length - appliedSuggestions.size > 0 && (
+            <button
+              onClick={() => setShowComparison(true)}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                padding: '7px 10px', borderRadius: '8px', border: '1px solid rgba(168,85,247,0.35)',
+                background: 'rgba(168,85,247,0.07)', color: '#A855F7',
+                fontSize: '11.5px', fontWeight: 600, cursor: 'pointer', width: '100%',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(168,85,247,0.12)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(168,85,247,0.07)')}
+            >
+              <Columns2 size={12} />
+              Compare Resumes
+            </button>
           )}
           {improvements.suggestions.map((s, i) => {
             const applied = appliedSuggestions.has(i);

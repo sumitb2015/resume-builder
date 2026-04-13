@@ -2,15 +2,17 @@ import { useState, useRef } from 'react';
 import { useIsMobile } from '../hooks/useIsMobile';
 import {
   FileText, Upload, ArrowLeft, Loader2, AlertCircle,
-  Zap, Link2, CheckCircle2, Check,
+  Zap, Link2, CheckCircle2, Check, Columns2,
 } from 'lucide-react';
 import { api } from '../lib/api';
 import { plainTextToHtml, stripHtml } from '../lib/htmlUtils';
 import type { Resume } from '../shared/types';
 import type { Feature } from '../shared/constants';
 import { usePlan } from '../contexts/PlanContext';
+import { useResume } from '../contexts/ResumeContext';
 import { parseQuotaError } from '../lib/api';
 import QuotaWarningModal from './QuotaWarningModal';
+import ResumeComparisonModal from './ResumeComparisonModal';
 import UsagePill from './UsagePill';
 
 interface TailorResult {
@@ -32,7 +34,9 @@ type JdTab = 'paste' | 'url';
 
 export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props) {
   const { getRemainingUses, incrementLocalUsage } = usePlan();
+  const { activeTemplate } = useResume();
   const [quotaModal, setQuotaModal] = useState<{ resetAt?: string } | null>(null);
+  const [showComparison, setShowComparison] = useState(false);
   const [step, setStep] = useState<WizardStep>(1);
   const [resumeSource, setResumeSource] = useState<ResumeSource>('current');
   const [uploadedResume, setUploadedResume] = useState<Resume | null>(null);
@@ -165,10 +169,37 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
     return base;
   };
 
+  const buildFullyTailoredResume = (): Resume => {
+    const base: Resume = JSON.parse(JSON.stringify(activeResume!));
+    if (result?.suggestedSummary) {
+      base.personal = { ...base.personal, summary: plainTextToHtml(result.suggestedSummary) };
+    }
+    if (result?.rewrittenBullets) {
+      base.experience = base.experience.map(exp => ({
+        ...exp,
+        bullets: exp.bullets.map(b => {
+          const plain = stripHtml(b).trim();
+          const match = result.rewrittenBullets.find(rw => plain === rw.original.trim());
+          return match ? plainTextToHtml(match.suggested) : b;
+        }),
+      }));
+    }
+    return base;
+  };
+
   return (
     <div style={{ flex: 1, overflowY: 'auto', background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {quotaModal && (
         <QuotaWarningModal feature="tailorResume" resetAt={quotaModal.resetAt} onClose={() => setQuotaModal(null)} />
+      )}
+      {showComparison && result && activeResume && (
+        <ResumeComparisonModal
+          originalResume={activeResume}
+          tailoredResume={buildFullyTailoredResume()}
+          config={activeTemplate}
+          totalSuggestions={totalAvailable}
+          onClose={() => setShowComparison(false)}
+        />
       )}
       <div 
         style={{ 
@@ -421,6 +452,7 @@ export default function JobTailorPage({ resume, onApplyChanges, onBack }: Props)
               onApplyToResume={() => onApplyChanges(buildMergedResume())}
               onRedo={() => { setStep(1); setResult(null); setAppliedBullets(new Set()); setSummaryApplied(false); }}
               onBack={onBack}
+              onCompare={() => setShowComparison(true)}
             />
           ) : (
             <div style={{ textAlign: 'center', padding: '60px 0' }}>
@@ -502,7 +534,7 @@ function ErrorBox({ message }: { message: string }) {
 
 function TailorResults({
   result, appliedBullets, summaryApplied, totalChanges, totalAvailable, isMobile,
-  onToggleBullet, onToggleSummary, onApplyAll, onApplyToResume, onRedo, onBack,
+  onToggleBullet, onToggleSummary, onApplyAll, onApplyToResume, onRedo, onBack, onCompare,
 }: {
   result: TailorResult;
   appliedBullets: Set<number>;
@@ -516,6 +548,7 @@ function TailorResults({
   onApplyToResume: () => void;
   onRedo: () => void;
   onBack: () => void;
+  onCompare: () => void;
 }) {
   return (
     <div>
@@ -534,13 +567,29 @@ function TailorResults({
             Select changes to apply
           </div>
         </div>
-        <button
-          className="btn-secondary"
-          style={{ fontSize: isMobile ? '11.5px' : '12.5px', gap: '5px', padding: isMobile ? '6px 10px' : undefined }}
-          onClick={onApplyAll}
-        >
-          <Check size={isMobile ? 11 : 12} /> {isMobile ? 'All' : 'Select All'}
-        </button>
+        <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+          <button
+            className="btn-secondary"
+            style={{
+              fontSize: isMobile ? '11.5px' : '12.5px',
+              gap: '5px',
+              padding: isMobile ? '6px 10px' : undefined,
+              borderColor: 'rgba(168,85,247,0.4)',
+              color: '#A855F7',
+            }}
+            onClick={onCompare}
+          >
+            <Columns2 size={isMobile ? 11 : 12} />
+            {isMobile ? 'Compare' : 'Compare Resumes'}
+          </button>
+          <button
+            className="btn-secondary"
+            style={{ fontSize: isMobile ? '11.5px' : '12.5px', gap: '5px', padding: isMobile ? '6px 10px' : undefined }}
+            onClick={onApplyAll}
+          >
+            <Check size={isMobile ? 11 : 12} /> {isMobile ? 'All' : 'Select All'}
+          </button>
+        </div>
       </div>
 
       {/* Missing keywords */}
