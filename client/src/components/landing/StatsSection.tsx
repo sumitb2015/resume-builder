@@ -5,7 +5,7 @@ const STATS = [
   { value: `${templates.length}+`, label: 'Professional Templates' },
   { value: '50K+', label: 'Resumes Created' },
   { value: '98%', label: 'ATS Pass Rate' },
-  { value: 'AI', label: 'Powered Resume Builder' },
+  { value: '3 min', label: 'Avg. time to first draft' },
 ];
 
 const StatsSection: React.FC = () => {

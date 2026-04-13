@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layers, Palette, Moon, Sun, Monitor, FileText, CheckCircle } from 'lucide-react';
+import { Layers, Palette, Moon, Sun, Monitor, FileText, CheckCircle, UserCheck } from 'lucide-react';
 
 const ADVANCED_FEATURES = [
   {
@@ -25,6 +25,12 @@ const ADVANCED_FEATURES = [
     title: 'Live Paged Preview',
     desc: 'See exactly how your resume will look on paper. Real-time multi-page pagination ensures your content never gets cut off.',
     color: '#10B981',
+  },
+  {
+    icon: <UserCheck size={24} />,
+    title: 'Expert Human Review',
+    desc: 'Get your resume reviewed by a human expert for personalized, strategic feedback on wording, positioning, and impact. Included with Ultimate.',
+    color: '#14B8A6',
   },
 ];
 
@@ -204,6 +210,26 @@ const AdvancedFeaturesSection: React.FC = () => {
                       <div style={{ textAlign: 'center' }}>
                         <div style={{ fontSize: '16px', fontWeight: 700, color: 'white', marginBottom: '4px' }}>Theme Sync</div>
                         <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)' }}>Matches your system preferences automatically</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === 4 && (
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '14px', padding: '4px 0' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', background: 'rgba(20,184,166,0.08)', border: '1px solid rgba(20,184,166,0.2)' }}>
+                        <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(20,184,166,0.15)', border: '1px solid rgba(20,184,166,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>👨‍💼</div>
+                        <div>
+                          <div style={{ fontSize: '11px', color: 'white', fontWeight: 700, marginBottom: '2px' }}>Expert Feedback</div>
+                          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.45)', fontStyle: 'italic' }}>"Your header is strong, but let's reword the Cloud Architect section to emphasise cost savings..."</div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {['Wording & tone review', 'Career positioning advice', 'Section-by-section notes'].map(item => (
+                          <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '10.5px', color: 'rgba(255,255,255,0.6)' }}>
+                            <CheckCircle size={12} color="#14B8A6" />
+                            {item}
+                          </div>
+                        ))}
                       </div>
                     </div>
                   )}

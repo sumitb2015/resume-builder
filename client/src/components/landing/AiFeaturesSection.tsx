@@ -52,13 +52,6 @@ const AI_FEATURES = [
     demo: 'interview',
   },
   {
-    icon: '👨‍🏫',
-    title: 'Expert Review',
-    desc: 'Get your resume reviewed by a human expert for personalized feedback on strategy and wording.',
-    color: '#14B8A6',
-    demo: 'expert',
-  },
-  {
     icon: '🔄',
     title: 'Diff Review',
     desc: 'See exactly what changed before/after job tailoring with a clear before/after comparison view.',
@@ -285,7 +278,7 @@ const AiFeaturesSection: React.FC = () => {
             Let AI do the heavy lifting
           </h2>
           <p style={{ fontSize: isMobile ? '14px' : '16px', color: 'var(--color-ui-text-muted)', maxWidth: '480px', margin: '0 auto' }}>
-            Nine purpose-built AI tools to craft compelling, ATS-optimized resumes that make you stand out.
+            Eight purpose-built AI tools to craft compelling, ATS-optimized resumes that make you stand out.
           </p>
         </div>
 

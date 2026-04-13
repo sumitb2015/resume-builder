@@ -98,7 +98,7 @@ const HeroSection: React.FC<Props> = ({ onStart }) => {
           onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 14px 44px rgba(99,102,241,0.55)'; }}
           onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(99,102,241,0.4)'; }}
         >
-          Start Building
+          Build My Resume — Free
           <ArrowRight size={16} />
         </button>
         <button
@@ -117,8 +117,13 @@ const HeroSection: React.FC<Props> = ({ onStart }) => {
         </button>
       </div>
 
+      {/* Risk reduction */}
+      <p style={{ marginTop: '14px', fontSize: isMobile ? '11.5px' : '12.5px', color: 'var(--color-ui-text-dim)', letterSpacing: '0.01em' }}>
+        No credit card required · Free forever
+      </p>
+
       {/* Social proof */}
-      <div style={{ marginTop: isMobile ? '40px' : '60px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+      <div style={{ marginTop: isMobile ? '28px' : '44px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex' }}>
           {[0,1,2,3,4].map(i => (
             <div key={i} style={{
