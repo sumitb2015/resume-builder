@@ -36,7 +36,7 @@ import PagedPreview from './components/PagedPreview';
 
 // Icons & UI
 import { 
-  Zap, Check
+  Zap, Check, Minus, Plus, Award, RotateCcw
 } from 'lucide-react';
 import BreadcrumbNav from './components/BreadcrumbNav';
 import UserAvatar from './components/UserAvatar';
@@ -108,7 +108,70 @@ function BuilderPage() {
       </div>
 
       {isDesktop && (
-        <main className="preview-viewport" style={{ flex: 1, minWidth: 0, padding: '32px 24px 64px' }}>
+        <main className="preview-viewport" style={{ flex: 1, minWidth: 0, padding: '32px 24px 64px', position: 'relative' }}>
+          {/* Floating Controls */}
+          <div className="no-print" style={{
+            position: 'absolute',
+            top: '24px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 100,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            background: 'var(--color-ui-surface)',
+            border: '1px solid var(--color-ui-border)',
+            padding: '6px 16px',
+            borderRadius: '100px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+            backdropFilter: 'blur(8px)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderRight: '1px solid var(--color-ui-border)', paddingRight: '12px' }}>
+              <button className="btn-ghost" style={{ padding: '4px', minWidth: 'unset', height: 'unset' }} onClick={() => setZoom(z => Math.max(0.4, z - 0.1))} title="Zoom Out">
+                <Minus size={14} />
+              </button>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-ui-text)', minWidth: '40px', textAlign: 'center', userSelect: 'none' }}>
+                {Math.round(zoom * 100)}%
+              </span>
+              <button className="btn-ghost" style={{ padding: '4px', minWidth: 'unset', height: 'unset' }} onClick={() => setZoom(z => Math.min(1.5, z + 0.1))} title="Zoom In">
+                <Plus size={14} />
+              </button>
+              
+              <div style={{ display: 'flex', gap: '4px', marginLeft: '8px' }}>
+                {[80, 100, 120].map(v => (
+                  <button
+                    key={v}
+                    onClick={() => setZoom(v / 100)}
+                    style={{
+                      padding: '2px 6px',
+                      borderRadius: '6px',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      border: `1px solid ${Math.round(zoom * 100) === v ? 'var(--color-ui-accent)' : 'var(--color-ui-border)'}`,
+                      background: Math.round(zoom * 100) === v ? 'rgba(99,102,241,0.15)' : 'transparent',
+                      color: Math.round(zoom * 100) === v ? 'var(--color-ui-accent)' : 'var(--color-ui-text-muted)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s'
+                    }}
+                  >
+                    {v}%
+                  </button>
+                ))}
+              </div>
+
+              <button className="btn-ghost" style={{ padding: '4px', marginLeft: '4px', minWidth: 'unset', height: 'unset' }} onClick={() => setZoom(0.75)} title="Reset to Default (75%)">
+                <RotateCcw size={13} />
+              </button>
+            </div>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Award size={14} color={activeTemplate.atsScore >= 90 ? 'var(--color-success)' : 'var(--color-warning)'} />
+              <span style={{ fontSize: '12px', fontWeight: 700, color: activeTemplate.atsScore >= 90 ? 'var(--color-success)' : 'var(--color-warning)', whiteSpace: 'nowrap' }}>
+                ATS Score: {activeTemplate.atsScore}%
+              </span>
+            </div>
+          </div>
+
           <div className="preview-scaler" style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
             <ErrorBoundary componentName="PagedPreview">
               <PagedPreview resume={resume} config={activeTemplate} onPageCount={setPageCount} />
