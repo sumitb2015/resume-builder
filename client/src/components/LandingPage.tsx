@@ -36,8 +36,8 @@ const LandingPage: React.FC<Props> = ({ onStart, onOpenBlog, onCheckout, onShowP
       <NavBar onStart={onStart} onOpenBlog={onOpenBlog} onShowProfile={onShowProfile} />
       <HeroSection onStart={onStart} />
       <StatsSection />
-      <TemplateShowcase onStart={onStart} />
       <AiFeaturesSection />
+      <TemplateShowcase onStart={onStart} />
       <AdvancedFeaturesSection />
       <HowItWorksSection />
       <PricingSection onStart={onStart} onCheckout={onCheckout} />
