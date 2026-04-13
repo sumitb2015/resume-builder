@@ -31,17 +31,17 @@ const allowedOrigins = [
   ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
 ];
 
+// Logger to debug CORS issues on Render
+app.use((req, res, next) => {
+  const origin = req.get('origin');
+  if (origin) {
+    console.log('[DEBUG] Incoming Request Origin:', origin);
+  }
+  next();
+});
+
 app.use(cors({
-  origin: (origin, callback) => {
-    // log the origin to see what's being sent on Render
-    if (origin) {
-      console.log('CORS request from:', origin);
-    }
-    
-    // allow all origins for now to prevent blocking
-    // note: this is effectively 'origin: true' but with logging
-    callback(null, true);
-  },
+  origin: true, // allow all origins to bypass CORS issues for now
   credentials: true,
 }));
 
