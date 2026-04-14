@@ -1,0 +1,121 @@
+<h2>Where should the "Session Diff" button live?</h2>
+<p class="subtitle">It should only appear on the <strong>/builder</strong> page when a session-start snapshot exists (i.e. the user uploaded a resume to start the session). Pick the placement that feels most natural.</p>
+
+<div class="cards" style="flex-direction: column; gap: 20px;">
+
+  <!-- Option A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)" style="max-width: 100%; cursor: pointer;">
+    <div class="card-body" style="padding: 0;">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+        <div class="letter" style="flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: rgba(129,140,248,0.15); border: 1px solid #818CF8; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #818CF8;">A</div>
+        <div>
+          <h3 style="margin: 0; font-size: 14px;">Between "Save" and "My Resumes"</h3>
+          <p style="margin: 0; font-size: 12px; color: var(--color-text-secondary, #94A3B8);">Contextual — near save/history actions</p>
+        </div>
+      </div>
+      <div class="mockup" style="background: #1E2132; border-radius: 8px; padding: 0; overflow: hidden;">
+        <div class="mockup-header" style="background: #151724; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08);">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 7px; height: 7px; border-radius: 50%; background: #EF4444;"></div>
+            <div style="width: 7px; height: 7px; border-radius: 50%; background: #F59E0B;"></div>
+            <div style="width: 7px; height: 7px; border-radius: 50%; background: #10B981;"></div>
+            <span style="margin-left: 8px; font-size: 11px; color: #94A3B8;">Resume Builder / John Smith</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="padding: 5px 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 11px; color: #CBD5E1; display: flex; align-items: center; gap: 5px;">
+              <span style="font-size: 10px;">🎨</span> Style
+            </div>
+            <div style="padding: 5px 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 11px; color: #CBD5E1; display: flex; align-items: center; gap: 5px;">
+              💾 Save
+            </div>
+            <!-- NEW BUTTON HIGHLIGHTED -->
+            <div style="padding: 5px 12px; background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.5); border-radius: 6px; font-size: 11px; color: #93C5FD; display: flex; align-items: center; gap: 5px; box-shadow: 0 0 0 2px rgba(59,130,246,0.2);">
+              📊 Session Diff
+            </div>
+            <div style="padding: 5px 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 11px; color: #CBD5E1; display: flex; align-items: center; gap: 5px;">
+              📁 My Resumes <span style="background: #818CF8; color: white; border-radius: 50%; width: 14px; height: 14px; font-size: 8px; display: inline-flex; align-items: center; justify-content: center;">3</span>
+            </div>
+            <div style="padding: 5px 14px; background: #818CF8; border-radius: 6px; font-size: 11px; color: white; font-weight: 600;">
+              📄 Preview & Export
+            </div>
+          </div>
+        </div>
+        <div style="height: 50px; display: flex; align-items: center; justify-content: center;">
+          <span style="color: #475569; font-size: 11px;">Resume editor content…</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)" style="max-width: 100%; cursor: pointer;">
+    <div class="card-body" style="padding: 0;">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+        <div class="letter" style="flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: rgba(129,140,248,0.15); border: 1px solid #818CF8; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #818CF8;">B</div>
+        <div>
+          <h3 style="margin: 0; font-size: 14px;">Left side, next to breadcrumb</h3>
+          <p style="margin: 0; font-size: 12px; color: var(--color-text-secondary, #94A3B8);">Prominent — visible on the left near context info</p>
+        </div>
+      </div>
+      <div class="mockup" style="background: #1E2132; border-radius: 8px; padding: 0; overflow: hidden;">
+        <div class="mockup-header" style="background: #151724; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08);">
+          <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+            <span style="font-size: 11px; color: #94A3B8;">Resume Builder / John Smith</span>
+            <div style="width: 1px; height: 14px; background: rgba(255,255,255,0.1);"></div>
+            <span style="padding: 3px 8px; background: rgba(99,102,241,0.15); border: 1px solid #6366F140; border-radius: 100px; font-size: 10px; font-weight: 700; color: #818CF8;">Pro</span>
+            <!-- NEW BUTTON ON LEFT -->
+            <div style="padding: 4px 11px; background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.5); border-radius: 6px; font-size: 11px; color: #93C5FD; display: flex; align-items: center; gap: 5px; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); cursor: pointer;">
+              📊 Session Diff
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="padding: 5px 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 11px; color: #CBD5E1;">🎨 Style</div>
+            <div style="padding: 5px 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 11px; color: #CBD5E1;">💾 Save</div>
+            <div style="padding: 5px 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 11px; color: #CBD5E1;">📁 My Resumes</div>
+            <div style="padding: 5px 14px; background: #818CF8; border-radius: 6px; font-size: 11px; color: white; font-weight: 600;">📄 Preview & Export</div>
+          </div>
+        </div>
+        <div style="height: 50px; display: flex; align-items: center; justify-content: center;">
+          <span style="color: #475569; font-size: 11px;">Resume editor content…</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)" style="max-width: 100%; cursor: pointer;">
+    <div class="card-body" style="padding: 0;">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+        <div class="letter" style="flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: rgba(129,140,248,0.15); border: 1px solid #818CF8; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #818CF8;">C</div>
+        <div>
+          <h3 style="margin: 0; font-size: 14px;">Right side, right before "Preview & Export"</h3>
+          <p style="margin: 0; font-size: 12px; color: var(--color-text-secondary, #94A3B8);">Natural flow — review changes before exporting</p>
+        </div>
+      </div>
+      <div class="mockup" style="background: #1E2132; border-radius: 8px; padding: 0; overflow: hidden;">
+        <div class="mockup-header" style="background: #151724; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08);">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 11px; color: #94A3B8;">Resume Builder / John Smith</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="padding: 5px 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 11px; color: #CBD5E1;">🎨 Style</div>
+            <div style="padding: 5px 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 11px; color: #CBD5E1;">💾 Save</div>
+            <div style="padding: 5px 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 11px; color: #CBD5E1;">📁 My Resumes</div>
+            <!-- NEW BUTTON JUST BEFORE EXPORT -->
+            <div style="padding: 5px 12px; background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.5); border-radius: 6px; font-size: 11px; color: #93C5FD; display: flex; align-items: center; gap: 5px; box-shadow: 0 0 0 2px rgba(59,130,246,0.2);">
+              📊 Session Diff
+            </div>
+            <div style="padding: 5px 14px; background: #818CF8; border-radius: 6px; font-size: 11px; color: white; font-weight: 600;">📄 Preview & Export</div>
+          </div>
+        </div>
+        <div style="height: 50px; display: flex; align-items: center; justify-content: center;">
+          <span style="color: #475569; font-size: 11px;">Resume editor content…</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top: 20px; padding: 12px 16px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); font-size: 12px; color: #64748B;">
+  <strong style="color: #94A3B8;">Note:</strong> The button only appears when a session-start snapshot exists (i.e. when the user uploaded/parsed a resume to begin the session). It won't show up for sessions started manually.
+</div>

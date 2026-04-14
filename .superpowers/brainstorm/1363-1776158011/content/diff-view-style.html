@@ -1,0 +1,143 @@
+<h2>What should the Session Diff view look like?</h2>
+<p class="subtitle">The existing "Compare Resumes" is a side-by-side rendered resume view. Here are 3 styles for the new session diff. Pick what feels most useful.</p>
+
+<div class="cards" style="flex-direction: column; gap: 24px;">
+
+  <!-- Option A: Reuse existing side-by-side rendered modal -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)" style="max-width: 100%; cursor: pointer;">
+    <div class="card-body" style="padding: 0;">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+        <div class="letter" style="flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: rgba(129,140,248,0.15); border: 1px solid #818CF8; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #818CF8;">A</div>
+        <div>
+          <h3 style="margin: 0; font-size: 14px;">Reuse existing side-by-side rendered resume view</h3>
+          <p style="margin: 0; font-size: 12px; color: #94A3B8;">Same as current "Compare Resumes" modal — original left, current right. New/changed bullets highlighted green.</p>
+        </div>
+      </div>
+      <div class="mockup" style="background: #151724; border-radius: 8px; padding: 16px; overflow: hidden;">
+        <div style="display: flex; gap: 12px;">
+          <!-- Left: Original -->
+          <div style="flex: 1; background: white; border-radius: 6px; padding: 12px; font-size: 10px; color: #1E293B;">
+            <div style="font-weight: 700; font-size: 11px; margin-bottom: 4px;">John Smith</div>
+            <div style="color: #64748B; font-size: 9px; margin-bottom: 8px;">Software Engineer · john@email.com</div>
+            <div style="font-size: 9px; font-weight: 600; color: #374151; border-bottom: 1px solid #E5E7EB; padding-bottom: 2px; margin-bottom: 4px;">EXPERIENCE</div>
+            <div style="font-weight: 600; font-size: 9px;">Senior Dev — Acme Corp</div>
+            <div style="font-size: 9px; color: #374151; margin-top: 2px;">• Worked on backend systems</div>
+            <div style="font-size: 9px; color: #374151;">• Fixed bugs in production</div>
+          </div>
+          <!-- Right: Current -->
+          <div style="flex: 1; background: white; border-radius: 6px; padding: 12px; font-size: 10px; color: #1E293B;">
+            <div style="font-weight: 700; font-size: 11px; margin-bottom: 4px;">John Smith</div>
+            <div style="color: #64748B; font-size: 9px; margin-bottom: 8px;">Software Engineer · john@email.com</div>
+            <div style="font-size: 9px; font-weight: 600; color: #374151; border-bottom: 1px solid #E5E7EB; padding-bottom: 2px; margin-bottom: 4px;">EXPERIENCE</div>
+            <div style="font-weight: 600; font-size: 9px;">Senior Dev — Acme Corp</div>
+            <div style="background: #dcfce7; font-size: 9px; color: #166534; margin-top: 2px; padding: 2px 4px; border-radius: 3px;">• Architected scalable backend microservices handling 2M+ daily requests</div>
+            <div style="background: #dcfce7; font-size: 9px; color: #166534; padding: 2px 4px; border-radius: 3px;">• Reduced P95 latency by 40% through systematic profiling and caching</div>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+          <span style="font-size: 10px; color: #94A3B8;">Session Start</span>
+          <span style="font-size: 10px; color: #94A3B8;">Current Resume</span>
+        </div>
+      </div>
+      <div class="pros-cons" style="margin-top: 12px;">
+        <div class="pros"><h4>Pros</h4><ul><li>Zero new code — reuses ResumeComparisonModal</li><li>Familiar UX for users who've used Compare</li><li>Renders actual formatted resume</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Hard to spot small text changes in rendered view</li><li>No change summary / count</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B: Text diff list -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)" style="max-width: 100%; cursor: pointer;">
+    <div class="card-body" style="padding: 0;">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+        <div class="letter" style="flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: rgba(129,140,248,0.15); border: 1px solid #818CF8; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #818CF8;">B</div>
+        <div>
+          <h3 style="margin: 0; font-size: 14px;">Change list — "what changed" summary panel</h3>
+          <p style="margin: 0; font-size: 12px; color: #94A3B8;">Shows each changed field as a before/after pair with section label. Like a PR diff, but for resume content.</p>
+        </div>
+      </div>
+      <div class="mockup" style="background: #151724; border-radius: 8px; padding: 16px; overflow: hidden;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <span style="font-size: 12px; font-weight: 700; color: #E2E8F0;">Session Changes</span>
+          <span style="background: rgba(59,130,246,0.15); border: 1px solid #3B82F640; border-radius: 100px; padding: 2px 10px; font-size: 10px; color: #93C5FD;">4 changes</span>
+        </div>
+        <!-- Change item 1 -->
+        <div style="background: rgba(255,255,255,0.04); border-radius: 6px; padding: 10px; margin-bottom: 8px; border-left: 3px solid #3B82F6;">
+          <div style="font-size: 9px; font-weight: 600; color: #818CF8; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;">Experience • Acme Corp • Bullet 1</div>
+          <div style="background: rgba(239,68,68,0.1); border-radius: 4px; padding: 6px 8px; margin-bottom: 4px; font-size: 10px; color: #FCA5A5;"><span style="color: #EF4444; font-weight: 700; margin-right: 4px;">−</span>Worked on backend systems</div>
+          <div style="background: rgba(34,197,94,0.1); border-radius: 4px; padding: 6px 8px; font-size: 10px; color: #86EFAC;"><span style="color: #22C55E; font-weight: 700; margin-right: 4px;">+</span>Architected scalable backend microservices handling 2M+ daily requests</div>
+        </div>
+        <!-- Change item 2 -->
+        <div style="background: rgba(255,255,255,0.04); border-radius: 6px; padding: 10px; margin-bottom: 8px; border-left: 3px solid #3B82F6;">
+          <div style="font-size: 9px; font-weight: 600; color: #818CF8; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;">Summary</div>
+          <div style="background: rgba(239,68,68,0.1); border-radius: 4px; padding: 6px 8px; margin-bottom: 4px; font-size: 10px; color: #FCA5A5;"><span style="color: #EF4444; font-weight: 700; margin-right: 4px;">−</span>Experienced software developer with strong skills...</div>
+          <div style="background: rgba(34,197,94,0.1); border-radius: 4px; padding: 6px 8px; font-size: 10px; color: #86EFAC;"><span style="color: #22C55E; font-weight: 700; margin-right: 4px;">+</span>Results-driven Software Engineer with 8+ years delivering high-impact...</div>
+        </div>
+        <div style="font-size: 10px; color: #475569; text-align: center;">+ 2 more changes…</div>
+      </div>
+      <div class="pros-cons" style="margin-top: 12px;">
+        <div class="pros"><h4>Pros</h4><ul><li>Easiest to scan — see exact text changes</li><li>Change count badge shows impact at a glance</li><li>Git-like UX users already understand</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Requires diffing logic between two Resume objects</li><li>No rendered resume preview</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option C: Split — change list + mini preview -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)" style="max-width: 100%; cursor: pointer;">
+    <div class="card-body" style="padding: 0;">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+        <div class="letter" style="flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: rgba(129,140,248,0.15); border: 1px solid #818CF8; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #818CF8;">C</div>
+        <div>
+          <h3 style="margin: 0; font-size: 14px;">Hybrid — change list on left + rendered diff on right</h3>
+          <p style="margin: 0; font-size: 12px; color: #94A3B8;">Left panel lists all changes; right panel shows full side-by-side rendered view. Best of both, larger modal.</p>
+        </div>
+      </div>
+      <div class="mockup" style="background: #151724; border-radius: 8px; padding: 12px; overflow: hidden;">
+        <div style="display: flex; gap: 10px;">
+          <!-- Left: change list -->
+          <div style="width: 200px; flex-shrink: 0;">
+            <div style="font-size: 10px; font-weight: 700; color: #E2E8F0; margin-bottom: 8px;">4 changes <span style="background: rgba(59,130,246,0.2); border-radius: 100px; padding: 1px 6px; color: #93C5FD; font-size: 9px; font-weight: 400;">this session</span></div>
+            <div style="background: rgba(59,130,246,0.1); border-left: 2px solid #3B82F6; padding: 5px 8px; border-radius: 4px; margin-bottom: 5px; cursor: pointer;">
+              <div style="font-size: 9px; font-weight: 600; color: #93C5FD;">Summary</div>
+              <div style="font-size: 8px; color: #64748B; margin-top: 1px;">1 change</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.04); border-left: 2px solid rgba(255,255,255,0.1); padding: 5px 8px; border-radius: 4px; margin-bottom: 5px; cursor: pointer;">
+              <div style="font-size: 9px; font-weight: 600; color: #CBD5E1;">Acme Corp</div>
+              <div style="font-size: 8px; color: #64748B; margin-top: 1px;">2 bullets changed</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.04); border-left: 2px solid rgba(255,255,255,0.1); padding: 5px 8px; border-radius: 4px; cursor: pointer;">
+              <div style="font-size: 9px; font-weight: 600; color: #CBD5E1;">Skills</div>
+              <div style="font-size: 8px; color: #64748B; margin-top: 1px;">1 change</div>
+            </div>
+          </div>
+          <!-- Right: rendered diff -->
+          <div style="flex: 1; display: flex; gap: 8px;">
+            <div style="flex: 1; background: white; border-radius: 5px; padding: 8px; font-size: 9px; color: #1E293B;">
+              <div style="font-weight: 700; font-size: 10px;">John Smith</div>
+              <div style="color: #64748B; font-size: 8px; margin-bottom: 6px;">Software Engineer</div>
+              <div style="font-size: 8px; font-weight: 600; border-bottom: 1px solid #E5E7EB; padding-bottom: 2px; margin-bottom: 3px;">SUMMARY</div>
+              <div style="font-size: 8px; color: #374151; margin-bottom: 6px;">Experienced software developer...</div>
+              <div style="font-size: 8px; font-weight: 600; border-bottom: 1px solid #E5E7EB; padding-bottom: 2px; margin-bottom: 3px;">EXPERIENCE</div>
+              <div style="font-size: 8px;">• Worked on backend systems</div>
+            </div>
+            <div style="flex: 1; background: white; border-radius: 5px; padding: 8px; font-size: 9px; color: #1E293B;">
+              <div style="font-weight: 700; font-size: 10px;">John Smith</div>
+              <div style="color: #64748B; font-size: 8px; margin-bottom: 6px;">Software Engineer</div>
+              <div style="font-size: 8px; font-weight: 600; border-bottom: 1px solid #E5E7EB; padding-bottom: 2px; margin-bottom: 3px;">SUMMARY</div>
+              <div style="background: #dcfce7; font-size: 8px; color: #166534; margin-bottom: 6px; padding: 2px 3px; border-radius: 2px;">Results-driven Engineer with 8+ years...</div>
+              <div style="font-size: 8px; font-weight: 600; border-bottom: 1px solid #E5E7EB; padding-bottom: 2px; margin-bottom: 3px;">EXPERIENCE</div>
+              <div style="background: #dcfce7; font-size: 8px; color: #166534; padding: 2px 3px; border-radius: 2px;">• Architected scalable backend microservices...</div>
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+          <span style="font-size: 9px; color: #475569;">← Original | Current →</span>
+        </div>
+      </div>
+      <div class="pros-cons" style="margin-top: 12px;">
+        <div class="pros"><h4>Pros</h4><ul><li>Most complete view — see both list and rendered</li><li>Can click a change to highlight it in the rendered view</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Most complex to build</li><li>Large modal, can feel overwhelming</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>
