@@ -1,0 +1,44 @@
+{
+  "settings": {
+    "migrated": 6,
+    "iconPacksPath": ".obsidian/icons",
+    "fontSize": 16,
+    "emojiStyle": "native",
+    "iconColor": null,
+    "recentlyUsedIcons": [
+      "LiAxis3d",
+      "LiArrowUp01",
+      "LiBadgeDollarSign",
+      "LiArrowUpCircle",
+      "LiArchiveX"
+    ],
+    "recentlyUsedIconsSize": 5,
+    "rules": [],
+    "extraMargin": {
+      "top": 0,
+      "right": 4,
+      "bottom": 0,
+      "left": 0
+    },
+    "iconInTabsEnabled": false,
+    "iconInTitleEnabled": false,
+    "iconInTitlePosition": "above",
+    "iconInFrontmatterEnabled": false,
+    "iconInFrontmatterFieldName": "icon",
+    "iconColorInFrontmatterFieldName": "iconColor",
+    "iconsBackgroundCheckEnabled": false,
+    "iconsInNotesEnabled": true,
+    "iconsInLinksEnabled": true,
+    "iconIdentifier": ":",
+    "lucideIconPackType": "native",
+    "debugMode": false,
+    "useInternalPlugins": false
+  },
+  "Resume Builder/Index.md": "LiArrowUp01",
+  "Resume Builder/AI-Workflow.md": "LiAxis3d",
+  "Resume Builder/Architecture-Overview.md": "LiAlarmClockMinus",
+  "Resume Builder/Backend-Services.md": "LiAlertCircle",
+  "Resume Builder/Export-Workflow.md": "LiArchiveX",
+  "Resume Builder/External-Tools.md": "LiArrowUpCircle",
+  "Resume Builder/Frontend-Components.md": "LiBadgeDollarSign"
+}

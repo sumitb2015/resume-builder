@@ -17,3 +17,6 @@ The AI engine uses **OpenAI GPT-4o-mini** to provide professional career coachin
 ## Security & Sanitization
 - **Prompt Sanitizer**: Strips HTML tags and common prompt injection patterns before sending data to OpenAI.
 - **JSON Mode**: AI responses are strictly validated against JSON schemas.
+
+
+

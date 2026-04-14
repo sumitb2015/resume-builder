@@ -1,5 +1,10 @@
 {
   "accentColor": "",
-  "cssTheme": "Minimal",
-  "interfaceFontFamily": "sf mono,Source Code Pro,Inter"
+  "cssTheme": "Obsidianite",
+  "interfaceFontFamily": "sf mono,Source Code Pro,Inter",
+  "showRibbon": true,
+  "showViewHeader": true,
+  "textFontFamily": "inter",
+  "baseFontSize": 18,
+  "nativeMenus": false
 }

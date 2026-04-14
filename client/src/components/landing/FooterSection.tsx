@@ -114,9 +114,14 @@ const FooterSection: React.FC = () => {
           gap: '12px',
           textAlign: isMobile ? 'center' : 'left'
         }}>
-          <p style={{ fontSize: '13px', color: 'var(--color-ui-text-dim)' }}>
-            © 2026 BespokeCV · AI-powered resume builder
-          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: isMobile ? 'center' : 'flex-start' }}>
+            <p style={{ fontSize: '13px', color: 'var(--color-ui-text-dim)', margin: 0 }}>
+              © 2026 BespokeCV · AI-powered resume builder
+            </p>
+            <p style={{ fontSize: '12px', color: 'var(--color-ui-text-dim)', opacity: 0.8, margin: 0 }}>
+              Owned and operated by <a href="https://aspireaisolutions.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>AspireAI Solutions</a>
+            </p>
+          </div>
           <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
             <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#4ADE80' }} />
             <span style={{ fontSize: '12.5px', color: 'var(--color-ui-text-dim)' }}>All systems operational</span>

@@ -1,0 +1,22 @@
+{
+  "cascadeColors": false,
+  "colorBackground": false,
+  "palette": [
+    {
+      "id": "bJVxAVBTcHoLMoNS16Krz",
+      "name": "",
+      "value": "#d31d1d"
+    },
+    {
+      "id": "MA18ZToyI9jvFX5KzyAiM",
+      "name": "",
+      "value": "#7e5dbb"
+    }
+  ],
+  "fileColors": [
+    {
+      "path": "Resume Builder/AI-Workflow.md",
+      "color": "bJVxAVBTcHoLMoNS16Krz"
+    }
+  ]
+}
