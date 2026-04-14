@@ -129,7 +129,7 @@ const TestimonialsSection: React.FC = () => {
             Loved by job seekers worldwide
           </h2>
           <p style={{ fontSize: isMobile ? '14px' : '16px', color: 'var(--color-ui-text-muted)' }}>
-            Join 50,000+ professionals who've landed interviews with BespokeCV
+            Trusted by job seekers across India
           </p>
         </div>
 
