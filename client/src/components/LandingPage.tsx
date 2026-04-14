@@ -1,6 +1,7 @@
 import React from 'react';
 import NavBar from './landing/NavBar';
 import HeroSection from './landing/HeroSection';
+import LogosSection from './landing/LogosSection';
 import StatsSection from './landing/StatsSection';
 import TemplateShowcase from './landing/TemplateShowcase';
 import AiFeaturesSection from './landing/AiFeaturesSection';
@@ -27,6 +28,7 @@ const LandingPage: React.FC<Props> = ({ onStart, onOpenBlog, onCheckout, onShowP
     <div className="landing-page">
       <NavBar onStart={onStart} onOpenBlog={onOpenBlog} onShowProfile={onShowProfile} />
       <HeroSection onStart={onStart} />
+      <LogosSection />
       <StatsSection />
       <AiFeaturesSection />
       <TemplateShowcase onStart={onStart} />

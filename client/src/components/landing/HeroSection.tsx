@@ -64,10 +64,10 @@ const HeroSection: React.FC<Props> = ({ onStart }) => {
         color: 'var(--color-ui-text)', 
         marginBottom: '24px' 
       }}>
-        The AI Resume Builder
+        Increase your interview
         <br />
         <span style={{ background: 'linear-gradient(135deg, #6366F1 0%, #A855F7 50%, #EC4899 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-          that gets you hired
+          chances instantly
         </span>
       </h1>
 
@@ -80,7 +80,7 @@ const HeroSection: React.FC<Props> = ({ onStart }) => {
         maxWidth: '640px', 
         margin: '0 auto 44px' 
       }}>
-        Build ATS-optimized resumes in minutes. Start from scratch with AI, import your LinkedIn, or upload a PDF. {templates.length}+ professional templates with real-time live preview.
+        Get hired faster with our AI-powered resume builder. Beat the ATS, tailor your application to any job description, and export a pixel-perfect PDF in minutes.
       </p>
 
       {/* CTAs */}
@@ -143,8 +143,38 @@ const HeroSection: React.FC<Props> = ({ onStart }) => {
           {[0,1,2,3,4].map(i => <Star key={i} size={isMobile ? 11 : 13} color="#F59E0B" fill="#F59E0B" />)}
         </div>
         <span style={{ fontSize: isMobile ? '12px' : '13.5px', color: 'var(--color-ui-text-muted)', fontWeight: 500 }}>
-          Loved by job seekers
+          Join professionals landing interviews
         </span>
+      </div>
+
+      {/* Product Demo Screenshot */}
+      <div style={{ 
+        marginTop: isMobile ? '40px' : '60px', 
+        position: 'relative', 
+        borderRadius: '16px', 
+        overflow: 'hidden',
+        border: '1px solid var(--color-ui-border)',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+        background: 'var(--color-ui-bg)'
+      }}>
+        <div style={{
+          background: 'var(--color-ui-surface-2)',
+          borderBottom: '1px solid var(--color-ui-border)',
+          padding: '10px 16px',
+          display: 'flex',
+          gap: '6px'
+        }}>
+          <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#EF4444' }}></div>
+          <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#F59E0B' }}></div>
+          <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#10B981' }}></div>
+        </div>
+        <div style={{ padding: '2px', background: 'var(--color-ui-surface)' }}>
+          <img 
+            src="/og-image.png" 
+            alt="BespokeCV Resume Editor Dashboard" 
+            style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.95 }}
+          />
+        </div>
       </div>
     </section>
   );

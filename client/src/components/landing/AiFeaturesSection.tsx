@@ -206,37 +206,72 @@ const DEMO_PANELS: Record<string, React.FC<{ color: string }>> = {
   diff: DiffDemoPanel,
 };
 
-const FeatureCard: React.FC<{ feature: typeof AI_FEATURES[0] }> = ({ feature }) => {
-  const DemoPanel = DEMO_PANELS[feature.demo];
+const WORKFLOW_STEPS = [
+  {
+    step: '01',
+    title: 'Choose a Template',
+    desc: 'Select from 40+ ATS-optimized templates designed by recruitment experts.',
+    color: '#6366F1',
+    icon: '🎨',
+    demo: 'skills', // Reuse existing demo panels for visual depth
+  },
+  {
+    step: '02',
+    title: 'AI Writing Suite',
+    desc: 'Generate powerful bullet points and professional summaries in seconds.',
+    color: '#8B5CF6',
+    icon: '✍️',
+    demo: 'bullets',
+  },
+  {
+    step: '03',
+    title: 'ATS Optimization',
+    desc: 'Get an instant compatibility score and match your resume to any job description.',
+    color: '#A855F7',
+    icon: '🎯',
+    demo: 'ats',
+  },
+  {
+    step: '04',
+    title: 'Export & Land the Job',
+    desc: 'Download your pixel-perfect PDF and use AI to prepare for the interview.',
+    color: '#EC4899',
+    icon: '🚀',
+    demo: 'interview',
+  },
+];
+
+const StepCard: React.FC<{ step: typeof WORKFLOW_STEPS[0] }> = ({ step }) => {
+  const DemoPanel = DEMO_PANELS[step.demo];
   return (
     <div
       style={{
-        borderRadius: '16px', overflow: 'hidden',
+        borderRadius: '24px', overflow: 'hidden',
         background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)',
-        transition: 'border-color 0.25s, background 0.25s, transform 0.25s',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        display: 'flex', flexDirection: 'column',
       }}
       onMouseEnter={e => {
-        e.currentTarget.style.borderColor = feature.color + '45';
-        e.currentTarget.style.background = feature.color + '08';
-        e.currentTarget.style.transform = 'translateY(-4px)';
+        e.currentTarget.style.borderColor = step.color + '50';
+        e.currentTarget.style.transform = 'translateY(-6px)';
+        e.currentTarget.style.boxShadow = `0 20px 40px -12px ${step.color}25`;
       }}
       onMouseLeave={e => {
         e.currentTarget.style.borderColor = 'var(--color-ui-border)';
-        e.currentTarget.style.background = 'var(--color-ui-surface)';
         e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = 'none';
       }}
     >
-      {/* Demo visual panel — always dark to simulate the app preview */}
-      <div style={{ height: '130px', borderBottom: '1px solid var(--color-ui-border)', overflow: 'hidden' }}>
-        <DemoPanel color={feature.color} />
-      </div>
-      {/* Text content */}
-      <div style={{ padding: '20px 22px 22px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-          <span style={{ fontSize: '22px' }}>{feature.icon}</span>
-          <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-ui-text)' }}>{feature.title}</h3>
+      <div style={{ padding: '32px 32px 24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <span style={{ fontSize: '14px', fontWeight: 800, color: step.color, letterSpacing: '0.1em' }}>STEP {step.step}</span>
+          <span style={{ fontSize: '24px' }}>{step.icon}</span>
         </div>
-        <p style={{ fontSize: '13.5px', color: 'var(--color-ui-text-muted)', lineHeight: 1.65 }}>{feature.desc}</p>
+        <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-ui-text)', marginBottom: '12px' }}>{step.title}</h3>
+        <p style={{ fontSize: '15px', color: 'var(--color-ui-text-muted)', lineHeight: 1.6, marginBottom: '0' }}>{step.desc}</p>
+      </div>
+      <div style={{ flex: 1, minHeight: '140px', borderTop: '1px solid var(--color-ui-border)', overflow: 'hidden' }}>
+        <DemoPanel color={step.color} />
       </div>
     </div>
   );
@@ -257,38 +292,38 @@ const AiFeaturesSection: React.FC = () => {
 
   return (
     <section id="ai-features" style={{
-      padding: isMobile ? '60px 20px' : '100px 48px',
+      padding: isMobile ? '80px 20px' : '120px 48px',
       background: 'var(--color-ui-bg)',
       borderTop: '1px solid var(--color-ui-border)',
       borderBottom: '1px solid var(--color-ui-border)',
     }}>
-      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: isMobile ? '40px' : '64px' }}>
+        <div style={{ textAlign: 'center', marginBottom: isMobile ? '56px' : '80px' }}>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
             padding: '6px 16px', borderRadius: '100px',
-            background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.25)',
+            background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)',
             marginBottom: '20px',
           }}>
-            <Sparkles size={13} color="#C084FC" />
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#C084FC', letterSpacing: '0.04em' }}>AI-POWERED FEATURES</span>
+            <Sparkles size={13} color="#818CF8" />
+            <span style={{ fontSize: '12px', fontWeight: 700, color: '#818CF8', letterSpacing: '0.05em' }}>THE WORKFLOW</span>
           </div>
-          <h2 style={{ fontSize: isMobile ? '28px' : 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)', marginBottom: '14px' }}>
-            Let AI do the heavy lifting
+          <h2 style={{ fontSize: isMobile ? '32px' : 'clamp(36px, 5vw, 56px)', fontWeight: 900, letterSpacing: '-0.04em', color: 'var(--color-ui-text)', marginBottom: '20px', lineHeight: 1.1 }}>
+            Your path to a <span style={{ color: '#818CF8' }}>better career</span>
           </h2>
-          <p style={{ fontSize: isMobile ? '14px' : '16px', color: 'var(--color-ui-text-muted)', maxWidth: '480px', margin: '0 auto' }}>
-            Eight purpose-built AI tools to craft compelling, ATS-optimized resumes that make you stand out.
+          <p style={{ fontSize: isMobile ? '16px' : '19px', color: 'var(--color-ui-text-muted)', maxWidth: '600px', margin: '0 auto', lineHeight: 1.6 }}>
+            BespokeCV simplifies the job hunt into four powerful steps, using AI to give you an unfair advantage.
           </p>
         </div>
 
         {/* Grid */}
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: isMobile ? (isTablet ? 'repeat(2, 1fr)' : '1fr') : 'repeat(3, 1fr)', 
-          gap: '20px' 
+          gridTemplateColumns: isMobile ? (isTablet ? 'repeat(2, 1fr)' : '1fr') : 'repeat(4, 1fr)', 
+          gap: '24px' 
         }}>
-          {AI_FEATURES.map((f, i) => <FeatureCard key={i} feature={f} />)}
+          {WORKFLOW_STEPS.map((s, i) => <StepCard key={i} step={s} />)}
         </div>
       </div>
     </section>
