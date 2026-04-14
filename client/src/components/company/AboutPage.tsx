@@ -80,6 +80,51 @@ const AboutPage: React.FC = () => {
           Unlike generic resume builders, BespokeCV uses AI to understand context. Our AI doesn't just rephrase your bullet points — it analyzes job descriptions, identifies relevant keywords, and helps you tell your career story in a way that resonates with hiring managers and ATS systems alike.
         </p>
 
+        <h2 style={h2Style}>Parent Company</h2>
+        <div style={{
+          background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)',
+          borderRadius: '16px', padding: '24px', marginBottom: '24px',
+          position: 'relative', overflow: 'hidden'
+        }}>
+          <div style={{
+            position: 'absolute', top: '-20px', right: '-20px',
+            width: '100px', height: '100px', background: 'rgba(99,102,241,0.05)',
+            borderRadius: '50%', pointerEvents: 'none'
+          }} />
+          
+          <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--color-ui-text)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            AspireAI Solutions
+          </h3>
+          <p style={{ ...pStyle, marginBottom: '16px' }}>
+            BespokeCV is a flagship product of <strong>AspireAI Solutions</strong>, a technology company dedicated to building intelligent, human-centric AI tools that empower individuals in their professional journeys.
+          </p>
+          <p style={{ ...pStyle, marginBottom: '20px' }}>
+            Based in India, AspireAI Solutions focuses on solving real-world career challenges through innovative software engineering and cutting-edge artificial intelligence.
+          </p>
+          <a 
+            href="https://aspireaisolutions.com/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              padding: '8px 16px', background: 'rgba(99,102,241,0.1)',
+              border: '1px solid rgba(99,102,241,0.2)', borderRadius: '8px',
+              color: '#818CF8', fontSize: '13px', fontWeight: 700, textDecoration: 'none',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(99,102,241,0.15)';
+              e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgba(99,102,241,0.1)';
+              e.currentTarget.style.borderColor = 'rgba(99,102,241,0.2)';
+            }}
+          >
+            Visit aspireaisolutions.com <Rocket size={14} />
+          </a>
+        </div>
+
         <h2 style={h2Style}>Get in Touch</h2>
         <p style={pStyle}>
           Have questions or feedback? We'd love to hear from you. Reach us at{' '}
