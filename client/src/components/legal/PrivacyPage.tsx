@@ -11,7 +11,7 @@ const PrivacyPage: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', padding: '48px 24px 80px' }}>
+    <div className="landing-page" style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', padding: '48px 24px 80px' }}>
       <div style={{ maxWidth: '720px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '48px' }}>
@@ -49,7 +49,7 @@ const PrivacyPage: React.FC = () => {
         <p style={pStyle}>Depending on your jurisdiction, you may have rights to access, correct, delete, or port your data. To exercise these rights, contact us at privacy@bespokecv.in. We will respond to all requests within 30 days.</p>
 
         <h2 style={h2Style}>5. Contact</h2>
-        <p style={pStyle}>For privacy-related questions, contact our Data Protection Officer at privacy@bespokecv.in or write to BespokeCV, Inc., 548 Market St, San Francisco, CA 94104.</p>
+        <p style={pStyle}>For privacy-related questions, contact our Data Protection Officer at privacy@bespokecv.in or write to <a href="https://aspireaisolutions.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-ui-accent)', textDecoration: 'none' }}>AspireAI Solutions</a>.</p>
       </div>
     </div>
   );

@@ -17,7 +17,7 @@ const CareersPage: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', padding: '48px 24px 80px' }}>
+    <div className="landing-page" style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', padding: '48px 24px 80px' }}>
       <div style={{ maxWidth: '720px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '48px' }}>

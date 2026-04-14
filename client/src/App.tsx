@@ -435,7 +435,7 @@ export function PlanSelectPage() {
   };
 
   return (
-    <div style={{
+    <div className="landing-page" style={{
       minHeight: '100vh', background: 'var(--color-ui-bg)',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       padding: isMobile ? '80px 20px 40px' : '40px 24px',

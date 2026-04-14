@@ -22,7 +22,7 @@ const AboutPage: React.FC = () => {
   );
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', padding: '48px 24px 80px' }}>
+    <div className="landing-page" style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', padding: '48px 24px 80px' }}>
       <div style={{ maxWidth: '720px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '48px' }}>
@@ -44,7 +44,8 @@ const AboutPage: React.FC = () => {
         </h1>
 
         <p style={pStyle}>
-          BespokeCV is an AI-powered resume builder built for the modern job seeker. We combine cutting-edge AI with beautiful design to help you create resumes that stand out — and get past ATS filters.
+          BespokeCV is an AI-powered resume builder built for the modern job seeker. We combine cutting-edge AI with beautiful design to help you create resumes that stand out — and get past ATS filters. 
+          The platform is owned and operated by <a href="https://aspireaisolutions.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#818CF8', textDecoration: 'none' }}>AspireAI Solutions</a>.
         </p>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '8px' }}>

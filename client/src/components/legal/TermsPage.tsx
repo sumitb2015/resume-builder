@@ -11,7 +11,7 @@ const TermsPage: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', padding: '48px 24px 80px' }}>
+    <div className="landing-page" style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', padding: '48px 24px 80px' }}>
       <div style={{ maxWidth: '720px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '48px' }}>
@@ -46,7 +46,7 @@ const TermsPage: React.FC = () => {
         <p style={pStyle}>You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You agree to provide accurate, current, and complete information and to update it as necessary. You must not use the service for any unlawful purpose or in any way that could damage, disable, or impair the service.</p>
 
         <h2 style={h2Style}>4. Intellectual Property</h2>
-        <p style={pStyle}>The BespokeCV platform, including its software, design, templates, and AI models, is the intellectual property of BespokeCV and its licensors. You retain ownership of the content you create using our service, including your resume data. By using the service, you grant BespokeCV a limited, non-exclusive license to process your content solely for the purpose of providing the service.</p>
+        <p style={pStyle}>The BespokeCV platform, including its software, design, templates, and AI models, is the intellectual property of <a href="https://aspireaisolutions.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-ui-accent)', textDecoration: 'none' }}>AspireAI Solutions</a> and its licensors. You retain ownership of the content you create using our service, including your resume data. By using the service, you grant us a limited, non-exclusive license to process your content solely for the purpose of providing the service.</p>
 
         <h2 style={h2Style}>5. AI-Generated Content</h2>
         <p style={pStyle}>Our service uses AI models to generate suggestions, bullet points, summaries, and other content. While we strive to provide accurate and helpful suggestions, AI-generated content may contain errors or inaccuracies. You are solely responsible for reviewing and verifying all content before using it in professional contexts. BespokeCV makes no warranty regarding the accuracy, completeness, or fitness for purpose of AI-generated content.</p>
