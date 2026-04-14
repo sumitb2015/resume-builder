@@ -273,10 +273,15 @@ Return ONLY valid JSON:
 export const findSkills = async (jobTitle: string) => {
   const safeJobTitle = sanitizeForPrompt(jobTitle, 200);
   const prompt = `List the 20 most important skills for a ${safeJobTitle} role in today's job market.
-Split into technical and soft skills. Return ONLY valid JSON:
+Split into technical and soft skills.
+Rules:
+- Each skill must be a SHORT NAME (2-4 words max), not a sentence or description.
+- Good examples: "Python", "TensorFlow", "Data Preprocessing", "SQL", "Critical Thinking"
+- Bad examples: "Experience with machine learning frameworks", "Understanding of algorithms and data structures"
+Return ONLY valid JSON:
 {
-  "technical": ["10 technical skills"],
-  "soft": ["10 soft skills"]
+  "technical": ["10 technical skill names"],
+  "soft": ["10 soft skill names"]
 }`;
 
   const text = await ask(prompt, true);
