@@ -1,7 +1,6 @@
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { X, Check, Zap, Crown, ArrowRight } from 'lucide-react';
-import { templates } from '../templates';
 import type { Plan } from '../shared/constants';
 
 interface Props {
@@ -13,6 +12,7 @@ interface Props {
 
 const PLAN_DETAILS: Record<string, {
   price: string;
+  period: string;
   color: string;
   gradient: string;
   shadow: string;
