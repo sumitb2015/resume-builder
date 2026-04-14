@@ -141,7 +141,7 @@ const AdvancedFeaturesSection: React.FC = () => {
 
                   {activeTab === 0 && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', fontWeight: 600, letterSpacing: '0.05em' }}>MY SAVED RESUMES</div>
+                      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.55)', fontWeight: 600, letterSpacing: '0.05em' }}>MY SAVED RESUMES</div>
                       {[
                         { name: 'Senior UI Designer - Google', date: '2 days ago', active: true },
                         { name: 'Product Lead - Stripe', date: '1 week ago', active: false },
@@ -155,8 +155,8 @@ const AdvancedFeaturesSection: React.FC = () => {
                         }}>
                           <FileText size={16} color={item.active ? '#818CF8' : 'rgba(255,255,255,0.3)'} />
                           <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: '12px', color: item.active ? 'white' : 'rgba(255,255,255,0.7)', fontWeight: 600 }}>{item.name}</div>
-                            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>{item.date}</div>
+                            <div style={{ fontSize: '12px', color: item.active ? 'white' : 'rgba(255,255,255,0.92)', fontWeight: 600 }}>{item.name}</div>
+                            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.55)' }}>{item.date}</div>
                           </div>
                           {item.active && <CheckCircle size={14} color="#4ADE80" />}
                         </div>
@@ -166,10 +166,10 @@ const AdvancedFeaturesSection: React.FC = () => {
 
                   {activeTab === 1 && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', fontWeight: 600, letterSpacing: '0.05em' }}>STYLE CUSTOMIZATION</div>
+                      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.55)', fontWeight: 600, letterSpacing: '0.05em' }}>STYLE CUSTOMIZATION</div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>Primary Color</div>
+                          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.80)' }}>Primary Color</div>
                           <div style={{ display: 'flex', gap: '6px' }}>
                             {['#6366F1', '#EC4899', '#10B981', '#F59E0B'].map(c => (
                               <div key={c} style={{ width: '20px', height: '20px', borderRadius: '50%', background: c, border: c === '#EC4899' ? '2px solid white' : 'none' }} />
@@ -177,13 +177,13 @@ const AdvancedFeaturesSection: React.FC = () => {
                           </div>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>Typography</div>
+                          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.80)' }}>Typography</div>
                           <div style={{ padding: '6px 10px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', fontSize: '11px', color: 'white', border: '1px solid rgba(255,255,255,0.1)' }}>Inter (Sans-serif)</div>
                         </div>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>Page Margins</div>
+                          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.80)' }}>Page Margins</div>
                           <div style={{ fontSize: '10px', color: 'white' }}>15mm</div>
                         </div>
                         <div style={{ width: '100%', height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', position: 'relative' }}>
@@ -209,7 +209,7 @@ const AdvancedFeaturesSection: React.FC = () => {
                       </div>
                       <div style={{ textAlign: 'center' }}>
                         <div style={{ fontSize: '16px', fontWeight: 700, color: 'white', marginBottom: '4px' }}>Theme Sync</div>
-                        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)' }}>Matches your system preferences automatically</div>
+                        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.60)' }}>Matches your system preferences automatically</div>
                       </div>
                     </div>
                   )}
@@ -220,12 +220,12 @@ const AdvancedFeaturesSection: React.FC = () => {
                         <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(20,184,166,0.15)', border: '1px solid rgba(20,184,166,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>👨‍💼</div>
                         <div>
                           <div style={{ fontSize: '11px', color: 'white', fontWeight: 700, marginBottom: '2px' }}>Expert Feedback</div>
-                          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.45)', fontStyle: 'italic' }}>"Your header is strong, but let's reword the Cloud Architect section to emphasise cost savings..."</div>
+                          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.65)', fontStyle: 'italic' }}>"Your header is strong, but let's reword the Cloud Architect section to emphasise cost savings..."</div>
                         </div>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                         {['Wording & tone review', 'Career positioning advice', 'Section-by-section notes'].map(item => (
-                          <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '10.5px', color: 'rgba(255,255,255,0.6)' }}>
+                          <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '10.5px', color: 'rgba(255,255,255,0.85)' }}>
                             <CheckCircle size={12} color="#14B8A6" />
                             {item}
                           </div>
