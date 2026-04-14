@@ -28,7 +28,7 @@ const CtaSection: React.FC<Props> = ({ onStart }) => {
         <h2 style={{ fontSize: isMobile ? '28px' : 'clamp(36px, 4vw, 52px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)', marginBottom: '18px', position: 'relative' }}>
           Ready to land your dream job?
         </h2>
-        <p style={{ fontSize: isMobile ? '15px' : '17px', color: 'var(--color-ui-text-muted)', marginBottom: isMobile ? '32px' : '40px', lineHeight: 1.65, maxWidth: '540px', margin: '0 auto 40px', position: 'relative' }}>
+        <p style={{ fontSize: isMobile ? '15px' : '17px', color: 'var(--color-ui-text-muted)', lineHeight: 1.65, maxWidth: '540px', margin: isMobile ? '0 auto 32px' : '0 auto 40px', position: 'relative' }}>
           Join thousands of professionals who built interview-winning resumes with BespokeCV. Get started for free.
         </p>
         <button

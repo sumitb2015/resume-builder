@@ -223,7 +223,7 @@ const ForestTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
 
 const ForestSideSection: React.FC<{ title: string; accent: string; children: React.ReactNode }> = ({ title, accent, children }) => (
   <div>
-    <h2 style={{ fontSize: '0.5625em', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.18em', color: accent, marginBottom: '10px', margin: '0 0 10px' }}>
+    <h2 style={{ fontSize: '0.5625em', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.18em', color: accent, margin: '0 0 10px' }}>
       {title}
     </h2>
     {children}

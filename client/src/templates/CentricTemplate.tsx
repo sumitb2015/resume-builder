@@ -47,7 +47,7 @@ const CentricTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
 
       {/* CENTERED SUMMARY */}
       {personal.summary && (
-        <section style={{ marginBottom: '48px', textAlign: 'center', maxWidth: '800px', margin: '0 auto 48px auto' }}>
+        <section style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto 48px auto' }}>
           <RichContent html={personal.summary} style={{ fontSize: '1.05rem', lineHeight: 1.7, color: '#444' }} />
         </section>
       )}

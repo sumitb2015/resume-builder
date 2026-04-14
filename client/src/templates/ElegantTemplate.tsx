@@ -38,7 +38,7 @@ const ElegantTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
       </header>
 
       {personal.summary && (
-        <div style={{ marginBottom: '28px', textAlign: 'center', maxWidth: '80%', margin: '0 auto 28px' }}>
+        <div style={{ textAlign: 'center', maxWidth: '80%', margin: '0 auto 28px' }}>
           <RichContent html={personal.summary} style={{ fontSize: '0.8438em', lineHeight: 1.9, color: '#555', fontStyle: 'italic' }} />
         </div>
       )}
