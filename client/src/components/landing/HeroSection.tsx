@@ -50,7 +50,7 @@ const HeroSection: React.FC<Props> = ({ onStart }) => {
       }}>
         <Sparkles size={12} color="#818CF8" />
         <span style={{ fontSize: isMobile ? '11px' : '12.5px', fontWeight: 600, color: '#818CF8', letterSpacing: '0.01em' }}>
-          Trusted by <strong style={{ color: '#A78BFA' }}>50,000+</strong> job seekers worldwide
+          Trusted by job seekers across India
         </span>
       </div>
 
@@ -142,7 +142,7 @@ const HeroSection: React.FC<Props> = ({ onStart }) => {
           {[0,1,2,3,4].map(i => <Star key={i} size={isMobile ? 11 : 13} color="#F59E0B" fill="#F59E0B" />)}
         </div>
         <span style={{ fontSize: isMobile ? '12px' : '13.5px', color: 'var(--color-ui-text-muted)', fontWeight: 500 }}>
-          Loved by <strong style={{ color: 'var(--color-ui-text)' }}>50,000+</strong>
+          Loved by job seekers
         </span>
       </div>
     </section>
