@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { templates } from '../../templates';
 
 const SeoContentSection: React.FC = () => {
@@ -109,7 +110,7 @@ const SeoContentSection: React.FC = () => {
             Whether you are a <strong>fresher</strong> graduating from university or a <strong>senior professional</strong> transitioning industries, BespokeCV offers the tools you need.
           </p>
           <p style={{ marginTop: '16px', color: 'var(--color-ui-text-muted)' }}>
-            Our AI Bullet Writer uses the <strong>Google XYZ formula</strong> to turn responsibilities into high-impact achievements. Learn more in our <a href="/blog" style={{ color: '#818CF8', fontWeight: 600, textDecoration: 'none', borderBottom: '1px solid #818CF8' }}>ATS Strategy Guide</a>. Choose from <strong>{templates.length}+ professional templates</strong> designed to be 100% ATS-friendly.
+            Our AI Bullet Writer uses the <strong>Google XYZ formula</strong> to turn responsibilities into high-impact achievements. Learn more in our <Link to="/blog?article=ats-bullets" style={{ color: '#818CF8', fontWeight: 600, textDecoration: 'none', borderBottom: '1px solid #818CF8' }}>ATS Strategy Guide</Link>. Choose from <strong>{templates.length}+ professional templates</strong> designed to be 100% ATS-friendly.
           </p>
         </div>
       </div>
