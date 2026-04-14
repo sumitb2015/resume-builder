@@ -220,8 +220,7 @@ const HeroSection: React.FC<Props> = ({ onStart }) => {
               position: 'relative',
               borderRadius: '0 0 14px 14px',
               overflow: 'hidden',
-              height: isMobile ? undefined : '520px',
-              aspectRatio: isMobile ? '2560 / 944' : undefined,
+              aspectRatio: '2560 / 944',
             }}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
