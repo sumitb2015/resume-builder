@@ -32,8 +32,8 @@ const LogosSection: React.FC = () => {
         <CompanyLogo name="Google" />
         <CompanyLogo name="Amazon" />
         <CompanyLogo name="Microsoft" />
-        <CompanyLogo name="Meta" />
-        <CompanyLogo name="Netflix" />
+        <CompanyLogo name="TCS" />
+        <CompanyLogo name="Tech Mahindra" />
         <CompanyLogo name="Adobe" />
       </div>
     </div>
