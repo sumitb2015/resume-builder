@@ -30,13 +30,13 @@ const HeroSection: React.FC<Props> = ({ onStart }) => {
   }, [isHovered]);
 
   return (
-    <section id="hero" style={{ 
-      position: 'relative', 
-      padding: isMobile ? '80px 20px 60px' : '110px 48px 90px', 
-      maxWidth: '960px', 
-      margin: '0 auto', 
-      textAlign: 'center', 
-      overflow: 'hidden' 
+    <section id="hero" style={{
+      position: 'relative',
+      padding: isMobile ? '80px 20px 60px' : '110px 48px 90px',
+      maxWidth: '1200px',
+      margin: '0 auto',
+      textAlign: 'center',
+      overflow: 'hidden'
     }}>
 
       {/* Animated gradient mesh blobs */}
@@ -162,61 +162,105 @@ const HeroSection: React.FC<Props> = ({ onStart }) => {
       </div>
 
       {/* Product Demo Screenshot */}
-      <div style={{ 
-        marginTop: isMobile ? '40px' : '60px', 
-        position: 'relative', 
-        borderRadius: '16px', 
-        overflow: 'hidden',
-        border: '1px solid var(--color-ui-border)',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-        background: 'var(--color-ui-bg)'
+      <div style={{
+        marginTop: isMobile ? '40px' : '70px',
+        position: 'relative',
       }}>
+        {/* Ambient glow behind the frame */}
         <div style={{
-          background: 'var(--color-ui-surface-2)',
-          borderBottom: '1px solid var(--color-ui-border)',
-          padding: '10px 16px',
-          display: 'flex',
-          gap: '6px'
+          position: 'absolute',
+          inset: '-30px',
+          background: 'radial-gradient(ellipse at 50% 40%, rgba(99,102,241,0.28) 0%, rgba(168,85,247,0.16) 45%, transparent 70%)',
+          filter: 'blur(40px)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }} />
+
+        {/* Glassmorphism frame */}
+        <div style={{
+          position: 'relative',
+          zIndex: 1,
+          borderRadius: '20px',
+          overflow: 'hidden',
+          border: '1px solid rgba(99,102,241,0.4)',
+          boxShadow: '0 0 0 1px rgba(255,255,255,0.06) inset, 0 40px 80px -10px rgba(0,0,0,0.7), 0 0 60px rgba(99,102,241,0.18)',
+          background: 'rgba(13,17,23,0.75)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          padding: '6px',
         }}>
-          <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#EF4444' }}></div>
-          <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#F59E0B' }}></div>
-          <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#10B981' }}></div>
-        </div>
-        <div
-          style={{ position: 'relative', background: 'var(--color-ui-surface)' }}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          {CAROUSEL_IMAGES.map((img, i) => (
-            <img
-              key={img.src}
-              src={img.src}
-              alt={img.alt}
-              style={{
-                width: '100%', height: 'auto', display: 'block',
-                opacity: i === currentSlide ? 0.95 : 0,
-                position: i === 0 ? 'relative' : 'absolute',
-                top: 0, left: 0,
-                transition: 'opacity 0.6s ease',
-              }}
-            />
-          ))}
+          {/* Browser chrome */}
           <div style={{
-            position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)',
-            display: 'flex', gap: '6px',
+            background: 'rgba(33,38,45,0.95)',
+            borderBottom: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: '14px 14px 0 0',
+            padding: '10px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
           }}>
-            {CAROUSEL_IMAGES.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentSlide(i)}
+            <div style={{ width: '11px', height: '11px', borderRadius: '50%', background: '#EF4444', flexShrink: 0 }} />
+            <div style={{ width: '11px', height: '11px', borderRadius: '50%', background: '#F59E0B', flexShrink: 0 }} />
+            <div style={{ width: '11px', height: '11px', borderRadius: '50%', background: '#10B981', flexShrink: 0 }} />
+            <div style={{
+              flex: 1, marginLeft: '12px', height: '24px', borderRadius: '7px',
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.28)', fontFamily: 'monospace', letterSpacing: '0.02em' }}>
+                app.bespokecv.com
+              </span>
+            </div>
+          </div>
+
+          {/* Carousel images */}
+          <div
+            style={{ position: 'relative', borderRadius: '0 0 14px 14px', overflow: 'hidden' }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            {CAROUSEL_IMAGES.map((img, i) => (
+              <img
+                key={img.src}
+                src={img.src}
+                alt={img.alt}
                 style={{
-                  width: i === currentSlide ? '20px' : '6px', height: '6px',
-                  borderRadius: '3px', border: 'none', padding: 0, cursor: 'pointer',
-                  background: i === currentSlide ? '#818CF8' : 'rgba(255,255,255,0.35)',
-                  transition: 'all 0.3s ease',
+                  width: '100%', height: 'auto', display: 'block',
+                  opacity: i === currentSlide ? 1 : 0,
+                  position: i === 0 ? 'relative' : 'absolute',
+                  top: 0, left: 0,
+                  transition: 'opacity 0.7s ease',
                 }}
               />
             ))}
+
+            {/* Bottom fade overlay */}
+            <div style={{
+              position: 'absolute', bottom: 0, left: 0, right: 0, height: '90px',
+              background: 'linear-gradient(to bottom, transparent, rgba(13,17,23,0.65))',
+              pointerEvents: 'none',
+              zIndex: 1,
+            }} />
+
+            {/* Dot indicators */}
+            <div style={{
+              position: 'absolute', bottom: '16px', left: '50%', transform: 'translateX(-50%)',
+              display: 'flex', gap: '6px', zIndex: 2,
+            }}>
+              {CAROUSEL_IMAGES.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentSlide(i)}
+                  style={{
+                    width: i === currentSlide ? '20px' : '6px', height: '6px',
+                    borderRadius: '3px', border: 'none', padding: 0, cursor: 'pointer',
+                    background: i === currentSlide ? '#818CF8' : 'rgba(255,255,255,0.35)',
+                    transition: 'all 0.3s ease',
+                  }}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
