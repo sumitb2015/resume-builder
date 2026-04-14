@@ -7,6 +7,7 @@ interface Props { onStart: () => void }
 const CAROUSEL_IMAGES = [
   { src: '/product.png',  alt: 'BespokeCV Resume Editor Dashboard' },
   { src: '/product2.png', alt: 'BespokeCV AI Resume Tailoring' },
+  { src: '/product3.png', alt: 'BespokeCV Job-Specific Optimization' },
 ];
 
 const HeroSection: React.FC<Props> = ({ onStart }) => {
