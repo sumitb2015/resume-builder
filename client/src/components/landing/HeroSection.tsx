@@ -216,7 +216,7 @@ const HeroSection: React.FC<Props> = ({ onStart }) => {
 
           {/* Carousel images */}
           <div
-            style={{ position: 'relative', borderRadius: '0 0 14px 14px', overflow: 'hidden' }}
+            style={{ position: 'relative', borderRadius: '0 0 14px 14px', overflow: 'hidden', height: isMobile ? 'auto' : '520px' }}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
@@ -226,7 +226,8 @@ const HeroSection: React.FC<Props> = ({ onStart }) => {
                 src={img.src}
                 alt={img.alt}
                 style={{
-                  width: '100%', height: 'auto', display: 'block',
+                  width: '100%', height: isMobile ? 'auto' : '100%', display: 'block',
+                  objectFit: isMobile ? 'unset' : 'cover', objectPosition: 'top',
                   opacity: i === currentSlide ? 1 : 0,
                   position: i === 0 ? 'relative' : 'absolute',
                   top: 0, left: 0,
