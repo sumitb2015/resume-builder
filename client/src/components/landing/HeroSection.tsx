@@ -26,7 +26,7 @@ const HeroSection: React.FC<Props> = ({ onStart }) => {
     if (isHovered) return;
     const timer = setInterval(() => {
       setCurrentSlide(i => (i + 1) % CAROUSEL_IMAGES.length);
-    }, 4000);
+    }, 2000);
     return () => clearInterval(timer);
   }, [isHovered]);
 
@@ -221,7 +221,7 @@ const HeroSection: React.FC<Props> = ({ onStart }) => {
               position: 'relative',
               borderRadius: '0 0 14px 14px',
               overflow: 'hidden',
-              aspectRatio: '2560 / 944',
+              aspectRatio: '2560 / 1280',
             }}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
