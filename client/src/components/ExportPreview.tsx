@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useIsMobile, useWindowWidth } from '../hooks/useIsMobile';
 import type { Resume, TemplateConfig } from '../shared/types';
 import PagedPreview from './PagedPreview';
@@ -6,11 +7,13 @@ import TemplateRenderer from '../templates/TemplateRenderer';
 import toast from 'react-hot-toast';
 import { api, parseQuotaError } from '../lib/api';
 import { buildPdfHtml } from '../lib/buildPdfHtml';
-import { Download, Type, Move, Palette, Sparkles, Loader2, Undo2, Redo2, FileText as FileTextIcon, Minus, Plus, RotateCcw } from 'lucide-react';
+import { Download, Type, Move, Palette, Sparkles, Loader2, Undo2, Redo2, FileText as FileTextIcon, Minus, Plus, RotateCcw, ChevronDown, FileType2, Lock } from 'lucide-react';
 import { usePlan } from '../contexts/PlanContext';
 import QuotaWarningModal from './QuotaWarningModal';
 import UsagePill from './UsagePill';
 import { Button } from './ui/button';
+import UpgradeModal from './UpgradeModal';
+import type { Plan } from '../shared/constants';
 
 // Resume Fonts - loaded only when Export view is active
 import "@fontsource/playfair-display";
@@ -61,11 +64,18 @@ interface HistoryItem {
 
 const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpdateResume, pageCount, onPageCount }) => {
   const { canAccess, getRemainingUses, incrementLocalUsage } = usePlan();
+  const navigate = useNavigate();
   const [quotaModal, setQuotaModal] = useState<{ resetAt?: string } | null>(null);
+  const [upgradeModal, setUpgradeModal] = useState<{ requiredPlan: Plan; featureLabel: string } | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<'layout' | 'fonts' | 'colors'>('layout');
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isWordDownloading, setIsWordDownloading] = useState(false);
+  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const [isMobileExportMenuOpen, setIsMobileExportMenuOpen] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
+  const mobileExportMenuRef = useRef<HTMLDivElement>(null);
   const [targetPages, setTargetPages] = useState(1);
   const [userPrompt, setUserPrompt] = useState('');
   const isMobile = useIsMobile();
@@ -279,6 +289,48 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
     }
   };
 
+  // Close export dropdowns on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target as Node)) {
+        setIsExportMenuOpen(false);
+      }
+      if (mobileExportMenuRef.current && !mobileExportMenuRef.current.contains(e.target as Node)) {
+        setIsMobileExportMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const handleExportWord = async () => {
+    setIsExportMenuOpen(false);
+    setIsMobileExportMenuOpen(false);
+    if (!canAccess('download-word')) {
+      setUpgradeModal({ requiredPlan: 'pro', featureLabel: 'Word Export' });
+      return;
+    }
+    setIsWordDownloading(true);
+    try {
+      const rawName = resume.personal.name || 'Resume';
+      const filename = rawName.replace(/[^\w\s\-]/g, '').trim() + '_Resume';
+      const blob = await api.exportDocx(resume, filename);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${filename}.docx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Word export failed:', err);
+      toast.error('Word export failed — please try again.');
+    } finally {
+      setIsWordDownloading(false);
+    }
+  };
+
   const mobileScale = Math.min(0.8, (windowWidth - 32) / 794);
 
   // Calculate target page options: [1 ... pageCount+1]
@@ -297,6 +349,14 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
     }}>
       {quotaModal && (
         <QuotaWarningModal feature="smartFit" resetAt={quotaModal.resetAt} onClose={() => setQuotaModal(null)} />
+      )}
+      {upgradeModal && (
+        <UpgradeModal
+          requiredPlan={upgradeModal.requiredPlan}
+          featureLabel={upgradeModal.featureLabel}
+          onClose={() => setUpgradeModal(null)}
+          onUpgrade={(p) => { navigate('/checkout', { state: { plan: p, annual: false } }); setUpgradeModal(null); }}
+        />
       )}
       {/* ── LEFT CONFIG PANEL ─────────────────────────── */}
       <aside style={{
@@ -523,17 +583,74 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
         {!isMobile && (
           <div style={{ padding: '20px', borderTop: '1px solid var(--color-ui-border)', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '12px', background: 'var(--color-ui-bg)' }}>
             {canAccess('download-pdf') ? (
-              <Button
-                variant="default"
-                className="w-full h-12 text-[14px] font-bold gap-2.5 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white shadow-[0_4px_15px_rgba(99,102,241,0.3)] hover:opacity-90 border-none transition-all"
-                onClick={handlePrint}
-                disabled={isDownloading}
-              >
-                {isDownloading
-                  ? <><Loader2 size={18} className="animate-spin" /> Preparing PDF…</>
-                  : <><Download size={18} /> Export as PDF</>
-                }
-              </Button>
+              <div ref={exportMenuRef} style={{ position: 'relative' }}>
+                <div style={{ display: 'flex', gap: '2px' }}>
+                  <Button
+                    variant="default"
+                    className="flex-1 h-12 text-[14px] font-bold gap-2.5 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white shadow-[0_4px_15px_rgba(99,102,241,0.3)] hover:opacity-90 border-none transition-all rounded-r-none"
+                    onClick={handlePrint}
+                    disabled={isDownloading || isWordDownloading}
+                  >
+                    {isDownloading
+                      ? <><Loader2 size={18} className="animate-spin" /> Preparing PDF…</>
+                      : <><Download size={18} /> Export as PDF</>
+                    }
+                  </Button>
+                  <Button
+                    variant="default"
+                    className="h-12 w-11 px-0 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] text-white shadow-[0_4px_15px_rgba(99,102,241,0.3)] hover:opacity-90 border-none transition-all rounded-l-none border-l border-white/20"
+                    onClick={() => setIsExportMenuOpen(v => !v)}
+                    disabled={isDownloading || isWordDownloading}
+                    title="More export options"
+                  >
+                    <ChevronDown size={16} />
+                  </Button>
+                </div>
+                {isExportMenuOpen && (
+                  <div style={{
+                    position: 'absolute', bottom: 'calc(100% + 8px)', left: 0, right: 0,
+                    background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)',
+                    borderRadius: '12px', boxShadow: '0 8px 32px rgba(0,0,0,0.3)', overflow: 'hidden', zIndex: 200,
+                  }}>
+                    <button
+                      onClick={() => { setIsExportMenuOpen(false); handlePrint(); }}
+                      disabled={isDownloading}
+                      style={{
+                        width: '100%', display: 'flex', alignItems: 'center', gap: '10px',
+                        padding: '12px 16px', background: 'transparent', border: 'none',
+                        color: 'var(--color-ui-text)', fontSize: '13.5px', fontWeight: 600,
+                        cursor: 'pointer', transition: 'background 0.15s',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-ui-surface-2)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      <Download size={15} color="#6366F1" />
+                      Export as PDF
+                    </button>
+                    <div style={{ height: '1px', background: 'var(--color-ui-border)', margin: '0 12px' }} />
+                    <button
+                      onClick={handleExportWord}
+                      disabled={isWordDownloading}
+                      style={{
+                        width: '100%', display: 'flex', alignItems: 'center', gap: '10px',
+                        padding: '12px 16px', background: 'transparent', border: 'none',
+                        color: 'var(--color-ui-text)', fontSize: '13.5px', fontWeight: 600,
+                        cursor: 'pointer', transition: 'background 0.15s',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-ui-surface-2)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      {isWordDownloading ? <Loader2 size={15} className="animate-spin" /> : <FileType2 size={15} color="#3B82F6" />}
+                      Export as Word (.docx)
+                      {!canAccess('download-word') && (
+                        <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 700, color: '#8B5CF6', background: 'rgba(139,92,246,0.12)', padding: '2px 8px', borderRadius: '20px' }}>
+                          <Lock size={10} /> Pro
+                        </span>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <Button
@@ -664,15 +781,66 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
             Smart Fit
           </Button>
 
-          <Button
-            variant="default"
-            disabled={isDownloading}
-            onClick={canAccess('download-pdf') ? handlePrint : handleDownloadTxt}
-            className="flex-1 max-w-[160px] h-10 rounded-full font-bold gap-2 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white border-none shadow-[0_8px_24px_rgba(99,102,241,0.4)] active:scale-95 transition-all hover:opacity-90"
-          >
-            {isDownloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
-            {canAccess('download-pdf') ? 'Export' : 'TXT'}
-          </Button>
+          <div ref={mobileExportMenuRef} style={{ position: 'relative', flex: 1, maxWidth: '160px' }}>
+            <div style={{ display: 'flex', gap: '1px' }}>
+              <Button
+                variant="default"
+                disabled={isDownloading || isWordDownloading}
+                onClick={canAccess('download-pdf') ? handlePrint : handleDownloadTxt}
+                className="flex-1 h-10 rounded-full rounded-r-none font-bold gap-2 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white border-none shadow-[0_8px_24px_rgba(99,102,241,0.4)] active:scale-95 transition-all hover:opacity-90"
+              >
+                {isDownloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                {canAccess('download-pdf') ? 'Export' : 'TXT'}
+              </Button>
+              {canAccess('download-pdf') && (
+                <Button
+                  variant="default"
+                  disabled={isDownloading || isWordDownloading}
+                  onClick={() => setIsMobileExportMenuOpen(v => !v)}
+                  className="h-10 w-9 px-0 rounded-full rounded-l-none bg-[#7C3AED] text-white border-none shadow-[0_8px_24px_rgba(99,102,241,0.4)] active:scale-95 transition-all hover:opacity-90"
+                >
+                  <ChevronDown size={14} />
+                </Button>
+              )}
+            </div>
+            {isMobileExportMenuOpen && canAccess('download-pdf') && (
+              <div style={{
+                position: 'absolute', bottom: 'calc(100% + 8px)', right: 0, left: '-40px',
+                background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)',
+                borderRadius: '12px', boxShadow: '0 8px 32px rgba(0,0,0,0.4)', overflow: 'hidden', zIndex: 200, minWidth: '200px',
+              }}>
+                <button
+                  onClick={() => { setIsMobileExportMenuOpen(false); handlePrint(); }}
+                  disabled={isDownloading}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: '10px',
+                    padding: '12px 16px', background: 'transparent', border: 'none',
+                    color: 'var(--color-ui-text)', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
+                  }}
+                >
+                  <Download size={15} color="#6366F1" /> Export as PDF
+                </button>
+                <div style={{ height: '1px', background: 'var(--color-ui-border)', margin: '0 12px' }} />
+                <button
+                  onClick={handleExportWord}
+                  disabled={isWordDownloading}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: '10px',
+                    padding: '12px 16px', background: 'transparent', border: 'none',
+                    color: 'var(--color-ui-text)', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
+                  }}
+                >
+                  {isWordDownloading ? <Loader2 size={15} className="animate-spin" /> : <FileType2 size={15} color="#3B82F6" />}
+                  Export as Word
+                  {!canAccess('download-word') && (
+                    <span style={{ marginLeft: 'auto', fontSize: '11px', fontWeight: 700, color: '#8B5CF6', background: 'rgba(139,92,246,0.12)', padding: '2px 8px', borderRadius: '20px' }}>
+                      Pro
+                    </span>
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

@@ -11,6 +11,7 @@ export type Feature =
   | 'style-colors'
   | 'job-tailor'
   | 'download-pdf'
+  | 'download-word'
   | 'resume-sharing'
   | 'analytics'
   | 'cover-letter'
@@ -29,6 +30,7 @@ export const FEATURE_REQUIRED_PLAN: Record<Feature, Plan> = {
   'skills-finder': 'pro',
   'style-colors': 'pro',
   'download-pdf': 'basic',
+  'download-word': 'pro',
   'resume-sharing': 'free', // Allowed for all
   'analytics': 'free',      // Allowed for all
   'cover-letter': 'pro',
@@ -47,6 +49,7 @@ export const FEATURE_LABELS: Record<Feature, string> = {
   'skills-finder': 'Skills Finder',
   'style-colors': 'Style Customization',
   'download-pdf': 'Download PDF',
+  'download-word': 'Download Word',
   'resume-sharing': 'Resume Sharing',
   'analytics': 'Analytics',
   'cover-letter': 'Cover Letter Generator',

@@ -272,6 +272,31 @@ export const api = {
   saveAtsHistory: (data: { userId: string; resumeId: string | null; score: number; jobTitle?: string; company?: string }) =>
     post<{ success: boolean; id: string }>('/api/user/ats-history', data),
 
+  exportDocx: async (resume: Resume, filename: string): Promise<Blob> => {
+    const authHeaders = await getAuthHeaders();
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 60_000);
+    try {
+      const res = await fetch(`${BASE}/api/export/docx`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify({ resume, filename }),
+        signal: controller.signal,
+      });
+      clearTimeout(tid);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Export failed' }));
+        throw new Error((err as any).error || `HTTP ${res.status}`);
+      }
+      return res.blob();
+    } catch (err: unknown) {
+      clearTimeout(tid);
+      if (err instanceof DOMException && err.name === 'AbortError')
+        throw new Error('Word export timed out — please try again.');
+      throw err;
+    }
+  },
+
   exportPdf: async (html: string, filename: string): Promise<Blob> => {
     const authHeaders = await getAuthHeaders();
     const controller = new AbortController();
