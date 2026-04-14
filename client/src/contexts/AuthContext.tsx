@@ -34,12 +34,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (user) {
         try {
           await api.syncUser(user.uid, user.email || undefined, user.displayName || undefined);
+          setCurrentUser(user);
         } catch (err) {
           console.error('Failed to sync user:', err);
-          toast.error('Account sync failed — some features may be unavailable', { duration: 5000 });
+          await firebaseSignOut(auth);
+          setCurrentUser(null);
+          toast.error('Authentication failed — we couldn\'t sync your account. Please try again later.', { duration: 6000 });
         }
+      } else {
+        setCurrentUser(null);
       }
-      setCurrentUser(user);
       setLoading(false);
     });
     return unsubscribe;
