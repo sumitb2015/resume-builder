@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Star, Sparkles } from 'lucide-react';
-import { templates } from '../../templates';
 
 interface Props { onStart: () => void }
 

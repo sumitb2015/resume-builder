@@ -1,65 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles } from 'lucide-react';
 
-const AI_FEATURES = [
-  {
-    icon: '✍️',
-    title: 'Bullet Point Writer',
-    desc: 'Generate 3 powerful, metrics-driven bullet points for any role. Just provide the job title and company.',
-    color: '#6366F1',
-    demo: 'bullets',
-  },
-  {
-    icon: '🎯',
-    title: 'Job Tailor',
-    desc: 'Paste any job description and AI rewrites your bullets and summary to match the exact language.',
-    color: '#8B5CF6',
-    demo: 'tailor',
-  },
-  {
-    icon: '📊',
-    title: 'ATS Score',
-    desc: 'Get an instant 0-100 ATS compatibility score with specific feedback on missing keywords and weak sections.',
-    color: '#A855F7',
-    demo: 'ats',
-  },
-  {
-    icon: '💡',
-    title: 'Summary Writer',
-    desc: 'Generate a compelling 3-sentence professional summary that captures your unique value proposition.',
-    color: '#EC4899',
-    demo: 'summary',
-  },
-  {
-    icon: '🔍',
-    title: 'Skills Finder',
-    desc: 'Enter your job title and instantly get 20 relevant skills split into technical and soft categories.',
-    color: '#F59E0B',
-    demo: 'skills',
-  },
-  {
-    icon: '✉️',
-    title: 'Cover Letter',
-    desc: 'Generate a tailored cover letter that connects your experience to the job requirements in seconds.',
-    color: '#3B82F6',
-    demo: 'coverLetter',
-  },
-  {
-    icon: '🤝',
-    title: 'Interview Prep',
-    desc: 'Get a list of 8+ likely interview questions and suggested answers based on your resume and the JD.',
-    color: '#F43F5E',
-    demo: 'interview',
-  },
-  {
-    icon: '🔄',
-    title: 'Diff Review',
-    desc: 'See exactly what changed before/after job tailoring with a clear before/after comparison view.',
-    color: '#10B981',
-    demo: 'diff',
-  },
-];
-
 // Demo panels use a fixed dark theme — they simulate the app's dark UI preview
 const demoPanelBase: React.CSSProperties = {
   background: '#0D1117', color: 'rgba(255,255,255,0.92)',
