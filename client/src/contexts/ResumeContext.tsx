@@ -21,6 +21,8 @@ interface ResumeContextType {
   handleNewResume: () => void;
   loadResume: (saved: any) => void;
   clearDraft: () => void;
+  sessionStartResume: Resume;
+  setSessionStartResume: React.Dispatch<React.SetStateAction<Resume>>;
 }
 
 function draftKey(uid: string | null) {
@@ -120,13 +122,16 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
   const [activeTemplate, setActiveTemplate] = useState<TemplateConfig>({ ...templates[1]! });
   const [improvements, setImprovements] = useState<ImprovementSuggestions | null>(null);
   const [currentResumeId, setCurrentResumeId] = useState<string | null>(null);
+  const [sessionStartResume, setSessionStartResume] = useState<Resume>(initialResume);
 
   // Load draft after auth resolves (uid changes from null → user uid after login)
   useEffect(() => {
     const draft = loadDraft(uid);
     if (!draft?.resume) return;
+    const migrated = migrateResume(draft.resume);
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setResumeState(migrateResume(draft.resume));
+    setResumeState(migrated);
+    setSessionStartResume(migrated);
     if (draft.templateId) {
       const tpl = templates.find(t => t.id === draft.templateId);
       if (tpl) setActiveTemplate({ ...tpl });
@@ -205,6 +210,7 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
   const handleNewResume = () => {
     localStorage.removeItem(draftKey(uid));
     setResumeState(initialResume);
+    setSessionStartResume(initialResume);
     setActiveTemplate({ ...templates[1]! });
     setCurrentResumeId(null);
     setImprovements(null);
@@ -217,6 +223,7 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
   const loadResume = (saved: any) => {
     const migrated = migrateResume(saved.resumeData);
     setResumeState(migrated);
+    setSessionStartResume(migrated);
     const tpl = templates.find(t => t.id === saved.templateId);
     if (tpl) setActiveTemplate({ ...tpl });
     setCurrentResumeId(saved.id);
@@ -251,7 +258,8 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
   return (
     <ResumeContext.Provider value={{
       resume, setResume, activeTemplate, setActiveTemplate, improvements, setImprovements,
-      undo, redo, canUndo, canRedo, currentResumeId, setCurrentResumeId, handleNewResume, loadResume, clearDraft
+      undo, redo, canUndo, canRedo, currentResumeId, setCurrentResumeId, handleNewResume, loadResume, clearDraft,
+      sessionStartResume, setSessionStartResume
     }}>
       {children}
     </ResumeContext.Provider>

@@ -291,7 +291,7 @@ function CheckoutPageWrapper() {
 
 function ModeSelectPageWrapper() {
   const navigate = useNavigate();
-  const { setResume, setImprovements } = useResume();
+  const { setResume, setImprovements, setSessionStartResume } = useResume();
   const { currentUser, signOut } = useAuth();
   const [showProfile, setShowProfile] = useState(false);
 
@@ -300,7 +300,7 @@ function ModeSelectPageWrapper() {
       <ModeSelectModal 
         onSelect={(mode, res, imp) => {
           if (mode === 'ai-writer') { navigate('/ai-writer'); return; }
-          if (res) setResume(res);
+          if (res) { setResume(res); setSessionStartResume(res); }
           if (imp) setImprovements(imp);
           navigate('/builder');
         }} 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  Zap, FileText, Award, FolderOpen, Lock, MessageSquare, Sun, Moon, LogOut, Menu, ArrowLeft, Palette, HelpCircle, Save
+  Zap, FileText, Award, FolderOpen, Lock, MessageSquare, Sun, Moon, LogOut, Menu, ArrowLeft, Palette, HelpCircle, Save, History
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
@@ -17,6 +17,7 @@ import ProfileModal from './ProfileModal';
 import ExpertReviewModal from './ExpertReviewModal';
 import SavedResumesPanel from './SavedResumesPanel';
 import UpgradeModal from './UpgradeModal';
+import ResumeComparisonModal from './ResumeComparisonModal';
 import type { Plan, Feature } from '../shared/constants';
 import { FEATURE_REQUIRED_PLAN, FEATURE_LABELS } from '../shared/constants';
 
@@ -68,7 +69,7 @@ export default function DashboardLayout({ children, rightPanel, showRightPanel, 
   const { currentUser, signOut } = useAuth();
   const { canAccess, maxResumes } = usePlan();
   const { theme, toggleTheme } = useTheme();
-  const { resume, activeTemplate, setActiveTemplate, currentResumeId, setCurrentResumeId, handleNewResume, loadResume, clearDraft } = useResume();
+  const { resume, activeTemplate, setActiveTemplate, currentResumeId, setCurrentResumeId, handleNewResume, loadResume, clearDraft, sessionStartResume } = useResume();
   const { savedResumes, saveResume, renameResume, deleteResume } = useSavedResumes();
 
   const isMobile = useIsMobile();
@@ -77,6 +78,7 @@ export default function DashboardLayout({ children, rightPanel, showRightPanel, 
   const [showExpertReview, setShowExpertReview] = useState(false);
   const [showSavedPanel, setShowSavedPanel] = useState(false);
   const [upgradePrompt, setUpgradePrompt] = useState<{ requiredPlan: Plan; featureLabel: string } | null>(null);
+  const [showSessionDiff, setShowSessionDiff] = useState(false);
 
   const handleSave = () => {
     const savedId = saveResume(
@@ -267,6 +269,19 @@ export default function DashboardLayout({ children, rightPanel, showRightPanel, 
               </button>
             )}
 
+            {!isMobile && (
+              <button className="btn-secondary" style={{ gap: '6px', fontSize: '12.5px', padding: '7px 14px' }} onClick={() => setShowSessionDiff(true)} title="Compare with session start">
+                <History size={14} />
+                Session Diff
+              </button>
+            )}
+
+            {isMobile && (
+              <button className="btn-secondary" style={{ padding: '6px' }} onClick={() => setShowSessionDiff(true)} title="Session Diff">
+                <History size={14} />
+              </button>
+            )}
+
             <button className="btn-primary" style={{ gap: '6px', fontSize: isMobile ? '12px' : '13px', padding: isMobile ? '6px 12px' : '8px 18px' }} onClick={() => {
               setActiveTemplate((t: any) => ({ ...t, settings: t.settings ?? { margin: 15, fontSize: 100, lineHeight: 1.5 } }));
               navigate('/preview');
@@ -337,11 +352,25 @@ export default function DashboardLayout({ children, rightPanel, showRightPanel, 
       )}
 
       {upgradePrompt && (
-        <UpgradeModal 
-          requiredPlan={upgradePrompt.requiredPlan as any} 
-          featureLabel={upgradePrompt.featureLabel} 
-          onClose={() => setUpgradePrompt(null)} 
-          onUpgrade={(p) => { navigate('/checkout', { state: { plan: p, annual: false } }); setUpgradePrompt(null); }} 
+        <UpgradeModal
+          requiredPlan={upgradePrompt.requiredPlan as any}
+          featureLabel={upgradePrompt.featureLabel}
+          onClose={() => setUpgradePrompt(null)}
+          onUpgrade={(p) => { navigate('/checkout', { state: { plan: p, annual: false } }); setUpgradePrompt(null); }}
+        />
+      )}
+
+      {showSessionDiff && (
+        <ResumeComparisonModal
+          originalResume={sessionStartResume}
+          tailoredResume={resume}
+          config={activeTemplate}
+          totalSuggestions={0}
+          title="Session Diff"
+          leftLabel="Session Start"
+          rightLabel="Current Resume"
+          badgeText="changes this session"
+          onClose={() => setShowSessionDiff(false)}
         />
       )}
     </div>

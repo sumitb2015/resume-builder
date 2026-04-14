@@ -12,6 +12,10 @@ interface Props {
   config: TemplateConfig;
   totalSuggestions: number;
   onClose: () => void;
+  title?: string;
+  leftLabel?: string;
+  rightLabel?: string;
+  badgeText?: string;
 }
 
 type MobileTab = 'original' | 'tailored';
@@ -62,6 +66,10 @@ export default function ResumeComparisonModal({
   config,
   totalSuggestions,
   onClose,
+  title = 'Resume Comparison',
+  leftLabel = 'Original',
+  rightLabel = 'AI Tailored',
+  badgeText,
 }: Props) {
   const [mobileTab, setMobileTab] = useState<MobileTab>('tailored');
   const isMobile = useIsMobile();
@@ -140,14 +148,14 @@ export default function ResumeComparisonModal({
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
             <Sparkles size={15} style={{ color: '#A855F7', flexShrink: 0 }} />
             <span style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--color-ui-text)', whiteSpace: 'nowrap' }}>
-              Resume Comparison
+              {title}
             </span>
             <span style={{
               padding: '2px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700,
               background: 'rgba(74,222,128,0.12)', color: '#4ADE80',
               border: '1px solid rgba(74,222,128,0.25)', whiteSpace: 'nowrap', flexShrink: 0,
             }}>
-              {totalSuggestions} improvement{totalSuggestions !== 1 ? 's' : ''} applied
+              {badgeText ?? `${totalSuggestions} improvement${totalSuggestions !== 1 ? 's' : ''} applied`}
             </span>
           </div>
 
@@ -230,7 +238,7 @@ export default function ResumeComparisonModal({
         <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', overflow: 'hidden' }}>
           {(!isMobile || mobileTab === 'original') && (
             <ResumePanel
-              label="Original"
+              label={leftLabel}
               badge={null}
               resume={originalResume}
               config={config}
@@ -245,8 +253,8 @@ export default function ResumeComparisonModal({
 
           {(!isMobile || mobileTab === 'tailored') && (
             <ResumePanel
-              label="AI Tailored"
-              badge={`All ${totalSuggestions} suggestion${totalSuggestions !== 1 ? 's' : ''} applied`}
+              label={rightLabel}
+              badge={badgeText ?? `All ${totalSuggestions} suggestion${totalSuggestions !== 1 ? 's' : ''} applied`}
               resume={highlightedTailored}
               config={config}
               zoom={zoom}
