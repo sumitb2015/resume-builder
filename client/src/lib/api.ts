@@ -5,8 +5,16 @@ import {
   SmartResumeResponseSchema,
 } from '../shared/schemas';
 import { auth } from './firebase';
+import { signOut as firebaseSignOut } from 'firebase/auth';
 
 const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
+
+// Redirect to login if a 401 is encountered
+async function handleUnauthorized() {
+  console.warn('[api] 401 Unauthorized encountered. Resetting session.');
+  await firebaseSignOut(auth).catch(() => {});
+  window.location.reload();
+}
 
 // Parse a QUOTA_EXCEEDED error thrown by post() into its parts.
 // Format: "QUOTA_EXCEEDED:<featureKey>:<resetAt ISO string>"
@@ -70,6 +78,10 @@ async function post<T>(path: string, body: unknown, options: { retryable?: boole
         });
         clearTimeout(tid);
         if (!res.ok) {
+          if (res.status === 401) {
+            await handleUnauthorized();
+            throw new Error('Session expired. Please log in again.');
+          }
           if (res.status === 429) {
             const body = await res.json().catch(() => ({}));
             if (body.error === 'QUOTA_EXCEEDED') {
@@ -168,6 +180,10 @@ export const api = {
       });
       clearTimeout(tid);
       if (!res.ok) {
+        if (res.status === 401) {
+          await handleUnauthorized();
+          throw new Error('Session expired. Please log in again.');
+        }
         const err = await res.json().catch(() => ({ error: 'Upload failed' }));
         throw new Error((err as any).error || `HTTP ${res.status}`);
       }
@@ -244,7 +260,13 @@ export const api = {
       method: 'GET',
       headers: { 'Content-Type': 'application/json', ...authHeaders },
     });
-    if (!res.ok) throw new Error('Failed to fetch usage');
+    if (!res.ok) {
+      if (res.status === 401) {
+        await handleUnauthorized();
+        throw new Error('Session expired. Please log in again.');
+      }
+      throw new Error('Failed to fetch usage');
+    }
     return res.json() as Promise<{
       date: string;
       plan: string;
@@ -263,6 +285,10 @@ export const api = {
       },
     });
     if (!res.ok) {
+      if (res.status === 401) {
+        await handleUnauthorized();
+        throw new Error('Session expired. Please log in again.');
+      }
       const err = await res.json().catch(() => ({ error: 'Fetch profile failed' }));
       throw new Error(err.error || `HTTP ${res.status}`);
     }
@@ -285,6 +311,10 @@ export const api = {
       });
       clearTimeout(tid);
       if (!res.ok) {
+        if (res.status === 401) {
+          await handleUnauthorized();
+          throw new Error('Session expired. Please log in again.');
+        }
         const err = await res.json().catch(() => ({ error: 'Export failed' }));
         throw new Error((err as any).error || `HTTP ${res.status}`);
       }
@@ -310,6 +340,10 @@ export const api = {
       });
       clearTimeout(tid);
       if (!res.ok) {
+        if (res.status === 401) {
+          await handleUnauthorized();
+          throw new Error('Session expired. Please log in again.');
+        }
         const err = await res.json().catch(() => ({ error: 'Export failed' }));
         throw new Error((err as any).error || `HTTP ${res.status}`);
       }
