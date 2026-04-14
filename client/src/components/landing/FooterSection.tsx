@@ -79,9 +79,11 @@ const FooterSection: React.FC = () => {
           {/* Product column */}
           <div>
             <h4 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '20px' }}>Product</h4>
-            <button style={linkStyle} onClick={() => scrollToSection('templates')} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Templates</button>
-            <button style={linkStyle} onClick={() => scrollToSection('ai-features')} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>AI Features</button>
-            <button style={linkStyle} onClick={() => scrollToSection('pricing')} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Pricing</button>
+            <a href="/templates" style={{ ...linkStyle, textDecoration: 'none' }} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Templates</a>
+            <a href="/features" style={{ ...linkStyle, textDecoration: 'none' }} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>AI Features</a>
+            <a href="/pricing" style={{ ...linkStyle, textDecoration: 'none' }} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Pricing</a>
+            <a href="/expert-review" style={{ ...linkStyle, textDecoration: 'none' }} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Expert Review</a>
+            <a href="/faq" style={{ ...linkStyle, textDecoration: 'none' }} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>FAQ</a>
           </div>
 
           {/* Company column */}

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Star, Sparkles } from 'lucide-react';
 import { scrollToSection } from '../../lib/scroll';
 import { templates } from '../../templates';
@@ -6,6 +7,7 @@ import { templates } from '../../templates';
 interface Props { onStart: () => void }
 
 const HeroSection: React.FC<Props> = ({ onStart }) => {
+  const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
@@ -102,7 +104,7 @@ const HeroSection: React.FC<Props> = ({ onStart }) => {
           <ArrowRight size={16} />
         </button>
         <button
-          onClick={() => scrollToSection('templates')}
+          onClick={() => navigate('/templates')}
           style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
             padding: isMobile ? '12px 20px' : '15px 26px', borderRadius: '10px',

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Zap, LogOut, Sun, Moon, Layout, Sparkles, CreditCard, BookOpen, Menu, X as CloseIcon, Monitor } from 'lucide-react';
 import { scrollToSection } from '../../lib/scroll';
 import { useAuth } from '../../contexts/AuthContext';
@@ -17,13 +18,14 @@ interface Props {
 }
 
 const NAV_LINKS = [
-  { label: 'Templates', id: 'templates', icon: <Layout size={16} /> },
-  { label: 'AI Tools', id: 'ai-features', icon: <Sparkles size={16} /> },
-  { label: 'Capabilities', id: 'advanced-features', icon: <Monitor size={16} /> },
-  { label: 'Pricing', id: 'pricing', icon: <CreditCard size={16} /> },
+  { label: 'Templates', path: '/templates', icon: <Layout size={16} /> },
+  { label: 'AI Tools', path: '/features', icon: <Sparkles size={16} /> },
+  { label: 'Capabilities', path: '/features', icon: <Monitor size={16} /> },
+  { label: 'Pricing', path: '/pricing', icon: <CreditCard size={16} /> },
 ];
 
 const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog, onShowProfile, currentLabel }) => {
+  const navigate = useNavigate();
   const [scrollY, setScrollY] = useState(0);
   const [scrollPct, setScrollPct] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -83,16 +85,16 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
   };
 
   const handleLogoClick = () => {
-    if (isBlogPage && onBackToHome) {
-      onBackToHome();
+    if (window.location.pathname !== '/') {
+      navigate('/');
     } else {
       scrollToSection('hero');
     }
     setMobileMenuOpen(false);
   };
 
-  const handleNavClick = (id: string) => {
-    scrollToSection(id);
+  const handleNavClick = (path: string) => {
+    navigate(path);
     setMobileMenuOpen(false);
   };
 
@@ -152,8 +154,8 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
               <>
                 {NAV_LINKS.map(link => (
                   <button
-                    key={link.id}
-                    onClick={() => scrollToSection(link.id)}
+                    key={link.label}
+                    onClick={() => handleNavClick(link.path)}
                     style={linkBtnStyle}
                     onMouseEnter={e => { 
                       e.currentTarget.style.color = 'var(--color-ui-text)'; 
@@ -317,8 +319,8 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome, onOpenBlog
               {/* Nav Links */}
               {!isBlogPage && NAV_LINKS.map(link => (
                 <button
-                  key={link.id}
-                  onClick={() => handleNavClick(link.id)}
+                  key={link.label}
+                  onClick={() => handleNavClick(link.path)}
                   style={{
                     ...linkBtnStyle, width: '100%', padding: '12px 16px',
                     background: 'var(--color-ui-surface-2)', borderRadius: '12px',

@@ -33,6 +33,13 @@ const PrivacyPage = lazy(() => import('./components/legal/PrivacyPage'));
 const AboutPage = lazy(() => import('./components/company/AboutPage'));
 const CareersPage = lazy(() => import('./components/company/CareersPage'));
 const ContactPage = lazy(() => import('./components/company/ContactPage'));
+const ExpertReviewPage = lazy(() => import('./components/company/ExpertReviewPage'));
+
+// Landing Content Pages
+const PricingPage = lazy(() => import('./components/landing/PricingPage'));
+const TemplatesPage = lazy(() => import('./components/landing/TemplatesPage'));
+const FeaturesPage = lazy(() => import('./components/landing/FeaturesPage'));
+const FaqPage = lazy(() => import('./components/landing/FaqPage'));
 
 // Templates & Types
 import { templates } from './templates';
@@ -539,6 +546,11 @@ function AppRoutes() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/careers" element={<CareersPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/expert-review" element={<ExpertReviewPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/templates" element={<TemplatesPage />} />
+        <Route path="/features" element={<FeaturesPage />} />
+        <Route path="/faq" element={<FaqPage />} />
         <Route path="/login" element={<LoginPageWrapper />} />
         
         <Route path="/plans" element={<ProtectedRoute><PlanSelectPage /></ProtectedRoute>} />

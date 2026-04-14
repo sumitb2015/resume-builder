@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Clock, Tag, ChevronRight, BookOpen, Share2 } from 'lucide-react';
+import { ArrowLeft, Clock, Tag, ChevronRight, BookOpen, Share2, Search, X } from 'lucide-react';
 import NavBar from './NavBar';
 import FooterSection from './FooterSection';
 import { ARTICLES, tagColors, type Article } from './blogData';
@@ -13,7 +13,18 @@ interface Props {
 
 const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile }) => {
   const [activeArticle, setActiveArticle] = useState<Article | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  const filteredArticles = useMemo(() => {
+    if (!searchQuery.trim()) return ARTICLES;
+    const query = searchQuery.toLowerCase().trim();
+    return ARTICLES.filter(a => 
+      a.title.toLowerCase().includes(query) || 
+      a.excerpt.toLowerCase().includes(query) || 
+      a.tag.toLowerCase().includes(query)
+    );
+  }, [searchQuery]);
 
   React.useEffect(() => {
     // Handle deep linking via ?article=id
@@ -31,7 +42,7 @@ const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile }) => {
 
   const renderArticleList = () => (
     <>
-      <div style={{ textAlign: 'center', padding: isMobile ? '30px 20px 40px' : '60px 24px 40px' }}>
+      <div style={{ textAlign: 'center', padding: isMobile ? '30px 20px 20px' : '60px 24px 20px' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 12px', background: 'rgba(99,102,241,0.1)', borderRadius: '100px', color: '#818CF8', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '16px' }}>
           <BookOpen size={14} /> BespokeCV Blog
         </div>
@@ -43,66 +54,140 @@ const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile }) => {
         </p>
       </div>
 
-      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 24px 80px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
-        {ARTICLES.map((post) => (
-          <button
-            key={post.id}
-            onClick={() => {
-              setActiveArticle(post);
-              const container = document.querySelector('.landing-page');
-              if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
+      {/* Search Bar */}
+      <div style={{ maxWidth: '600px', margin: '0 auto 48px', padding: '0 24px' }}>
+        <div style={{ position: 'relative' }}>
+          <Search 
+            size={18} 
+            style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-ui-text-dim)' }} 
+          />
+          <input
+            type="text"
+            placeholder="Search articles, topics, or keywords..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             style={{
-              display: 'flex', flexDirection: 'column', textAlign: 'left',
-              background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)',
-              borderRadius: '16px', padding: '28px', cursor: 'pointer',
-              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              width: '100%',
+              padding: '14px 48px',
+              borderRadius: '14px',
+              background: 'var(--color-ui-surface)',
+              border: '1px solid var(--color-ui-border)',
+              color: 'var(--color-ui-text)',
+              fontSize: '15px',
+              outline: 'none',
+              transition: 'all 0.2s',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
             }}
-            onMouseEnter={e => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.borderColor = '#818CF850';
-              e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.05)';
+            onFocus={(e) => {
+              e.target.style.borderColor = '#818CF8';
+              e.target.style.boxShadow = '0 0 0 4px rgba(99, 102, 241, 0.1)';
             }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.borderColor = 'var(--color-ui-border)';
-              e.currentTarget.style.boxShadow = 'none';
+            onBlur={(e) => {
+              e.target.style.borderColor = 'var(--color-ui-border)';
+              e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.03)';
+            }}
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              style={{
+                position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                background: 'var(--color-ui-surface-2)', border: 'none', borderRadius: '50%',
+                width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: 'var(--color-ui-text-dim)'
+              }}
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {filteredArticles.length > 0 ? (
+        <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 24px 80px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
+          {filteredArticles.map((post) => (
+            <button
+              key={post.id}
+              onClick={() => {
+                setActiveArticle(post);
+                const container = document.querySelector('.landing-page');
+                if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              style={{
+                display: 'flex', flexDirection: 'column', textAlign: 'left',
+                background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)',
+                borderRadius: '16px', padding: '28px', cursor: 'pointer',
+                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.borderColor = '#818CF850';
+                e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.05)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.borderColor = 'var(--color-ui-border)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '4px',
+                  fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
+                  color: tagColors[post.tag] ?? '#818CF8',
+                  background: `${tagColors[post.tag] ?? '#818CF8'}18`,
+                  border: `1px solid ${tagColors[post.tag] ?? '#818CF8'}33`,
+                  borderRadius: '6px', padding: '4px 10px',
+                }}>
+                  <Tag size={10} />
+                  {post.tag}
+                </span>
+                <span style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)', fontWeight: 500 }}>
+                  <Clock size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: '-2px' }} />
+                  {post.readTime}
+                </span>
+              </div>
+
+              <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-ui-text)', marginBottom: '12px', lineHeight: 1.3 }}>
+                {post.title}
+              </h3>
+              <p style={{ fontSize: '15px', color: 'var(--color-ui-text-muted)', lineHeight: 1.6, marginBottom: '24px', flex: 1 }}>
+                {post.excerpt}
+              </p>
+
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid var(--color-ui-border)' }}>
+                <span style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', fontWeight: 500 }}>{post.date}</span>
+                <span style={{ fontSize: '13px', color: '#818CF8', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '2px' }}>
+                  Read Article <ChevronRight size={14} />
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div style={{ textAlign: 'center', padding: '40px 24px 120px' }}>
+          <div style={{ 
+            width: '64px', height: '64px', borderRadius: '50%', background: 'var(--color-ui-surface-2)', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', color: 'var(--color-ui-text-dim)' 
+          }}>
+            <Search size={32} />
+          </div>
+          <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-ui-text)', marginBottom: '8px' }}>No articles found</h3>
+          <p style={{ fontSize: '15px', color: 'var(--color-ui-text-muted)', marginBottom: '24px' }}>
+            We couldn't find any results for "{searchQuery}". Try a different keyword.
+          </p>
+          <button 
+            onClick={() => setSearchQuery('')}
+            style={{
+              padding: '10px 20px', borderRadius: '10px', background: 'var(--color-ui-surface-2)',
+              border: '1px solid var(--color-ui-border)', color: 'var(--color-ui-text)',
+              fontSize: '14px', fontWeight: 600, cursor: 'pointer'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: '4px',
-                fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
-                color: tagColors[post.tag] ?? '#818CF8',
-                background: `${tagColors[post.tag] ?? '#818CF8'}18`,
-                border: `1px solid ${tagColors[post.tag] ?? '#818CF8'}33`,
-                borderRadius: '6px', padding: '4px 10px',
-              }}>
-                <Tag size={10} />
-                {post.tag}
-              </span>
-              <span style={{ fontSize: '12px', color: 'var(--color-ui-text-muted)', fontWeight: 500 }}>
-                <Clock size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: '-2px' }} />
-                {post.readTime}
-              </span>
-            </div>
-
-            <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-ui-text)', marginBottom: '12px', lineHeight: 1.3 }}>
-              {post.title}
-            </h3>
-            <p style={{ fontSize: '15px', color: 'var(--color-ui-text-muted)', lineHeight: 1.6, marginBottom: '24px', flex: 1 }}>
-              {post.excerpt}
-            </p>
-
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid var(--color-ui-border)' }}>
-              <span style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', fontWeight: 500 }}>{post.date}</span>
-              <span style={{ fontSize: '13px', color: '#818CF8', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '2px' }}>
-                Read Article <ChevronRight size={14} />
-              </span>
-            </div>
+            Clear Search
           </button>
-        ))}
-      </div>
+        </div>
+      )}
     </>
   );
 

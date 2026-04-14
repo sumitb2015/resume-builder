@@ -1,5 +1,6 @@
 import { createPortal } from 'react-dom';
-import { X, Check, Zap, Crown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { X, Check, Zap, Crown, ArrowRight } from 'lucide-react';
 import { templates } from '../templates';
 import type { Plan } from '../shared/constants';
 
@@ -19,7 +20,8 @@ const PLAN_DETAILS: Record<string, {
   icon: React.ReactNode;
 }> = {
   basic: {
-    price: '₹199/14d',
+    price: '₹199',
+    period: '14 days',
     color: '#F59E0B',
     gradient: 'linear-gradient(135deg, #F59E0B, #D97706)',
     shadow: 'rgba(245,158,11,0.4)',
@@ -33,33 +35,33 @@ const PLAN_DETAILS: Record<string, {
     icon: <Zap size={18} color="white" fill="white" />,
   },
   pro: {
-    price: '₹499/mo',
+    price: '₹499',
+    period: 'month',
     color: '#818CF8',
     gradient: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
     shadow: 'rgba(99,102,241,0.4)',
     features: [
-      `All ${templates.length} premium templates`,
+      `All premium templates`,
       'Dynamic ATS score with JD matching',
       'AI bullet point writer (unlimited)',
       'AI summary writer',
       'Skills finder',
       'Color & style customization',
       'Unlimited PDF exports',
-      'Resume import from PDF / DOCX',
     ],
     icon: <Zap size={18} color="white" fill="white" />,
   },
   ultimate: {
-    price: '₹699/mo',
+    price: '₹699',
+    period: 'month',
     color: '#C084FC',
     gradient: 'linear-gradient(135deg, #A855F7, #7C3AED)',
     shadow: 'rgba(168,85,247,0.4)',
     features: [
       'Everything in Pro',
-      'Job tailoring — AI rewrites resume to match JD',
-      'Diff review (before/after on every change)',
+      'Job tailoring — AI rewrites resume',
+      'Diff review (before/after)',
       'LinkedIn profile import',
-      'AI improvement suggestions on import',
       'Priority PDF generation',
     ],
     icon: <Crown size={18} color="white" />,
@@ -67,12 +69,18 @@ const PLAN_DETAILS: Record<string, {
 };
 
 export default function UpgradeModal({ requiredPlan, featureLabel, onClose, onUpgrade }: Props) {
+  const navigate = useNavigate();
   const details = PLAN_DETAILS[requiredPlan] || PLAN_DETAILS.pro;
   const planLabel = requiredPlan.charAt(0).toUpperCase() + requiredPlan.slice(1);
 
   const handleActivate = () => {
     onUpgrade(requiredPlan as Exclude<Plan, 'free'>);
     onClose();
+  };
+
+  const handleViewPricing = () => {
+    onClose();
+    navigate('/pricing');
   };
 
   return createPortal(
@@ -156,7 +164,7 @@ export default function UpgradeModal({ requiredPlan, featureLabel, onClose, onUp
             <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em' }}>
               {details.price}
             </div>
-            <div style={{ fontSize: '12px', color: 'var(--color-ui-text-dim)' }}>per month</div>
+            <div style={{ fontSize: '12px', color: 'var(--color-ui-text-dim)' }}>per {details.period}</div>
           </div>
           <button
             onClick={handleActivate}
@@ -170,9 +178,24 @@ export default function UpgradeModal({ requiredPlan, featureLabel, onClose, onUp
               letterSpacing: '-0.01em',
             }}
           >
-            Upgrade to {planLabel}
+            Upgrade Now
           </button>
         </div>
+
+        <button
+          onClick={handleViewPricing}
+          style={{
+            width: '100%', padding: '10px', background: 'transparent',
+            border: 'none', color: 'var(--color-ui-text-dim)',
+            fontSize: '13px', fontWeight: 600, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+            transition: 'color 0.2s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.color = 'var(--color-ui-text)'}
+          onMouseLeave={e => e.currentTarget.style.color = 'var(--color-ui-text-dim)'}
+        >
+          View all plans & features <ArrowRight size={14} />
+        </button>
       </div>
     </div>,
     document.body,
