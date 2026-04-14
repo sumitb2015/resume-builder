@@ -126,7 +126,7 @@ const TestimonialsSection: React.FC = () => {
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: isMobile ? '40px' : '64px' }}>
           <h2 style={{ fontSize: isMobile ? '28px' : 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)', marginBottom: '14px' }}>
-            Loved by job seekers worldwide
+            Loved by job seekers across India
           </h2>
           <p style={{ fontSize: isMobile ? '14px' : '16px', color: 'var(--color-ui-text-muted)' }}>
             Trusted by job seekers across India
