@@ -3,7 +3,6 @@ import toast from 'react-hot-toast';
 import { ArrowLeft, Clock, Tag, ChevronRight, BookOpen, Share2 } from 'lucide-react';
 import NavBar from './NavBar';
 import FooterSection from './FooterSection';
-import { TosModal, PrivacyModal } from './TosModal';
 import { AboutModal, CareersModal, ContactModal } from './CompanyModals';
 import { ARTICLES, tagColors, type Article } from './blogData';
 
@@ -32,8 +31,6 @@ const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile }) => {
   }, []);
 
   // Modals state for footer
-  const [tosOpen, setTosOpen] = useState(false);
-  const [privacyOpen, setPrivacyOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [careersOpen, setCareersOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
@@ -266,16 +263,12 @@ return (
     </main>
 
       <FooterSection
-        onOpenTos={() => setTosOpen(true)}
-        onOpenPrivacy={() => setPrivacyOpen(true)}
         onOpenAbout={() => setAboutOpen(true)}
         onOpenBlog={() => setActiveArticle(null)} // If they click blog in footer, reset to list
         onOpenCareers={() => setCareersOpen(true)}
         onOpenContact={() => setContactOpen(true)}
       />
 
-      {tosOpen && <TosModal onClose={() => setTosOpen(false)} />}
-      {privacyOpen && <PrivacyModal onClose={() => setPrivacyOpen(false)} />}
       {aboutOpen && <AboutModal onClose={() => setAboutOpen(false)} />}
       {careersOpen && <CareersModal onClose={() => setCareersOpen(false)} />}
       {contactOpen && <ContactModal onClose={() => setContactOpen(false)} />}

@@ -3,15 +3,13 @@ import { Zap, Globe, Link2, ExternalLink } from 'lucide-react';
 import { scrollToSection } from '../../lib/scroll';
 
 interface Props {
-  onOpenTos: () => void;
-  onOpenPrivacy: () => void;
   onOpenAbout: () => void;
   onOpenBlog: () => void;
   onOpenCareers: () => void;
   onOpenContact: () => void;
 }
 
-const FooterSection: React.FC<Props> = ({ onOpenTos, onOpenPrivacy, onOpenAbout, onOpenBlog, onOpenCareers, onOpenContact }) => {
+const FooterSection: React.FC<Props> = ({ onOpenAbout, onOpenBlog, onOpenCareers, onOpenContact }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   React.useEffect(() => {
@@ -105,8 +103,8 @@ const FooterSection: React.FC<Props> = ({ onOpenTos, onOpenPrivacy, onOpenAbout,
           {/* Legal column */}
           <div>
             <h4 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '20px' }}>Legal</h4>
-            <button style={linkStyle} onClick={onOpenTos} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Terms of Service</button>
-            <button style={linkStyle} onClick={onOpenPrivacy} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Privacy Policy</button>
+            <a href="/terms" style={{ ...linkStyle, textDecoration: 'none' }} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Terms of Service</a>
+            <a href="/privacy" style={{ ...linkStyle, textDecoration: 'none' }} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Privacy Policy</a>
           </div>
         </div>
 

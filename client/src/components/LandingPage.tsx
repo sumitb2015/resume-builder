@@ -13,7 +13,6 @@ import FaqSection from './landing/FaqSection';
 import SeoContentSection from './landing/SeoContentSection';
 import CtaSection from './landing/CtaSection';
 import FooterSection from './landing/FooterSection';
-import { TosModal, PrivacyModal } from './landing/TosModal';
 import { AboutModal, CareersModal, ContactModal } from './landing/CompanyModals';
 import type { Plan } from '../shared/constants';
 
@@ -25,8 +24,6 @@ interface Props {
 }
 
 const LandingPage: React.FC<Props> = ({ onStart, onOpenBlog, onCheckout, onShowProfile }) => {
-  const [tosOpen, setTosOpen] = useState(false);
-  const [privacyOpen, setPrivacyOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [careersOpen, setCareersOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
@@ -47,16 +44,12 @@ const LandingPage: React.FC<Props> = ({ onStart, onOpenBlog, onCheckout, onShowP
       <SeoContentSection />
       <CtaSection onStart={onStart} />
       <FooterSection
-        onOpenTos={() => setTosOpen(true)}
-        onOpenPrivacy={() => setPrivacyOpen(true)}
         onOpenAbout={() => setAboutOpen(true)}
         onOpenBlog={onOpenBlog}
         onOpenCareers={() => setCareersOpen(true)}
         onOpenContact={() => setContactOpen(true)}
       />
 
-      {tosOpen && <TosModal onClose={() => setTosOpen(false)} />}
-      {privacyOpen && <PrivacyModal onClose={() => setPrivacyOpen(false)} />}
       {aboutOpen && <AboutModal onClose={() => setAboutOpen(false)} />}
       {careersOpen && <CareersModal onClose={() => setCareersOpen(false)} />}
       {contactOpen && <ContactModal onClose={() => setContactOpen(false)} />}
