@@ -280,8 +280,8 @@ const PricingSection: React.FC<Props> = ({ onStart, onCheckout }) => {
         </div>
 
         {/* Footer note */}
-        <p style={{ textAlign: 'center', marginTop: '48px', fontSize: '13px', color: 'var(--color-ui-text-dim)' }}>
-          All plans include secure data handling. Cancel anytime. No long-term contracts.
+        <p style={{ textAlign: 'center', marginTop: '48px', fontSize: '13.5px', color: 'var(--color-ui-text-dim)', fontWeight: 500 }}>
+          High ATS pass rate. No long-term contracts. Cancel anytime.
         </p>
       </div>
     </section>
