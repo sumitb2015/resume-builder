@@ -25,6 +25,10 @@ const ExportPreview = lazy(() => import('./components/ExportPreview'));
 const AiWriterFlow = lazy(() => import('./components/AiWriterFlow'));
 const ModeSelectModal = lazy(() => import('./components/ModeSelectModal'));
 
+// Legal Pages
+const TermsPage = lazy(() => import('./components/legal/TermsPage'));
+const PrivacyPage = lazy(() => import('./components/legal/PrivacyPage'));
+
 // Templates & Types
 import { templates } from './templates';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -525,6 +529,8 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<LandingPageWrapper />} />
         <Route path="/blog" element={<BlogPageWrapper />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/login" element={<LoginPageWrapper />} />
         
         <Route path="/plans" element={<ProtectedRoute><PlanSelectPage /></ProtectedRoute>} />
