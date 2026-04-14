@@ -5,15 +5,30 @@ import { templates } from '../../templates';
 
 interface Props { onStart: () => void }
 
+const CAROUSEL_IMAGES = [
+  { src: '/product.png',  alt: 'BespokeCV Resume Editor Dashboard' },
+  { src: '/product2.png', alt: 'BespokeCV AI Resume Tailoring' },
+];
+
 const HeroSection: React.FC<Props> = ({ onStart }) => {
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    if (isHovered) return;
+    const timer = setInterval(() => {
+      setCurrentSlide(i => (i + 1) % CAROUSEL_IMAGES.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [isHovered]);
 
   return (
     <section id="hero" style={{ 
@@ -168,12 +183,42 @@ const HeroSection: React.FC<Props> = ({ onStart }) => {
           <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#F59E0B' }}></div>
           <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#10B981' }}></div>
         </div>
-        <div style={{ padding: '2px', background: 'var(--color-ui-surface)' }}>
-          <img 
-            src="/og-image.png" 
-            alt="BespokeCV Resume Editor Dashboard" 
-            style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.95 }}
-          />
+        <div
+          style={{ position: 'relative', background: 'var(--color-ui-surface)' }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          {CAROUSEL_IMAGES.map((img, i) => (
+            <img
+              key={img.src}
+              src={img.src}
+              alt={img.alt}
+              style={{
+                width: '100%', height: 'auto', display: 'block',
+                opacity: i === currentSlide ? 0.95 : 0,
+                position: i === 0 ? 'relative' : 'absolute',
+                top: 0, left: 0,
+                transition: 'opacity 0.6s ease',
+              }}
+            />
+          ))}
+          <div style={{
+            position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)',
+            display: 'flex', gap: '6px',
+          }}>
+            {CAROUSEL_IMAGES.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentSlide(i)}
+                style={{
+                  width: i === currentSlide ? '20px' : '6px', height: '6px',
+                  borderRadius: '3px', border: 'none', padding: 0, cursor: 'pointer',
+                  background: i === currentSlide ? '#818CF8' : 'rgba(255,255,255,0.35)',
+                  transition: 'all 0.3s ease',
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
