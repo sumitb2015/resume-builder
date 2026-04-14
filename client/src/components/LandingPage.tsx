@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import NavBar from './landing/NavBar';
 import HeroSection from './landing/HeroSection';
 import StatsSection from './landing/StatsSection';
@@ -13,7 +13,6 @@ import FaqSection from './landing/FaqSection';
 import SeoContentSection from './landing/SeoContentSection';
 import CtaSection from './landing/CtaSection';
 import FooterSection from './landing/FooterSection';
-import { AboutModal, CareersModal, ContactModal } from './landing/CompanyModals';
 import type { Plan } from '../shared/constants';
 
 interface Props { 
@@ -24,10 +23,6 @@ interface Props {
 }
 
 const LandingPage: React.FC<Props> = ({ onStart, onOpenBlog, onCheckout, onShowProfile }) => {
-  const [aboutOpen, setAboutOpen] = useState(false);
-  const [careersOpen, setCareersOpen] = useState(false);
-  const [contactOpen, setContactOpen] = useState(false);
-
   return (
     <div className="landing-page">
       <NavBar onStart={onStart} onOpenBlog={onOpenBlog} onShowProfile={onShowProfile} />
@@ -43,16 +38,7 @@ const LandingPage: React.FC<Props> = ({ onStart, onOpenBlog, onCheckout, onShowP
       <FaqSection />
       <SeoContentSection />
       <CtaSection onStart={onStart} />
-      <FooterSection
-        onOpenAbout={() => setAboutOpen(true)}
-        onOpenBlog={onOpenBlog}
-        onOpenCareers={() => setCareersOpen(true)}
-        onOpenContact={() => setContactOpen(true)}
-      />
-
-      {aboutOpen && <AboutModal onClose={() => setAboutOpen(false)} />}
-      {careersOpen && <CareersModal onClose={() => setCareersOpen(false)} />}
-      {contactOpen && <ContactModal onClose={() => setContactOpen(false)} />}
+      <FooterSection />
     </div>
   );
 };

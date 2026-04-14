@@ -29,6 +29,11 @@ const ModeSelectModal = lazy(() => import('./components/ModeSelectModal'));
 const TermsPage = lazy(() => import('./components/legal/TermsPage'));
 const PrivacyPage = lazy(() => import('./components/legal/PrivacyPage'));
 
+// Company Pages
+const AboutPage = lazy(() => import('./components/company/AboutPage'));
+const CareersPage = lazy(() => import('./components/company/CareersPage'));
+const ContactPage = lazy(() => import('./components/company/ContactPage'));
+
 // Templates & Types
 import { templates } from './templates';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -531,6 +536,9 @@ function AppRoutes() {
         <Route path="/blog" element={<BlogPageWrapper />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/careers" element={<CareersPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/login" element={<LoginPageWrapper />} />
         
         <Route path="/plans" element={<ProtectedRoute><PlanSelectPage /></ProtectedRoute>} />

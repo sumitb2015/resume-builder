@@ -2,14 +2,7 @@ import React, { useState } from 'react';
 import { Zap, Globe, Link2, ExternalLink } from 'lucide-react';
 import { scrollToSection } from '../../lib/scroll';
 
-interface Props {
-  onOpenAbout: () => void;
-  onOpenBlog: () => void;
-  onOpenCareers: () => void;
-  onOpenContact: () => void;
-}
-
-const FooterSection: React.FC<Props> = ({ onOpenAbout, onOpenBlog, onOpenCareers, onOpenContact }) => {
+const FooterSection: React.FC = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   React.useEffect(() => {
@@ -94,10 +87,10 @@ const FooterSection: React.FC<Props> = ({ onOpenAbout, onOpenBlog, onOpenCareers
           {/* Company column */}
           <div>
             <h4 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ui-text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '20px' }}>Company</h4>
-            <button style={linkStyle} onClick={onOpenAbout} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>About</button>
-            <button style={linkStyle} onClick={onOpenBlog} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Blog</button>
-            <button style={linkStyle} onClick={onOpenCareers} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Careers</button>
-            <button style={linkStyle} onClick={onOpenContact} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Contact Us</button>
+            <a href="/about" style={{ ...linkStyle, textDecoration: 'none' }} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>About</a>
+            <a href="/blog" style={{ ...linkStyle, textDecoration: 'none' }} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Blog</a>
+            <a href="/careers" style={{ ...linkStyle, textDecoration: 'none' }} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Careers</a>
+            <a href="/contact" style={{ ...linkStyle, textDecoration: 'none' }} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>Contact Us</a>
           </div>
 
           {/* Legal column */}
