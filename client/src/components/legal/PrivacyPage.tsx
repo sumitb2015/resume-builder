@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Zap } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
-const h2Style: React.CSSProperties = { fontSize: '16px', fontWeight: 700, color: '#e2e8f0', marginBottom: '10px', marginTop: '28px' };
-const pStyle: React.CSSProperties = { fontSize: '14px', color: '#94a3b8', lineHeight: 1.8, marginBottom: '14px' };
-const lastUpdated: React.CSSProperties = { fontSize: '12px', color: '#64748b', marginBottom: '24px' };
+const h2Style: React.CSSProperties = { fontSize: '16px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '10px', marginTop: '28px' };
+const pStyle: React.CSSProperties = { fontSize: '14px', color: 'var(--color-ui-text-muted)', lineHeight: 1.8, marginBottom: '14px' };
+const lastUpdated: React.CSSProperties = { fontSize: '12px', color: 'var(--color-ui-text-dim)', marginBottom: '24px' };
 
 const PrivacyPage: React.FC = () => {
-  const navigate = useNavigate();
+  useEffect(() => {
+    document.title = 'Privacy Policy — BespokeCV';
+  }, []);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0f1117', padding: '48px 24px 80px' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', padding: '48px 24px 80px' }}>
       <div style={{ maxWidth: '720px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '48px' }}>
@@ -18,20 +19,20 @@ const PrivacyPage: React.FC = () => {
             <div style={{ width: '28px', height: '28px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Zap size={14} color="white" fill="white" />
             </div>
-            <span style={{ fontSize: '16px', fontWeight: 800, letterSpacing: '-0.03em', color: '#f1f5f9' }}>
-              Bespoke<span style={{ color: '#818CF8' }}>CV</span>
+            <span style={{ fontSize: '16px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)' }}>
+              Bespoke<span style={{ color: 'var(--color-ui-accent)' }}>CV</span>
             </span>
           </div>
-          <button
-            onClick={() => navigate('/')}
-            style={{ fontSize: '13px', color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+          <a
+            href="/"
+            style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', textDecoration: 'underline' }}
           >
             ← Back to Home
-          </button>
+          </a>
         </div>
 
         {/* Content */}
-        <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.03em', marginBottom: '8px' }}>Privacy Policy</h1>
+        <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em', marginBottom: '8px' }}>Privacy Policy</h1>
         <p style={lastUpdated}>Last updated: April 1, 2026</p>
         <p style={pStyle}>At BespokeCV, we take your privacy seriously. This Privacy Policy explains what information we collect, how we use it, and the choices you have regarding your data.</p>
 
