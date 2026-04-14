@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Star, Linkedin, ShieldCheck } from 'lucide-react';
+import { Star, Link2, ShieldCheck } from 'lucide-react';
 
 const TESTIMONIALS = [
   {
@@ -123,7 +123,7 @@ const TestimonialCard: React.FC<{ t: typeof TESTIMONIALS[0] }> = ({ t }) => (
         </div>
       </div>
       <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-ui-text-dim)', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#0A66C2'} onMouseLeave={e => e.currentTarget.style.color = 'var(--color-ui-text-dim)'}>
-        <Linkedin size={16} />
+        <Link2 size={16} />
       </a>
     </div>
   </div>
