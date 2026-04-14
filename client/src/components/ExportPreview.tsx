@@ -6,7 +6,7 @@ import TemplateRenderer from '../templates/TemplateRenderer';
 import toast from 'react-hot-toast';
 import { api, parseQuotaError } from '../lib/api';
 import { buildPdfHtml } from '../lib/buildPdfHtml';
-import { Download, Type, Move, Palette, Sparkles, Loader2, Undo2, Redo2, FileText as FileTextIcon } from 'lucide-react';
+import { Download, Type, Move, Palette, Sparkles, Loader2, Undo2, Redo2, FileText as FileTextIcon, Minus, Plus, RotateCcw } from 'lucide-react';
 import { usePlan } from '../contexts/PlanContext';
 import QuotaWarningModal from './QuotaWarningModal';
 import UsagePill from './UsagePill';
@@ -71,6 +71,7 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
   const isMobile = useIsMobile();
   const windowWidth = useWindowWidth();
   const [mobileSettingsView, setMobileSettingsView] = useState<'styles' | 'smartfit' | null>(null);
+  const [zoom, setZoom] = useState(0.75);
 
   // Undo/Redo State
   const [past, setPast] = useState<HistoryItem[]>([]);
@@ -564,8 +565,8 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
       )}
 
       {/* ── CENTER PREVIEW VIEWPORT ─────────────────────── */}
-      <main className="preview-viewport export-preview-viewport" style={{ 
-        flex: 1, 
+      <main className="preview-viewport export-preview-viewport" style={{
+        flex: 1,
         overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
@@ -573,8 +574,58 @@ const ExportPreview: React.FC<Props> = ({ resume, config, onUpdateConfig, onUpda
         padding: isMobile ? '32px 16px 120px' : '40px 20px 80px',
         backgroundColor: 'var(--color-ui-preview-bg)',
         height: isMobile ? 'auto' : '100%',
+        position: 'relative',
       }}>
-        <div className="preview-scaler" style={{ transform: `scale(${isMobile ? mobileScale : 0.85})`, transformOrigin: 'top center' }}>
+        {!isMobile && (
+          <div className="no-print" style={{
+            position: 'sticky',
+            top: '0px',
+            zIndex: 100,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: 'var(--color-ui-surface)',
+            border: '1px solid var(--color-ui-border)',
+            padding: '6px 16px',
+            borderRadius: '100px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+            backdropFilter: 'blur(8px)',
+            alignSelf: 'center',
+            marginBottom: '16px',
+            flexShrink: 0,
+          }}>
+            <button className="btn-ghost" style={{ padding: '4px', minWidth: 'unset', height: 'unset' }}
+              onClick={() => setZoom(z => Math.max(0.4, parseFloat((z - 0.1).toFixed(2))))} title="Zoom Out">
+              <Minus size={14} />
+            </button>
+            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-ui-text)', minWidth: '40px', textAlign: 'center', userSelect: 'none' }}>
+              {Math.round(zoom * 100)}%
+            </span>
+            <button className="btn-ghost" style={{ padding: '4px', minWidth: 'unset', height: 'unset' }}
+              onClick={() => setZoom(z => Math.min(1.5, parseFloat((z + 0.1).toFixed(2))))} title="Zoom In">
+              <Plus size={14} />
+            </button>
+            <div style={{ width: '1px', height: '20px', background: 'var(--color-ui-border)', margin: '0 4px' }} />
+            {[80, 100, 120].map(v => (
+              <button
+                key={v}
+                onClick={() => setZoom(v / 100)}
+                style={{
+                  padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700,
+                  border: `1px solid ${Math.round(zoom * 100) === v ? 'var(--color-ui-accent)' : 'var(--color-ui-border)'}`,
+                  background: Math.round(zoom * 100) === v ? 'rgba(99,102,241,0.15)' : 'transparent',
+                  color: Math.round(zoom * 100) === v ? 'var(--color-ui-accent)' : 'var(--color-ui-text-muted)',
+                  cursor: 'pointer', transition: 'all 0.15s',
+                }}
+              >{v}%</button>
+            ))}
+            <button className="btn-ghost" style={{ padding: '4px', minWidth: 'unset', height: 'unset', marginLeft: '4px' }}
+              onClick={() => setZoom(0.75)} title="Reset zoom">
+              <RotateCcw size={13} />
+            </button>
+          </div>
+        )}
+        <div className="preview-scaler" style={{ transform: `scale(${isMobile ? mobileScale : zoom})`, transformOrigin: 'top center' }}>
           <PagedPreview resume={resume} config={config} onPageCount={onPageCount} forcePageCount={pageCount} />
         </div>
       </main>
