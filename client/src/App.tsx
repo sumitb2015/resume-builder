@@ -349,7 +349,8 @@ function AiWriterPageWrapper() {
 
 function ExportPreviewWrapper() {
   const { resume, setResume, activeTemplate, setActiveTemplate } = useResume();
-  return <ExportPreview resume={resume} config={activeTemplate} onUpdateConfig={setActiveTemplate} onUpdateResume={setResume} pageCount={1} onPageCount={() => {}} />;
+  const [pageCount, setPageCount] = useState(1);
+  return <ExportPreview resume={resume} config={activeTemplate} onUpdateConfig={setActiveTemplate} onUpdateResume={setResume} pageCount={pageCount} onPageCount={setPageCount} />;
 }
 
 function AtsCheckerWrapper() {

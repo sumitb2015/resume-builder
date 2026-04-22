@@ -3,7 +3,7 @@ import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
 const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const primary = config.colors.primary || '#92400E';
   const accent = config.colors.accent || '#F59E0B';
 
@@ -26,7 +26,11 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
         <div style={{ padding: '32px 32px' }}>
           {personal.summary && (
             <div style={{ marginBottom: '24px', padding: '16px 20px', backgroundColor: accent + '15', borderRadius: '12px', borderLeft: `4px solid ${accent}` }}>
-              <RichContent html={personal.summary} style={{ fontSize: '0.8125em', color: '#78350F', lineHeight: 1.75 }} />
+              <RichContent 
+                html={personal.summary} 
+                isModified={config.modifiedFields?.includes('personal.summary')}
+                style={{ fontSize: '0.8125em', color: '#78350F', lineHeight: 1.75 }} 
+              />
             </div>
           )}
           {experience.length > 0 && (
@@ -45,7 +49,11 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
                   <ul style={{ paddingLeft: 0, margin: '8px 0 0' }}>
                     {exp.bullets.filter(b=>b).map((b,i) => (
                       <li key={i} style={{ display: 'flex', gap: '8px', fontSize: '0.7813em', color: '#5B2C00', lineHeight: 1.65, marginBottom: '4px', listStyle: 'none' }}>
-                        <span style={{ color: accent, flexShrink: 0, fontWeight: 700 }}>›</span><RichContent html={b} />
+                        <span style={{ color: accent, flexShrink: 0, fontWeight: 700 }}>›</span>
+                        <RichContent 
+                          html={b} 
+                          isModified={config.modifiedFields?.includes(`experience.${exp.id}.bullets.${i}`)}
+                        />
                       </li>
                     ))}
                   </ul>
@@ -61,7 +69,13 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
                     <span style={{ fontSize: '0.8438em', fontWeight: 700, color: primary }}>{p.title}</span>
                     {p.url && <span style={{ fontSize: '0.6875em', color: accent }}>{p.url}</span>}
                   </div>
-                  {p.description && <RichContent html={p.description} style={{ fontSize: '0.7813em', color: '#6B3A00', marginTop: '4px', lineHeight: 1.6 }} />}
+                  {p.description && (
+                    <RichContent 
+                      html={p.description} 
+                      isModified={config.modifiedFields?.includes(`projects.${p.id}.description`)}
+                      style={{ fontSize: '0.7813em', color: '#6B3A00', marginTop: '4px', lineHeight: 1.6 }} 
+                    />
+                  )}
                   {p.tech.length > 0 && (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px' }}>
                       {p.tech.map((t,i) => <span key={i} style={{ fontSize: '0.6563em', backgroundColor: primary+'15', color: primary, padding: '2px 8px', borderRadius: '20px', fontWeight: 600 }}>{t}</span>)}
@@ -84,6 +98,23 @@ const WarmTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
               ))}
             </WSection>
           )}
+
+          {/* CUSTOM SECTIONS */}
+          {custom && custom.length > 0 && custom.map(sec => (
+            <WSection key={sec.id} title={sec.sectionTitle || 'Custom'} primary={primary} accent={accent}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {sec.entries.filter(e => e).map((entry, i) => (
+                  <div key={i} style={{ marginBottom: '8px', padding: '12px 14px', backgroundColor: '#fff', borderRadius: '8px', border: `1px solid ${accent}20` }}>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                      style={{ fontSize: '0.8125em', lineHeight: 1.6, color: '#5B2C00' }} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </WSection>
+          ))}
         </div>
 
         {/* SIDEBAR */}

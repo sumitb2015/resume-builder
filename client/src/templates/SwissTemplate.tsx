@@ -3,7 +3,7 @@ import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
 const SwissTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const primary = config.colors.primary;
 
   return (
@@ -113,6 +113,87 @@ const SwissTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
           </div>
         </section>
       )}
+
+      {/* PROJECTS */}
+      {projects.length > 0 && (
+        <section>
+          <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '40px' }}>
+            <div style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#888' }}>
+              Projects
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              {projects.map(project => (
+                <div key={project.id}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4px' }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0 }}>{project.title}</h3>
+                    {project.url && <span style={{ fontSize: '0.85rem', color: primary }}>{project.url}</span>}
+                  </div>
+                  {project.description && <RichContent html={project.description} style={{ fontSize: '0.95rem', color: '#444', lineHeight: 1.5 }} />}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* CERTIFICATIONS */}
+      {certifications.length > 0 && (
+        <section>
+          <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '40px' }}>
+            <div style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#888' }}>
+              Awards
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {certifications.map(cert => (
+                <div key={cert.id}>
+                  <div style={{ fontSize: '0.95rem', fontWeight: 600 }}>{cert.name}</div>
+                  <div style={{ fontSize: '0.85rem', color: '#666' }}>{cert.issuer} {cert.date && `· ${cert.date}`}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* LANGUAGES */}
+      {languages.length > 0 && (
+        <section>
+          <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '40px' }}>
+            <div style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#888' }}>
+              Languages
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px 24px' }}>
+              {languages.map(lang => (
+                <div key={lang.id} style={{ fontSize: '0.95rem' }}>
+                  <span style={{ fontWeight: 600 }}>{lang.language}</span> <span style={{ color: '#888' }}>({lang.proficiency})</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* CUSTOM */}
+      {custom && custom.length > 0 && custom.map(sec => (
+        <section key={sec.id}>
+          <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '40px' }}>
+            <div style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#888' }}>
+              {sec.sectionTitle || 'Custom'}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {sec.entries.filter(e => e).map((entry, i) => (
+                <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                  <RichContent 
+                    html={entry} 
+                    isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                    style={{ fontSize: '0.95rem', color: '#333', lineHeight: 1.6 }} 
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      ))}
     </div>
   );
 };

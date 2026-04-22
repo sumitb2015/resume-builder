@@ -3,7 +3,7 @@ import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
 const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const primary = config.colors.primary;
   const accent = config.colors.accent;
 
@@ -97,6 +97,21 @@ const HorizonTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
               ))}
             </HSection>
           )}
+          {custom && custom.length > 0 && custom.map(sec => (
+            <HSection key={sec.id} title={sec.sectionTitle || 'Custom Section'} accent={accent} config={config}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {sec.entries.filter(e => e).map((entry, i) => (
+                  <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                      style={{ fontSize: '0.8125em', lineHeight: 1.6, color: '#475569' }} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </HSection>
+          ))}
         </div>
 
         {/* SIDEBAR */}

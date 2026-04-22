@@ -4,7 +4,7 @@ import RichContent from './RichContent';
 import { Mail, Phone, MapPin } from 'lucide-react';
 
 const BoldSidebarTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, languages, projects } = resume;
+  const { personal, experience, education, skills, languages, projects, custom } = resume;
 
   const primary = config.colors.primary;
 
@@ -128,7 +128,7 @@ const BoldSidebarTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> 
 
         {/* EDUCATION */}
         {education.length > 0 && (
-          <section>
+          <section style={{ marginBottom: '40px' }}>
             <SectionHeader title="Education" color={primary} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {education.map(edu => (
@@ -143,6 +143,24 @@ const BoldSidebarTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> 
             </div>
           </section>
         )}
+
+        {/* CUSTOM SECTIONS */}
+        {custom && custom.length > 0 && custom.map(sec => (
+          <section key={sec.id} style={{ marginBottom: '40px' }}>
+            <SectionHeader title={sec.sectionTitle || 'Custom Section'} color={primary} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {sec.entries.filter(e => e).map((entry, i) => (
+                <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                  <RichContent 
+                    html={entry} 
+                    isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                    style={{ fontSize: '0.95rem', color: '#555', lineHeight: 1.5 }} 
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
       </main>
     </div>
   );

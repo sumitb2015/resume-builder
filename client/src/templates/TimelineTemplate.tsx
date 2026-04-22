@@ -1,10 +1,10 @@
 import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
-import { Mail, Phone, MapPin, Link2, Briefcase, GraduationCap, Award } from 'lucide-react';
+import { Mail, Phone, MapPin, Link2, Briefcase, GraduationCap, Award, Sparkles } from 'lucide-react';
 
 const TimelineTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const primary = config.colors.primary;
 
   return (
@@ -119,6 +119,29 @@ const TimelineTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
               </div>
             </section>
           )}
+
+          {/* CUSTOM SECTIONS */}
+          {custom && custom.length > 0 && custom.map(sec => (
+            <section key={sec.id} style={{ marginBottom: '40px' }}>
+              <TimelineHeader title={sec.sectionTitle || 'Additional Info'} icon={<Sparkles size={16} />} color={primary} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {sec.entries.filter(e => e).map((entry, i) => (
+                  <div key={i} style={{ position: 'relative', paddingLeft: '45px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                    <div style={{ 
+                      position: 'absolute', left: '6px', top: '6px', 
+                      width: '12px', height: '12px', borderRadius: '50%', 
+                      backgroundColor: primary, border: '3px solid white', zIndex: 1
+                    }} />
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                      style={{ fontSize: '0.95rem', color: '#334155', lineHeight: 1.6 }} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
         </div>
 
         {/* SIDEBAR */}

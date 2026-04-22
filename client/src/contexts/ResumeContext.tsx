@@ -111,6 +111,7 @@ export function migrateResume(resume: Resume): Resume {
     personal: { ...resume.personal, summary: legacyMarkdownToHtml(resume.personal.summary) },
     experience: resume.experience.map(exp => ({ ...exp, bullets: exp.bullets.map(legacyMarkdownToHtml) })),
     projects: resume.projects.map(p => ({ ...p, description: legacyMarkdownToHtml(p.description) })),
+    custom: resume.custom || [],
   };
 }
 

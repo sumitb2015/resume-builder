@@ -4,7 +4,7 @@ import RichContent from './RichContent';
 import { Mail, Phone, MapPin, Link2, Calendar } from 'lucide-react';
 
 const ProfessionalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const primary = config.colors.primary;
 
   return (
@@ -192,9 +192,8 @@ const ProfessionalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }>
             </section>
           )}
 
-          {/* PROJECTS */}
           {projects.length > 0 && (
-            <section>
+            <section style={{ marginBottom: '32px' }}>
               <MainTitle title="Key Projects" />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {projects.map(project => (
@@ -220,6 +219,23 @@ const ProfessionalTemplate: React.FC<{ resume: Resume; config: TemplateConfig }>
               </div>
             </section>
           )}
+
+          {custom && custom.length > 0 && custom.map((sec) => (
+            <section key={sec.id} style={{ marginBottom: '32px' }}>
+              <MainTitle title={sec.sectionTitle || 'Custom Section'} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {sec.entries.filter(e => e).map((entry, i) => (
+                  <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                      style={{ fontSize: '0.9rem', lineHeight: 1.6, color: '#374151' }} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
         </main>
       </div>
     </div>

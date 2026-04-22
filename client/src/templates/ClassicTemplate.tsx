@@ -10,7 +10,7 @@ import "@fontsource/eb-garamond/700.css";
 import "@fontsource/eb-garamond/800.css";
 
 const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const primary = config.colors.primary;
 
   return (
@@ -78,7 +78,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
       {experience.length > 0 && (
         <Section title="Professional Experience" config={config}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {experience.map((exp) => (
+            {experience.map((exp: any) => (
               <div key={exp.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '2px' }}>
                   <div>
@@ -94,9 +94,9 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
                     {exp.startDate}{(exp.startDate || exp.endDate) ? ' – ' : ''}{exp.isCurrent ? 'Present' : exp.endDate}
                   </span>
                 </div>
-                {exp.bullets.filter(b => b).length > 0 && (
+                {exp.bullets.filter((b: string) => b).length > 0 && (
                   <ul style={{ marginTop: '6px', paddingLeft: '18px', listStyleType: 'disc' }}>
-                    {exp.bullets.filter(b => b).map((bullet, i) => (
+                    {exp.bullets.filter((b: string) => b).map((bullet: string, i: number) => (
                       <li key={i} style={{ fontSize: '0.7813em', lineHeight: 1.7, color: '#333', marginBottom: '3px' }}>
                         <RichContent 
                           html={bullet} 
@@ -116,7 +116,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
       {education.length > 0 && (
         <Section title="Education" config={config}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {education.map((edu) => (
+            {education.map((edu: any) => (
               <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                 <div>
                   <div style={{ fontSize: '0.875em', fontWeight: 700 }}>{edu.school}</div>
@@ -141,7 +141,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
               <SectionTitle title="Core Competencies" config={config} />
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 16px' }}>
-                {skills.map(s => (
+                {skills.map((s: any) => (
                   <span key={s.id} style={{ fontSize: '0.75em', color: '#2a2a2a', lineHeight: 2 }}>• {s.name}</span>
                 ))}
               </div>
@@ -151,7 +151,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             {certifications.length > 0 && (
               <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                 <SectionTitle title="Certifications" config={config} />
-                {certifications.map(c => (
+                {certifications.map((c: any) => (
                   <div key={c.id} style={{ fontSize: '0.75em', marginBottom: '4px', lineHeight: 1.7 }}>
                     <span style={{ fontWeight: 600 }}>{c.name}</span>
                     {c.issuer && <span style={{ color: '#666' }}> · {c.issuer}</span>}
@@ -163,7 +163,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             {languages.length > 0 && (
               <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                 <SectionTitle title="Languages" config={config} />
-                {languages.map(l => (
+                {languages.map((l: any) => (
                   <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75em', lineHeight: 1.9 }}>
                     <span style={{ fontWeight: 600 }}>{l.language}</span>
                     <span style={{ color: '#666', fontStyle: 'italic' }}>{l.proficiency}</span>
@@ -179,7 +179,7 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
       {projects.length > 0 && (
         <Section title="Selected Projects" config={config}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {projects.map(p => (
+            {projects.map((p: any) => (
               <div key={p.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                   <span style={{ fontSize: '0.8438em', fontWeight: 700 }}>{p.title}</span>
@@ -202,6 +202,23 @@ const ClassicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
           </div>
         </Section>
       )}
+
+      {/* CUSTOM SECTIONS */}
+      {custom && custom.length > 0 && custom.map((sec: any) => (
+        <Section key={sec.id} title={sec.sectionTitle || 'Custom Section'} config={config}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {sec.entries.filter((e: string) => e).map((entry: string, i: number) => (
+              <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                <RichContent 
+                  html={entry} 
+                  isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                  style={{ fontSize: '0.8125em', lineHeight: 1.6, color: '#333' }} 
+                />
+              </div>
+            ))}
+          </div>
+        </Section>
+      ))}
     </div>
   );
 };

@@ -4,7 +4,7 @@ import RichContent from './RichContent';
 import { Mail, Phone, MapPin, Link2 } from 'lucide-react';
 
 const ContrastTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const primary = config.colors.primary;
   const accent = config.colors.accent;
 
@@ -56,7 +56,11 @@ const ContrastTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
           {personal.summary && (
             <section style={{ marginBottom: '40px' }}>
               <SectionHeader title="Professional Profile" />
-              <RichContent html={personal.summary} style={{ fontSize: '1rem', lineHeight: 1.7, color: '#475569' }} />
+              <RichContent 
+                html={personal.summary} 
+                isModified={config.modifiedFields?.includes('personal.summary')}
+                style={{ fontSize: '1rem', lineHeight: 1.7, color: '#475569' }} 
+              />
             </section>
           )}
 
@@ -78,7 +82,10 @@ const ContrastTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
                       <ul style={{ paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {exp.bullets.filter(b => b).map((bullet, i) => (
                           <li key={i} style={{ fontSize: '0.95rem', color: '#334155', lineHeight: 1.6 }}>
-                            <RichContent html={bullet} />
+                            <RichContent 
+                              html={bullet} 
+                              isModified={config.modifiedFields?.includes(`experience.${exp.id}.bullets.${i}`)}
+                            />
                           </li>
                         ))}
                       </ul>
@@ -91,18 +98,44 @@ const ContrastTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
 
           {/* PROJECTS */}
           {projects.length > 0 && (
-            <section>
+            <section style={{ marginBottom: '40px' }}>
               <SectionHeader title="Key Projects" />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 {projects.map(p => (
                   <div key={p.id}>
                     <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>{p.title}</h3>
-                    {p.description && <div style={{ marginTop: '6px' }}><RichContent html={p.description} style={{ fontSize: '0.95rem', color: '#475569', lineHeight: 1.6 }} /></div>}
+                    {p.description && (
+                      <div style={{ marginTop: '6px' }}>
+                        <RichContent 
+                          html={p.description} 
+                          isModified={config.modifiedFields?.includes(`projects.${p.id}.description`)}
+                          style={{ fontSize: '0.95rem', color: '#475569', lineHeight: 1.6 }} 
+                        />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             </section>
           )}
+
+          {/* CUSTOM */}
+          {custom && custom.length > 0 && custom.map(sec => (
+            <section key={sec.id} style={{ marginBottom: '40px' }}>
+              <SectionHeader title={sec.sectionTitle || 'Additional Information'} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {sec.entries.filter(e => e).map((entry, i) => (
+                  <div key={i}>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                      style={{ fontSize: '0.95rem', color: '#334155', lineHeight: 1.6 }} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
         </main>
 
         {/* SIDEBAR */}

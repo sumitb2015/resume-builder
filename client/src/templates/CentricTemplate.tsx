@@ -4,7 +4,7 @@ import RichContent from './RichContent';
 import { Mail, Phone, MapPin, Link2 } from 'lucide-react';
 
 const CentricTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, languages } = resume;
+  const { personal, experience, education, skills, languages, projects, certifications, custom } = resume;
   const primary = config.colors.primary;
 
   return (
@@ -53,29 +53,98 @@ const CentricTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 250px', gap: '60px' }}>
-        {/* MAIN COLUMN: EXPERIENCE */}
-        <section>
-          <CentricSectionTitle title="Experience" color={primary} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            {experience.map(exp => (
-              <div key={exp.id}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4px' }}>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#111' }}>{exp.role}</h3>
-                  <span style={{ fontSize: '0.85rem', color: '#888', fontWeight: 600 }}>{exp.startDate} – {exp.endDate}</span>
-                </div>
-                <div style={{ fontSize: '1rem', color: primary, fontWeight: 700, marginBottom: '12px' }}>{exp.company}</div>
-                {exp.bullets.length > 0 && (
-                  <ul style={{ paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {exp.bullets.filter(b => b).map((bullet, i) => (
-                      <li key={i} style={{ fontSize: '0.95rem', color: '#444', lineHeight: 1.6 }}>
-                        <RichContent html={bullet} />
-                      </li>
-                    ))}
-                  </ul>
-                )}
+        {/* MAIN COLUMN: EXPERIENCE, PROJECTS, CERTS, CUSTOM */}
+        <section style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
+          {experience.length > 0 && (
+            <div>
+              <CentricSectionTitle title="Experience" color={primary} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                {experience.map(exp => (
+                  <div key={exp.id}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4px' }}>
+                      <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#111' }}>{exp.role}</h3>
+                      <span style={{ fontSize: '0.85rem', color: '#888', fontWeight: 600 }}>{exp.startDate} – {exp.endDate}</span>
+                    </div>
+                    <div style={{ fontSize: '1rem', color: primary, fontWeight: 700, marginBottom: '12px' }}>{exp.company}</div>
+                    {exp.bullets.length > 0 && (
+                      <ul style={{ paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {exp.bullets.filter(b => b).map((bullet, i) => (
+                          <li key={i} style={{ fontSize: '0.95rem', color: '#444', lineHeight: 1.6 }}>
+                            <RichContent 
+                              html={bullet} 
+                              isModified={config.modifiedFields?.includes(`experience.${exp.id}.bullets.${i}`)}
+                            />
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
+
+          {projects.length > 0 && (
+            <div>
+              <CentricSectionTitle title="Projects" color={primary} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                {projects.map(p => (
+                  <div key={p.id}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4px' }}>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#111' }}>{p.title}</h3>
+                      {p.url && <span style={{ fontSize: '0.8rem', color: '#888' }}>{p.url}</span>}
+                    </div>
+                    {p.description && (
+                      <RichContent 
+                        html={p.description} 
+                        isModified={config.modifiedFields?.includes(`projects.${p.id}.description`)}
+                        style={{ fontSize: '0.95rem', color: '#444', lineHeight: 1.6, marginBottom: '8px' }} 
+                      />
+                    )}
+                    {p.tech.length > 0 && (
+                      <div style={{ fontSize: '0.85rem', color: primary, fontWeight: 600 }}>
+                        {p.tech.join(' • ')}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {certifications.length > 0 && (
+            <div>
+              <CentricSectionTitle title="Certifications" color={primary} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {certifications.map(c => (
+                  <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <div>
+                      <span style={{ fontWeight: 700, color: '#111' }}>{c.name}</span>
+                      {c.issuer && <span style={{ color: '#666' }}> — {c.issuer}</span>}
+                    </div>
+                    {c.date && <span style={{ fontSize: '0.85rem', color: '#888' }}>{c.date}</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {custom && custom.length > 0 && custom.map(sec => (
+            <div key={sec.id}>
+              <CentricSectionTitle title={sec.sectionTitle || 'Custom Section'} color={primary} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {sec.entries.filter(e => e).map((entry, i) => (
+                  <div key={i}>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                      style={{ fontSize: '0.95rem', color: '#444', lineHeight: 1.6 }} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </section>
 
         {/* SIDEBAR: SKILLS & EDUCATION */}

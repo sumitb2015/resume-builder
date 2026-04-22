@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useIsMobile } from '../hooks/useIsMobile';
 import type { Resume, ExperienceEntry, SkillEntry, EducationEntry, ProjectEntry, CertificationEntry, LanguageEntry } from '../shared/types';
 import toast from 'react-hot-toast';
@@ -21,7 +21,7 @@ interface Props {
   onUpgradeNeeded: (feature: Feature) => void;
 }
 
-type TabId = 'personal' | 'experience' | 'education' | 'skills' | 'projects' | 'certifications' | 'languages';
+type TabId = 'personal' | 'experience' | 'education' | 'skills' | 'projects' | 'certifications' | 'languages' | 'custom';
 
 const TABS: { id: TabId; label: string; icon: React.ElementType; countKey?: keyof Resume }[] = [
   { id: 'personal',       label: 'Personal Info',    icon: User },
@@ -31,6 +31,7 @@ const TABS: { id: TabId; label: string; icon: React.ElementType; countKey?: keyo
   { id: 'projects',       label: 'Projects',          icon: FolderOpen,    countKey: 'projects' },
   { id: 'certifications', label: 'Certifications',    icon: Award,         countKey: 'certifications' },
   { id: 'languages',      label: 'Languages',         icon: Globe,         countKey: 'languages' },
+  { id: 'custom',         label: 'Custom Sections',   icon: Plus,          countKey: 'custom' },
 ];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -83,6 +84,114 @@ const EmptyState: React.FC<{ icon: React.ReactNode; text: string }> = ({ icon, t
     <p style={{ fontSize: '11.5px', color: 'var(--color-ui-text-dim)', marginTop: '6px' }}>Click "+ Add" above to get started</p>
   </div>
 );
+
+// ── Scrollable Navigation ───────────────────────────────────────────────────
+
+const ScrollableNav: React.FC<{ 
+  tabs: typeof TABS, 
+  activeTab: TabId, 
+  setActiveTab: (id: TabId) => void,
+  getCount: (tab: typeof TABS[0]) => number
+}> = ({ tabs, activeTab, setActiveTab, getCount }) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setShowLeftArrow(scrollLeft > 5);
+      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 5);
+    }
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) {
+      checkScroll();
+      el.addEventListener('scroll', checkScroll);
+      window.addEventListener('resize', checkScroll);
+      return () => {
+        el.removeEventListener('scroll', checkScroll);
+        window.removeEventListener('resize', checkScroll);
+      };
+    }
+  }, [checkScroll]);
+
+  // Scroll active tab into view
+  useEffect(() => {
+    const activeEl = scrollRef.current?.querySelector('.nav-item.active');
+    if (activeEl) {
+      activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }, [activeTab]);
+
+  const scroll = (dir: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const amt = scrollRef.current.clientWidth * 0.6;
+      scrollRef.current.scrollBy({ left: dir === 'left' ? -amt : amt, behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <div style={{ position: 'relative', background: 'var(--color-ui-editor-nav)', borderBottom: '1px solid var(--color-ui-border)', flexShrink: 0 }}>
+      {/* Left Arrow & Fade */}
+      {showLeftArrow && (
+        <>
+          <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '40px', background: 'linear-gradient(to right, var(--color-ui-editor-nav), transparent)', zIndex: 30, pointerEvents: 'none' }} />
+          <button 
+            onClick={() => scroll('left')}
+            style={{ position: 'absolute', left: '4px', top: '50%', transform: 'translateY(-50%)', zIndex: 31, background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.2)', color: 'var(--color-ui-text)' }}
+          >
+            <ChevronDown size={14} style={{ transform: 'rotate(90deg)' }} />
+          </button>
+        </>
+      )}
+
+      {/* Scroll Container */}
+      <div 
+        ref={scrollRef}
+        className="editor-nav" 
+        style={{ 
+          display: 'flex',
+          overflowX: 'auto',
+          whiteSpace: 'nowrap',
+          padding: '0 12px',
+          gap: 0,
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          WebkitOverflowScrolling: 'touch',
+        }}
+      >
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const count = getCount(tab);
+          const id = tab.id;
+          return (
+            <button key={id} className={`nav-item ${activeTab === id ? 'active' : ''}`} onClick={() => setActiveTab(id)} style={{ flexShrink: 0 }}>
+              <Icon size={15} strokeWidth={activeTab === id ? 2.5 : 2} />
+              <span>{tab.label}</span>
+              {tab.countKey && count > 0 && <span className="nav-badge">{count}</span>}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Right Arrow & Fade */}
+      {showRightArrow && (
+        <>
+          <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '40px', background: 'linear-gradient(to left, var(--color-ui-editor-nav), transparent)', zIndex: 30, pointerEvents: 'none' }} />
+          <button 
+            onClick={() => scroll('right')}
+            style={{ position: 'absolute', right: '4px', top: '50%', transform: 'translateY(-50%)', zIndex: 31, background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.2)', color: 'var(--color-ui-text)' }}
+          >
+            <ChevronDown size={14} style={{ transform: 'rotate(-90deg)' }} />
+          </button>
+        </>
+      )}
+    </div>
+  );
+};
 
 // ── Main component ────────────────────────────────────────────────────────────
 const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
@@ -200,6 +309,16 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
     onChange({ ...resume, languages: resume.languages.map(l => l.id === id ? { ...l, [field]: val } : l) });
   const removeLang = (id: string) =>
     onChange({ ...resume, languages: resume.languages.filter(l => l.id !== id) });
+
+  // ── Custom Sections ───────────────────────────────────────────────────────
+  const addCustomSection = () => {
+    const s = { id: crypto.randomUUID(), sectionTitle: '', entries: [''] };
+    onChange({ ...resume, custom: [...(resume.custom || []), s] });
+  };
+  const updateCustomSection = (id: string, field: string, val: any) =>
+    onChange({ ...resume, custom: (resume.custom || []).map(s => s.id === id ? { ...s, [field]: val } : s) });
+  const removeCustomSection = (id: string) =>
+    onChange({ ...resume, custom: (resume.custom || []).filter(s => s.id !== id) });
 
   // ── AI ────────────────────────────────────────────────────────────────────
   const handleAIBullets = async (exp: ExperienceEntry) => {
@@ -515,29 +634,9 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
       )}
 
       {/* ── SECTION NAV ──────────────────────────────── */}
-      <div className="editor-nav" style={{ 
-        display: (improvements && editorTab === 'suggestions') ? 'none' : 'flex',
-        overflowX: isMobile ? 'auto' : 'visible',
-        whiteSpace: isMobile ? 'nowrap' : 'normal',
-        padding: isMobile ? '8px' : '12px 0',
-        gap: isMobile ? '8px' : '0',
-        position: isMobile ? 'sticky' : 'static',
-        top: isMobile ? '52px' : 0,
-        zIndex: 20,
-        background: 'var(--color-ui-surface)',
-        boxShadow: isMobile ? '0 4px 12px rgba(0,0,0,0.1)' : 'none'
-      }}>
-        {TABS.map(({ id, label, icon: Icon, countKey }) => {
-          const count = countKey ? getCount({ id, label, icon: Icon, countKey }) : 0;
-          return (
-            <button key={id} className={`nav-item ${activeTab === id ? 'active' : ''}`} onClick={() => setActiveTab(id)} style={{ flexShrink: 0 }}>
-              <Icon size={15} strokeWidth={activeTab === id ? 2.5 : 2} />
-              <span>{label}</span>
-              {countKey && count > 0 && <span className="nav-badge">{count}</span>}
-            </button>
-          );
-        })}
-      </div>
+      {(editorTab === 'builder' || !improvements) && (
+        <ScrollableNav tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} getCount={getCount} />
+      )}
 
       {/* ── SECTION CONTENT ──────────────────────────── */}
       <div className="editor-content" style={{ 
@@ -1143,6 +1242,71 @@ const ResumeBuilder: React.FC<Props> = ({ onUpgradeNeeded }) => {
                 <button className="btn-danger" onClick={() => removeLang(l.id)}><Trash2 size={14} /></button>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* ── CUSTOM SECTIONS ────────────────────────────────────────────── */}
+        {activeTab === 'custom' && (
+          <div className="fade-slide-in" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <SectionHeader title="Custom Sections">
+              <button className="btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={addCustomSection}>
+                <Plus size={13} /> Add Section
+              </button>
+            </SectionHeader>
+            {(resume.custom || []).length === 0 && <EmptyState icon={<Plus size={20} />} text="No custom sections added. Use this for Achievements, Publications, or Volunteer work." />}
+            {(resume.custom || []).map(sec => {
+              const isCollapsed = collapsed.has(sec.id);
+              return (
+                <div key={sec.id} className="entry-card">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '12px', gap: '8px' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-ui-text)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {sec.sectionTitle || <span style={{ color: 'var(--color-ui-text-dim)' }}>Untitled Section</span>}
+                    </div>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <button className="btn-ghost" style={{ padding: '4px' }} onClick={() => toggleCollapsed(sec.id)}>
+                        {isCollapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+                      </button>
+                      <button className="btn-danger" onClick={() => removeCustomSection(sec.id)}><Trash2 size={14} /></button>
+                    </div>
+                  </div>
+                  {!isCollapsed && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <Field label="Section Title">
+                        <input className="field-input" value={sec.sectionTitle} onChange={e => updateCustomSection(sec.id, 'sectionTitle', e.target.value)} placeholder="e.g. Achievements or Publications" />
+                      </Field>
+                      <div>
+                        <label className="field-label">Entries</label>
+                        {sec.entries.map((entry, ei) => (
+                          <div key={ei} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                            <RichEditor
+                              value={entry}
+                              onChange={v => {
+                                const next = [...sec.entries];
+                                next[ei] = v;
+                                updateCustomSection(sec.id, 'entries', next);
+                              }}
+                              placeholder="Describe your achievement..."
+                              minHeight={60}
+                              style={{ flex: 1 }}
+                            />
+                            <button className="btn-danger" style={{ alignSelf: 'flex-start', marginTop: '28px' }} onClick={() => updateCustomSection(sec.id, 'entries', sec.entries.filter((_, i) => i !== ei))}>
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        ))}
+                        <button
+                          className="btn-ghost"
+                          style={{ width: '100%', justifyContent: 'center', marginTop: '4px', border: '1px dashed var(--color-ui-border)', borderRadius: '6px', padding: '6px' }}
+                          onClick={() => updateCustomSection(sec.id, 'entries', [...sec.entries, ''])}
+                        >
+                          <Plus size={13} /> Add Entry
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

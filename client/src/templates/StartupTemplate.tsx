@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 
 const StartupTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const primary = config.colors.primary;
 
   return (
@@ -144,6 +144,23 @@ const StartupTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
               </div>
             </section>
           )}
+
+          {custom && custom.length > 0 && custom.map(sec => (
+            <section key={sec.id}>
+              <SectionTitle icon={<Sparkles size={18} />} title={sec.sectionTitle || 'Custom Section'} color={primary} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {sec.entries.filter(e => e).map((entry, i) => (
+                  <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                      style={{ fontSize: '0.95rem', lineHeight: 1.6, color: '#4B5563' }} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
         </div>
 
         {/* SIDEBAR */}

@@ -203,14 +203,19 @@ const ForestTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
         )}
 
         {/* Custom */}
-        {custom.map(section => (
+        {custom && custom.length > 0 && custom.map(section => (
           <div key={section.id}>
-            <ForestMainHeader title={section.sectionTitle} primary={primary} accent={accent} />
+            <ForestMainHeader title={section.sectionTitle || 'Custom Section'} primary={primary} accent={accent} />
             <ul style={{ paddingLeft: '0', margin: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
               {section.entries.filter(e => e).map((entry, i) => (
                 <li key={i} style={{ display: 'flex', gap: '10px', fontSize: '0.75em', color: text, lineHeight: 1.65, listStyle: 'none' }}>
                   <span style={{ color: accent, fontWeight: 700, flexShrink: 0 }}>›</span>
-                  <span>{entry}</span>
+                  <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${section.id}.entries.${i}`)}
+                    />
+                  </div>
                 </li>
               ))}
             </ul>

@@ -167,11 +167,17 @@ const UniverseTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
         {/* Custom */}
         {custom.map(section => (
           <UniverseSection key={section.id} title={section.sectionTitle} accent={accent} primary={primary}>
-            <ul style={{ paddingLeft: '20px', margin: 0 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {section.entries.filter(e => e).map((entry, i) => (
-                <li key={i} style={{ fontSize: '0.7813em', color: text, lineHeight: 1.65, marginBottom: '3px' }}>{entry}</li>
+                <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                  <RichContent 
+                    html={entry} 
+                    isModified={config.modifiedFields?.includes(`custom.${section.id}.entries.${i}`)}
+                    style={{ fontSize: '0.7813em', color: text, lineHeight: 1.65 }} 
+                  />
+                </div>
               ))}
-            </ul>
+            </div>
           </UniverseSection>
         ))}
       </div>

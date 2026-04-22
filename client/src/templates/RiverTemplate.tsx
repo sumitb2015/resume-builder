@@ -168,11 +168,17 @@ const RiverTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
         {/* Custom */}
         {custom.map(section => (
           <RiverSection key={section.id} title={section.sectionTitle}>
-            <ul style={{ paddingLeft: '22px', margin: 0 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {section.entries.filter(e => e).map((entry, i) => (
-                <li key={i} style={{ fontSize: '0.7813em', lineHeight: 1.7, color: text, marginBottom: '2px' }}>{entry}</li>
+                <div key={i}>
+                  <RichContent 
+                    html={entry} 
+                    isModified={config.modifiedFields?.includes(`custom.${section.id}.entries.${i}`)}
+                    style={{ fontSize: '0.7813em', lineHeight: 1.7, color: text }} 
+                  />
+                </div>
               ))}
-            </ul>
+            </div>
           </RiverSection>
         ))}
       </div>

@@ -4,7 +4,7 @@ import RichContent from './RichContent';
 import { Mail, Phone, MapPin, Link2, CheckCircle2 } from 'lucide-react';
 
 const MatrixTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, projects } = resume;
+  const { personal, experience, education, skills, projects, custom } = resume;
   const primary = config.colors.primary;
 
   return (
@@ -65,30 +65,51 @@ const MatrixTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: '40px' }}>
-        {/* EXPERIENCE */}
-        <section>
-          <SectionHeader title="Experience" />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-            {experience.map(exp => (
-              <div key={exp.id}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>{exp.role}</h3>
-                  <span style={{ fontSize: '0.8rem', color: primary, fontWeight: 700 }}>{exp.startDate} — {exp.endDate}</span>
+        {/* MAIN COLUMN */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+          {/* EXPERIENCE */}
+          <section>
+            <SectionHeader title="Experience" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+              {experience.map(exp => (
+                <div key={exp.id}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>{exp.role}</h3>
+                    <span style={{ fontSize: '0.8rem', color: primary, fontWeight: 700 }}>{exp.startDate} — {exp.endDate}</span>
+                  </div>
+                  <div style={{ fontSize: '0.95rem', color: '#64748B', fontWeight: 600, marginTop: '2px' }}>{exp.company}</div>
+                  {exp.bullets.length > 0 && (
+                    <ul style={{ paddingLeft: '18px', marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {exp.bullets.filter(b => b).map((bullet, i) => (
+                        <li key={i} style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 }}>
+                          <RichContent html={bullet} />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-                <div style={{ fontSize: '0.95rem', color: '#64748B', fontWeight: 600, marginTop: '2px' }}>{exp.company}</div>
-                {exp.bullets.length > 0 && (
-                  <ul style={{ paddingLeft: '18px', marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    {exp.bullets.filter(b => b).map((bullet, i) => (
-                      <li key={i} style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 }}>
-                        <RichContent html={bullet} />
-                      </li>
-                    ))}
-                  </ul>
-                )}
+              ))}
+            </div>
+          </section>
+
+          {/* CUSTOM SECTIONS */}
+          {custom && custom.length > 0 && custom.map(sec => (
+            <section key={sec.id}>
+              <SectionHeader title={sec.sectionTitle || 'Custom Section'} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {sec.entries.filter(e => e).map((entry, i) => (
+                  <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                      style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 }} 
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </section>
+            </section>
+          ))}
+        </div>
 
         {/* SIDEBAR */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>

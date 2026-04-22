@@ -3,7 +3,7 @@ import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
 const SnorlaxTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const primary = config.colors.primary;
   const accent = config.colors.accent;
   const textColor = config.colors.text || '#2d3748';
@@ -151,7 +151,7 @@ const SnorlaxTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             <section>
               <SectionTitle title="Experience" />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '35px' }}>
-                {experience.map((exp) => (
+                {experience.map((exp: any) => (
                   <div key={exp.id}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
                       <div style={{ fontSize: '12pt', fontWeight: 700 }}>{exp.role}</div>
@@ -163,7 +163,7 @@ const SnorlaxTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
                       {exp.company}
                     </div>
                     <RichContent
-                      html={`<ul>${exp.bullets.map((b) => `<li>${b}</li>`).join('')}</ul>`}
+                      html={`<ul>${exp.bullets.map((b: string) => `<li>${b}</li>`).join('')}</ul>`}
                       style={{ fontSize: '10.5pt', lineHeight: 1.7, color: '#4a5568' }}
                     />
                   </div>
@@ -175,7 +175,7 @@ const SnorlaxTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
           {projects.length > 0 && (
             <section>
               <SectionTitle title="Projects" />
-              {projects.map((proj) => (
+              {projects.map((proj: any) => (
                 <div key={proj.id} style={{ marginBottom: '25px' }}>
                   <div style={{ fontSize: '11pt', fontWeight: 700, marginBottom: '6px' }}>{proj.title}</div>
                   <RichContent html={proj.description} style={{ fontSize: '10.5pt', color: '#4a5568' }} />
@@ -183,13 +183,30 @@ const SnorlaxTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
               ))}
             </section>
           )}
+
+          {custom && custom.length > 0 && custom.map((sec: any) => (
+            <section key={sec.id}>
+              <SectionTitle title={sec.sectionTitle || 'Custom Section'} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {sec.entries.filter((e: string) => e).map((entry: string, i: number) => (
+                  <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                      style={{ fontSize: '10.5pt', color: '#4a5568', lineHeight: 1.7 }} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
         </div>
 
         <div style={{ flex: 1 }}>
           {education.length > 0 && (
             <section>
               <SectionTitle title="Education" />
-              {education.map((edu) => (
+              {education.map((edu: any) => (
                 <div key={edu.id} style={{ marginBottom: '20px' }}>
                   <div style={{ fontSize: '10.5pt', fontWeight: 700 }}>{edu.degree}</div>
                   <div style={{ fontSize: '10pt', color: '#4a5568' }}>{edu.school}</div>
@@ -199,11 +216,24 @@ const SnorlaxTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
             </section>
           )}
 
+          {certifications && certifications.length > 0 && (
+            <section>
+              <SectionTitle title="Certifications" />
+              {certifications.map((cert: any) => (
+                <div key={cert.id} style={{ marginBottom: '15px' }}>
+                  <div style={{ fontSize: '10pt', fontWeight: 700 }}>{cert.name}</div>
+                  <div style={{ fontSize: '9.5pt', color: '#4a5568' }}>{cert.issuer}</div>
+                  <div style={{ fontSize: '8.5pt', color: '#a0aec0' }}>{cert.date}</div>
+                </div>
+              ))}
+            </section>
+          )}
+
           {skills.length > 0 && (
             <section>
               <SectionTitle title="Expertise" />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {skills.map((s) => (
+                {skills.map((s: any) => (
                   <div key={s.id} style={{ fontSize: '10pt' }}>
                     <div style={{ marginBottom: '4px' }}>{s.name}</div>
                     <div style={{ height: '2px', backgroundColor: '#edf2f7' }}>
@@ -224,7 +254,7 @@ const SnorlaxTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
           {languages.length > 0 && (
             <section>
               <SectionTitle title="Languages" />
-              {languages.map((l) => (
+              {languages.map((l: any) => (
                 <div key={l.id} style={{ marginBottom: '12px', fontSize: '10pt' }}>
                   <span style={{ fontWeight: 600 }}>{l.language}</span> —{' '}
                   <span style={{ color: '#718096' }}>{l.proficiency}</span>

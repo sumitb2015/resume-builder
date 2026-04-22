@@ -3,7 +3,7 @@ import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
 const SlateTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const accent = config.colors.accent || '#0EA5E9';
   const primary = config.colors.primary || '#0F172A';
 
@@ -93,6 +93,21 @@ const SlateTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
               ))}
             </SlateSec>
           )}
+          {custom && custom.length > 0 && custom.map(sec => (
+            <SlateSec key={sec.id} title={sec.sectionTitle || 'Custom Section'} accent={accent}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {sec.entries.filter(e => e).map((entry, i) => (
+                  <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                      style={{ fontSize: '0.7813em', color: '#475569', lineHeight: 1.65 }} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </SlateSec>
+          ))}
         </div>
 
         <div style={{ padding: '32px 22px', backgroundColor: '#F8FAFC', display: 'flex', flexDirection: 'column', gap: '22px' }}>

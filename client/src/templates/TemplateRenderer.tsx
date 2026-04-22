@@ -99,7 +99,7 @@ const TemplateRenderer: React.FC<Props> = ({ resume, config, isPaged = false, is
         /* Override hardcoded min-height from individual templates ONLY during measurement to prevent blank pages.
            In the actual preview, we want the min-height to allow sidebars to reach the bottom. */
         ${isMeasurement ? `
-        .template-container.paged-mode > div {
+        .template-container.paged-mode div {
           min-height: auto !important;
         }
         ` : ''}

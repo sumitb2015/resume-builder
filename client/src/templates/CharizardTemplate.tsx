@@ -3,7 +3,7 @@ import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
 const CharizardTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const primary = config.colors.primary;
   const accent = config.colors.accent;
   const sidebarBg = config.colors.sidebar || '#f8fafc';
@@ -145,7 +145,11 @@ const CharizardTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
           {personal.summary && (
             <section style={{ marginBottom: '30px' }}>
               <SectionTitle title="Profile" />
-              <RichContent html={personal.summary} style={{ fontSize: '10.5pt', lineHeight: 1.6 }} />
+              <RichContent 
+                html={personal.summary} 
+                isModified={config.modifiedFields?.includes('personal.summary')}
+                style={{ fontSize: '10.5pt', lineHeight: 1.6 }} 
+              />
             </section>
           )}
 
@@ -230,10 +234,16 @@ const CharizardTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
                     <div style={{ fontSize: '11pt', fontWeight: 700, color: accent, marginBottom: '10px' }}>
                       {exp.company}
                     </div>
-                    <RichContent
-                      html={`<ul>${exp.bullets.map((b) => `<li>${b}</li>`).join('')}</ul>`}
-                      style={{ fontSize: '10.5pt', lineHeight: 1.5 }}
-                    />
+                    <ul style={{ margin: 0, paddingLeft: '18px' }}>
+                      {exp.bullets.filter(b => b).map((bullet, i) => (
+                        <li key={i} style={{ fontSize: '10.5pt', lineHeight: 1.5, color: textColor }}>
+                          <RichContent 
+                            html={bullet} 
+                            isModified={config.modifiedFields?.includes(`experience.${exp.id}.bullets.${i}`)}
+                          />
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 ))}
               </div>
@@ -259,12 +269,16 @@ const CharizardTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
           )}
 
           {projects.length > 0 && (
-            <section>
+            <section style={{ marginBottom: '35px' }}>
               <SectionTitle title="Projects" />
               {projects.map((proj) => (
                 <div key={proj.id} style={{ marginBottom: '20px' }}>
                   <div style={{ fontSize: '12pt', fontWeight: 800 }}>{proj.title}</div>
-                  <RichContent html={proj.description} style={{ fontSize: '10.5pt', marginTop: '6px' }} />
+                  <RichContent 
+                    html={proj.description} 
+                    isModified={config.modifiedFields?.includes(`projects.${proj.id}.description`)}
+                    style={{ fontSize: '10.5pt', marginTop: '6px' }} 
+                  />
                   {proj.tech.length > 0 && (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px' }}>
                       {proj.tech.map((t, idx) => (
@@ -288,6 +302,23 @@ const CharizardTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
               ))}
             </section>
           )}
+
+          {custom && custom.length > 0 && custom.map((sec) => (
+            <section key={sec.id} style={{ marginBottom: '35px' }}>
+              <SectionTitle title={sec.sectionTitle || 'Custom Section'} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                {sec.entries.filter(e => e).map((entry, i) => (
+                  <div key={i}>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                      style={{ fontSize: '10.5pt', lineHeight: 1.5 }} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
         </main>
       </div>
     </div>

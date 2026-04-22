@@ -3,7 +3,7 @@ import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
 const LinearTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills } = resume;
+  const { personal, experience, education, skills, custom } = resume;
   const primary = config.colors.primary;
 
   return (
@@ -56,7 +56,7 @@ const LinearTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
         <section style={{ marginBottom: '40px' }}>
           <LinearSectionTitle title="Experience" />
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            {experience.map(exp => (
+            {experience.map((exp: any) => (
               <div key={exp.id}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
                   <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#000', margin: 0 }}>{exp.role}</h3>
@@ -65,7 +65,7 @@ const LinearTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
                 <div style={{ fontSize: '0.95rem', fontWeight: 600, color: primary, marginBottom: '12px', textTransform: 'uppercase' }}>{exp.company}</div>
                 {exp.bullets.length > 0 && (
                   <ul style={{ paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    {exp.bullets.filter(b => b).map((bullet, i) => (
+                    {exp.bullets.filter((b: string) => b).map((bullet: string, i: number) => (
                       <li key={i} style={{ fontSize: '0.95rem', color: '#444', lineHeight: 1.5 }}>
                         <RichContent html={bullet} />
                       </li>
@@ -83,7 +83,7 @@ const LinearTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
         <section style={{ marginBottom: '40px' }}>
           <LinearSectionTitle title="Skills" />
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'x: 24px, y: 12px' }}>
-            {skills.map(skill => (
+            {skills.map((skill: any) => (
               <div key={skill.id} style={{ fontSize: '0.95rem', color: '#333' }}>
                 <span style={{ fontWeight: 700 }}>{skill.name}</span>
               </div>
@@ -97,7 +97,7 @@ const LinearTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
         <section>
           <LinearSectionTitle title="Education" />
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {education.map(edu => (
+            {education.map((edu: any) => (
               <div key={edu.id}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                   <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#000', margin: 0 }}>{edu.school}</h3>
@@ -109,6 +109,24 @@ const LinearTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
           </div>
         </section>
       )}
+
+      {/* CUSTOM SECTIONS */}
+      {custom && custom.length > 0 && custom.map((sec: any) => (
+        <section key={sec.id} style={{ marginBottom: '40px' }}>
+          <LinearSectionTitle title={sec.sectionTitle || 'Additional Information'} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            {sec.entries.filter((e: string) => e).map((entry: string, i: number) => (
+              <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                <RichContent 
+                  html={entry} 
+                  isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                  style={{ fontSize: '1rem', lineHeight: 1.6, color: '#333' }} 
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 };

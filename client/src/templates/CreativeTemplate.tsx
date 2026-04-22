@@ -11,7 +11,7 @@ import "@fontsource/poppins/700.css";
 import "@fontsource/poppins/800.css";
 
 const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const primary = config.colors.primary;
   const accent = config.colors.accent;
 
@@ -56,7 +56,11 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
           {personal.summary && (
             <div style={{ marginBottom: '28px' }}>
               <CreativeSectionTitle title="About Me" primary={primary} config={config} />
-              <RichContent html={personal.summary} style={{ fontSize: '0.7813em', lineHeight: 1.8, color: '#374151' }} />
+              <RichContent 
+                html={personal.summary} 
+                isModified={config.modifiedFields?.includes('personal.summary')}
+                style={{ fontSize: '0.7813em', lineHeight: 1.8, color: '#374151' }} 
+              />
             </div>
           )}
 
@@ -89,7 +93,10 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
                           {exp.bullets.filter(b => b).map((bullet, i) => (
                             <li key={i} style={{ display: 'flex', gap: '8px', fontSize: '0.75em', color: '#4B5563', lineHeight: 1.65, listStyle: 'none' }}>
                               <span style={{ color: accent, flexShrink: 0 }}>▸</span>
-                              <RichContent html={bullet} />
+                              <RichContent 
+                                html={bullet} 
+                                isModified={config.modifiedFields?.includes(`experience.${exp.id}.bullets.${i}`)}
+                              />
                             </li>
                           ))}
                         </ul>
@@ -111,7 +118,13 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
                       <span style={{ fontSize: '0.8125em', fontWeight: 700, color: '#111827' }}>{p.title}</span>
                       {p.url && <span style={{ fontSize: '0.6875em', color: primary }}>{p.url}</span>}
                     </div>
-                    {p.description && <RichContent html={p.description} style={{ fontSize: '0.75em', color: '#6B7280', marginTop: '4px', lineHeight: 1.6 }} />}
+                    {p.description && (
+                      <RichContent 
+                        html={p.description} 
+                        isModified={config.modifiedFields?.includes(`projects.${p.id}.description`)}
+                        style={{ fontSize: '0.75em', color: '#6B7280', marginTop: '4px', lineHeight: 1.6 }} 
+                      />
+                    )}
                     {p.tech.length > 0 && (
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '8px' }}>
                         {p.tech.map((t, i) => (
@@ -124,6 +137,23 @@ const CreativeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
               </div>
             </div>
           )}
+
+          {custom && custom.length > 0 && custom.map(sec => (
+            <div key={sec.id} style={{ marginBottom: '28px' }}>
+              <CreativeSectionTitle title={sec.sectionTitle || 'Custom Section'} primary={primary} config={config} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {sec.entries.filter(e => e).map((entry, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '8px', fontSize: '0.75em', color: '#4B5563', lineHeight: 1.65 }}>
+                    <span style={{ color: accent, flexShrink: 0 }}>▸</span>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
 
           {education.length > 0 && (
             <div>

@@ -3,7 +3,7 @@ import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
 const EeveeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, languages } = resume;
+  const { personal, experience, education, skills, languages, custom } = resume;
   const primary = config.colors.primary;
   const accent = config.colors.accent;
   const textColor = config.colors.text || '#1f2937';
@@ -182,6 +182,23 @@ const EeveeTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
               </div>
             </Card>
           )}
+
+          {/* CUSTOM SECTIONS */}
+          {custom && custom.length > 0 && custom.map((sec) => (
+            <Card key={sec.id} title={sec.sectionTitle || 'Custom Section'} icon="✨">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                {sec.entries.filter(e => e).map((entry, i) => (
+                  <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                      style={{ fontSize: '10pt', lineHeight: 1.6 }} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </Card>
+          ))}
         </div>
 
         <div style={{ flex: 1 }}>

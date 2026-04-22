@@ -3,7 +3,7 @@ import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
 const OnyxTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const primary = config.colors.primary;
   const accent = config.colors.accent;
   const sidebarBg = config.colors.sidebar || '#1a1a1a';
@@ -243,7 +243,7 @@ const OnyxTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
         )}
 
         {projects.length > 0 && (
-          <section>
+          <section style={{ marginBottom: '25px' }}>
             <SectionTitle title="Projects" />
             {projects.map((proj) => (
               <div key={proj.id} style={{ marginBottom: '15px' }}>
@@ -258,6 +258,23 @@ const OnyxTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
             ))}
           </section>
         )}
+
+        {custom && custom.length > 0 && custom.map((sec) => (
+          <section key={sec.id} style={{ marginBottom: '25px' }}>
+            <SectionTitle title={sec.sectionTitle || 'Custom Section'} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {sec.entries.filter(e => e).map((entry, i) => (
+                <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                  <RichContent 
+                    html={entry} 
+                    isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                    style={{ fontSize: '10.5pt', lineHeight: 1.6 }} 
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
       </main>
     </div>
   );

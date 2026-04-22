@@ -1,10 +1,10 @@
 import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
-import { Mail, Phone, MapPin, Link2, Briefcase, GraduationCap, Code } from 'lucide-react';
+import { Mail, Phone, MapPin, Link2, Briefcase, GraduationCap, Code, Plus } from 'lucide-react';
 
 const GridTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, languages, projects } = resume;
+  const { personal, experience, education, skills, languages, projects, custom } = resume;
   const primary = config.colors.primary;
 
   return (
@@ -62,7 +62,7 @@ const GridTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
             <h2 style={{ fontSize: '0.75rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>Core Expertise</h2>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {skills.map(skill => (
-                <span key={skill.id} style={{ 
+                <span style={{ 
                   fontSize: '0.8rem', backgroundColor: '#F1F5F9', color: primary, 
                   padding: '6px 12px', borderRadius: '12px', fontWeight: 600,
                   border: '1px solid #E2E8F0'
@@ -77,31 +77,54 @@ const GridTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
 
       {/* BOTTOM SECTION: EXPERIENCE & PROJECTS */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr', gap: '20px', flex: 1 }}>
-        {/* EXPERIENCE */}
-        <div style={{ padding: '30px', backgroundColor: 'white', borderRadius: '24px', border: '1px solid #E2E8F0' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Briefcase size={20} color={primary} /> Experience
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {experience.map(exp => (
-              <div key={exp.id}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1E293B', margin: 0 }}>{exp.role}</h3>
-                  <span style={{ fontSize: '0.8rem', color: '#94A3B8', fontWeight: 600 }}>{exp.startDate} — {exp.isCurrent ? 'Present' : exp.endDate}</span>
+        {/* MAIN COLUMN */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* EXPERIENCE */}
+          <div style={{ padding: '30px', backgroundColor: 'white', borderRadius: '24px', border: '1px solid #E2E8F0' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Briefcase size={20} color={primary} /> Experience
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              {experience.map(exp => (
+                <div key={exp.id}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1E293B', margin: 0 }}>{exp.role}</h3>
+                    <span style={{ fontSize: '0.8rem', color: '#94A3B8', fontWeight: 600 }}>{exp.startDate} — {exp.isCurrent ? 'Present' : exp.endDate}</span>
+                  </div>
+                  <div style={{ fontSize: '0.95rem', color: primary, fontWeight: 600, marginTop: '2px' }}>{exp.company}</div>
+                  {exp.bullets.length > 0 && (
+                    <ul style={{ paddingLeft: '18px', marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {exp.bullets.filter(b => b).map((bullet, i) => (
+                        <li key={i} style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 }}>
+                          <RichContent html={bullet} />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-                <div style={{ fontSize: '0.95rem', color: primary, fontWeight: 600, marginTop: '2px' }}>{exp.company}</div>
-                {exp.bullets.length > 0 && (
-                  <ul style={{ paddingLeft: '18px', marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    {exp.bullets.filter(b => b).map((bullet, i) => (
-                      <li key={i} style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 }}>
-                        <RichContent html={bullet} />
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+
+          {/* CUSTOM SECTIONS */}
+          {custom && custom.length > 0 && custom.map(sec => (
+            <div key={sec.id} style={{ padding: '30px', backgroundColor: 'white', borderRadius: '24px', border: '1px solid #E2E8F0' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Plus size={20} color={primary} /> {sec.sectionTitle || 'Custom Section'}
+              </h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                {sec.entries.filter(e => e).map((entry, i) => (
+                  <div key={i}>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                      style={{ fontSize: '0.9rem', lineHeight: 1.6, color: '#475569' }} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* SIDEBAR: EDUCATION, CERTS, LANGUAGES */}
@@ -116,7 +139,7 @@ const GridTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
                 {projects.map(p => (
                   <div key={p.id}>
                     <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#1E293B' }}>{p.title}</div>
-                    <p style={{ fontSize: '0.8rem', color: '#64748B', marginTop: '2px' }}>{p.description}</p>
+                    <RichContent html={p.description} style={{ fontSize: '0.8rem', color: '#64748B', marginTop: '2px' }} />
                   </div>
                 ))}
               </div>

@@ -3,7 +3,7 @@ import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
 const GengarTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, languages, projects } = resume;
+  const { personal, experience, education, skills, languages, projects, custom } = resume;
   const primary = config.colors.primary;
   const accent = config.colors.accent;
   const textColor = config.colors.text || '#1f2937';
@@ -162,7 +162,7 @@ const GengarTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
             <section>
               <SectionTitle title="Experience" />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
-                {experience.map((exp) => (
+                {experience.map((exp: any) => (
                   <div key={exp.id}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                       <div style={{ fontSize: '13pt', fontWeight: 700, color: primary }}>{exp.role}</div>
@@ -174,7 +174,7 @@ const GengarTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
                       {exp.company}
                     </div>
                     <RichContent
-                      html={`<ul>${exp.bullets.map((b) => `<li>${b}</li>`).join('')}</ul>`}
+                      html={`<ul>${exp.bullets.map((b: string) => `<li>${b}</li>`).join('')}</ul>`}
                       style={{ fontSize: '10.5pt', lineHeight: 1.5 }}
                     />
                   </div>
@@ -189,7 +189,7 @@ const GengarTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
             <section>
               <SectionTitle title="Skills" />
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {skills.map((s) => (
+                {skills.map((s: any) => (
                   <span
                     key={s.id}
                     style={{
@@ -210,7 +210,7 @@ const GengarTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
           {education.length > 0 && (
             <section>
               <SectionTitle title="Education" />
-              {education.map((edu) => (
+              {education.map((edu: any) => (
                 <div key={edu.id} style={{ marginBottom: '15px' }}>
                   <div style={{ fontSize: '11pt', fontWeight: 700, color: primary }}>{edu.degree}</div>
                   <div style={{ fontSize: '10pt', color: '#6b7280' }}>{edu.school}</div>
@@ -225,7 +225,7 @@ const GengarTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
           {languages.length > 0 && (
             <section>
               <SectionTitle title="Languages" />
-              {languages.map((l) => (
+              {languages.map((l: any) => (
                 <div key={l.id} style={{ marginBottom: '8px', fontSize: '10pt' }}>
                   <span style={{ fontWeight: 600 }}>{l.language}:</span>{' '}
                   <span style={{ color: '#6b7280' }}>{l.proficiency}</span>
@@ -240,7 +240,7 @@ const GengarTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
         <section>
           <SectionTitle title="Key Projects" />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-            {projects.map((proj) => (
+            {projects.map((proj: any) => (
               <div key={proj.id} style={{ backgroundColor: '#f9fafb', padding: '15px', borderRadius: '8px' }}>
                 <div style={{ fontSize: '11pt', fontWeight: 700, color: primary, marginBottom: '5px' }}>{proj.title}</div>
                 <RichContent html={proj.description} style={{ fontSize: '10pt', lineHeight: 1.4 }} />
@@ -254,6 +254,24 @@ const GengarTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ 
           </div>
         </section>
       )}
+
+      {/* CUSTOM SECTIONS */}
+      {custom && custom.length > 0 && custom.map((sec: any) => (
+        <section key={sec.id}>
+          <SectionTitle title={sec.sectionTitle || 'Custom Section'} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            {sec.entries.filter((e: string) => e).map((entry: string, i: number) => (
+              <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                <RichContent 
+                  html={entry} 
+                  isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                  style={{ fontSize: '10.5pt', lineHeight: 1.5 }} 
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 };

@@ -174,13 +174,19 @@ const NightTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
         )}
 
         {/* Custom */}
-        {custom.map(section => (
-          <NightSection key={section.id} title={section.sectionTitle} primary={primary}>
-            <ul style={{ paddingLeft: '18px', margin: 0 }}>
+        {custom && custom.length > 0 && custom.map(section => (
+          <NightSection key={section.id} title={section.sectionTitle || 'Custom Section'} primary={primary}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {section.entries.filter(e => e).map((entry, i) => (
-                <li key={i} style={{ fontSize: '0.7813em', color: text, lineHeight: 1.65, marginBottom: '3px' }}>{entry}</li>
+                <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                  <RichContent 
+                    html={entry} 
+                    isModified={config.modifiedFields?.includes(`custom.${section.id}.entries.${i}`)}
+                    style={{ fontSize: '0.7813em', color: text, lineHeight: 1.65 }} 
+                  />
+                </div>
               ))}
-            </ul>
+            </div>
           </NightSection>
         ))}
       </div>

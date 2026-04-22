@@ -3,7 +3,7 @@ import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
 const LeadershipTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const primary = config.colors.primary;
   const accent = config.colors.accent;
 
@@ -80,7 +80,7 @@ const LeadershipTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> =
         <section style={{ marginBottom: '40px' }}>
           <LeadershipSectionTitle title="Executive Experience" color={primary} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-            {experience.map(exp => (
+            {experience.map((exp: any) => (
               <div key={exp.id}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
                   <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#000', margin: 0 }}>{exp.role}</h3>
@@ -91,7 +91,7 @@ const LeadershipTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> =
                 <div style={{ fontSize: '1rem', color: accent, fontWeight: 700, marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{exp.company}</div>
                 {exp.bullets.length > 0 && (
                   <ul style={{ paddingLeft: '20px', marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {exp.bullets.filter(b => b).map((bullet, i) => (
+                    {exp.bullets.filter((b: string) => b).map((bullet: string, i: number) => (
                       <li key={i} style={{ fontSize: '0.95rem', color: '#333', lineHeight: 1.6, fontFamily: config.fonts.body }}>
                         <RichContent html={bullet} />
                       </li>
@@ -109,7 +109,7 @@ const LeadershipTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> =
         <section style={{ marginBottom: '40px' }}>
           <LeadershipSectionTitle title="Strategic Initiatives" color={primary} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {projects.map(p => (
+            {projects.map((p: any) => (
               <div key={p.id}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                   <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#000', margin: 0 }}>{p.title}</h3>
@@ -130,7 +130,7 @@ const LeadershipTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> =
             <section style={{ marginBottom: '30px' }}>
               <LeadershipSectionTitle title="Expertise" color={primary} />
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'x: 15px, y: 10px', fontSize: '0.9rem', fontFamily: config.fonts.body }}>
-                {skills.map((s, i) => (
+                {skills.map((s: any, i: number) => (
                   <span key={s.id} style={{ fontWeight: 600, color: '#333' }}>
                     {s.name}{i < skills.length - 1 ? ' \u00A0\u2022\u00A0 ' : ''}
                   </span>
@@ -144,7 +144,7 @@ const LeadershipTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> =
             <section>
               <LeadershipSectionTitle title="Languages" color={primary} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.9rem', fontFamily: config.fonts.body }}>
-                {languages.map(l => (
+                {languages.map((l: any) => (
                   <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ fontWeight: 600 }}>{l.language}</span>
                     <span style={{ color: '#666' }}>{l.proficiency}</span>
@@ -161,7 +161,7 @@ const LeadershipTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> =
             <section style={{ marginBottom: '30px' }}>
               <LeadershipSectionTitle title="Education" color={primary} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                {education.map(edu => (
+                {education.map((edu: any) => (
                   <div key={edu.id}>
                     <div style={{ fontSize: '1rem', fontWeight: 700, color: '#000' }}>{edu.school}</div>
                     <div style={{ fontSize: '0.9rem', color: accent, fontWeight: 600 }}>
@@ -179,7 +179,7 @@ const LeadershipTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> =
             <section>
               <LeadershipSectionTitle title="Certifications" color={primary} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {certifications.map(c => (
+                {certifications.map((c: any) => (
                   <div key={c.id}>
                     <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#000' }}>{c.name}</div>
                     <div style={{ fontSize: '0.8rem', color: '#666' }}>{c.issuer}</div>
@@ -190,6 +190,24 @@ const LeadershipTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> =
           )}
         </div>
       </div>
+
+      {/* CUSTOM SECTIONS */}
+      {custom && custom.length > 0 && custom.map((sec: any) => (
+        <section key={sec.id} style={{ marginBottom: '40px' }}>
+          <LeadershipSectionTitle title={sec.sectionTitle || 'Additional Information'} color={primary} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            {sec.entries.filter((e: string) => e).map((entry: string, i: number) => (
+              <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                <RichContent 
+                  html={entry} 
+                  isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                  style={{ fontSize: '0.95rem', color: '#333', lineHeight: 1.6, fontFamily: config.fonts.body }} 
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 };

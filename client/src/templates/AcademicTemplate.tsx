@@ -2,8 +2,8 @@ import React from 'react';
 import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
-const AcademicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+const AcademicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
 
   return (
     <div className="resume-paper" style={{ fontFamily: '"EB Garamond", Georgia, serif', backgroundColor: '#fff', color: '#1A1A1A', padding: 0, lineHeight: 1.6 }}>
@@ -103,6 +103,23 @@ const AcademicTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
           </AcadSec>
         )}
       </div>
+
+      {/* CUSTOM SECTIONS */}
+      {custom && custom.length > 0 && custom.map(sec => (
+        <AcadSec key={sec.id} title={sec.sectionTitle || 'Custom Section'}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {sec.entries.filter(e => e).map((entry, i) => (
+              <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                <RichContent 
+                  html={entry} 
+                  isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                  style={{ fontSize: '0.7813em', lineHeight: 1.6, color: '#333' }} 
+                />
+              </div>
+            ))}
+          </div>
+        </AcadSec>
+      ))}
     </div>
   );
 };

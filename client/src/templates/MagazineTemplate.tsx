@@ -3,7 +3,7 @@ import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
 const MagazineTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const primary = config.colors.primary || '#18181B';
   const accent = config.colors.accent || '#DC2626';
 
@@ -98,6 +98,24 @@ const MagazineTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = (
               ))}
             </MagSection>
           )}
+
+          {/* CUSTOM SECTIONS */}
+          {custom && custom.length > 0 && custom.map(sec => (
+            <MagSection key={sec.id} title={sec.sectionTitle || 'Custom Section'} primary={primary} accent={accent}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {sec.entries.filter(e => e).map((entry, i) => (
+                  <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid', display: 'flex', gap: '8px' }}>
+                    <span style={{ color: accent, fontWeight: 900, flexShrink: 0, fontSize: '0.7813em', lineHeight: 1.65 }}>—</span>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                      style={{ fontSize: '0.7813em', color: '#52525B', lineHeight: 1.65 }} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </MagSection>
+          ))}
         </div>
 
         {/* SIDEBAR */}

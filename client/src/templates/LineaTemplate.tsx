@@ -3,7 +3,7 @@ import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
 const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const accent = config.colors.accent || '#4F46E5';
 
   return (
@@ -15,7 +15,7 @@ const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
           {personal.title && <p style={{ fontSize: '0.875em', fontWeight: 500, color: accent, letterSpacing: '0.06em', marginTop: '6px' }}>{personal.title}</p>}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px' }}>
-          {[personal.email, personal.phone, personal.location, personal.linkedin, personal.website].filter(Boolean).map((v, i) => (
+          {[personal.email, personal.phone, personal.location, personal.linkedin, personal.website].filter(Boolean).map((v: string | undefined, i: number) => (
             <div key={i} style={{ borderTop: `2px solid ${accent}`, paddingTop: '6px' }}>
               <span style={{ fontSize: '0.6563em', color: '#555', display: 'block', lineHeight: 1.4 }}>{v}</span>
             </div>
@@ -35,7 +35,7 @@ const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
           {experience.length > 0 && (
             <div style={{ marginBottom: '28px' }}>
               <LineaSec title="Experience" accent={accent} />
-              {experience.map(exp => (
+              {experience.map((exp: any) => (
                 <div key={exp.id} style={{ display: 'grid', gridTemplateColumns: '100px 1fr', gap: '16px', marginBottom: '20px' }}>
                   <div style={{ borderRight: '1px solid #E5E7EB', paddingRight: '16px', paddingTop: '2px' }}>
                     <div style={{ fontSize: '0.6563em', color: '#9CA3AF', lineHeight: 1.6 }}>
@@ -47,7 +47,7 @@ const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
                     <div style={{ fontSize: '0.875em', fontWeight: 700, color: '#111', marginBottom: '2px' }}>{exp.role}</div>
                     <div style={{ fontSize: '0.75em', fontWeight: 600, color: accent, marginBottom: '6px' }}>{exp.company}</div>
                     <ul style={{ paddingLeft: 0, margin: 0 }}>
-                      {exp.bullets.filter(b=>b).map((b,i) => (
+                      {exp.bullets.filter((b: string) => b).map((b: string, i: number) => (
                         <li key={i} style={{ display: 'flex', gap: '8px', fontSize: '0.7813em', color: '#555', lineHeight: 1.7, marginBottom: '4px', listStyle: 'none' }}>
                           <span style={{ color: '#CCC', flexShrink: 0 }}>—</span><RichContent html={b} />
                         </li>
@@ -61,7 +61,7 @@ const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
           {projects.length > 0 && (
             <div style={{ marginBottom: '28px' }}>
               <LineaSec title="Projects" accent={accent} />
-              {projects.map(p => (
+              {projects.map((p: any) => (
                 <div key={p.id} style={{ marginBottom: '14px', paddingBottom: '14px', borderBottom: '1px solid #F3F4F6' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ fontSize: '0.8438em', fontWeight: 700, color: '#111' }}>{p.title}</span>
@@ -76,7 +76,7 @@ const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
           {education.length > 0 && (
             <div>
               <LineaSec title="Education" accent={accent} />
-              {education.map(edu => (
+              {education.map((edu: any) => (
                 <div key={edu.id} style={{ display: 'grid', gridTemplateColumns: '100px 1fr', gap: '16px', marginBottom: '12px' }}>
                   <div style={{ borderRight: '1px solid #E5E7EB', paddingRight: '16px' }}>
                     <span style={{ fontSize: '0.6563em', color: '#9CA3AF' }}>{edu.endDate}</span>
@@ -89,6 +89,24 @@ const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
               ))}
             </div>
           )}
+
+          {/* CUSTOM SECTIONS */}
+          {custom && custom.length > 0 && custom.map((sec: any) => (
+            <div key={sec.id} style={{ marginBottom: '28px' }}>
+              <LineaSec title={sec.sectionTitle || 'Custom'} accent={accent} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {sec.entries.filter((e: string) => e).map((entry: string, i: number) => (
+                  <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                      style={{ fontSize: '0.8125em', color: '#444', lineHeight: 1.85 }} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* SIDEBAR */}
@@ -96,11 +114,11 @@ const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
           {skills.length > 0 && (
             <div>
               <h3 style={{ fontSize: '0.625em', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.2em', color: accent, marginBottom: '14px', borderBottom: `2px solid ${accent}`, paddingBottom: '5px' }}>Skills</h3>
-              {skills.map(s => (
+              {skills.map((s: any) => (
                 <div key={s.id} style={{ marginBottom: '10px' }}>
                   <div style={{ fontSize: '0.75em', fontWeight: 600, color: '#111', marginBottom: '4px' }}>{s.name}</div>
                   <div style={{ display: 'flex', gap: '3px' }}>
-                    {[1,2,3,4,5].map(d => (
+                    {[1,2,3,4,5].map((d: number) => (
                       <div key={d} style={{ height: '3px', flex: 1, borderRadius: '2px', backgroundColor: d * 20 <= s.level ? accent : '#E5E7EB' }} />
                     ))}
                   </div>
@@ -111,7 +129,7 @@ const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
           {languages.length > 0 && (
             <div>
               <h3 style={{ fontSize: '0.625em', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.2em', color: accent, marginBottom: '12px', borderBottom: `2px solid ${accent}`, paddingBottom: '5px' }}>Languages</h3>
-              {languages.map(l => (
+              {languages.map((l: any) => (
                 <div key={l.id} style={{ marginBottom: '8px' }}>
                   <div style={{ fontSize: '0.75em', fontWeight: 600 }}>{l.language}</div>
                   <div style={{ fontSize: '0.6875em', color: '#9CA3AF' }}>{l.proficiency}</div>
@@ -122,7 +140,7 @@ const LineaTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
           {certifications.length > 0 && (
             <div>
               <h3 style={{ fontSize: '0.625em', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.2em', color: accent, marginBottom: '12px', borderBottom: `2px solid ${accent}`, paddingBottom: '5px' }}>Certifications</h3>
-              {certifications.map(c => (
+              {certifications.map((c: any) => (
                 <div key={c.id} style={{ marginBottom: '10px' }}>
                   <div style={{ fontSize: '0.75em', fontWeight: 700 }}>{c.name}</div>
                   {c.issuer && <div style={{ fontSize: '0.6875em', color: '#9CA3AF' }}>{c.issuer}</div>}

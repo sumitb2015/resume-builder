@@ -130,17 +130,21 @@ const OceanTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ r
           )}
 
           {/* Custom */}
-          {custom.map(section => (
+          {custom && custom.length > 0 && custom.map(section => (
             <div key={section.id}>
-              <OceanMainHeader title={section.sectionTitle} accent={accent} />
-              <ul style={{ paddingLeft: '0', margin: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <OceanMainHeader title={section.sectionTitle || 'Custom Section'} accent={accent} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {section.entries.filter(e => e).map((entry, i) => (
-                  <li key={i} style={{ display: 'flex', gap: '10px', fontSize: '0.7813em', color: text, lineHeight: 1.65, listStyle: 'none' }}>
-                    <span style={{ color: accent, fontWeight: 700, flexShrink: 0 }}>▸</span>
-                    <span>{entry}</span>
-                  </li>
+                  <div key={i} style={{ display: 'flex', gap: '10px', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                    <span style={{ color: accent, fontWeight: 700, flexShrink: 0, fontSize: '0.7813em' }}>▸</span>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${section.id}.entries.${i}`)}
+                      style={{ fontSize: '0.7813em', color: text, lineHeight: 1.65 }} 
+                    />
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           ))}
         </main>

@@ -3,7 +3,7 @@ import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
 const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const primary = config.colors.primary || '#09090B';
   const accent = config.colors.accent || '#6366F1';
 
@@ -93,6 +93,21 @@ const BoldTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ re
               ))}
             </BoldSec>
           )}
+          {custom && custom.length > 0 && custom.map(sec => (
+            <BoldSec key={sec.id} title={sec.sectionTitle || 'Custom Section'} accent={accent} primary={primary}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {sec.entries.filter(e => e).map((entry, i) => (
+                  <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                      style={{ fontSize: '0.7813em', color: '#3F3F46', lineHeight: 1.7 }} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </BoldSec>
+          ))}
         </div>
 
         {/* SIDEBAR */}

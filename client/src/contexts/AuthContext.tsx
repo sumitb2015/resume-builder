@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
 import {
   type User,
   onAuthStateChanged,
@@ -30,19 +29,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const syncedUids = new Set<string>();
+
     const unsubscribe = onAuthStateChanged(auth, async user => {
       if (user) {
-        try {
-          await api.syncUser(user.uid, user.email || undefined, user.displayName || undefined);
-          setCurrentUser(user);
-        } catch (err) {
-          console.error('Failed to sync user:', err);
-          await firebaseSignOut(auth);
-          setCurrentUser(null);
-          toast.error('Authentication failed — we couldn\'t sync your account. Please try again later.', { duration: 6000 });
+        // Sync user profile in background — don't block the UI
+        if (!syncedUids.has(user.uid)) {
+          api.syncUser(user.uid, user.email || undefined, user.displayName || undefined)
+            .then(() => {
+              syncedUids.add(user.uid);
+            })
+            .catch(err => {
+              console.error('Failed to sync user in background:', err);
+              // We don't sign out here anymore to avoid kicking users out due to transient network issues.
+              // The app will function in 'free' mode until the next successful sync.
+            });
         }
+        setCurrentUser(user);
       } else {
         setCurrentUser(null);
+        syncedUids.clear();
       }
       setLoading(false);
     });

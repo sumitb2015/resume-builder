@@ -3,7 +3,7 @@ import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
 const PikachuTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const primary = config.colors.primary;
   const accent = config.colors.accent;
   const textColor = config.colors.text || '#1f2937';
@@ -249,6 +249,23 @@ const PikachuTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
               ))}
             </section>
           )}
+
+          {custom && custom.length > 0 && custom.map((sec) => (
+            <section key={sec.id}>
+              <SectionTitle title={sec.sectionTitle || 'Custom Section'} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {sec.entries.filter(e => e).map((entry, i) => (
+                  <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                      style={{ fontSize: '10.5pt', lineHeight: 1.6 }} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
         </div>
       </div>
     </div>

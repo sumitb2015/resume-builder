@@ -3,7 +3,7 @@ import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
 const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const accent = config.colors.accent;
 
   return (
@@ -32,7 +32,11 @@ const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
       </header>
 
       {personal.summary && (
-        <RichContent html={personal.summary} style={{ marginBottom: '14px', fontSize: '0.7188em', lineHeight: 1.7, color: '#475569', borderLeft: `3px solid ${accent}`, paddingLeft: '10px' }} />
+        <RichContent 
+          html={personal.summary} 
+          isModified={config.modifiedFields?.includes('personal.summary')}
+          style={{ marginBottom: '14px', fontSize: '0.7188em', lineHeight: 1.7, color: '#475569', borderLeft: `3px solid ${accent}`, paddingLeft: '10px' }} 
+        />
       )}
 
       {experience.length > 0 && (
@@ -45,7 +49,14 @@ const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
               </div>
               {exp.company && <div style={{ fontSize: '0.6563em', color: accent, fontWeight: 600, marginBottom: '4px' }}>{exp.company}</div>}
               <ul style={{ paddingLeft: '12px', margin: 0 }}>
-                {exp.bullets.filter(b => b).map((b, i) => <li key={i} style={{ fontSize: '0.6875em', color: '#475569', lineHeight: 1.6, marginBottom: '2px' }}><RichContent html={b} /></li>)}
+                {exp.bullets.filter(b => b).map((b, i) => (
+                  <li key={i} style={{ fontSize: '0.6875em', color: '#475569', lineHeight: 1.6, marginBottom: '2px' }}>
+                    <RichContent 
+                      html={b} 
+                      isModified={config.modifiedFields?.includes(`experience.${exp.id}.bullets.${i}`)}
+                    />
+                  </li>
+                ))}
               </ul>
             </div>
           ))}
@@ -73,12 +84,32 @@ const CompactTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({
                     <span style={{ fontWeight: 700, fontSize: '0.7188em' }}>{p.title}</span>
                     {p.url && <span style={{ fontSize: '0.625em', color: accent }}>{p.url}</span>}
                   </div>
-                  {p.description && <RichContent html={p.description} style={{ fontSize: '0.6563em', color: '#64748B', margin: '2px 0' }} />}
+                  {p.description && (
+                    <RichContent 
+                      html={p.description} 
+                      isModified={config.modifiedFields?.includes(`projects.${p.id}.description`)}
+                      style={{ fontSize: '0.6563em', color: '#64748B', margin: '2px 0' }} 
+                    />
+                  )}
                   {p.tech.length > 0 && <div style={{ fontSize: '0.625em', color: '#94A3B8' }}>{p.tech.join(' · ')}</div>}
                 </div>
               ))}
             </CSection>
           )}
+          {custom && custom.length > 0 && custom.map(sec => (
+            <CSection key={sec.id} title={sec.sectionTitle || 'Custom'} accent={accent} config={config}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {sec.entries.filter(e => e).map((entry, i) => (
+                  <RichContent 
+                    key={i}
+                    html={entry} 
+                    isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                    style={{ fontSize: '0.6875em', color: '#475569', lineHeight: 1.6 }} 
+                  />
+                ))}
+              </div>
+            </CSection>
+          ))}
         </div>
         <div>
           {skills.length > 0 && (

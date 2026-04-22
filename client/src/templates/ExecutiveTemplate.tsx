@@ -3,7 +3,7 @@ import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
 const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const primary = config.colors.primary;
   const accent = config.colors.accent;
 
@@ -72,7 +72,7 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
               <div style={{ marginBottom: '28px' }}>
                 <ExecSectionTitle title="Professional Experience" primary={primary} accent={accent} config={config} />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
-                  {experience.map(exp => (
+                  {experience.map((exp: any) => (
                     <div key={exp.id}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '5px' }}>
                         <div>
@@ -86,9 +86,9 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
                           {exp.startDate}{(exp.startDate || exp.endDate) ? ' – ' : ''}{exp.isCurrent ? 'Present' : exp.endDate}
                         </span>
                       </div>
-                      {exp.bullets.filter(b => b).length > 0 && (
+                      {exp.bullets.filter((b: string) => b).length > 0 && (
                         <ul style={{ display: 'flex', flexDirection: 'column', gap: '5px', paddingLeft: '0', marginTop: '8px' }}>
-                          {exp.bullets.filter(b => b).map((bullet, i) => (
+                          {exp.bullets.filter((b: string) => b).map((bullet: string, i: number) => (
                             <li key={i} style={{ display: 'flex', gap: '10px', fontSize: '0.7813em', color: '#444', lineHeight: 1.7, listStyle: 'none' }}>
                               <span style={{ color: accent, flexShrink: 0, fontWeight: 700 }}>◆</span>
                               <RichContent html={bullet} />
@@ -107,7 +107,7 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
               <div style={{ marginBottom: '28px' }}>
                 <ExecSectionTitle title="Key Projects" primary={primary} accent={accent} config={config} />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  {projects.map(p => (
+                  {projects.map((p: any) => (
                     <div key={p.id}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                         <span style={{
@@ -125,6 +125,24 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
                 </div>
               </div>
             )}
+
+            {/* CUSTOM SECTIONS */}
+            {custom && custom.length > 0 && custom.map((sec: any) => (
+              <div key={sec.id} style={{ marginBottom: '28px' }}>
+                <ExecSectionTitle title={sec.sectionTitle || 'Additional Information'} primary={primary} accent={accent} config={config} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {sec.entries.filter((e: string) => e).map((entry: string, i: number) => (
+                    <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                      <RichContent 
+                        html={entry} 
+                        isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                        style={{ fontSize: '0.7813em', color: '#444', lineHeight: 1.7 }} 
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* RIGHT SIDEBAR */}
@@ -133,7 +151,7 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
             {education.length > 0 && (
               <div>
                 <ExecSectionTitle title="Education" primary={primary} accent={accent} config={config} />
-                {education.map(edu => (
+                {education.map((edu: any) => (
                   <div key={edu.id} style={{ marginBottom: '14px' }}>
                     <div style={{
                       fontFamily: config.fonts.heading,
@@ -155,7 +173,7 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
             {skills.length > 0 && (
               <div>
                 <ExecSectionTitle title="Core Expertise" primary={primary} accent={accent} config={config} />
-                {skills.map(s => (
+                {skills.map((s: any) => (
                   <div key={s.id} style={{ marginBottom: '10px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                       <span style={{ fontSize: '0.75em', fontWeight: 600, color: '#2a2a2a' }}>{s.name}</span>
@@ -172,7 +190,7 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
             {languages.length > 0 && (
               <div>
                 <ExecSectionTitle title="Languages" primary={primary} accent={accent} config={config} />
-                {languages.map(l => (
+                {languages.map((l: any) => (
                   <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7813em', lineHeight: 2 }}>
                     <span style={{ fontWeight: 600 }}>{l.language}</span>
                     <span style={{ color: '#888', fontSize: '0.75em' }}>{l.proficiency}</span>
@@ -185,7 +203,7 @@ const ExecutiveTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
             {certifications.length > 0 && (
               <div>
                 <ExecSectionTitle title="Certifications" primary={primary} accent={accent} config={config} />
-                {certifications.map(c => (
+                {certifications.map((c: any) => (
                   <div key={c.id} style={{ marginBottom: '10px', paddingBottom: '10px', borderBottom: '1px solid #EDE8DE' }}>
                     <div style={{ fontSize: '0.75em', fontWeight: 700, color: primary }}>{c.name}</div>
                     {c.issuer && <div style={{ fontSize: '0.6875em', color: '#888', marginTop: '1px' }}>{c.issuer}</div>}

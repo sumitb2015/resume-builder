@@ -1,9 +1,9 @@
 import React from 'react';
-import type { Resume } from '../shared/types';
+import type { Resume, TemplateConfig } from '../shared/types';
 import RichContent from './RichContent';
 
-const AtsTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+const AtsTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
 
   // ATS templates strictly use standard fonts and no complex layouts
   const fontStack = '"Arial", "Helvetica", sans-serif';
@@ -145,6 +145,26 @@ const AtsTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
           </div>
         </section>
       )}
+
+      {/* CUSTOM SECTIONS */}
+      {custom && custom.length > 0 && custom.map(sec => (
+        <section key={sec.id} style={{ marginBottom: '18px' }}>
+          <h2 style={{ fontSize: '11pt', fontWeight: 'bold', borderBottom: '1pt solid #000', marginBottom: '6px', textTransform: 'uppercase' }}>
+            {sec.sectionTitle || 'Custom Section'}
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {sec.entries.filter(e => e).map((entry, i) => (
+              <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                <RichContent 
+                  html={entry} 
+                  isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                  style={{ fontSize: '10pt' }} 
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 };

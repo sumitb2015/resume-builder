@@ -4,7 +4,7 @@ import RichContent from './RichContent';
 import { stripHtml } from '../lib/htmlUtils';
 
 const DeveloperTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = ({ resume, config }) => {
-  const { personal, experience, education, skills, certifications, languages, projects } = resume;
+  const { personal, experience, education, skills, certifications, languages, projects, custom } = resume;
   const accent = config.colors.accent || '#22D3EE';
   const primary = config.colors.primary || '#0D1117';
 
@@ -94,6 +94,23 @@ const DeveloperTemplate: React.FC<{ resume: Resume; config: TemplateConfig }> = 
               ))}
             </DevSection>
           )}
+
+          {/* CUSTOM SECTIONS */}
+          {custom && custom.length > 0 && custom.map(sec => (
+            <DevSection key={sec.id} title={sec.sectionTitle?.toLowerCase() || 'custom'} accent={accent}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {sec.entries.filter(e => e).map((entry, i) => (
+                  <div key={i} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                    <RichContent 
+                      html={entry} 
+                      isModified={config.modifiedFields?.includes(`custom.${sec.id}.entries.${i}`)}
+                      style={{ fontSize: '0.7813em', lineHeight: 1.6, color: '#475569' }} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </DevSection>
+          ))}
         </div>
 
         {/* SIDEBAR */}
