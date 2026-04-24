@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { ArrowLeft, Clock, Tag, ChevronRight, BookOpen, Share2, Search, X } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import NavBar from './NavBar';
 import FooterSection from './FooterSection';
 import { ARTICLES, tagColors, type Article } from './blogData';
@@ -15,7 +15,6 @@ interface Props {
 }
 
 const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile, initialArticleId }) => {
-  const navigate = useNavigate();
   const [activeArticle, setActiveArticle] = useState<Article | null>(() => {
     if (initialArticleId) {
       return ARTICLES.find(a => a.id === initialArticleId) || null;
@@ -49,13 +48,6 @@ const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile, initialArti
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  const handleArticleClick = (article: Article) => {
-    setActiveArticle(article);
-    navigate(`/blog/${article.id}`);
-    const container = document.querySelector('.landing-page');
-    if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
   const renderArticleList = () => (
     <>
@@ -361,7 +353,6 @@ return (
       onStart={onStart} 
       isBlogPage={true} 
       onBackToHome={onBack} 
-      onOpenBlog={() => navigate('/blog')}
       onShowProfile={onShowProfile}
       currentLabel={activeArticle?.title}
     />

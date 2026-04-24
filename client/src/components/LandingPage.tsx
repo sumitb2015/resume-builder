@@ -19,12 +19,11 @@ import type { Plan } from '../shared/constants';
 
 interface Props { 
   onStart: () => void;
-  onOpenBlog: () => void;
   onCheckout: (plan: Exclude<Plan, 'free'>, isAnnual: boolean) => void;
   onShowProfile: () => void;
 }
 
-const LandingPage: React.FC<Props> = ({ onStart, onOpenBlog, onCheckout, onShowProfile }) => {
+const LandingPage: React.FC<Props> = ({ onStart, onCheckout, onShowProfile }) => {
   return (
     <div className="landing-page">
       <SEO 
@@ -33,7 +32,7 @@ const LandingPage: React.FC<Props> = ({ onStart, onOpenBlog, onCheckout, onShowP
         keywords="best resume builder 2026, AI CV maker, online resume generator, free ATS resume checker, resume builder for freshers India, professional CV templates, Naukri resume format, LinkedIn resume builder, resume writing services, curriculum vitae maker, job application tools, smart resume builder, AspireAI"
         canonical="/"
       />
-      <NavBar onStart={onStart} onOpenBlog={onOpenBlog} onShowProfile={onShowProfile} />
+      <NavBar onStart={onStart} onShowProfile={onShowProfile} />
       <HeroSection onStart={onStart} />
       <LogosSection />
       <StatsSection />
@@ -43,7 +42,7 @@ const LandingPage: React.FC<Props> = ({ onStart, onOpenBlog, onCheckout, onShowP
       <HowItWorksSection />
       <PricingSection onStart={onStart} onCheckout={onCheckout} />
       <TestimonialsSection />
-      <BlogPreviewSection onOpenBlog={onOpenBlog} />
+      <BlogPreviewSection />
       <FaqSection />
       <SeoContentSection />
       <CtaSection onStart={onStart} />

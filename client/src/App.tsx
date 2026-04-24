@@ -212,7 +212,6 @@ function LandingPageWrapper() {
     <>
       <LandingPage 
         onStart={() => navigate('/hub')} 
-        onOpenBlog={() => navigate('/blog')} 
         onCheckout={(p, a) => navigate('/checkout', { state: { plan: p, annual: a } })}
         onShowProfile={() => setShowProfile(true)}
       />

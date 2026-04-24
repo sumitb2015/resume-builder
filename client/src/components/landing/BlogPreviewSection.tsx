@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { ARTICLES, tagColors } from './blogData';
 import { ArrowRight, Clock } from 'lucide-react';
 
-interface Props { onOpenBlog: () => void }
-
-const BlogPreviewSection: React.FC<Props> = ({ onOpenBlog }) => {
+const BlogPreviewSection: React.FC = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const latestArticles = ARTICLES.slice(0, 3);
 
@@ -37,21 +36,22 @@ const BlogPreviewSection: React.FC<Props> = ({ onOpenBlog }) => {
               Expert advice on resume writing, interview preparation, and navigating the modern job market.
             </p>
           </div>
-          <button
-            onClick={onOpenBlog}
+          <Link
+            to="/blog"
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               padding: '12px 24px', borderRadius: '12px',
               background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)',
               color: 'var(--color-ui-text)', fontSize: '14px', fontWeight: 600,
               cursor: 'pointer', transition: 'all 0.2s',
+              textDecoration: 'none',
             }}
             onMouseEnter={e => { e.currentTarget.style.background = 'var(--color-ui-surface-2)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
             onMouseLeave={e => { e.currentTarget.style.background = 'var(--color-ui-surface)'; e.currentTarget.style.transform = 'translateY(0)'; }}
           >
             Read All Articles
             <ArrowRight size={16} />
-          </button>
+          </Link>
         </div>
 
         <div style={{ 
@@ -60,14 +60,15 @@ const BlogPreviewSection: React.FC<Props> = ({ onOpenBlog }) => {
           gap: '24px' 
         }}>
           {latestArticles.map((article) => (
-            <div
+            <Link
               key={article.id}
-              onClick={onOpenBlog}
+              to={`/blog/${article.id}`}
               style={{
                 borderRadius: '20px', overflow: 'hidden',
                 background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)',
                 cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 display: 'flex', flexDirection: 'column',
+                textDecoration: 'none',
               }}
               onMouseEnter={e => {
                 e.currentTarget.style.transform = 'translateY(-8px)';
@@ -120,7 +121,7 @@ const BlogPreviewSection: React.FC<Props> = ({ onOpenBlog }) => {
                   <ArrowRight size={14} />
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

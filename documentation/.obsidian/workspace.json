@@ -84,10 +84,14 @@
             "id": "073500d7ab9f410d",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "type": "markdown",
+              "state": {
+                "file": "Resume Builder/AI-Workflow.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "AI-Workflow"
             }
           }
         ]
@@ -210,11 +214,11 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "d8525bbec7324f7f",
+  "active": "073500d7ab9f410d",
   "lastOpenFiles": [
+    "Resume Builder/Architecture-Overview.md",
     "Resume Builder/External-Tools.md",
     "Resume Builder/AI-Workflow.md",
-    "Resume Builder/Architecture-Overview.md",
     "Untitled.base",
     "Resume Builder",
     "Resume Builder/Backend-Services.md",

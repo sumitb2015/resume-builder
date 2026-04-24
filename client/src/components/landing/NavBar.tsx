@@ -11,7 +11,6 @@ interface Props {
   onStart: () => void;
   isBlogPage?: boolean;
   onBackToHome?: () => void;
-  onOpenBlog?: () => void;
   onShowProfile?: () => void;
   view?: any;
   currentLabel?: string;
@@ -24,7 +23,7 @@ const NAV_LINKS = [
   { label: 'Pricing', path: '/pricing', icon: <CreditCard size={16} /> },
 ];
 
-const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome: _onBackToHome, onOpenBlog, onShowProfile, currentLabel }) => {
+const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome: _onBackToHome, onShowProfile, currentLabel }) => {
   const navigate = useNavigate();
   const [scrollY, setScrollY] = useState(0);
   const [scrollPct, setScrollPct] = useState(0);
