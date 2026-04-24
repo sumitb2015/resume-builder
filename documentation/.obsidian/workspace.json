@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Resume Builder/Architecture-Overview.md",
+                "file": "Resume Builder/Backend-Services.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Architecture-Overview"
+              "title": "Backend-Services"
             }
           }
         ]
@@ -214,14 +214,14 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "073500d7ab9f410d",
+  "active": "d8525bbec7324f7f",
   "lastOpenFiles": [
-    "Resume Builder/Architecture-Overview.md",
     "Resume Builder/External-Tools.md",
+    "Resume Builder/Backend-Services.md",
+    "Resume Builder/Architecture-Overview.md",
     "Resume Builder/AI-Workflow.md",
     "Untitled.base",
     "Resume Builder",
-    "Resume Builder/Backend-Services.md",
     "Untitled.md",
     "Resume Builder/Frontend-Components.md",
     "Untitled 1.canvas",
