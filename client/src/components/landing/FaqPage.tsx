@@ -4,13 +4,13 @@ import FooterSection from './FooterSection';
 import FaqSection from './FaqSection';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import SEO from '../SEO';
 
 const FaqPage: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
 
   useEffect(() => {
-    document.title = 'Frequently Asked Questions — BespokeCV';
     window.scrollTo(0, 0);
   }, []);
 
@@ -24,6 +24,11 @@ const FaqPage: React.FC = () => {
 
   return (
     <div className="landing-page" style={{ background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <SEO 
+        title="Frequently Asked Questions"
+        description="Find answers to common questions about our AI resume builder, ATS optimization, pricing, and how BespokeCV can help you land your dream job."
+        canonical="/faq"
+      />
       <NavBar onStart={handleStart} onBackToHome={() => navigate('/')} />
       
       <main style={{ flex: 1, paddingTop: '40px' }}>

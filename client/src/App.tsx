@@ -1,7 +1,8 @@
 import { useState, lazy, Suspense, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { Toaster } from 'react-hot-toast';
+import { HelmetProvider } from 'react-helmet-async';
 
 // Layout & UI
 import DashboardLayout from './components/DashboardLayout';
@@ -228,6 +229,7 @@ function LandingPageWrapper() {
 
 function BlogPageWrapper() {
   const navigate = useNavigate();
+  const { articleId } = useParams();
   const { currentUser, signOut } = useAuth();
   const [showProfile, setShowProfile] = useState(false);
 
@@ -237,6 +239,7 @@ function BlogPageWrapper() {
         onBack={() => navigate('/')} 
         onStart={() => navigate('/hub')} 
         onShowProfile={() => setShowProfile(true)} 
+        initialArticleId={articleId}
       />
       {showProfile && currentUser && (
         <ProfileModal 
@@ -542,6 +545,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<LandingPageWrapper />} />
         <Route path="/blog" element={<BlogPageWrapper />} />
+        <Route path="/blog/:articleId" element={<BlogPageWrapper />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/about" element={<AboutPage />} />
@@ -576,18 +580,20 @@ function AppRoutes() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <ThemeProvider>
-        <AuthProvider>
-          <PlanProvider>
-            <ResumeProvider>
-              <AppRoutes />
-              <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
-            </ResumeProvider>
-          </PlanProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    </BrowserRouter>
+    <HelmetProvider>
+      <BrowserRouter>
+        <ThemeProvider>
+          <AuthProvider>
+            <PlanProvider>
+              <ResumeProvider>
+                <AppRoutes />
+                <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
+              </ResumeProvider>
+            </PlanProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </BrowserRouter>
+    </HelmetProvider>
   );
 }
 

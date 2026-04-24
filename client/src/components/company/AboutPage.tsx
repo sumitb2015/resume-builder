@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react';
 import { Zap, MapPin, Rocket, Heart, Users } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { templates } from '../../templates';
+import SEO from '../SEO';
 
 const h2Style: React.CSSProperties = { fontSize: '16px', fontWeight: 700, color: 'var(--color-ui-text)', marginBottom: '10px', marginTop: '28px' };
 const pStyle: React.CSSProperties = { fontSize: '14px', color: 'var(--color-ui-text-muted)', lineHeight: 1.8, marginBottom: '14px' };
 
 const AboutPage: React.FC = () => {
   useEffect(() => {
-    document.title = 'About Us — BespokeCV';
+    window.scrollTo(0, 0);
   }, []);
 
   const statCard = (icon: React.ReactNode, value: string, label: string) => (
@@ -23,20 +25,25 @@ const AboutPage: React.FC = () => {
 
   return (
     <div className="landing-page" style={{ minHeight: '100vh', background: 'var(--color-ui-bg)', padding: '48px 24px 80px' }}>
+      <SEO 
+        title="About Us"
+        description="Learn about BespokeCV, our mission to democratize career tools, and the team at AspireAI Solutions building the future of resume building."
+        canonical="/about"
+      />
       <div style={{ maxWidth: '720px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '48px' }}>
-          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
             <div style={{ width: '28px', height: '28px', background: 'linear-gradient(135deg, #6366F1, #A855F7)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Zap size={14} color="white" fill="white" />
             </div>
             <span style={{ fontSize: '16px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-ui-text)' }}>
               Bespoke<span style={{ color: '#818CF8' }}>CV</span>
             </span>
-          </a>
-          <a href="/" style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', textDecoration: 'underline' }}>
+          </Link>
+          <Link to="/" style={{ fontSize: '13px', color: 'var(--color-ui-text-muted)', textDecoration: 'underline' }}>
             ← Back to Home
-          </a>
+          </Link>
         </div>
 
         <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--color-ui-text)', letterSpacing: '-0.03em', marginBottom: '8px' }}>
@@ -129,7 +136,7 @@ const AboutPage: React.FC = () => {
         <p style={pStyle}>
           Have questions or feedback? We'd love to hear from you. Reach us at{' '}
           <a href="mailto:support@bespokecv.in" style={{ color: '#818CF8', textDecoration: 'none' }}>support@bespokecv.in</a>
-          {' '}or visit our <a href="/contact" style={{ color: '#818CF8', textDecoration: 'none' }}>Contact page</a>.
+          {' '}or visit our <Link to="/contact" style={{ color: '#818CF8', textDecoration: 'none' }}>Contact page</Link>.
         </p>
       </div>
     </div>

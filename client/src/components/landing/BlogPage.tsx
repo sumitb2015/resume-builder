@@ -1,18 +1,27 @@
 import React, { useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { ArrowLeft, Clock, Tag, ChevronRight, BookOpen, Share2, Search, X } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import NavBar from './NavBar';
 import FooterSection from './FooterSection';
 import { ARTICLES, tagColors, type Article } from './blogData';
+import SEO from '../SEO';
 
 interface Props {
   onBack: () => void;
   onStart: () => void;
   onShowProfile: () => void;
+  initialArticleId?: string;
 }
 
-const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile }) => {
-  const [activeArticle, setActiveArticle] = useState<Article | null>(null);
+const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile, initialArticleId }) => {
+  const navigate = useNavigate();
+  const [activeArticle, setActiveArticle] = useState<Article | null>(() => {
+    if (initialArticleId) {
+      return ARTICLES.find(a => a.id === initialArticleId) || null;
+    }
+    return null;
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
@@ -27,21 +36,35 @@ const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile }) => {
   }, [searchQuery]);
 
   React.useEffect(() => {
-    // Handle deep linking via ?article=id
-    const params = new URLSearchParams(window.location.search);
-    const articleId = params.get('article');
-    if (articleId) {
-      const article = ARTICLES.find(a => a.id === articleId);
+    if (initialArticleId) {
+      const article = ARTICLES.find(a => a.id === initialArticleId);
       if (article) setActiveArticle(article);
+    } else {
+      setActiveArticle(null);
     }
+  }, [initialArticleId]);
 
+  React.useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const handleArticleClick = (article: Article) => {
+    setActiveArticle(article);
+    navigate(`/blog/${article.id}`);
+    const container = document.querySelector('.landing-page');
+    if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const renderArticleList = () => (
     <>
+      <SEO 
+        title="Resume Tips & Career Insights Blog" 
+        description="Practical advice from industry experts to help you craft a resume that gets results, beat the ATS, and land your dream job."
+        keywords="resume tips 2026, career advice blog, ATS optimization strategy, how to write a resume, job search tips India, interview preparation guide, resume bullet point examples, career growth insights"
+        canonical="/blog"
+      />
       <div style={{ textAlign: 'center', padding: isMobile ? '30px 20px 20px' : '60px 24px 20px' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 12px', background: 'rgba(99,102,241,0.1)', borderRadius: '100px', color: '#818CF8', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '16px' }}>
           <BookOpen size={14} /> BespokeCV Blog
@@ -106,18 +129,15 @@ const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile }) => {
       {filteredArticles.length > 0 ? (
         <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 24px 80px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
           {filteredArticles.map((post) => (
-            <button
+            <Link
               key={post.id}
-              onClick={() => {
-                setActiveArticle(post);
-                const container = document.querySelector('.landing-page');
-                if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              to={`/blog/${post.id}`}
               style={{
                 display: 'flex', flexDirection: 'column', textAlign: 'left',
                 background: 'var(--color-ui-surface)', border: '1px solid var(--color-ui-border)',
                 borderRadius: '16px', padding: '28px', cursor: 'pointer',
                 transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                textDecoration: 'none',
               }}
               onMouseEnter={e => {
                 e.currentTarget.style.transform = 'translateY(-4px)';
@@ -161,7 +181,7 @@ const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile }) => {
                   Read Article <ChevronRight size={14} />
                 </span>
               </div>
-            </button>
+            </Link>
           ))}
         </div>
       ) : (
@@ -195,7 +215,7 @@ const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile }) => {
       if (!activeArticle) return null;
 
       const shareArticle = () => {
-        const url = `https://bespokecv.in/blog?article=${activeArticle.id}`;
+        const url = `https://bespokecv.in/blog/${activeArticle.id}`;
         if (navigator.share) {
           navigator.share({
             title: activeArticle.title,
@@ -210,6 +230,13 @@ const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile }) => {
 
       return (
         <div style={{ maxWidth: '720px', margin: '0 auto', padding: '40px 24px 80px' }}>
+          <SEO 
+            title={activeArticle.title} 
+            description={activeArticle.excerpt}
+            canonical={`/blog/${activeArticle.id}`}
+            ogType="article"
+          />
+          
           {/* Structured Data for BlogPosting */}
           <script type="application/ld+json">
             {JSON.stringify({
@@ -232,25 +259,26 @@ const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile }) => {
               },
               "mainEntityOfPage": {
                 "@type": "WebPage",
-                "@id": `https://bespokecv.in/blog?article=${activeArticle.id}`
+                "@id": `https://bespokecv.in/blog/${activeArticle.id}`
               }
             })}
           </script>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
-            <button
-              onClick={() => setActiveArticle(null)}
+            <Link
+              to="/blog"
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: '6px',
                 background: 'transparent', border: 'none', color: 'var(--color-ui-text-muted)',
                 fontSize: '14px', fontWeight: 600, cursor: 'pointer', padding: '8px 0',
-                transition: 'color 0.2s'
+                transition: 'color 0.2s',
+                textDecoration: 'none',
               }}
               onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-ui-text)')}
               onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-ui-text-muted)')}
             >
               <ArrowLeft size={16} /> Back to Blog
-            </button>
+            </Link>
 
             <button
               onClick={shareArticle}
@@ -324,15 +352,16 @@ const BlogPage: React.FC<Props> = ({ onBack, onStart, onShowProfile }) => {
             </button>
         </div>
       </div>
-    );
+      );
   };
+
 return (
   <div className="landing-page" style={{ background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column' }}>
     <NavBar 
       onStart={onStart} 
       isBlogPage={true} 
       onBackToHome={onBack} 
-      onOpenBlog={() => setActiveArticle(null)}
+      onOpenBlog={() => navigate('/blog')}
       onShowProfile={onShowProfile}
       currentLabel={activeArticle?.title}
     />

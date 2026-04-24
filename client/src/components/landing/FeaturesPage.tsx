@@ -6,13 +6,13 @@ import AdvancedFeaturesSection from './AdvancedFeaturesSection';
 import SeoContentSection from './SeoContentSection';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import SEO from '../SEO';
 
 const FeaturesPage: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
 
   useEffect(() => {
-    document.title = 'AI Resume Features — BespokeCV';
     window.scrollTo(0, 0);
   }, []);
 
@@ -26,6 +26,12 @@ const FeaturesPage: React.FC = () => {
 
   return (
     <div className="landing-page" style={{ background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <SEO 
+        title="AI Resume Features & Tools"
+        description="Explore our AI-powered career tools: Bullet Writer, Job Tailor, ATS Score, and more. Everything you need to beat the ATS."
+        keywords="AI resume bullet generator, resume keyword optimizer, ATS score checker, job description resume matcher, AI cover letter generator, LinkedIn profile to resume, resume import PDF, smart resume fit, resume rephraser AI"
+        canonical="/features"
+      />
       <NavBar onStart={handleStart} onBackToHome={() => navigate('/')} />
       
       <main style={{ flex: 1, paddingTop: '40px' }}>

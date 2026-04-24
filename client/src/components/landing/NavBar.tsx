@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Zap, LogOut, Sun, Moon, Layout, Sparkles, CreditCard, BookOpen, Menu, X as CloseIcon, Monitor } from 'lucide-react';
 import { scrollToSection } from '../../lib/scroll';
 import { useAuth } from '../../contexts/AuthContext';
@@ -82,6 +82,7 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome: _onBackToH
     cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     letterSpacing: '-0.01em',
+    textDecoration: 'none',
   };
 
   const handleLogoClick = () => {
@@ -90,11 +91,6 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome: _onBackToH
     } else {
       scrollToSection('hero');
     }
-    setMobileMenuOpen(false);
-  };
-
-  const handleNavClick = (path: string) => {
-    navigate(path);
     setMobileMenuOpen(false);
   };
 
@@ -153,9 +149,9 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome: _onBackToH
               />            ) : (
               <>
                 {NAV_LINKS.map(link => (
-                  <button
+                  <Link
                     key={link.label}
-                    onClick={() => handleNavClick(link.path)}
+                    to={link.path}
                     style={linkBtnStyle}
                     onMouseEnter={e => { 
                       e.currentTarget.style.color = 'var(--color-ui-text)'; 
@@ -172,10 +168,10 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome: _onBackToH
                   >
                     <span style={{ opacity: 0.7 }}>{link.icon}</span>
                     {link.label}
-                  </button>
+                  </Link>
                 ))}
-                <button
-                  onClick={onOpenBlog}
+                <Link
+                  to="/blog"
                   style={linkBtnStyle}
                   onMouseEnter={e => { 
                     e.currentTarget.style.color = 'var(--color-ui-text)'; 
@@ -192,7 +188,7 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome: _onBackToH
                 >
                   <span style={{ opacity: 0.7 }}><BookOpen size={15} /></span>
                   Blog
-                </button>
+                </Link>
               </>
             )}
           </div>
@@ -318,9 +314,10 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome: _onBackToH
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {/* Nav Links */}
               {!isBlogPage && NAV_LINKS.map(link => (
-                <button
+                <Link
                   key={link.label}
-                  onClick={() => handleNavClick(link.path)}
+                  to={link.path}
+                  onClick={() => setMobileMenuOpen(false)}
                   style={{
                     ...linkBtnStyle, width: '100%', padding: '12px 16px',
                     background: 'var(--color-ui-surface-2)', borderRadius: '12px',
@@ -331,12 +328,13 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome: _onBackToH
                 >
                   <span style={{ color: 'var(--color-ui-accent)', display: 'flex' }}>{link.icon}</span>
                   {link.label}
-                </button>
+                </Link>
               ))}
               
               {/* Blog Link */}
-              <button
-                onClick={() => { onOpenBlog?.(); setMobileMenuOpen(false); }}
+              <Link
+                to="/blog"
+                onClick={() => setMobileMenuOpen(false)}
                 style={{
                   ...linkBtnStyle, width: '100%', padding: '12px 16px',
                   background: 'var(--color-ui-surface-2)', borderRadius: '12px',
@@ -347,7 +345,7 @@ const NavBar: React.FC<Props> = ({ onStart, isBlogPage, onBackToHome: _onBackToH
               >
                 <span style={{ color: 'var(--color-ui-accent)', display: 'flex' }}><BookOpen size={16} /></span>
                 Blog
-              </button>
+              </Link>
             </div>
 
             <div style={{ height: '1px', background: 'var(--color-ui-border)', margin: '12px 0' }} />

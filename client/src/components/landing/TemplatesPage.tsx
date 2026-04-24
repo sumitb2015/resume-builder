@@ -4,13 +4,13 @@ import FooterSection from './FooterSection';
 import TemplateShowcase from './TemplateShowcase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import SEO from '../SEO';
 
 const TemplatesPage: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
 
   useEffect(() => {
-    document.title = 'Resume Templates — BespokeCV';
     window.scrollTo(0, 0);
   }, []);
 
@@ -24,6 +24,12 @@ const TemplatesPage: React.FC = () => {
 
   return (
     <div className="landing-page" style={{ background: 'var(--color-ui-bg)', display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <SEO 
+        title="Professional Resume Templates"
+        description="Choose from 40+ professional, modern, and ATS-optimized resume templates designed to get you noticed by top employers."
+        keywords="ATS friendly resume templates, modern resume formats 2026, professional CV designs, minimalist resume templates, creative CV layouts, executive resume formats, fresher resume templates, engineering resume examples, sales resume templates, marketing CV designs"
+        canonical="/templates"
+      />
       <NavBar onStart={handleStart} onBackToHome={() => navigate('/')} />
       
       <main style={{ flex: 1, paddingTop: '40px' }}>

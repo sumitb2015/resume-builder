@@ -14,6 +14,7 @@ import FaqSection from './landing/FaqSection';
 import SeoContentSection from './landing/SeoContentSection';
 import CtaSection from './landing/CtaSection';
 import FooterSection from './landing/FooterSection';
+import SEO from './SEO';
 import type { Plan } from '../shared/constants';
 
 interface Props { 
@@ -26,6 +27,12 @@ interface Props {
 const LandingPage: React.FC<Props> = ({ onStart, onOpenBlog, onCheckout, onShowProfile }) => {
   return (
     <div className="landing-page">
+      <SEO 
+        title="AI-Powered Resume Builder | ATS-Optimized"
+        description="Build ATS-optimized resumes in minutes with AI. 40+ professional templates, AI writing suggestions, and PDF export. Trusted by 50,000+ job seekers."
+        keywords="best resume builder 2026, AI CV maker, online resume generator, free ATS resume checker, resume builder for freshers India, professional CV templates, Naukri resume format, LinkedIn resume builder, resume writing services, curriculum vitae maker, job application tools, smart resume builder, AspireAI"
+        canonical="/"
+      />
       <NavBar onStart={onStart} onOpenBlog={onOpenBlog} onShowProfile={onShowProfile} />
       <HeroSection onStart={onStart} />
       <LogosSection />
