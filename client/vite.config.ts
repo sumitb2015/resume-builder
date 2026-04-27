@@ -21,8 +21,9 @@ export default defineConfig({
       renderer: '@prerenderer/renderer-puppeteer',
       rendererOptions: {
         maxConcurrentRoutes: 1,
-        renderAfterTime: 3000,
-        headless: true
+        renderAfterTime: 5000,
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
       },
       postProcess(renderedRoute) {
         // Replace all script tags with async for better performance on prerendered pages
