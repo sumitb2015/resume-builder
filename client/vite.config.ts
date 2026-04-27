@@ -21,9 +21,9 @@ export default defineConfig(async () => {
     timeout: 60000,
     // @ts-ignore
     launchOptions: isVercel && chromium ? {
-      headless: chromium.headless,
-      args: chromium.args,
-      executablePath: await chromium.executablePath(),
+      headless: (chromium as any).headless,
+      args: (chromium as any).args,
+      executablePath: await (chromium as any).executablePath(),
     } : {
       headless: true,
       args: [
