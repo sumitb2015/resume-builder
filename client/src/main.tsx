@@ -32,3 +32,6 @@ if (container.hasChildNodes()) {
   );
 }
 
+// Dispatch event for prerenderer
+document.dispatchEvent(new Event('render-event'));
+
