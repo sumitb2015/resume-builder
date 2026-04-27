@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import prerender from '@prerenderer/rollup-plugin'
+import Renderer from '@prerenderer/renderer-puppeteer'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -18,13 +19,18 @@ export default defineConfig({
         '/contact',
         '/blog'
       ],
-      renderer: '@prerenderer/renderer-puppeteer',
-      rendererOptions: {
+      renderer: new Renderer({
         maxConcurrentRoutes: 1,
-        renderAfterTime: 5000,
+        renderAfterTime: 10000,
         headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-      },
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-gpu',
+          '--single-process'
+        ]
+      }),
       postProcess(renderedRoute) {
         // Replace all script tags with async for better performance on prerendered pages
         renderedRoute.html = renderedRoute.html.replace(
