@@ -39,31 +39,33 @@ export default defineConfig(async () => {
   return {
     plugins: [
       react(),
-      prerender({
-        routes: [
-          '/',
-          '/pricing',
-          '/templates',
-          '/features',
-          '/faq',
-          '/about',
-          '/contact',
-          '/blog'
-        ],
-        renderer: new Renderer(rendererConfig),
-        postProcess(renderedRoute) {
-          // Replace all script tags with async for better performance on prerendered pages
-          renderedRoute.html = renderedRoute.html.replace(
-            /<script\b[^>]*>([\s\S]*?)<\/script>/g,
-            (match) => {
-              if (match.includes('src=')) {
-                return match.replace('<script', '<script async');
+      ...(process.env.SKIP_PRERENDER === 'true' ? [] : [
+        prerender({
+          routes: [
+            '/',
+            '/pricing',
+            '/templates',
+            '/features',
+            '/faq',
+            '/about',
+            '/contact',
+            '/blog'
+          ],
+          renderer: new Renderer(rendererConfig),
+          postProcess(renderedRoute) {
+            // Replace all script tags with async for better performance on prerendered pages
+            renderedRoute.html = renderedRoute.html.replace(
+              /<script\b[^>]*>([\s\S]*?)<\/script>/g,
+              (match) => {
+                if (match.includes('src=')) {
+                  return match.replace('<script', '<script async');
+                }
+                return match;
               }
-              return match;
-            }
-          );
-        }
-      })
+            );
+          }
+        })
+      ])
     ],
     resolve: {
       alias: {
