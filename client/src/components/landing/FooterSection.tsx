@@ -26,7 +26,7 @@ const FooterSection: React.FC = () => {
   };
 
   return (
-    <footer style={{ borderTop: '1px solid var(--color-ui-border)', padding: isMobile ? '48px 20px' : '72px 48px 48px' }}>
+    <footer id="landing-finished" style={{ borderTop: '1px solid var(--color-ui-border)', padding: isMobile ? '48px 20px' : '72px 48px 48px' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <div style={{ 
           display: 'grid', 

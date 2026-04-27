@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate, usePa
 import { createPortal } from 'react-dom';
 import { Toaster } from 'react-hot-toast';
 import { HelmetProvider } from 'react-helmet-async';
+import { Analytics } from "@vercel/analytics/react";
 
 // Layout & UI
 import DashboardLayout from './components/DashboardLayout';
@@ -587,6 +588,7 @@ function App() {
               <ResumeProvider>
                 <AppRoutes />
                 <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
+                <Analytics />
               </ResumeProvider>
             </PlanProvider>
           </AuthProvider>
